@@ -28,6 +28,8 @@ print "Verifying idbhost symlinks....\n"
 if not os.path.exists('includes'):
     os.mkdir('includes')
     os.symlink('../idbhost/includes/idbhost.py', 'includes/idbhost.py')
+    os.symlink('../idbhost/includes/common.py', 'bin/common.py')
 else:
     os.symlink('../idbhost/includes/idbhost.py', 'includes/idbhost.py')
+    os.symlink('../idbhost/includes/common.py', 'bin/common.py')
     
