@@ -25,7 +25,7 @@ else:
 
 if not os.path.exists('includes'):
     os.mkdir('includes')
-    os.symlink('idbhost/includes/idbhosts.py', 'includes/idbhosts.py')
+    os.symlink('../idbhost/includes/idbhost.py', 'includes/idbhost.py')
 else:
-    os.symlink('idbhost/includes/idbhosts.py', 'includes/idbhosts.py')
+    os.symlink('../idbhost/includes/idbhost.py', 'includes/idbhost.py')
     
