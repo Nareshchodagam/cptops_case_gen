@@ -7,6 +7,7 @@ Case Gen environment setup script.
 """
 import subprocess
 import os
+import sys
 
 activate_cmd = "git submodule init"
 update_cmd = "git submodule update"
