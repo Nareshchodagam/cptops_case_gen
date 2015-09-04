@@ -15,14 +15,15 @@ if os.getcwd() != os.environ['HOME'] + "/git/cptops_case_gen":
     print "Current working directory should be " + os.environ['HOME'] + "/git/cptops_case_gen"
     sys.exit(1)
 else:
-    print "Activating submodule and refreshing...."
+    print "Activating submodule and refreshing....\n"
     try:
         subprocess.check_call(activate_cmd.split())
         subprocess.check_call(update_cmd.split())
     except subprocess.CalledProcessError:
         print "Submodule update failed."
         sys.exit(1)
-
+        
+print "Verifying idbhost symlinks....\n"
 if not os.path.exists('includes'):
     os.mkdir('includes')
     os.symlink('../idbhost/includes/idbhost.py', 'includes/idbhost.py')
