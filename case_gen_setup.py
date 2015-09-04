@@ -24,7 +24,7 @@ else:
         sys.exit(1)
 
 if not os.path.exists('includes'):
-    os.makedir('includes')
+    os.mkdir('includes')
     os.symlink('idbhost/includes/idbhosts.py', 'includes/idbhosts.py')
 else:
     os.symlink('idbhost/includes/idbhosts.py', 'includes/idbhosts.py')
