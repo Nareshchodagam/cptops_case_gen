@@ -1,0 +1,20 @@
+- create a local remote_transfer directory
+
+Exec: mkdir -p ~/releaserunner/remote_transfer
+
+- Get the remote scripts:
+Exec: svn export svn://vc-phx/subversion/jumpstart/common/solaris-and-linux/sysfiles/system_update.sh ~/releaserunner/remote_transfer/system_update.sh
+Exec: cp /opt/compute_deploy/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
+Exec: cp /opt/compute_deploy/bin/validate_rh.py  ~/releaserunner/remote_transfer/validate_rh.py
+Exec: cp /opt/compute_deploy/bin/common.py  ~/releaserunner/remote_transfer/common.py
+
+-Get the local scripts:
+
+Exec: cp /opt/compute_deploy/bin/common.py  ~/common.py
+Exec: cp /opt/compute_deploy/bin/nagios_monitor.py  ~/nagios_monitor.py
+Exec: cp /opt/compute_deploy/includes/idbhost.py  ~/idbhost.py
+Exec: cp /opt/compute_deploy/bin/check_reconnect.py  ~/check_reconnect.py
+
+- Validate that all the hosts need to be patched and are running the correct version
+
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-splunk -device_role v_ROLE -c sudo_cmd -m "./remote_transfer/validate_rh.py -k 2.6.32-504.12.2.el6.x86_64 -r 6.6" -auto2 -threads

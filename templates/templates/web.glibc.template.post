@@ -1,0 +1,3 @@
+Manual: Engage NetEng to re-add hosts to the GSLB pool (This is not applicable in SJL)
+
+Exec: echo "Case v_CASENUM ghost patching completed"

@@ -1,16 +1,3 @@
-- create a local remote_transfer directory
-
-Exec: mkdir -p ~/releaserunner/remote_transfer
-
-- Get the remote scripts:
-Exec: svn export svn://vc-asg/subversion/jumpstart/common/solaris-and-linux/sysfiles/system_update.sh ~/releaserunner/remote_transfer/system_update.sh
-Exec: cp /opt/compute_deploy/bin/validate_rh.py  ~/releaserunner/remote_transfer/validate_rh.py
-Exec: cp /opt/compute_deploy/bin/common.py  ~/releaserunner/remote_transfer/common.py
-Exec: cp /opt/compute_deploy/bin/manage_bootdevice.py  ~/releaserunner/remote_transfer/manage_bootdevice.py
-
-
-
-
 BEGIN_DC: asg
 
 RR based commands
@@ -44,4 +31,3 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7  /opt/compute_deploy/bin/nagios_mo
 Exec: echo "Host shared-apputil1-1-asg RHEL6u6 patching completed"
 
 END_DC: asg
-
