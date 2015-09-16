@@ -26,11 +26,8 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/hp_dac_
 -Reboot the Host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
 
--Wait 3 minutes for the hosts to reboot (remove after fixing login issue)
-Exec: sleep 180
-
 - Wait for Host to Boot Up
-Exec: ~/check_reconnect.py -H v_HOSTS
+Exec: ~/check_reconnect.py -d 300 -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_hp_dac_fw.py -d 6.34" -threads -auto2
