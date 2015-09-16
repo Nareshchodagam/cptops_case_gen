@@ -1,3 +1,0 @@
-Manual: Engage NetEng to re-add hosts to the GSLB pool (This is not applicable in SJL)
-
-Exec: echo "Case for public web v_DATACENTER 6u6 patching completed"
