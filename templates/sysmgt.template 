@@ -1,0 +1,29 @@
+RR based commands
+-Copy scripts to the target host
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+
+-Validate if host require update 
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_rh2.py -c current-6" -threads -auto2
+
+-set boot device
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 
+
+-Disable monitoring on appropriate ops-monitor host
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable -m ops-monitor-v_DATACENTER
+
+-Update host to RHEL6u6
+release_runner.pl -forced_host v_HOSTS -c cmd -m "./remote_transfer/system_update.sh -p" -threads -auto2
+
+-Reboot the host
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
+
+-Check the host is online
+Exec: ~/check_reconnect.py -H v_HOSTS
+
+-Validate RHEL release version
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_rh2.py -c current-6" -threads -auto2
+
+-Enable monitoring on appropriate ops-monitor host
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable -m ops-monitor_v_DATACENTER
+
+Exec: echo "Host v_HOSTS RHEL6u6 patching completed"
