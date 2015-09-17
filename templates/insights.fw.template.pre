@@ -2,12 +2,12 @@
 Exec: mkdir -p ~/releaserunner/remote_transfer
 
 - Get the remote scripts:
-Exec: cp /opt/compute_deploy/bin/common.py  ~/releaserunner/remote_transfer/common.py
-Exec: cp /opt/compute_deploy/bin/hp_dac_update.sh  ~/releaserunner/remote_transfer/hp_dac_update.sh
-Exec: cp /opt/compute_deploy/bin/validate_hp_dac_fw.py  ~/releaserunner/remote_transfer/validate_hp_dac_fw.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py  ~/releaserunner/remote_transfer/common.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/hp_dac_update.sh  ~/releaserunner/remote_transfer/hp_dac_update.sh
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/validate_hp_dac_fw.py  ~/releaserunner/remote_transfer/validate_hp_dac_fw.py
 
 - Get the local update scripts:
-Exec: cp /opt/compute_deploy/bin/common.py  ~/common.py
-Exec: cp /opt/compute_deploy/bin/check_reconnect.py  ~/check_reconnect.py
-Exec: cp /opt/compute_deploy/bin/nagios_monitor.py  ~/nagios_monitor.py
-Exec: cp /opt/compute_deploy/includes/idbhost.py  ~/idbhost.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py  ~/common.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/check_reconnect.py  ~/check_reconnect.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_monitor.py  ~/nagios_monitor.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/idbhost.py  ~/idbhost.py
