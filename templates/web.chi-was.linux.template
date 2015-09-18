@@ -8,7 +8,7 @@ Exec: for i in $(echo public-webdb1-1-v_DATACENTER,public-webdb2-1-v_DATACENTER,
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
 - Validate the host needs to be patched
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_rh.py -k 2.6.32-504.12.2.el6.x86_64 -r 6.6" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ../includes/valid_versions.json" -threads -auto2
 
 -set boot device
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
@@ -41,7 +41,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
 Exec: ~/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_rh.py -k 2.6.32-504.12.2.el6.x86_64 -r 6.6 -b 900 -u" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ../includes/valid_versions.json -u" -threads -auto2
 
 - start DBs
 Manual: Engage DBEng to bring the databases up on public-webdb1-1-v_DATACENTER and public-webdb2-1-v_DATACENTER
