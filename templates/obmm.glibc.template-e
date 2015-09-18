@@ -1,0 +1,53 @@
+All actions take place on the release host using packaged release runner. Call KZ via
+
+katzmeow.pl --case v_CASENUM --impl
+
+
+v_CLUSTER
+
+- set your DC env
+Exec: DC=v_DATACENTER
+
+
+- create a local remote_transfer directory
+
+mkdir -p ~/releaserunner/remote_transfer
+
+- the get the update script:
+cd ~/releaserunner/remote_transfer
+ svn export svn://vc-v_DATACENTER/subversion/tools/dcc/update_glibc.sh
+
+RR based commands
+-Copy remote scripts to the target hosts
+
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+
+-disable monitor
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product obmm -c disable_monitor -host v_HOSTS -pkging -threads
+
+- Stop the running application
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product obmm -c stop_server -pkging -threads -host v_HOSTS
+
+- Execute the update script
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/update_glibc.sh" -threads -auto2
+
+- Reboot the host
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
+
+- Check the host is online
+Exec: /home/paulf/check_reconnect.py -H v_HOSTS
+
+- Verify glibc versions
+release_runner.pl -forced_host v_HOSTS -c cmd -m "rpm -qa | grep glibc; rpm -qa | grep nscd" -threads -auto2
+
+- Start the application
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product obmm -c start_server -pkging -threads -host v_HOSTS
+
+- Verify service
+Exec: wget http://v_HOSTS.ops.sfdc.net:8088/services/Soap/o/OutboundChecker
+
+- Patchset completed comment
+Exec: echo "host v_HOSTS patching completed"
+
+
+
