@@ -5,9 +5,6 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 -Validate if host require update 
 release_runner.pl -forced_host v_HOSTS -c sudo cmd -m "./remote_transfer/validate_rh.py -k 2.6.32-504.12.2.el6.x86_64 -r 6.6 -u " -threads -auto2
 
--Disable monitoring on appropriate ops-monitor host
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable 
-
 -Update host to RHEL6u6
 release_runner.pl -forced_host v_HOSTS -c cmd -m "./remote_transfer/system_update.sh -p" -threads -auto2
 
@@ -15,12 +12,9 @@ release_runner.pl -forced_host v_HOSTS -c cmd -m "./remote_transfer/system_updat
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
 
 -Check the host is online
-Exec: /home/paulf/check_reconnect.py -H v_HOSTS
+Exec: ~/check_reconnect.py -H v_HOSTS
 
 -Validate RHEL release version
 release_runner.pl -forced_host v_HOSTS -c cmd -m "./remote_transfer/validate_rh.py -k 2.6.32-504.12.2.el6.x86_64 -r 6.6 -u " -threads -auto2
-
--Enable monitoring on appropriate ops-monitor host
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable 
 
 Exec: echo "Host v_HOSTS RHEL6u6 patching completed"
