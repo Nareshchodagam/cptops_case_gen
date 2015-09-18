@@ -9,7 +9,7 @@ v_CLUSTER
 Exec: DC=v_DATACENTER
 
 RR based commands
-- copy it up to the target host
+-Copy remote scripts to the target hosts
 
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
@@ -22,13 +22,13 @@ release_runner.pl -c disable_host_monitor -forced_host v_HOSTS -forced_monitor_h
 - remove from pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role proxy -host v_HOSTS -c remove_from_pool -auto2
 
--stop app
+- Stop the running application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role proxy -host v_HOSTS -c stop_server -auto2
 
-- stop splunk
+- Stop Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role proxy -host v_HOSTS -c stop_server -auto2
 
-- Execute the  update script:
+- Execute the update script
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/update_glibc.sh" -threads -auto2
 
 - Reboot the host
@@ -40,20 +40,20 @@ Exec: /home/paulf/check_reconnect.py -H v_HOSTS
 - Verify glibc versions
 release_runner.pl -forced_host v_HOSTS -c cmd -m "rpm -qa | grep glibc; rpm -qa | grep nscd" -threads -auto2
 
--start app
+- Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role proxy -host v_HOSTS -c start_server -auto2
 
 - validate the max file descriptors as squid startup can be problematic target is 65k if it fails do a stop and start to restart it.
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/bin/squidclient -p 8084 mgr:info | grep 'file descrip'|grep -i max" -auto2
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/bin/squidclient -p 8085 mgr:info | grep 'file descrip'|grep -i max" -auto2
 
-- start splunk
+- Start Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role proxy -host v_HOSTS -c start_server -auto2
 
 - add to pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role proxy -host v_HOSTS -c add_to_pool -auto2
 
-- enable monitoring
+- Enable nagios monitoring
 release_runner.pl -c enable_host_monitor -forced_host v_HOSTS -forced_monitor_host v_CLUSTER-monitor-v_DATACENTER.ops.sfdc.net -threads -auto2
 
 -Validate hosts are in pool and no issues with the pool

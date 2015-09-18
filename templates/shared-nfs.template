@@ -22,7 +22,7 @@ release_runner.pl -forced_host "v_HOSTS" -force_update_bootstrap -c sudo_cmd -m 
 -Before starting get snapshot of current hosts connected via netstat
 Exec: ~/genSummary.py -H v_HOSTS -c NETSTAT_NFS -i | tee ~/kt_remountcheck
 
--disable monitoring on appropriate ops-monitor host
+- Disable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable 
  
 -disable nfs on server  then check to see that the host is no longer sharing
@@ -46,7 +46,7 @@ Manual: Confirm there are no connections
 -pre-emptive reboot before we make a change
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/sbin/reboot" -threads -auto2
 
--wait for host to come up
+- Wait for the hosts to boot up
 Exec: ~/check_reconnect.py -H v_HOSTS
 
 -run the patch presuming host comes up clean
@@ -58,7 +58,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 -With the host updated reboot
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/sbin/reboot" -threads -auto2
 
--wait for host to come up
+- Wait for the hosts to boot up
 Exec: ~/check_reconnect.py -H v_HOSTS
 
 -check host updated successfully
@@ -119,7 +119,7 @@ release_runner.pl -forced_host "$(~/remountlist.sh )" -force_update_bootstrap -c
 Exec: ~/genSummary.py -H v_HOSTS -c netstat_nfs
 
 
--enable monitoring on appropriate ops-monitor host
+- Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable 
 
 - Patchset completed comment
