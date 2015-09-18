@@ -1,10 +1,8 @@
-RR based commands
--Copy remote scripts to the target hosts
-
+- Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
 - Validate the host needs to be patched
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ../includes/valid_versions.json" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f valid_versions.json" -threads -auto2
 
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
@@ -15,10 +13,10 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product i
 - Disable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
--disable monitoring on entire cluster (to cover pulse test)
+- Disable monitoring on entire cluster (to cover pulse test)
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices,insights-redis -c disable_monitor -auto2 -threads -g 1,2,3,4,5,6
 
--Remove from pool
+- Remove from pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices -host v_HOSTS -c remove_from_pool -threads -auto2
 
 - Stop the running application
@@ -37,7 +35,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
 Exec: ~/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ../includes/valid_versions.json -u" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f valid_versions.json -u" -threads -auto2
 
 - Start Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -threads -auto2
@@ -45,13 +43,13 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 - Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices -host v_HOSTS -c start_server -threads -auto2
 
--Add to pool
+- Add to pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices -host v_HOSTS -c add_to_pool -threads -auto2
 
 - Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
 
--enable monitoring on entire cluster (to cover pulse test)
+- Enable monitoring on entire cluster (to cover pulse test)
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices,insights-redis -c enable_monitor -auto2 -threads -g 1,2,3,4,5,6
 
 Exec: echo "Host system patching completed"
