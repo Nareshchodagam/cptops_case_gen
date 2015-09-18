@@ -4,13 +4,13 @@ Exec: mkdir -p ~/releaserunner/remote_transfer
 
 - Get the remote scripts:
 Exec: svn export svn://vc-v_DATACENTER/subversion/jumpstart/common/solaris-and-linux/sysfiles/system_update.sh ~/releaserunner/remote_transfer/system_update.sh
-Exec: cp /opt/compute_deploy/bin/validate_rh.py ~/releaserunner/remote_transfer/validate_rh.py
-Exec: cp /opt/compute_deploy/bin/common.py ~/releaserunner/remote_transfer/common.py
-Exec: cp /opt/compute_deploy/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/validate_rh.py ~/releaserunner/remote_transfer/validate_rh.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py ~/releaserunner/remote_transfer/common.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
 
 - Get the local update scripts:
-Exec: cp /opt/compute_deploy/includes/idbhost.py ~/idbhost.py
-Exec: cp /opt/compute_deploy/bin/common.py ~/common.py
-Exec: cp /opt/compute_deploy/bin/check_reconnect.py ~/check_reconnect.py
-Exec: cp /opt/compute_deploy/bin/nagios_monitor.py ~/nagios_monitor.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/idbhost.py ~/idbhost.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py ~/common.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/check_reconnect.py ~/check_reconnect.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/nagios_monitor.py ~/nagios_monitor.py
 

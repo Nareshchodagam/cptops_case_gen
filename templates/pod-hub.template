@@ -28,7 +28,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
 Exec: ~/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_rh.py -k 2.6.32-504.12.2.el6.x86_64 -r 6.6 -b 300 -u" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_rh.py -k 2.6.32-504.12.2.el6.x86_64 -r 6.6 -b 900 -u" -threads -auto2
 
 -start app
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-hub  -device_role v_ROLE -host v_HOSTS -c start_server -auto2

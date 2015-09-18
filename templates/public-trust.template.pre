@@ -15,8 +15,7 @@ Exec: svn export svn://vc-was/subversion/tools/automation/scripts/opseng/compute
 Exec: svn export svn://vc-was/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/check_reconnect.py ~/check_reconnect.py
 Exec: svn export svn://vc-was/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/texttable.py ~/texttable.py
 Exec: svn export svn://vc-was/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_monitor.py ~/nagios_monitor.py
-Exec: svn export svn://vc-was/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/notIPMI.sh ~/notIPMI.sh
-
+Exec: svn export svn://vc-was/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
 
 -kerberos
 Exec: kinit

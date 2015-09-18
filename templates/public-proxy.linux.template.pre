@@ -9,7 +9,7 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opsen
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/check_maxfs_desc.py ~/releaserunner/remote_transfer/check_maxfs_desc.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/check_proxy_endpoints.py ~/releaserunner/remote_transfer/check_proxy_endpoints.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/check_static_routes.py ~/releaserunner/remote_transfer/check_static_routes.py
-Exec: cp /opt/compute_deploy/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
 Exec: chmod a+x ~/releaserunner/remote_transfer/manage_bootdevice.py
 
 - Get the local update scripts:
