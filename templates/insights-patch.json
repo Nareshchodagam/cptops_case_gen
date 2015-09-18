@@ -42,7 +42,7 @@
 				"$ uname -a | grep 2.6.32-504.12.2.el6.x86_64 ",
 				" ",
 				"All checks will be included in the validation code ",
-				"validate_rh.py"
+				"validate_linux_patchset.py"
 
 				]
 }

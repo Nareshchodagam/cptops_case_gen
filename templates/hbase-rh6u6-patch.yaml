@@ -24,18 +24,18 @@ Impact-Summary: Low impact due to validations within ORB framework
 Functional-System-Area: Servers
 Infrastructure-Type: Primary
 Test-Evidence: "Test Detail & Results Included (see Risk Summary)"
-Vendor-Case-Number: 
+Vendor-Case-Number:
 Verification: |
-  Ensure Host has been rebooted and its uptime is less then 300 
-  				  
+  Ensure Host has been rebooted and its uptime is less then 300
+
   $ cat /proc/uptime | awk '{print $1}'
-  
-  Confirm /etc/redhat-release is updated: 
-  
-  $ grep 6.6 /etc/redhat-release 
-  
+
+  Confirm /etc/redhat-release is updated:
+
+  $ grep 6.6 /etc/redhat-release
+
   Validate kernel version
-  
-  $ uname -a | grep 2.6.32-504.12.2.el6.x86_64 
-  
-  All checks will be included in the validation code validate_rh.py
+
+  $ uname -a | grep 2.6.32-504.12.2.el6.x86_64
+
+  All checks will be included in the validation code validate_linux_patchset.py
