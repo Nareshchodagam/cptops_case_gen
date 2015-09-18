@@ -9,7 +9,7 @@ v_CLUSTER
 Exec: DC=v_DATACENTER
 
 RR based commands
-- copy it up to the target host
+-Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
 - Get initial static routes
@@ -21,13 +21,13 @@ release_runner.pl -c disable_host_monitor -forced_host v_HOSTS -forced_monitor_h
 - remove from pool
 - to remove from pool login into the big ip and disable form within the pool
 
--stop app
+- Stop the running application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/squid stop" -threads -auto2
 
-- stop splunk
+- Stop Splunk
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - appmon -c 'source .p4include;/home/appmon/current/sfdc-splunk-forwarder/splunk/build/ant stop'" -threads -auto2
 
-- Execute the  update script:
+- Execute the update script
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/update_glibc.sh" -threads -auto2
 
 - Reboot the host
@@ -60,12 +60,12 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/squid restart
 - validate the max file descriptors as squid startup can be problematic target is 65k if it fails do a stop and start to restart it.
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/bin/squidclient -p 8080 mgr:info | grep 'file descrip'|grep -i max" -auto2
    
-- start splunk
+- Start Splunk
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - appmon -c 'source .p4include;/home/appmon/current/sfdc-splunk-forwarder/splunk/build/ant start'" -threads -auto2
    
 - add to pool
 - to add from pool login into the big ip and disable form within the pool   
-- enable monitoring
+- Enable nagios monitoring
 release_runner.pl -c enable_host_monitor -forced_host v_HOSTS -forced_monitor_host ops-monitor-tyo.ops.sfdc.net -threads -auto2
 
 Exec: echo "host v_HOSTS ghost patching completed"

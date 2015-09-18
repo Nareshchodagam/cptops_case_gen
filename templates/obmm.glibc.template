@@ -18,17 +18,17 @@ cd ~/releaserunner/remote_transfer
  svn export svn://vc-v_DATACENTER/subversion/tools/dcc/update_glibc.sh
 
 RR based commands
-- copy it up to the target host
+-Copy remote scripts to the target hosts
 
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
 -disable monitor
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product obmm -c disable_monitor -host v_HOSTS -pkging -threads
 
--stop app
+- Stop the running application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product obmm -c stop_server -pkging -threads -host v_HOSTS
 
-- Execute the  update script:
+- Execute the update script
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/update_glibc.sh" -threads -auto2
 
 - Reboot the host
@@ -40,7 +40,7 @@ Exec: /home/paulf/check_reconnect.py -H v_HOSTS
 - Verify glibc versions
 release_runner.pl -forced_host v_HOSTS -c cmd -m "rpm -qa | grep glibc; rpm -qa | grep nscd" -threads -auto2
 
--start app
+- Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product obmm -c start_server -pkging -threads -host v_HOSTS
 
 - Verify service
