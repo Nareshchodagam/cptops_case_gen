@@ -4,13 +4,13 @@ Exec: kinit
 - workaround for zshrc
 Exec: for i in $(echo public-webauthdb1-1-v_DATACENTER,v_HOSTS | sed 's/,/ /g'); do ssh -o StrictHostKeyChecking=no ${i} "touch .zshrc" 2>/dev/null; done
 
--bootstrap all hosts
+-Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
 - Validate the host needs to be patched
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_rh.py -k 2.6.32-504.12.2.el6.x86_64 -r 6.6" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json" -threads -auto2
 
--disable monitoring
+- Disable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H public-webauthdb1-1-v_DATACENTER,v_HOSTS -c disable
 
 -Validate web hosts are in pool and no issues with the pool
@@ -22,23 +22,23 @@ release_runner.pl -invdb_mode -superpod NONE -cluster WEBAUTH-WAS -product web-a
 -stop all web apps
 release_runner.pl -invdb_mode -superpod NONE -cluster WEBAUTH-WAS -product web-auth -c stop_server -auto2 -threads
 
-- stop splunk
+- Stop Splunk
 release_runner.pl -invdb_mode -superpod NONE -cluster WEBAUTH-WAS -product sfdc-splunk-forwarder -c stop_server -auto2 -threads
 
 - stop DBs
 Manual: Engage DBEng to bring the databases down on public-webauthdb1-1-v_DATACENTER
 
--execute patching script
+- Execute the update script
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh" -threads -auto2
 
--reboot
+- Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
 
--wait for hosts to return
+- Wait for the hosts to boot up
 Exec: ~/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_rh.py -k 2.6.32-504.12.2.el6.x86_64 -r 6.6 -b 900 -u" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
 - start DBs
 Manual: Engage DBEng to bring the databases up on public-webauth1-1-v_DATACENTER
@@ -46,7 +46,7 @@ Manual: Engage DBEng to bring the databases up on public-webauth1-1-v_DATACENTER
 -start all apps on web hosts
 release_runner.pl -invdb_mode -superpod NONE -cluster WEBAUTH-WAS -product web-auth -c start_server -auto2 -threads
 
-- start splunk on web hosts
+- Start Splunk
 release_runner.pl -invdb_mode -superpod NONE -cluster WEBAUTH-WAS -product sfdc-splunk-forwarder -c start_server -auto2 -threads
 
 - add web hosts to pool
