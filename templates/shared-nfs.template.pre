@@ -5,7 +5,8 @@ Exec: mkdir -p ~/releaserunner/remote_transfer
 
 - the get the remote scripts:
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/sharednfs/client_remount.sh ~/releaserunner/remote_transfer/client_remount.sh
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/myscripts/lmacneil/system_update.sh ~/releaserunner/remote_transfer/system_update.sh
+Exec: svn export svn://vc-v_DATACENTER/subversion/jumpstart/common/solaris-and-linux/sysfiles/system_update.sh ~/releaserunner/remote_transfer/system_update.sh
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/valid_versions.json ~/releaserunner/remote_transfer/valid_versions.json
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/sharednfs/killrpc_restartnfs.sh ~/releaserunner/remote_transfer/killrpc_restartnfs.sh
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/validate_patchset.py ~/releaserunner/remote_transfer/validate_patchset.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/check_mounts_siteaware.py ~/releaserunner/remote_transfer/check_mounts_siteaware.py
