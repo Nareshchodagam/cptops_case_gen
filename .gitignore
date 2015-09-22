@@ -1,0 +1,6 @@
+*.pyc
+bin/*.pyc
+includes/*
+.project
+output/*
+bin/common.py
