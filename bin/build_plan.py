@@ -19,7 +19,6 @@ import pprint
 from common import Common
 from idbhost import Idbhost
 from buildplan_helper import Buildplan_helper
-from fabric.decorators import roles
 
 
 
