@@ -9,7 +9,6 @@ import os
 import logging
 import itertools
 import re
-from aptsources.distinfo import Template
 
 common = Common()
 
