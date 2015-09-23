@@ -118,8 +118,10 @@ class Buildplan_helper:
         regexfilters : dict of key value pairs containing regexes to be applied to each of the fields.values()  
         """
         results = []
-        for key in regexfilters:
-            assert key in self.fields.values(), "regexfilter not specified as field"
+        
+	for key in regexfilters:
+	    logging.debug( "regexfilter: " + key + ", supportedfields: " + ','.join(self.fields.values()) )
+            assert key in self.fields.values(), "regexfilter  is not a supported field "
             
         for row in unfilteredlist:
             if self.row_test_regex(row,regexfilters):
@@ -255,7 +257,8 @@ class Buildplan_helper:
         """
         
         results = self.get_hosts_from_idbquery(dcs,idbfilters,regexfilters)
-                      
+        if len(results)==0:    
+            print 'No records qualify check your query filters'              
         results = self.set_default_fields(results)
         
         if templateid.lower()=='AUTO'.lower():

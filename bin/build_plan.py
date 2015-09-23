@@ -547,14 +547,17 @@ def gen_plan_by_idbquery(inputdict):
             assert os.path.isfile(common.templatedir + "/" + str(template_id) + ".template"), template_id + " template not found"
 
     if 'hostfilter' in inputdict:  # this is for backwards compatibility
-        inputdict['regexfilter'] = 'hostfilter=' + inputdict['hostfilter']
+        regexfilters['name'] = inputdict['hostfilter']
+    
     
 
     if 'regexfilter' in inputdict:
         for pair in inputdict['regexfilter'].split(';'):
             field, regex = pair.split('=')
             regexfilters[field] = regex
-
+            
+    print logging.debug('Regexfilters:')
+    logging.debug( regexfilters )
 
 
   
