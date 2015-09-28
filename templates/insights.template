@@ -13,25 +13,14 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product i
 - Disable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
-<<<<<<< HEAD
-- Disable monitoring on entire cluster (to cover pulse test)
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices,insights-redis -c disable_monitor -auto2 -threads -g 1,2,3,4,5,6
-
-- Remove from pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices -host v_HOSTS -c remove_from_pool -threads -auto2
-
-- Stop the running application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices -host v_HOSTS -c stop_server -stopall -threads -auto2
-=======
--disable monitoring on entire cluster (to cover pulse test)
+- disable monitoring on entire cluster (to cover pulse test)
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices,insights-redis,waveagent,ajnada -c disable_monitor -auto2 -threads -g 1,2,3,4,5,6
 
--Remove from pool
+- Remove from pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,ajnada -host v_HOSTS -c remove_from_pool -threads -auto2
 
--stop app
+- Stop the running application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,ajnada -host v_HOSTS -c stop_server -stopall -threads -auto2
->>>>>>> 6559752850273f06485a15fd5fc1b9888e95b3f6
 
 - Stop Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2
