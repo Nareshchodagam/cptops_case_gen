@@ -151,7 +151,8 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role)
     output = output.replace('v_SUPERPOD', superpod)
     output = output.replace('v_CASENUM', casenum)
     output = output.replace('v_ROLE', role)
-
+    output = output.replace('v_PATCHSET', options.patch_set)
+    output = output.replace('v_VERSION', options.patch_version)
 
 
     return output
@@ -702,10 +703,20 @@ if __name__ == "__main__":
                       help="access cidb from your local machine")
     parser.add_option("-g", "--geo", dest="geo", help="geo list" )
     parser.add_option("-o", "--out", dest="out", help="output file")
+    parser.add_option("--patchset", dest="patch_set", help="Patchset version")
+    parser.add_option("--patch_version", dest="patch_version", help="system_update.sh version")
     parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
     parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
     (options, args) = parser.parse_args()
-
+    
+    if options.patch_version:
+        options.patch_version = "-a " + options.patch_version 
+    else:
+        options.patch_version = "-a current"
+    
+    if not options.patch_set:
+        options.patch_set = "current"
+    
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     else:
