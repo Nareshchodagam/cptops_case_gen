@@ -57,6 +57,15 @@
 
 	./build_plan.py -c 0000001 -C -G '{"clusters" : "AJNA-WAS-SP1,AJNA-WAS-SP2,AJNA-WAS-SP3,AJNA-WAS-SP1" ,"datacenter": "was" , "roles": "mmdcs,mmrelay,mmxcvr,mmmbus,mmrs", "templateid": "ajna_all", "grouping": "cluster,role,majorset", "maxgroupsize": 10}'
 
+V2 functionality
+=================
+
+ _Generating based on clusterType and multiple datacenters_
+	./build_plan.py -c 0000001 -C -G '{"clusterTypes" : "SPLUNK-IDX" ,"datacenter": "sjl,asg,was,chi,tyo,dfw" , "templateid" : "mandm-splunk-switch", "grouping": "majorset", "maxgroupsize": 10 }' -T
+
+
+	./build_plan.py -c 0000001 -C -G '{"clusterTypes" : "CHATTER" ,"datacenter": "sjl,asg,was,chi,tyo,dfw" , "templateid" : "umps.linux", "grouping": "majorset", "maxgroupsize": 20 }' -T
+
 
 
 setup:
