@@ -119,7 +119,7 @@ def summary():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Template syntax checker: Program to check syntax of release_runner templates.")
     parser.add_argument('-t', '--template', metavar='<Template Name>', dest='file_name', required=True)
-    parser.add_argument('-v', '--verbose', action='store_true', dest='verbose')
+    parser.add_argument('-v', '--verbose', help='Verbose output for errors.', action='store_true', dest='verbose')
     args = parser.parse_args()
     file = common.templatedir + "/" + args.file_name 
     report = open(args.file_name + ".report", 'w')
