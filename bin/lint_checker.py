@@ -1,0 +1,47 @@
+#!/usr/bin/python
+#
+#
+valid_cmd = ('-product',
+              '-superpod',
+              '-cluster',
+              '-host',
+              '-bigipstatus',
+              '-forced_host',
+              '-cluster',
+              '-i',
+              '-c',
+              '-n',
+              '-threads',
+              '-auto2',
+              '-u',
+              '-user',
+              '-t',
+              '-standby',
+              '-s',
+              '-d',
+              '-invdb_mode',
+              '-m',
+              '-force_update_bootstrap',
+              '-device_role',
+              '-property',
+              '-g',
+              '-stopall')
+
+require_options = {"-product": "Application name",
+                   "-i": "Instance Name",
+                   "-c": "Command to run",
+                   "-n": "Changelist number",
+                   "-u": "Database user name",
+                   "-user": "Username",
+                   "-s": "List of servers",
+                   "-m": "Command to run in quotes",
+                   "-device_role": "Role of server",
+                   "-property": "Domain override option",
+                   "-g": "Group numbers"}
+
+default_cmd = {"-superpod": "v_SUPERPOD",
+               "-cluster": "v_CLUSTER",
+               "-host": "v_HOSTS",
+               "-bigipstatus": "AVAILABILITY_STATUS_GREEN",
+               "-forced_host": "v_HOSTS",
+               "-device_role": "v_ROLE"}
