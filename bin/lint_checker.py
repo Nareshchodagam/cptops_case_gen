@@ -26,6 +26,18 @@ valid_cmd = ('-product',
               '-g',
               '-stopall')
 
+require_options = {"-product": "Application name",
+                   "-i": "Instance Name",
+                   "-c": "Command to run",
+                   "-n": "Changelist number",
+                   "-u": "Database user name",
+                   "-user": "Username",
+                   "-s": "List of servers",
+                   "-m": "Command to run in quotes",
+                   "-device_role": "Role of server",
+                   "-property": "Domain override option",
+                   "-g": "Group numbers"}
+
 default_cmd = {"-superpod": "v_SUPERPOD",
                "-cluster": "v_CLUSTER",
                "-host": "v_HOSTS",
