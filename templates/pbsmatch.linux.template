@@ -1,5 +1,5 @@
 
--RR based commands
+RR based commands
 
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
@@ -8,10 +8,10 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json" -threads -auto2
 
 - Set the boot device to HDD
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 
 
 -Validate hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbspectrum -c bigipcheck -threads -auto2 -d
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbspectrum -c bigipcheck -thread -auto2 -d
 
 - Disable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
@@ -38,7 +38,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbspectrum,sfdc-splunk-forwarder -host v_HOSTS -c start_server -auto2
 
 - add to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbspectrum -host v_HOSTS -c add_to_pool -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbspectrum -host v_HOSTS -c add_to_pool -threads -auto2 
 
 - Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable

@@ -1,14 +1,14 @@
--All actions take place on the release host using packaged release runner. Call KZ via
+All actions take place on the release host using packaged release runner. Call KZ via
 
--katzmeow.pl --case v_CASENUM --impl
+katzmeow.pl --case v_CASENUM --impl
 
 
--v_CLUSTER
+v_CLUSTER
 
 - set your DC env
 Exec: DC=v_DATACENTER
 
--RR based commands
+RR based commands
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
