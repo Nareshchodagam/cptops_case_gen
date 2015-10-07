@@ -10,7 +10,17 @@ _This script checks for syntax errors in CPT templates. Below are a list of chec
 	- Ignores empty lines and lines with leading hyphens. 
 	- Checks if lines begin with valid command either Exec: or release_runner.pl
 	
-_Usage: template_lint.py -t \<template_name\>_
+_usage: template_lint.py [-h] -t \<Template Name\> [-v]_
+
+Template syntax checker: Program to check syntax of release_runner templates.
+
+optional arguments:
+
+  -h, --help            show this help message and exit
+  
+  -t <Template Name>, --template \<Template Name\>
+  
+  -v, --verbose         Verbose output for errors.
 ```
 	************* Template search.template
 	E: 1: Unrecognized command expecting "release_runner.pl or Exec:"
