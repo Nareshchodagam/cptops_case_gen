@@ -1,3 +1,20 @@
+
+- create a local remote_transfer directory
+Exec: mkdir -p ~/releaserunner/remote_transfer
+
+- Get the remote scripts:
+Exec: svn export svn://vc-v_DATACENTER/subversion/jumpstart/common/solaris-and-linux/sysfiles/system_update.sh ~/releaserunner/remote_transfer/system_update.sh
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/common.py ~/releaserunner/remote_transfer/common.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/validate_linux_patchset.py ~/releaserunner/remote_transfer/validate_linux_patchset.py
+
+- Get the local update scripts:
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/idbhost.py ~/idbhost.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/common.py ~/common.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/check_reconnect.py ~/check_reconnect.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_monitor.py ~/nagios_monitor.py
+
+
 RR based commands
 
 -Copy remote scripts to the target hosts
@@ -6,8 +23,9 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 - validate if host require update
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json" -threads -auto2
 
+
 - Validate hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTNAME_CPS  -product chatternow,chatterbox -c bigipcheck -d -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS_CPS  -product chatternow,chatterbox -c bigipcheck -d -threads -auto2
 
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
@@ -15,19 +33,22 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 - disable monitor
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
+
 - remove from pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role chan,prsn,sshare -host v_HOSTNAME_CPS -c remove_from_pool -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role chan,prsn,sshare -host v_HOSTS_CPS -c remove_from_pool -threads -auto2
 
 - stop app
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role chan,prsn,sshare -host v_HOSTNAME_CPS -c stop_server  -threads -auto2
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role msg -host v_HOSTNAME_MSG -c stop_server  -threads -auto2
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role dstore -host v_HOSTNAME_DSTORE -c stop_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role chan,prsn,sshare -host v_HOSTS_CPS -c stop_server  -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role msg -host v_HOSTS_MSG -c stop_server  -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role dstore -host v_HOSTS_DSTORE -c stop_server -threads -auto2
+
 
 - Stop Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role chan,prsn,sshare,msg,dstore -host v_HOSTS -c stop_server -threads -auto2
 
 - Execute the update script
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -p" -threads -auto2
+
 
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
@@ -39,23 +60,24 @@ Exec: ~/check_reconnect.py -H v_HOSTS
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
 - Start the application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role dstore -host v_HOSTNAME_DSTORE -c start_server -threads -auto2
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role msg -host v_HOSTNAME_MSG -c start_server -threads -auto2
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role prsn,chan,sshare -host v_HOSTNAME_CPS -c start_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role dstore -host v_HOSTS_DSTORE -c start_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role msg -host v_HOSTS_MSG -c start_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role prsn,chan,sshare -host v_HOSTS_CPS -c start_server -threads -auto2
 
 - validate app is up.
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "ps aux|grep -i sfdc|grep -v grep" -threads -auto2
+
 
 - Start Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role prsn,chan,sshare,msg,dstore -host v_HOSTS -c start_server -threads -auto2
 
 - add to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role prsn,chan,sshare -host v_HOSTNAME_CPS -c add_to_pool -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role prsn,chan,sshare -host v_HOSTS_CPS -c add_to_pool -threads -auto2
 
 - Validate hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -host v_HOSTNAME_CPS -c bigipcheck -d -threads -bigipstatus AVAILABILITY_STATUS_GREEN -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -host v_HOSTS_CPS -c bigipcheck -d -threads -bigipstatus AVAILABILITY_STATUS_GREEN -auto2
 
 - Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
 
-Exec: echo "Host v_HOSTS system patching completed"
+

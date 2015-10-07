@@ -5,7 +5,7 @@ import requests
 import json
 import string
 #from cred import Cred
-from cred import GusCred 
+from cred import GusCred
 #from gusparse import GusParse
 from gusparse import GusParse
 import base64

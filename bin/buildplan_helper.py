@@ -25,7 +25,7 @@ class Buildplan_helper:
         self.fields = fields
         self.cache={}
         #setting as separate list to preserve order
-        self._suffixlist = ['_dr_standby','_dr','_standby','']
+        self._suffixlist = ['.dr.standby','.dr','.standby','']
         self._templatesuffix= {
                  
                     (True, 'STANDBY') : self._suffixlist[0],
