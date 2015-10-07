@@ -15,6 +15,8 @@ def file_check(file):
     global _pass_checks
     global _failed_checks
     global _total_lines_chk
+    global _error_line
+    _error_line = {}
     _linenum = 0
     _failed_checks = 0
     _pass_checks = 0
@@ -30,6 +32,8 @@ def file_check(file):
         if not ignore_lines.match(line):
             _total_lines_chk += 1
             value = cmd_check(line)
+            if value != 0:
+                _error_line[_linenum] = line
             _failed_checks = _failed_checks + value
     summary()
 
@@ -63,14 +67,13 @@ def runner_cmds(line):
                 if options != lc.default_cmd[command]:
                     runner_cmds_fail += 1
                     err_tracker('E', "Expecting %s value for the command option %s\n" % (lc.default_cmd[command], command))
-            elif command == '-invdb_mode' or command == '-auto2' or command == '-threads' or command == '-force_update_bootstrap':
-                if options != None:
+            elif command in lc.valid_cmd:
+                if options == None and command in lc.require_options:
+                    runner_cmds_fail += 1
+                    err_tracker('E', "%s missing command parameters.  Usage: %s \"%s\"\n" % (command, command, lc.require_options[command]))
+                elif command not in lc.require_options and options != None:
                     runner_cmds_fail += 1
                     err_tracker('E', "Illegal parameter \"%s\" specified after %s\n" % (options, command))
-            elif options == None:
-                if command != '-invdb_mode' or command != 'auto2' or command != '-threads' or command == '-force_update_bootstrap':
-                    runner_cmds_fail += 1
-                    err_tracker('W', "Missing command parameter for %s\n" % command)
             if command not in lc.valid_cmd:
                 runner_cmds_fail += 1
                 err_tracker('E', "%s is not an valid command option\n" % command)
@@ -90,16 +93,24 @@ def syntax_checker(line):
         err_tracker('W', "Expecting option \"-invdb_mode or -forced_host\"\n")
     if space_checker.search(line):
         syntax_checker_fail += 1
-        err_tracker('W', "One or more trailing whitespaces found\n")
+        err_tracker('E', "One or more trailing whitespaces found\n")
     return syntax_checker_fail
 
 def err_tracker(err_code, msg):
-    failures = 0 
-    report.write("%s: %d: %s" % (err_code, _linenum, msg)) 
+    report.write("%s: %d: %s" % (err_code, _linenum, msg))
+          
 
 def summary():
     total_checks = 5 * _total_lines_chk
     template_score = 10.0 - ((float(5 * _failed_checks) / total_checks) * 10)
+    report.write("\n\nDefinition\n")
+    report.write("------------\n")
+    report.write("E=Error\nW=Warning\n")
+    if args.verbose:
+        report.write("\nLines with errors\n")
+        report.write("---------------------\n")
+        for key,value in sorted(_error_line.iteritems()):
+            report.write("%d: %s" % (key, value))
     report.write("\nGlobal evaluation\n")
     report.write("-----------------\n")
     report.write("Total number of Errors/Warnings: %d" % _failed_checks)
@@ -108,6 +119,7 @@ def summary():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Template syntax checker: Program to check syntax of release_runner templates.")
     parser.add_argument('-t', '--template', metavar='<Template Name>', dest='file_name', required=True)
+    parser.add_argument('-v', '--verbose', help='Verbose output for errors.', action='store_true', dest='verbose')
     args = parser.parse_args()
     file = common.templatedir + "/" + args.file_name 
     report = open(args.file_name + ".report", 'w')
