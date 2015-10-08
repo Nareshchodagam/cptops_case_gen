@@ -1,5 +1,7 @@
-- create a local remote_transfer directory
+- set your DC env
+Exec: DC=v_DATACENTER
 
+- create a local remote_transfer directory
 Exec: mkdir -p ~/releaserunner/remote_transfer
 
 - Get the remote scripts:
@@ -13,11 +15,12 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opsen
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_sharedhub.py  ~/releaserunner/remote_transfer/manage_sharedhub.py
 
 -Get the local scripts:
-
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py  ~/common.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_monitor.py  ~/nagios_monitor.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/idbhost.py  ~/idbhost.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/check_reconnect.py  ~/check_reconnect.py
+
+Exec: chmod +x ~/releaserunner/remote_transfer/*
 
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
