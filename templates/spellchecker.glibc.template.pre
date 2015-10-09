@@ -1,4 +1,5 @@
-All actions take place on the release host using packaged release runner. Call KZ via
+- All actions take place on the release host using packaged release runner.
+Call KZ via
 
 katzmeow.pl --case v_CASENUM --impl
 

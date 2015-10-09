@@ -1,3 +1,6 @@
+- set your DC env
+Exec: DC=v_DATACENTER
+
 - create a local remote_transfer directory
 
 Exec: mkdir -p ~/releaserunner/remote_transfer

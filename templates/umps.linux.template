@@ -1,4 +1,4 @@
-RR based commands
+- RR based commands
 
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
@@ -7,7 +7,7 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json" -threads -auto2
 
 - Validate hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTNAME_CPS  -product chatternow,chatterbox -c bigipcheck -d -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTNAME_CPS -product chatternow,chatterbox -c bigipcheck -d -threads -auto2
 
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
@@ -19,9 +19,15 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c 
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role chan,prsn,sshare -host v_HOSTNAME_CPS -c remove_from_pool -threads -auto2
 
 - stop app
+<<<<<<< HEAD
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role v_ROLE -host v_HOSTNAME_CPS -c stop_server  -threads -auto2
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role v_ROLE -host v_HOSTNAME_MSG -c stop_server  -threads -auto2
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role V_ROLE -host v_HOSTNAME_DSTORE -c stop_server -threads -auto2
+=======
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role chan,prsn,sshare -host v_HOSTNAME_CPS -c stop_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role msg -host v_HOSTNAME_MSG -c stop_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role dstore -host v_HOSTNAME_DSTORE -c stop_server -threads -auto2
+>>>>>>> master_cptops_case_gen/master
 
 - Stop Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c stop_server -threads -auto2
