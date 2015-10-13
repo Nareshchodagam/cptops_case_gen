@@ -121,9 +121,15 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--template', metavar='<Template Name>', dest='file_name', required=True)
     parser.add_argument('-v', '--verbose', help='Verbose output for errors.', action='store_true', dest='verbose')
     args = parser.parse_args()
-    file = common.templatedir + "/" + args.file_name 
     report = open(args.file_name + ".report", 'w')
-    file_check(file)
+    if os.path.isfile(args.file_name):
+        file_check(args.file_name)
+    elif os.path.isfile(common.templatedir + "/" + args.file_name):
+        file = common.templatedir + "/" + args.file_name
+        file_check(file)
+    else:
+        print "Cannot locate filename %s." % (args.file_name)
+        sys.exit(1)
     report.close()
     with open(args.file_name + ".report", 'r') as fin:
         print fin.read()
