@@ -14,13 +14,13 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H public-webd
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product web-sfdc -property "domain_override=ops.sfdc.net" -c bigipcheck -auto2 -threads -d
 
 - remove web hosts from pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product web-sfdc -property "min_f5_percentage=0,domain_override=ops.sfdc.net" -c remove_from_pool -auto2 -threads
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product web-sfdc -property "min_f5_percentage=0,domain_override=ops.sfdc.net"  -c remove_from_pool -auto2 -threads
 
 -stop all web apps
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product web-sfdc -property "domain_override=ops.sfdc.net" -c stop_server -auto2 -threads
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product web-sfdc -property "domain_override=ops.sfdc.net"  -c stop_server -auto2 -threads
 
 - Stop Splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -property "domain_override=ops.sfdc.net" -c stop_server -auto2 -threads
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -property "domain_override=ops.sfdc.net"  -c stop_server -auto2 -threads
 
 - stop DBs
 Manual: Engage dbeng (Simone Paganini) to bring the databases down on public-webdb1-1-v_DATACENTER and public-webdb2-1-v_DATACENTER.
@@ -43,16 +43,16 @@ Manual: Verify that the RPMs have been upgraded
 Manual: Engage dbeng (Simone Paganini) to bring the databases up on public-webdb1-1-v_DATACENTER and public-webdb2-1-v_DATACENTER.
 
 -start all apps on web hosts
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product web-sfdc -property "domain_override=ops.sfdc.net" -c start_server -auto2 -threads
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product web-sfdc -property "domain_override=ops.sfdc.net"  -c start_server -auto2 -threads
 
 - Start Splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -property "domain_override=ops.sfdc.net" -c start_server -auto2 -threads
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -property "domain_override=ops.sfdc.net"  -c start_server -auto2 -threads
 
 - add web hosts to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product web-sfdc -property "domain_override=ops.sfdc.net" -c add_to_pool -auto2 -threads
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product web-sfdc -property "domain_override=ops.sfdc.net"  -c add_to_pool -auto2 -threads
 
 -Validate web hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product web-sfdc -property "domain_override=ops.sfdc.net" -c bigipcheck -auto2 -threads -d
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product web-sfdc -property "domain_override=ops.sfdc.net"  -c bigipcheck -auto2 -threads -d
 
 -enable monitoring on appropriate monitor host for web hosts
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS,public-webdb1-1-v_DATACENTER,public-webdb2-1-v_DATACENTER -c enable -m ops-monitor-v_DATACENTER
