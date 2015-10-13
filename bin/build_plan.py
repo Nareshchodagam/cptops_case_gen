@@ -216,7 +216,8 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=-1):
 
     s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role)
     if groupcount > 0 and options.tags:
-        s = 'BEGIN_GROUP: ' + str(groupcount) + '\n\n' + s + 'END_GROUP: ' + str(groupcount) + '\n\n'
+        s = 'BEGIN_GROUP: ' + str(groupcount) + '\n\n' + s + '\n\n' + \
+                                'END_GROUP: ' + str(groupcount) + '\n\n'
 
     f = open(out_file, 'w')
     f.write(s)
