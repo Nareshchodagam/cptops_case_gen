@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 - Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
@@ -12,7 +11,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product dust-delphi -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -threads -auto2 -d
 
 - Disable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H dust-app1-1-wax -c disable
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
 - Remove from pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product dust-delphi -device_role dust_delphi -host v_HOSTS -c remove_from_pool -auto2
@@ -42,54 +41,6 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product d
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product dust-delphi -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -threads -auto2 -d
 
 - Enable nagios monitoring
-=======
--RR based commands
-- copy it up to the target host
-
-release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
-
-
-- Validate the host needs to be patched
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json" -threads -auto2
-
--set boot device
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
-
--bigipcheck cluster
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product dust-delphi -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -threads -auto2 -d
-
--disable monitoring on appropriate monitor host
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
-
--remove from pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product dust-delphi -device_role v_ROLE -host v_HOSTS -c remove_from_pool -auto2
-
--stop app
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product dust-delphi,sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2
-
-- Execute the  update script:
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -p" -threads -auto2
-
-- Reboot the host
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
-
-- Wait for host to boot up
-Exec: ~/check_reconnect.py -H v_HOSTS
-
--Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json -u" -threads -auto2
-
--start app
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product dust-delphi,sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c start_server -threads -auto2
-
-- add to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product dust-delphi -device_role v_ROLE -host v_HOSTS -c add_to_pool -auto2
-
--bigipcheck cluster
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product dust-delphi -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -threads -auto2 -d
-
--enable monitoring on appropriate monitor host
->>>>>>> refs/remotes/upstream/master
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
 
 Exec: echo "Host v_HOSTS system patching completed"
