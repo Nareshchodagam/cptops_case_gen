@@ -216,7 +216,8 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=-1):
 
     s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role)
     if groupcount > 0 and options.tags:
-        s = 'BEGIN_GROUP: ' + str(groupcount) + '\n\n' + s + 'END_GROUP: ' + str(groupcount) + '\n\n'
+        s = 'BEGIN_GROUP: ' + str(groupcount) + '\n\n' + s + '\n\n' + \
+                                'END_GROUP: ' + str(groupcount) + '\n\n'
 
     f = open(out_file, 'w')
     f.write(s)
@@ -509,6 +510,8 @@ def chunks_tuple_list(tlist, n):
     n = max(1, n)
     return [l[i:i + n] for i in range(0, len(l), n)]
 
+    
+
 def gen_plan_by_idbquery(inputdict):
 
     #set defaults values
@@ -674,41 +677,41 @@ usage = """
             """
 
 
-if __name__ == "__main__":
-    parser = OptionParser(usage)
-    parser.add_option("-c", "--case", dest="caseNum", help="The case number to use",
+
+parser = OptionParser(usage)
+parser.add_option("-c", "--case", dest="caseNum", help="The case number to use",
                       default='01234')
-    parser.add_option("-s", "--superpod", dest="superpod", help="The superpod")
-    parser.add_option("-S", "--status", dest="clusterstatus", \
+parser.add_option("-s", "--superpod", dest="superpod", help="The superpod")
+parser.add_option("-S", "--status", dest="clusterstatus", \
                       help="The cluster status - PRIMARY/STANDBY", default="PRIMARY" )
-    parser.add_option("-i", "--clusterance", dest="cluster", help="The clusterance")
-    parser.add_option("-d", "--datacenter", dest="datacenter", help="The datacenter")
-    parser.add_option("-t", "--template", dest="template", help="Override Template")
-    parser.add_option("-l", "--hostlist", dest="hostlist", help="Path to list of hosts", \
+parser.add_option("-i", "--clusterance", dest="cluster", help="The clusterance")
+parser.add_option("-d", "--datacenter", dest="datacenter", help="The datacenter")
+parser.add_option("-t", "--template", dest="template", help="Override Template")
+parser.add_option("-l", "--hostlist", dest="hostlist", help="Path to list of hosts", \
                       default='hostlist')
-    parser.add_option("-r", "--role", dest="role", help="Host role")
-    parser.add_option("-H", "--host", dest="host", help="The host")
-    parser.add_option("-f", "--filename", dest="filename", \
+parser.add_option("-r", "--role", dest="role", help="Host role")
+parser.add_option("-H", "--host", dest="host", help="The host")
+parser.add_option("-f", "--filename", dest="filename", \
                       default="plan_implementation.txt", help="The output filename")
-    parser.add_option("-v", action="store_true", dest="verbose", default=False, \
+parser.add_option("-v", action="store_true", dest="verbose", default=False, \
                       help="verbosity")
-    parser.add_option("-e", action="store_true", dest="endrun", default=False, \
+parser.add_option("-e", action="store_true", dest="endrun", default=False, \
                       help="End the run and consolidate files")
-    parser.add_option("-a", action="store_true", dest="allatonce", default=False, \
+parser.add_option("-a", action="store_true", dest="allatonce", default=False, \
                       help="End the run and consolidate files")
-    parser.add_option("-x", action="store_true", dest="idbhost", default=False, \
+parser.add_option("-x", action="store_true", dest="idbhost", default=False, \
                       help="Use for testing idbhost")
-    parser.add_option("-G", "--idbgen", dest="idbgen", help="generate from idb")
-    parser.add_option("-C", "--cidblocal", dest="cidblocal", action='store_true', default=True, \
+parser.add_option("-G", "--idbgen", dest="idbgen", help="generate from idb")
+parser.add_option("-C", "--cidblocal", dest="cidblocal", action='store_true', default=True, \
                       help="access cidb from your local machine")
-    parser.add_option("-g", "--geo", dest="geo", help="geo list" )
-    parser.add_option("-o", "--out", dest="out", help="output file")
-    parser.add_option("--patchset", dest="patch_set", help="Patchset version")
-    parser.add_option("--patch_version", dest="patch_version", help="system_update.sh version")
-    parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
-    parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
-    (options, args) = parser.parse_args()
-    
+parser.add_option("-g", "--geo", dest="geo", help="geo list" )
+parser.add_option("-o", "--out", dest="out", help="output file")
+parser.add_option("--patchset", dest="patch_set", help="Patchset version")
+parser.add_option("--patch_version", dest="patch_version", help="system_update.sh version")
+parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
+parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
+(options, args) = parser.parse_args()
+if __name__ == "__main__":    
     if options.patch_version:
         options.patch_version = "-a " + options.patch_version 
     else:
@@ -804,3 +807,6 @@ if __name__ == "__main__":
     elif not options.idbgen:
         prep_template(options.template, options.filename)
         gen_plan(options.host, options.cluster, options.datacenter, options.superpod, options.caseNum, options.role)
+
+    
+    

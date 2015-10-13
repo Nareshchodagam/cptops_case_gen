@@ -1,4 +1,5 @@
-RR based commands
+-RR based commands
+
 -Copy remote scripts to the target hosts
 
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
