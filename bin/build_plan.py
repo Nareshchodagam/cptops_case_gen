@@ -141,8 +141,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role)
     global gblSplitHosts
     #before default ids in case of subsets
     for key, hostlist in gblSplitHosts.iteritems():
-        output = output.replace(key, ",".join(hostlist))
-
+        output = output.replace(key, ",".join(hostlist))    
 
 
     output = output.replace('v_HOSTS', hosts)
@@ -212,7 +211,6 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=-1):
     print "Generating: " + out_file
 
     s = open(template_file).read()
-
 
     s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role)
     if groupcount > 0 and options.tags:
@@ -639,7 +637,6 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             #increment groupid
 
             fileprefix = str(group_enum) + str(i) + '_' + str(clusters)
-            print hostnames
             gblSplitHosts = build_dynamic_groups(hostnames)
             logging.debug(gblSplitHosts)
 
@@ -649,6 +646,25 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
     consolidated_plan = consolidate_plan(','.join(set(allhosts)), ','.join(set(allclusters)), dc, ','.join(set(allsuperpods)), options.caseNum, ','.join(set(allroles)))
 
     return consolidated_plan, sorted(allhosts)
+
+def gen_plan_by_hostlist_idb(hostlist, templateid, gsize, grouping=['majorset', 'minorset']):
+    hostnames =[]
+    dcs = []
+    file = open(hostlist).readlines()
+    for line in file:
+        dc = line.split('-')[3].rstrip('\n')
+        if dc not in dcs:
+            dcs.append(dc)
+        hostnames.append(line.rstrip('\n'))
+    idbfilters = { 'name': hostnames }
+    
+    groups = [['datacenter'],['superpod'] + grouping,['hostname']]
+    bph = Buildplan_helper('allhosts?', supportedfields,True)
+    writeplan = bph.prep_idb_plan_info(dcs,idbfilters,{},groups,templateid)
+    consolidate_idb_query_plans(writeplan, dcs, gsize)
+            
+        
+    
 
 ###############################################################################
 #                Main
@@ -706,13 +722,16 @@ parser.add_option("-C", "--cidblocal", dest="cidblocal", action='store_true', de
                       help="access cidb from your local machine")
 parser.add_option("-g", "--geo", dest="geo", help="geo list" )
 parser.add_option("-o", "--out", dest="out", help="output file")
+parser.add_option("-M", action="store_true", dest="grouping", help="Turn on grouping")
+parser.add_option("--gsize", dest="gsize", type="int", help="Group Size value")
 parser.add_option("--patchset", dest="patch_set", help="Patchset version")
 parser.add_option("--patch_version", dest="patch_version", help="system_update.sh version")
 parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
 (options, args) = parser.parse_args()
-if __name__ == "__main__":    
-    if options.patch_version:
+if __name__ == "__main__":
+
+    if  options.patch_version:
         options.patch_version = "-a " + options.patch_version 
     else:
         options.patch_version = "-a current"
@@ -799,6 +818,17 @@ if __name__ == "__main__":
 
         consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role)
         exit()
+    
+    if options.grouping:
+        if not options.hostlist or not options.template or not options.gsize:
+            print "Grouping option must include the following."
+            print "\t-l hostlist"
+            print "\t-t template"
+            print "\t--gsize Group size"
+            exit(1)
+        elif options.hostlist and options.template and options.gsize:
+            gen_plan_by_hostlist_idb(options.hostlist, options.template, options.gsize)
+            exit()
 
     if options.endrun:
         # This hack will go away once Mitchells idbhelper module is merged.
