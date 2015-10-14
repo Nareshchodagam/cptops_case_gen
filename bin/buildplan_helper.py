@@ -28,10 +28,10 @@ class Buildplan_helper:
         self._suffixlist = ['_dr_standby','_dr','_standby','']
         self._templatesuffix= {
                  
-                    (True, 'STANDBY') : self._suffixlist[0],
-                    (False, 'PRIMARY') : self._suffixlist[1],
-                    (True, 'STANDBY') : self._suffixlist[2],
-                    (False, 'PRIMARY') : self._suffixlist[3]
+                    (True, u'STANDBY') : self._suffixlist[0],
+                    (True, u'PRIMARY') : self._suffixlist[1],
+                    (False, u'STANDBY') : self._suffixlist[2],
+                    (False, u'PRIMARY') : self._suffixlist[3]
                             
                 }
     
@@ -309,7 +309,7 @@ class Buildplan_helper:
             print groupedhosts.keys()
             
             for templatevals in groupedhosts.keys():
-                assert templatevals[1:] in self._templatesuffix.keys(), "template idb identifer " + str(templatevals) + " not defined in in " + str(self._templatesuffix)  
+                assert templatevals[1:] in self._templatesuffix.keys(), "template idb identifer " + str(templatevals[1:]) + " not defined in in " + str(self._templatesuffix)  
                 templateid= templatevals[0] + self._templatesuffix[templatevals[1:]]
                 logging.debug ( 'derived templateid ' + templateid )
                 writeplan[templateid] = groupedhosts[templatevals]

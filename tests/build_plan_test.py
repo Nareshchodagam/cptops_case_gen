@@ -1,10 +1,21 @@
-#! /bin/python
+#! /usr/bin/python
 
+import sys
+import os
+sys.path.append(os.getcwd() + '/../bin')
+
+
+
+from build_plan import *
+
+
+
+	
 CHIPODS='NA7,NA11,NA12,NA14,CS9,CS10,CS11,SR2,NA4,NA16,EU0,CS17,CS17,CS17,CS18,CS20,NA17,NA18,NA22,NA23,NA41,CS21,CS22,CS26,NA24,NA26,NA31,CS41,CS43,CS44'
 WASPODS='NA9,NA10,CS7,CS8,CS14,SR1,GS0,NA2,NA13,NA15,CS15,CS16,CS19,NA5,NA19,NA20,CS23,CS24,CS25,CS27,CS28,NA5,NA19,NA20,CS23,CS24,CS25,CS27,CS28'
 
-
-forjson= [	
+testlist= [	
+		
 	{ "clusters" : "na21" ,"datacenter": "wax" , "roles": "acs", "grouping" : "majorset,minorset", "templateid": "generic_test" },
 
 	{ "clusters" : "na21" ,"datacenter": "wax" , "roles": "acs,app,cbatch", "grouping" : "majorset,minorset", "templateid": "generic_test" },
@@ -52,7 +63,7 @@ forjson= [
 
 	{ "clusters" : CHIPODS ,"datacenter": "chi" , "roles": "search", "grouping" : "majorset,minorset", "maxgroupsize": 4, "templateid" : "search" },
 
-	{ "clusters" : CHIPODS ,"datacenter": "was" , "roles": "mqbroker", "grouping" : "majorset", "maxgroupsize": 4, "templateid" : "mqbroker", "dr": "True"  },
+	{ "clusters" : CHIPODS ,"datacenter": "was" , "roles": "mqbroker", "grouping" : "majorset", "maxgroupsize": 4, "templateid" : "mq.linux", "dr": "True"  },
 
 	{ "clusters" : WASPODS ,"datacenter": "was" , "roles": "mq", "grouping" : "majorset", "maxgroupsize": 4, "templateid" : "mq.linux" },
 
@@ -68,3 +79,13 @@ forjson= [
 	{ "clusters" : CHIPODS ,"datacenter": "chi" , "roles": "ffx", "grouping" : "majorset", "maxgroupsize": 4, "templateid" : "ffx" }
 
 ]
+if __name__ == "__main__": 
+        i = 1 
+	for test in testlist:
+                print str(i) + ' #'
+		gen_plan_by_idbquery(test)
+		i += 1
+
+
+
+
