@@ -820,15 +820,13 @@ if __name__ == "__main__":
         exit()
     
     if options.grouping:
-        if not options.hostlist or not options.template or not options.gsize:
-            print "Grouping option must include the following."
-            print "\t-l hostlist"
-            print "\t-t template"
-            print "\t--gsize Group size"
+        if not options.hostlist or not options.template:
+            print "Must specify an hostlist and template with grouping option." 
             exit(1)
-        elif options.hostlist and options.template and options.gsize:
-            gen_plan_by_hostlist_idb(options.hostlist, options.template, options.gsize)
-            exit()
+        elif not options.gsize:
+            options.gsize = 1    
+        gen_plan_by_hostlist_idb(options.hostlist, options.template, options.gsize)
+        exit()
 
     if options.endrun:
         # This hack will go away once Mitchells idbhelper module is merged.
