@@ -33,7 +33,7 @@
 				" ", 
 				"$ hpacucli ctrl all show config",
 				" ",
-				"Ensure Firmware 6.34 is running"
+				"Ensure Firmware 6.64 is running"
 				
 				]
 }
