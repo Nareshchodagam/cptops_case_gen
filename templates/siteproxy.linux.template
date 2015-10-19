@@ -57,4 +57,4 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m './remote_transfer/check_proxy_endpoints.py -p 8084' -threads -auto2
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m './remote_transfer/check_proxy_endpoints.py -p 8085' -threads -auto2
 
-Exec: echo "Host v_HOSTS RHEL6u6 patching completed"
+Exec: echo "Host v_HOSTS OS Bundle patching completed"
