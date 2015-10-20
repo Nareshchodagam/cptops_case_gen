@@ -1,0 +1,47 @@
+RR based commands
+
+-Copy remote scripts to the target hosts
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+
+- Validate the host needs to be patched
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json" -threads -auto2
+
+- Disable nagios monitoring
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
+
+-mongodb 
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service mongodb stop" -threads -auto2
+
+-zookeepser
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service zookeeper-server stop" -threads -auto2
+
+Manual: Stop seyren : 1)switch to sfdc user using sudo su - sfdc, 2) find out seyren screen sessions using screen -ls. There should be one called: seyren, 3) use an existing session using screen -dr [session name]. stop the app using Ctrl+c
+
+- Execute the update script
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -p" -threads -auto2
+
+- Reboot the host
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
+
+- Wait for the hosts to boot up
+Exec: ~/check_reconnect.py -H v_HOSTS
+
+- Validate that the hosts have been patched and are running the correct version
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json -u" -threads -auto2
+
+
+-zookeepser
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service zookeeper-server start" -threads -auto2
+
+-mongodb 
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service mongodb start§" -threads -auto2
+
+- run seyren start
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/start_with_clustering.sh" -threads -auto2
+
+Manual: check seyren 1)verify the app is starting properly, 2) detach from a screen session using Ctrl+a d OR Ctrl+a Ctrl+d
+
+- Enable nagios monitoring
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable -m v_CLUSTER-monitor-v_DATACENTER
+
+Exec: echo "Host v_HOSTS system patching completed"
