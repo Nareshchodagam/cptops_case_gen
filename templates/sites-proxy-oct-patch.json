@@ -15,7 +15,7 @@
 	"Change-Area": "Systems - Patch/Upgrade Redundant Systems",
 	"Business-Justification": "Hosts need to updated to the latest revision for compliance and security reasons",
 	"Business-Reason": "Routine Maintenance",
-	"Cloud-Team": "Compute Deploy",
+	"Cloud-Team": "Infrastructure Delivery",
 	"Backout": "This is a fix forward rollback",
 	"Shared-Infrastructure": "Yes",
 	"Tested-Change": "Yes",
@@ -39,7 +39,7 @@
 				" ", 
 				"Validate kernel version:", 
 				" ", 
-				"$ uname -a | grep 2.6.32-573.3.1.el6.x86_64 ",
+				"$ uname -a | grep 2.6.32-573.7.1.el6.x86_64 ",
 				" ",
 				"All checks will be included in the validation code ",
 				"validate_linux_patchset.py"
