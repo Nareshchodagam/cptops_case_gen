@@ -7,8 +7,6 @@ import sys
 import argparse
 import os
 import lint_checker as lc
-from common import Common
-common = Common()
 
 def file_check(file):
     global _linenum
@@ -124,8 +122,8 @@ if __name__ == "__main__":
     report = open(args.file_name + ".report", 'w')
     if os.path.isfile(args.file_name):
         file_check(args.file_name)
-    elif os.path.isfile(common.templatedir + "/" + args.file_name):
-        file = common.templatedir + "/" + args.file_name
+    elif os.path.isfile("../templates/" + args.file_name):
+        file = "../templates/" + args.file_name
         file_check(file)
     else:
         print "Cannot locate filename %s." % (args.file_name)
