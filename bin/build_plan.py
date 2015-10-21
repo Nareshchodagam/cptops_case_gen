@@ -548,14 +548,13 @@ def gen_plan_by_idbquery(inputdict):
     if len(grouping) == 0:
         grouping=['role']
 
-
+    template_id = 'AUTO'
     if 'templateid' in inputdict:
-        template_id = inputdict['templateid']
-        if template_id != "AUTO":
-            assert os.path.isfile(common.templatedir + "/" + str(template_id) + ".template"), template_id + " template not found"
+        template_id = inputdict['templateid']    
+    if template_id != "AUTO":
+        assert os.path.isfile(common.templatedir + "/" + str(template_id) + ".template"), template_id + " template not found"
 
     if 'hostfilter' in inputdict:  # this is for backwards compatibility
-        inputdict['regexfilter'] = 'hostfilter=' + inputdict['hostfilter']
         regexfilters['name'] = inputdict['hostfilter']
 
     if 'regexfilter' in inputdict:
@@ -724,8 +723,8 @@ parser.add_option("-g", "--geo", dest="geo", help="geo list" )
 parser.add_option("-o", "--out", dest="out", help="output file")
 parser.add_option("-M", action="store_true", dest="grouping", help="Turn on grouping")
 parser.add_option("--gsize", dest="gsize", type="int", help="Group Size value")
-parser.add_option("--patchset", dest="patch_set", help="Patchset version")
-parser.add_option("--patch_version", dest="patch_version", help="system_update.sh version")
+parser.add_option("--patchset", dest="patch_set", default="current", help="Patchset version")
+parser.add_option("--patch_version", dest="patch_version", default="current", help="system_update.sh version")
 parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
 (options, args) = parser.parse_args()
