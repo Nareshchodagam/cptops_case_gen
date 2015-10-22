@@ -76,7 +76,9 @@ testlist= [
 
 	{ "clusters" : WASPODS ,"datacenter": "chi" , "roles": "ffx", "grouping" : "majorset", "maxgroupsize": 4, "templateid" : "ffx", "dr": "True"  },
 
-	{ "clusters" : CHIPODS ,"datacenter": "chi" , "roles": "ffx", "grouping" : "majorset", "maxgroupsize": 4, "templateid" : "ffx" }
+	{ "clusters" : CHIPODS ,"datacenter": "chi" , "roles": "ffx", "grouping" : "majorset", "maxgroupsize": 4, "templateid" : "ffx" },
+        
+        {"clusterTypes" : "PBSGEO" ,"datacenter": "phx,dfw,frf,chi,was,tyo,sjl,asg,lon" , "cl_opstat" :  "PRE_PRODUCTION,PROVISIONING,ACTIVE", "templateid" : "pbsgeo.linux" , "grouping": "majorset", "maxgroupsize": 5 }
 
 ]
 if __name__ == "__main__": 
