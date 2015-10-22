@@ -53,7 +53,8 @@ supportedfields = { 'superpod' : 'cluster.superpod.name',
                   'hostname' : 'name',
                   'failoverstatus' : 'failOverStatus',
                   'dr' : 'cluster.dr',
-                  'operationalstatus': 'operationalStatus',
+                  'host_operationalstatus': 'operationalStatus',
+                  'cluster_operationalstatus': 'cluster.operationalStatus',
                   'clustertype' : 'cluster.clusterType'
                  }
 
@@ -131,7 +132,7 @@ def build_dynamic_groups(hosts):
     return outmap
 
 
-def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role):
+def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,cl_opstat=''):
     # Replace variables in the templates
     logging.debug('Running compile_template')
 
@@ -152,6 +153,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role)
     output = output.replace('v_ROLE', role)
     output = output.replace('v_PATCHSET', options.patch_set)
     output = output.replace('v_VERSION', options.patch_version)
+    output = output.replace('v_CL_OPSTAT', cl_opstat)
 
 
     return output
@@ -205,14 +207,14 @@ def prep_template(template, outfile):
 
 
 
-def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=-1):
+def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=-1,cl_opstat=''):
     # Generate the main body of the template (per host)
     logging.debug('Executing gen_plan()')
     print "Generating: " + out_file
 
     s = open(template_file).read()
 
-    s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role)
+    s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat)
     if groupcount > 0 and options.tags:
         s = 'BEGIN_GROUP: ' + str(groupcount) + '\n\n' + s + '\n\n' + \
                                 'END_GROUP: ' + str(groupcount) + '\n\n'
@@ -519,8 +521,8 @@ def gen_plan_by_idbquery(inputdict):
     idbfilters = {}
     dcs = tuple(inputdict['datacenter'].split(','))
     idbfilters["cluster.dr"] = inputdict['dr'].split(',') if 'dr' in inputdict else 'False'
-    idbfilters["operationalStatus"] = inputdict['opstat'].split(',') if 'opstat' in inputdict else 'ACTIVE'
-
+    idbfilters["cluster.operationalStatus"] = inputdict['cl_opstat'].split(',') if 'cl_opstat' in inputdict else 'ACTIVE'
+    idbfilters["operationalStatus"] = inputdict['host_opstat'].split(',') if 'host_opstat' in inputdict else 'ACTIVE'
 
     #for key in ('datacenters','clusters','superpods','roles','clusterTypes','opstat','dr' ):
 
@@ -627,7 +629,8 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             i += 1
             clusters = set([results[group_enum][(host,)]['cluster'] for host in hostnames])
             roles = set([results[group_enum][(host,)]['role'] for host in hostnames])
-
+            cluster_operationalstatus = set([results[group_enum][(host,)]['cluster_operationalstatus'] for host in hostnames])
+            
             #gather rollup info
             allhosts.extend(hostnames)
             allclusters.extend(clusters)
@@ -640,7 +643,7 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             logging.debug(gblSplitHosts)
 
             prep_template(template_id, common.outputdir + '/' + fileprefix + "_plan_implementation.txt")
-            gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),i)
+            gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),i,','.join(cluster_operationalstatus))
 
     consolidated_plan = consolidate_plan(','.join(set(allhosts)), ','.join(set(allclusters)), dc, ','.join(set(allsuperpods)), options.caseNum, ','.join(set(allroles)))
 
