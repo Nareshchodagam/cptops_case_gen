@@ -19,15 +19,9 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c 
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -host v_HOSTNAME_CPS -c remove_from_pool -threads -auto2
 
 - stop app
-<<<<<<< HEAD
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox  v_HOSTNAME_CPS -c stop_server  -threads -auto2
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -host v_HOSTNAME_MSG -c stop_server  -threads -auto2
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -host v_HOSTNAME_DSTORE -c stop_server -threads -auto2
-=======
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -host v_HOSTNAME_CPS -c stop_server -threads -auto2
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -host v_HOSTNAME_MSG -c stop_server -threads -auto2
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -host v_HOSTNAME_DSTORE -c stop_server -threads -auto2
->>>>>>> master_cptops_case_gen/master
 
 - Stop Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2
