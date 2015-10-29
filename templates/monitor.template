@@ -1,4 +1,4 @@
-RR based commands
+-RR based commands
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
@@ -6,7 +6,7 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json" -threads -auto2
 
 -Confirm that server is in Standby mode for Nagios.
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/nagios_sbcheck.sh" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "sh ./remote_transfer/nagios_sbcheck.sh" -threads -auto2
 
 -Disable monitoring on appropriate pod-monitor host
 Exec: /opt/rh/python27/root/usr/bin/python2.7 /opt/compute_deploy/bin/nagios_monitor.py -H v_HOSTS -c disable 
