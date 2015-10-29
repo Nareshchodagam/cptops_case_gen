@@ -207,7 +207,7 @@ def prep_template(template, outfile):
 
 
 
-def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=-1,cl_opstat=''):
+def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=0,cl_opstat=''):
     # Generate the main body of the template (per host)
     logging.debug('Executing gen_plan()')
     print "Generating: " + out_file
@@ -216,8 +216,7 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=-1,c
 
     s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat)
     if groupcount > 0 and options.tags:
-        s = 'BEGIN_GROUP: ' + str(groupcount) + '\n\n' + s + '\n\n' + \
-                                'END_GROUP: ' + str(groupcount) + '\n\n'
+        s = apply_grouptags(s, str(groupcount))
 
     f = open(out_file, 'w')
     f.write(s)
@@ -235,7 +234,10 @@ def humanreadable_key(s):
 
     return [ tryint(c) for c in re.split('([0-9]+)', s) ]
 
-
+def apply_grouptags(content,tag_id):
+    return 'BEGIN_GROUP: ' + tag_id + '\n\n' + content + '\n\n' + \
+                                'END_GROUP: ' + tag_id + '\n\n'
+    
 
 def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
     # Consolidate all output into a single implementation plan.
@@ -254,6 +256,9 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
             with open(pre_file, "r") as pre:
                 pre = pre.read()
                 pre = compile_template(pre, hosts, cluster, datacenter, superpod, casenum, role)
+                if options.tags:    
+                    pre = apply_grouptags(pre, 'PRE')
+                    
                 logging.debug('Writing out prefile ' + pre_file + '  to ' + consolidated_file)
                 final_file.write(pre + '\n\n')
 
@@ -272,6 +277,8 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
             with open(post_file, "r") as post:
                 post = post.read()
                 post = compile_template(post, hosts, cluster, datacenter, superpod, casenum, role)
+                if options.tags:
+                    post = apply_grouptags(post, 'POST')
                 logging.debug('Writing out post file ' + post_file + ' to ' + consolidated_file)
                 final_file.write(post + '\n\n')
         if options.tags:
