@@ -113,6 +113,7 @@ def summary():
     report.write("-----------------\n")
     report.write("Total number of Errors/Warnings: %d" % _failed_checks)
     report.write("\nYour template has been rated at %.2f/10\n" % template_score)
+    
            
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Template syntax checker: Program to check syntax of release_runner templates.")
@@ -132,3 +133,9 @@ if __name__ == "__main__":
     with open(args.file_name + ".report", 'r') as fin:
         print fin.read()
     os.remove(args.file_name + ".report")
+    
+    if _failed_checks >= 1:
+        exit(1)
+    else:
+        exit(0)
+        
