@@ -207,7 +207,7 @@ def prep_template(template, outfile):
 
 
 
-def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=-1,cl_opstat=''):
+def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=0,cl_opstat=''):
     # Generate the main body of the template (per host)
     logging.debug('Executing gen_plan()')
     print "Generating: " + out_file
@@ -215,7 +215,7 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=-1,c
     s = open(template_file).read()
 
     s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat)
-    if groupcount > -1 and options.tags:
+    if groupcount > 0 and options.tags:
         s = apply_grouptags(s, str(groupcount))
 
     f = open(out_file, 'w')
