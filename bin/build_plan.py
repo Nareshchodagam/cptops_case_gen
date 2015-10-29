@@ -256,7 +256,8 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
             with open(pre_file, "r") as pre:
                 pre = pre.read()
                 pre = compile_template(pre, hosts, cluster, datacenter, superpod, casenum, role)
-                pre = apply_grouptags(pre, 'PRE')
+                if options.tags:    
+                    pre = apply_grouptags(pre, 'PRE')
                     
                 logging.debug('Writing out prefile ' + pre_file + '  to ' + consolidated_file)
                 final_file.write(pre + '\n\n')
@@ -276,7 +277,8 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
             with open(post_file, "r") as post:
                 post = post.read()
                 post = compile_template(post, hosts, cluster, datacenter, superpod, casenum, role)
-                post = apply_grouptags(post, 'POST')
+                if options.tags:
+                    post = apply_grouptags(post, 'POST')
                 logging.debug('Writing out post file ' + post_file + ' to ' + consolidated_file)
                 final_file.write(post + '\n\n')
         if options.tags:
