@@ -62,9 +62,15 @@ def runner_cmds(line):
             match_value = rr_option.next()
             (command, options) = match_value.groups()
             if command in lc.default_cmd:
-                if options != lc.default_cmd[command]:
-                    runner_cmds_fail += 1
-                    err_tracker('E', "Expecting %s value for the command option %s\n" % (lc.default_cmd[command], command))
+                if isinstance(lc.default_cmd[command], list): 
+                    if options not in lc.default_cmd[command]:
+                        values = ', '.join(lc.default_cmd[command])
+                        runner_cmds_fail += 1
+                        err_tracker('E', "Expecting %s value for the command option %s\n" % (values, command))
+                else:
+                    if options != lc.default_cmd[command]:
+                        runner_cmds_fail += 1
+                        err_tracker('E', "Expecting %s value for the command option %s\n" % (lc.default_cmd[command], command))             
             elif command in lc.valid_cmd:
                 if options == None and command in lc.require_options:
                     runner_cmds_fail += 1
@@ -91,7 +97,7 @@ def syntax_checker(line):
         err_tracker('W', "Expecting option \"-invdb_mode or -forced_host\"\n")
     if space_checker.search(line):
         syntax_checker_fail += 1
-        err_tracker('E', "One or more trailing whitespaces found\n")
+        err_tracker('W', "One or more trailing whitespaces found\n")
     return syntax_checker_fail
 
 def err_tracker(err_code, msg):
