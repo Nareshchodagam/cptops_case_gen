@@ -53,7 +53,8 @@ supportedfields = { 'superpod' : 'cluster.superpod.name',
                   'hostname' : 'name',
                   'failoverstatus' : 'failOverStatus',
                   'dr' : 'cluster.dr',
-                  'operationalstatus': 'operationalStatus',
+                  'host_operationalstatus': 'operationalStatus',
+                  'cluster_operationalstatus': 'cluster.operationalStatus',
                   'clustertype' : 'cluster.clusterType'
                  }
 
@@ -131,7 +132,7 @@ def build_dynamic_groups(hosts):
     return outmap
 
 
-def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role):
+def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,cl_opstat=''):
     # Replace variables in the templates
     logging.debug('Running compile_template')
 
@@ -141,8 +142,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role)
     global gblSplitHosts
     #before default ids in case of subsets
     for key, hostlist in gblSplitHosts.iteritems():
-        output = output.replace(key, ",".join(hostlist))
-
+        output = output.replace(key, ",".join(hostlist))    
 
 
     output = output.replace('v_HOSTS', hosts)
@@ -153,6 +153,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role)
     output = output.replace('v_ROLE', role)
     output = output.replace('v_PATCHSET', options.patch_set)
     output = output.replace('v_VERSION', options.patch_version)
+    output = output.replace('v_CL_OPSTAT', cl_opstat)
 
 
     return output
@@ -206,17 +207,16 @@ def prep_template(template, outfile):
 
 
 
-def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=-1):
+def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=0,cl_opstat=''):
     # Generate the main body of the template (per host)
     logging.debug('Executing gen_plan()')
     print "Generating: " + out_file
 
     s = open(template_file).read()
 
-
-    s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role)
+    s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat)
     if groupcount > 0 and options.tags:
-        s = 'BEGIN_GROUP: ' + str(groupcount) + '\n\n' + s + 'END_GROUP: ' + str(groupcount) + '\n\n'
+        s = apply_grouptags(s, str(groupcount))
 
     f = open(out_file, 'w')
     f.write(s)
@@ -234,7 +234,10 @@ def humanreadable_key(s):
 
     return [ tryint(c) for c in re.split('([0-9]+)', s) ]
 
-
+def apply_grouptags(content,tag_id):
+    return 'BEGIN_GROUP: ' + tag_id + '\n\n' + content + '\n\n' + \
+                                'END_GROUP: ' + tag_id + '\n\n'
+    
 
 def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
     # Consolidate all output into a single implementation plan.
@@ -253,6 +256,9 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
             with open(pre_file, "r") as pre:
                 pre = pre.read()
                 pre = compile_template(pre, hosts, cluster, datacenter, superpod, casenum, role)
+                if options.tags:    
+                    pre = apply_grouptags(pre, 'PRE')
+                    
                 logging.debug('Writing out prefile ' + pre_file + '  to ' + consolidated_file)
                 final_file.write(pre + '\n\n')
 
@@ -271,6 +277,8 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
             with open(post_file, "r") as post:
                 post = post.read()
                 post = compile_template(post, hosts, cluster, datacenter, superpod, casenum, role)
+                if options.tags:
+                    post = apply_grouptags(post, 'POST')
                 logging.debug('Writing out post file ' + post_file + ' to ' + consolidated_file)
                 final_file.write(post + '\n\n')
         if options.tags:
@@ -509,6 +517,8 @@ def chunks_tuple_list(tlist, n):
     n = max(1, n)
     return [l[i:i + n] for i in range(0, len(l), n)]
 
+    
+
 def gen_plan_by_idbquery(inputdict):
 
     #set defaults values
@@ -518,8 +528,8 @@ def gen_plan_by_idbquery(inputdict):
     idbfilters = {}
     dcs = tuple(inputdict['datacenter'].split(','))
     idbfilters["cluster.dr"] = inputdict['dr'].split(',') if 'dr' in inputdict else 'False'
-    idbfilters["operationalStatus"] = inputdict['opstat'].split(',') if 'opstat' in inputdict else 'ACTIVE'
-
+    idbfilters["cluster.operationalStatus"] = inputdict['cl_opstat'].split(',') if 'cl_opstat' in inputdict else 'ACTIVE'
+    idbfilters["operationalStatus"] = inputdict['host_opstat'].split(',') if 'host_opstat' in inputdict else 'ACTIVE'
 
     #for key in ('datacenters','clusters','superpods','roles','clusterTypes','opstat','dr' ):
 
@@ -547,14 +557,13 @@ def gen_plan_by_idbquery(inputdict):
     if len(grouping) == 0:
         grouping=['role']
 
-
+    template_id = 'AUTO'
     if 'templateid' in inputdict:
-        template_id = inputdict['templateid']
-        if template_id != "AUTO":
-            assert os.path.isfile(common.templatedir + "/" + str(template_id) + ".template"), template_id + " template not found"
+        template_id = inputdict['templateid']    
+    if template_id != "AUTO":
+        assert os.path.isfile(common.templatedir + "/" + str(template_id) + ".template"), template_id + " template not found"
 
     if 'hostfilter' in inputdict:  # this is for backwards compatibility
-        inputdict['regexfilter'] = 'hostfilter=' + inputdict['hostfilter']
         regexfilters['name'] = inputdict['hostfilter']
 
     if 'regexfilter' in inputdict:
@@ -627,7 +636,8 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             i += 1
             clusters = set([results[group_enum][(host,)]['cluster'] for host in hostnames])
             roles = set([results[group_enum][(host,)]['role'] for host in hostnames])
-
+            cluster_operationalstatus = set([results[group_enum][(host,)]['cluster_operationalstatus'] for host in hostnames])
+            
             #gather rollup info
             allhosts.extend(hostnames)
             allclusters.extend(clusters)
@@ -636,16 +646,34 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             #increment groupid
 
             fileprefix = str(group_enum) + str(i) + '_' + str(clusters)
-            print hostnames
             gblSplitHosts = build_dynamic_groups(hostnames)
             logging.debug(gblSplitHosts)
 
             prep_template(template_id, common.outputdir + '/' + fileprefix + "_plan_implementation.txt")
-            gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),i)
+            gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),i,','.join(cluster_operationalstatus))
 
     consolidated_plan = consolidate_plan(','.join(set(allhosts)), ','.join(set(allclusters)), dc, ','.join(set(allsuperpods)), options.caseNum, ','.join(set(allroles)))
 
     return consolidated_plan, sorted(allhosts)
+
+def gen_plan_by_hostlist_idb(hostlist, templateid, gsize, grouping=['majorset', 'minorset']):
+    hostnames =[]
+    dcs = []
+    file = open(hostlist).readlines()
+    for line in file:
+        dc = line.split('-')[3].rstrip('\n')
+        if dc not in dcs:
+            dcs.append(dc)
+        hostnames.append(line.rstrip('\n'))
+    idbfilters = { 'name': hostnames }
+    
+    groups = [['datacenter'],['superpod'] + grouping,['hostname']]
+    bph = Buildplan_helper('allhosts?', supportedfields,True)
+    writeplan = bph.prep_idb_plan_info(dcs,idbfilters,{},groups,templateid)
+    consolidate_idb_query_plans(writeplan, dcs, gsize)
+            
+        
+    
 
 ###############################################################################
 #                Main
@@ -674,42 +702,45 @@ usage = """
             """
 
 
-if __name__ == "__main__":
-    parser = OptionParser(usage)
-    parser.add_option("-c", "--case", dest="caseNum", help="The case number to use",
+
+parser = OptionParser(usage)
+parser.add_option("-c", "--case", dest="caseNum", help="The case number to use",
                       default='01234')
-    parser.add_option("-s", "--superpod", dest="superpod", help="The superpod")
-    parser.add_option("-S", "--status", dest="clusterstatus", \
+parser.add_option("-s", "--superpod", dest="superpod", help="The superpod")
+parser.add_option("-S", "--status", dest="clusterstatus", \
                       help="The cluster status - PRIMARY/STANDBY", default="PRIMARY" )
-    parser.add_option("-i", "--clusterance", dest="cluster", help="The clusterance")
-    parser.add_option("-d", "--datacenter", dest="datacenter", help="The datacenter")
-    parser.add_option("-t", "--template", dest="template", help="Override Template")
-    parser.add_option("-l", "--hostlist", dest="hostlist", help="Path to list of hosts", \
+parser.add_option("-i", "--clusterance", dest="cluster", help="The clusterance")
+parser.add_option("-d", "--datacenter", dest="datacenter", help="The datacenter")
+parser.add_option("-t", "--template", dest="template", help="Override Template")
+parser.add_option("-l", "--hostlist", dest="hostlist", help="Path to list of hosts", \
                       default='hostlist')
-    parser.add_option("-r", "--role", dest="role", help="Host role")
-    parser.add_option("-H", "--host", dest="host", help="The host")
-    parser.add_option("-f", "--filename", dest="filename", \
+parser.add_option("-r", "--role", dest="role", help="Host role")
+parser.add_option("-H", "--host", dest="host", help="The host")
+parser.add_option("-f", "--filename", dest="filename", \
                       default="plan_implementation.txt", help="The output filename")
-    parser.add_option("-v", action="store_true", dest="verbose", default=False, \
+parser.add_option("-v", action="store_true", dest="verbose", default=False, \
                       help="verbosity")
-    parser.add_option("-e", action="store_true", dest="endrun", default=False, \
+parser.add_option("-e", action="store_true", dest="endrun", default=False, \
                       help="End the run and consolidate files")
-    parser.add_option("-a", action="store_true", dest="allatonce", default=False, \
+parser.add_option("-a", action="store_true", dest="allatonce", default=False, \
                       help="End the run and consolidate files")
-    parser.add_option("-x", action="store_true", dest="idbhost", default=False, \
+parser.add_option("-x", action="store_true", dest="idbhost", default=False, \
                       help="Use for testing idbhost")
-    parser.add_option("-G", "--idbgen", dest="idbgen", help="generate from idb")
-    parser.add_option("-C", "--cidblocal", dest="cidblocal", action='store_true', default=True, \
+parser.add_option("-G", "--idbgen", dest="idbgen", help="generate from idb")
+parser.add_option("-C", "--cidblocal", dest="cidblocal", action='store_true', default=True, \
                       help="access cidb from your local machine")
-    parser.add_option("-g", "--geo", dest="geo", help="geo list" )
-    parser.add_option("-o", "--out", dest="out", help="output file")
-    parser.add_option("--patchset", dest="patch_set", help="Patchset version")
-    parser.add_option("--patch_version", dest="patch_version", help="system_update.sh version")
-    parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
-    parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
-    (options, args) = parser.parse_args()
-    
-    if options.patch_version:
+parser.add_option("-g", "--geo", dest="geo", help="geo list" )
+parser.add_option("-o", "--out", dest="out", help="output file")
+parser.add_option("-M", action="store_true", dest="grouping", help="Turn on grouping")
+parser.add_option("--gsize", dest="gsize", type="int", help="Group Size value")
+parser.add_option("--patchset", dest="patch_set", default="current", help="Patchset version")
+parser.add_option("--patch_version", dest="patch_version", default="current", help="system_update.sh version")
+parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
+parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
+(options, args) = parser.parse_args()
+if __name__ == "__main__":
+
+    if  options.patch_version:
         options.patch_version = "-a " + options.patch_version 
     else:
         options.patch_version = "-a current"
@@ -796,6 +827,15 @@ if __name__ == "__main__":
 
         consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role)
         exit()
+    
+    if options.grouping:
+        if not options.hostlist or not options.template:
+            print "Must specify an hostlist and template with grouping option." 
+            exit(1)
+        elif not options.gsize:
+            options.gsize = 1    
+        gen_plan_by_hostlist_idb(options.hostlist, options.template, options.gsize)
+        exit()
 
     if options.endrun:
         # This hack will go away once Mitchells idbhelper module is merged.
@@ -804,3 +844,6 @@ if __name__ == "__main__":
     elif not options.idbgen:
         prep_template(options.template, options.filename)
         gen_plan(options.host, options.cluster, options.datacenter, options.superpod, options.caseNum, options.role)
+
+    
+    

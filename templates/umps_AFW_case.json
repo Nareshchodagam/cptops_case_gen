@@ -15,7 +15,7 @@
 	"Change-Area": "Systems - Upgrade RHEL Ver UMPS Tier",
 	"Business-Justification": "These hosts need to on-board for AFW and to updated to RHEL6u6 for compliance and security reasons",
 	"Business-Reason": "Routine Maintenance",
-	"Cloud-Team": "Compute Deploy",
+	"Cloud-Team": "Infrastructure Delivery",
 	"Backout": "General rollback is to revert DHCP, kickstart host back the old way, put apps back on.",
 	"Shared-Infrastructure": "Yes",
 	"Tested-Change": "Yes",

@@ -41,7 +41,8 @@ require_options = {"-product": "Application name",
 
 default_cmd = {"-superpod": "v_SUPERPOD",
                "-cluster": "v_CLUSTER",
-               "-host": "v_HOSTS",
+               "-host": ["v_HOSTS", "v_HOSTNAME_CPS", "v_HOSTNAME_DSTORE", "v_HOSTNAME_MSG"],
                "-bigipstatus": "AVAILABILITY_STATUS_GREEN",
                "-forced_host": "v_HOSTS",
-               "-device_role": "v_ROLE"}
+               "-device_role": "v_ROLE",
+               "-cluster_status": "v_CL_OPSTAT"}

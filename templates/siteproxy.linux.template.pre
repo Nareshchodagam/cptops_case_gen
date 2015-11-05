@@ -1,3 +1,6 @@
+- set your DC env
+Exec: DC=v_DATACENTER
+
 - create a local remote_transfer directory
 
 Exec: mkdir -p ~/releaserunner/remote_transfer
@@ -19,5 +22,3 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opsen
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
 
 
--kerberos
-Exec: kinit

@@ -7,8 +7,6 @@ import sys
 import argparse
 import os
 import lint_checker as lc
-from common import Common
-common = Common()
 
 def file_check(file):
     global _linenum
@@ -64,9 +62,15 @@ def runner_cmds(line):
             match_value = rr_option.next()
             (command, options) = match_value.groups()
             if command in lc.default_cmd:
-                if options != lc.default_cmd[command]:
-                    runner_cmds_fail += 1
-                    err_tracker('E', "Expecting %s value for the command option %s\n" % (lc.default_cmd[command], command))
+                if isinstance(lc.default_cmd[command], list): 
+                    if options not in lc.default_cmd[command]:
+                        values = ', '.join(lc.default_cmd[command])
+                        runner_cmds_fail += 1
+                        err_tracker('E', "Expecting %s value for the command option %s\n" % (values, command))
+                else:
+                    if options != lc.default_cmd[command]:
+                        runner_cmds_fail += 1
+                        err_tracker('E', "Expecting %s value for the command option %s\n" % (lc.default_cmd[command], command))             
             elif command in lc.valid_cmd:
                 if options == None and command in lc.require_options:
                     runner_cmds_fail += 1
@@ -93,7 +97,7 @@ def syntax_checker(line):
         err_tracker('W', "Expecting option \"-invdb_mode or -forced_host\"\n")
     if space_checker.search(line):
         syntax_checker_fail += 1
-        err_tracker('E', "One or more trailing whitespaces found\n")
+        err_tracker('W', "One or more trailing whitespaces found\n")
     return syntax_checker_fail
 
 def err_tracker(err_code, msg):
@@ -115,16 +119,29 @@ def summary():
     report.write("-----------------\n")
     report.write("Total number of Errors/Warnings: %d" % _failed_checks)
     report.write("\nYour template has been rated at %.2f/10\n" % template_score)
+    
            
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Template syntax checker: Program to check syntax of release_runner templates.")
     parser.add_argument('-t', '--template', metavar='<Template Name>', dest='file_name', required=True)
     parser.add_argument('-v', '--verbose', help='Verbose output for errors.', action='store_true', dest='verbose')
     args = parser.parse_args()
-    file = common.templatedir + "/" + args.file_name 
     report = open(args.file_name + ".report", 'w')
-    file_check(file)
+    if os.path.isfile(args.file_name):
+        file_check(args.file_name)
+    elif os.path.isfile("../templates/" + args.file_name):
+        file = "../templates/" + args.file_name
+        file_check(file)
+    else:
+        print "Cannot locate filename %s." % (args.file_name)
+        sys.exit(1)
     report.close()
     with open(args.file_name + ".report", 'r') as fin:
         print fin.read()
     os.remove(args.file_name + ".report")
+    
+    if _failed_checks >= 1:
+        exit(1)
+    else:
+        exit(0)
+        
