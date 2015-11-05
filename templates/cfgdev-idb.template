@@ -6,8 +6,8 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 - Validate the host needs to be patched
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json" -threads -auto2
 
-- Set the boot device to HDD
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
+#- Set the boot device to HDD
+#release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
 - Stop the running applications
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_ant_apps.py --stop" -threads -auto2
