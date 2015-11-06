@@ -1,5 +1,4 @@
 - create a local remote_transfer directory
-
 Exec: mkdir -p ~/releaserunner/remote_transfer
 
 - Get the remote scripts:
@@ -7,7 +6,8 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/jumpstart/common/solaris-and-l
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/valid_versions.json ~/releaserunner/remote_transfer/valid_versions.json
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/validate_linux_patchset.py ~/releaserunner/remote_transfer/validate_linux_patchset.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py ~/releaserunner/remote_transfer/common.py
-
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_ant_apps.py ~/releaserunner/remote_transfer/manage_ant_apps.py
 
 - Get the local update scripts:
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/idbhost.py ~/idbhost.py
