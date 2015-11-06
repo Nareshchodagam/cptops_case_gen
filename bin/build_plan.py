@@ -606,7 +606,9 @@ def consolidate_idb_query_plans(writeplan,dcs,gsize):
 
     logging.debug( allplans )
     for template in allplans:
-        for dc in ok_dclist:
+        for dc in set(ok_dclist):
+            if not dc in allplans[template].keys():
+                continue
             content, hostlist = allplans[template][dc]
             writelist.extend(content)
             fullhostlist.extend(hostlist)
