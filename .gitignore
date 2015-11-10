@@ -6,3 +6,6 @@ includes/*
 output/*
 bin/common.py
 tmp
+bin/creds.config
+bin/creds.config.prod
+bin/creds.config.test
