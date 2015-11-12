@@ -39,9 +39,12 @@ if __name__ == "__main__":
             #msg =  { "clusters" : pods ,"datacenter": dc , "roles": options.role, "cl_opstat" : "ACTIVE", "grouping" : "majorset", "maxgroupsize": 4, "templateid" : options.template, "dr": options.dr }
             #print("""python build_plan.py -c 0000001 -C -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "majorset", "maxgroupsize": 4, "templateid" : "%s", "hostfilter": "^.*%s" }' -v""" % (pods,dc,options.role,options.template,options.filter))
             #print("""python build_plan.py -c 0000001 -C -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "majorset", "maxgroupsize": 4, "templateid" : "%s", "dr": "%s", "hostfilter": "^.*%s" }' -v""" % (pods,dc,options.role,options.template,options.dr,options.filter))
-            print("""python build_plan.py -C -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "majorset,minorset", "maxgroupsize": 3, "templateid" : "%s", "dr": "%s" , "hostfilter": "^.*%s"}' -v""" % (pods,dc,options.role,options.template,options.dr,options.filter))
+            if options.filter:
+                print("""python build_plan.py -C -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "majorset,minorset", "maxgroupsize": 3, "templateid" : "%s", "dr": "%s" , "hostfilter": "^.*%s"}' -v""" % (pods,dc,options.role,options.template,options.dr,options.filter))
+            else:
+                print("""python build_plan.py -C -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "majorset,minorset", "maxgroupsize": 3, "templateid" : "%s", "dr": "%s" }' -v""" % (pods,dc,options.role,options.template,options.dr))
             #print("""python build_plan.py -C -G '%s' -v""" % msg)
             if options.group:
-                print("""python gus_cases.py -T change  -f ../templates/%s-patch.json  -s "%s Patch Bundle: %s %s %s %s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,options.bundle.upper(),options.role.upper(),dc.upper(),pods,options.group,dc))
+                print("""python gus_cases.py -T change  -f ../templates/%s-nonapproved-patch.json  -s "%s Patch Bundle: %s %s %s %s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,options.bundle.upper(),options.role.upper(),dc.upper(),pods,options.group,dc))
             else:
                 print("""python gus_cases.py -T change  -f ../templates/%s-patch.json  -s "%s Patch Bundle: %s %s %s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,options.bundle.upper(),options.role.upper(),dc.upper(),pods,dc))
