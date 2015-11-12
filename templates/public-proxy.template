@@ -46,6 +46,9 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_s
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "diff -s static_route.post static_route.orig" -auto2
 
 -check app status
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/squid restart" -threads -auto2
+
+-check app status
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/squid status" -threads -auto2
 
 - validate the max file descriptors as squid startup can be problematic target is 65k if it fails do a stop and start to restart it.
