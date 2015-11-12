@@ -25,7 +25,8 @@ valid_cmd = ('-product',
               '-device_role',
               '-property',
               '-g',
-              '-stopall')
+              '-stopall',
+              '-cluster_status')
 
 require_options = {"-product": "Application name",
                    "-i": "Instance Name",
