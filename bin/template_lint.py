@@ -19,7 +19,7 @@ def file_check(file):
     _failed_checks = 0
     _pass_checks = 0
     _total_lines_chk = 0
-    ignore_lines = re.compile(r'^\-.*|^\s+')
+    ignore_lines = re.compile(r'^\-.*|^\s+|^\#.*')
     if not os.path.exists(file):
         print "%s does not exists." % (file)
         sys.exit(1)   
