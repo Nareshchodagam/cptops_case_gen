@@ -62,9 +62,15 @@ def runner_cmds(line):
             match_value = rr_option.next()
             (command, options) = match_value.groups()
             if command in lc.default_cmd:
-                if options != lc.default_cmd[command]:
-                    runner_cmds_fail += 1
-                    err_tracker('E', "Expecting %s value for the command option %s\n" % (lc.default_cmd[command], command))
+                if isinstance(lc.default_cmd[command], list): 
+                    if options not in lc.default_cmd[command]:
+                        values = ', '.join(lc.default_cmd[command])
+                        runner_cmds_fail += 1
+                        err_tracker('E', "Expecting %s value for the command option %s\n" % (values, command))
+                else:
+                    if options != lc.default_cmd[command]:
+                        runner_cmds_fail += 1
+                        err_tracker('E', "Expecting %s value for the command option %s\n" % (lc.default_cmd[command], command))             
             elif command in lc.valid_cmd:
                 if options == None and command in lc.require_options:
                     runner_cmds_fail += 1
@@ -91,7 +97,7 @@ def syntax_checker(line):
         err_tracker('W', "Expecting option \"-invdb_mode or -forced_host\"\n")
     if space_checker.search(line):
         syntax_checker_fail += 1
-        err_tracker('E', "One or more trailing whitespaces found\n")
+        err_tracker('W', "One or more trailing whitespaces found\n")
     return syntax_checker_fail
 
 def err_tracker(err_code, msg):
@@ -113,6 +119,7 @@ def summary():
     report.write("-----------------\n")
     report.write("Total number of Errors/Warnings: %d" % _failed_checks)
     report.write("\nYour template has been rated at %.2f/10\n" % template_score)
+    
            
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Template syntax checker: Program to check syntax of release_runner templates.")
@@ -132,3 +139,9 @@ if __name__ == "__main__":
     with open(args.file_name + ".report", 'r') as fin:
         print fin.read()
     os.remove(args.file_name + ".report")
+    
+    if _failed_checks >= 1:
+        exit(1)
+    else:
+        exit(0)
+        

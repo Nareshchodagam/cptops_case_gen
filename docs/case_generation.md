@@ -112,3 +112,7 @@ python build_plan.py -c 0000001 -C -G '{"clusters" : "'$1'" ,"datacenter": "chi"
 python gus_cases.py -T change  -f ../templates/ffx-rh6u6-patch.json  -s "May Patch Bundle : FFX CHI $1 PROD" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D chi -i ../output/plan_implementation.txt
 
 
+INSIGHTS
+PROD
+    ./build_plan.py -c 0000001 -C -G '{"datacenter": "'$i'" , "roles": "insights_iworker,insights_redis", "grouping" : "majorset", "maxgroupsize" : 18, "templateid" : "insights", "cl_opstat":"ACTIVE,PROVISIONING", "host_opstat": "ACTIVE,PROVISIONING" }'
+    python gus_cases.py -T change -f ../templates/insights-patch.json -s "Oct Patch Bundle : INSIGHTS ${TITLE} PROD" -k ../templates/6u6-plan.json -l ../output/summarylist.txt -D ${i} -i ../output/plan_implementation.tx
