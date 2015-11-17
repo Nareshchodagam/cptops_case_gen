@@ -48,6 +48,9 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/sbin/hpasmcli -s 'clear 
 - Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base,sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c start_server -auto2 -cluster_status v_CL_OPSTAT
 
+- Add in a pause
+Exec: sleep 60
+
 -Ping Check Cluster
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -device_role v_ROLE -host v_HOSTS -c pingcheck -threads -auto2 -cluster_status v_CL_OPSTAT
 
