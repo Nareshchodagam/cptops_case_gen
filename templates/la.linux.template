@@ -13,8 +13,14 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c 
 - Remove from pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product liveagent -host v_HOSTS -c remove_from_pool -property "min_f5_percentage=0" -threads -auto2
 
+- Pause
+Exec: sleep 120
+
 - Stop the running application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product liveagent,sfdc-splunk-forwarder -host v_HOSTS -c stop_server -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product liveagent,sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2
+
+- Execute hermes script
+release_runner.pl -forced_host host1 -c sudo_cmd -m "./remote_transfer/manage-hermes-peer.sh -f /home/sfdc/current/liveagent/liveagent/messagingservice/config/messaging.config v_HOSTS" -threads -auto2
 
 - Execute the update script
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -p" -threads -auto2
@@ -29,7 +35,11 @@ Exec: ~/check_reconnect.py -H v_HOSTS
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
 - Start the application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product liveagent,sfdc-splunk-forwarder -host v_HOSTS -c start_server -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product liveagent,sfdc-splunk-forwarder -host v_HOSTS -c start_server -threads -auto2
+
+- Execute hermes script
+release_runner.pl -forced_host host1 -c sudo_cmd -m "./remote_transfer/manage-hermes-peer.sh -d -f /home/sfdc/current/liveagent/liveagent/messagingservice/config/messaging.config v_HOSTS" -threads -auto2
+
 
 - Add to pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product liveagent -host v_HOSTS -c add_to_pool -auto2
