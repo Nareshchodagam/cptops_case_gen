@@ -13,6 +13,7 @@ import getpass
 import re
 import json
 import sys
+import os
 from datetime import datetime, date, time, timedelta
 try:
     import yaml
@@ -256,6 +257,14 @@ def add_case_comment(comment, cId, session):
     logging.debug(new_comment)
     return new_comment
 
+def checkEmptyFile(filename):
+    try:
+        if os.stat(filename).st_size == 0:
+            print('%s is empty. Exiting.' % filename)
+            sys.exit(1)
+    except OSError:
+        print('No file %s. Exiting.' % filename)
+        sys.exit(1)
 
 if __name__ == '__main__':
     
@@ -319,6 +328,8 @@ if __name__ == '__main__':
     # instantiate auth object and generate session dict
     authObj = Auth(username,gpass)
     session = authObj.login()
+    if options.iplan:
+        checkEmptyFile(options.iplan)
 
     if options.casetype == 'change':
         hosts = get_hosts(options.hostlist)
