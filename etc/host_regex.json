@@ -3,5 +3,7 @@
     "mmcnsmr": "v_HOSTNAME_MMCNSMR",
     "prsn|chan|sshare": "v_HOSTNAME_CPS",
     "msg": "v_HOSTNAME_MSG",
-    "dstore": "v_HOSTNAME_DSTORE"
+    "dstore": "v_HOSTNAME_DSTORE",
+    "mnds": "v_HOSTS_RM",
+    "dnds": "v_HOSTS_NM"
  }
