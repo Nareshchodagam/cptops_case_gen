@@ -9,8 +9,29 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 - Disable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable -m v_CLUSTER-monitor-v_DATACENTER
 
-- run manage stop
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_lhub_stop.sh" -threads -auto2
+
+
+
+-stop and disable vsftpd and httpd
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service vsftpd status" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service httpd status" -threads -auto2
+
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service vsftpd stop" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "chkconfig vsftpd off" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service httpd stop" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "chkconfig httpd off" -threads -auto2
+
+-save storage storage config
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/save_storage_config.sh" -threads -auto2
+
+Exec: sleep 260
+
+-check for open files 
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "lsof | grep '/hub/'" -threads -auto2
+Manual: ensure you have no file open before unmounting storage
+
+unmount fs
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "umount /hub*" -threads -auto2
 
 Manual: Contact SANENG resource to shut down fc ports for v_HOSTS
 
@@ -28,8 +49,21 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 
 Manual: Contact SANENG resource to start fc ports v_HOSTS
 
-- run manage start
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_lhub_start.sh" -threads -auto2
+-restore storage config
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/restore_storage_config.sh" -threads -auto2
+
+-mount fs
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "mount -a" -threads -auto2
+
+-mount fs
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "ls -ltr /hub" -threads -auto2
+
+Manual: check storage came back okay before starting apps
+-start vsftpd
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service vsftpd start" -threads -auto2
+
+-start httpd
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service httpd start" -threads -auto2
 
 - Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable -m v_CLUSTER-monitor-v_DATACENTER
