@@ -12,6 +12,7 @@ import base64
 import re
 import ConfigParser
 import common
+import logging
 
 config = ConfigParser.ConfigParser()
 config.readfp(open('creds.config'))
@@ -453,8 +454,32 @@ class Gus(object):
 
         try:
             attach_item = requests.post(attachmentURL, data=json.dumps(payload), headers=postHeader)
-            if attach_item.status_code != 200:
-                print(attach_item.text)
+            if attach_item.status_code != 204:
+                logging.debug(attach_item.text)
+            return attach_item
+        except Exception, e:
+            print('Unable to add file to case: ', e)
+            
+    def renameAttach(self, name, Id, session):
+        '''
+        attach() attaches a file supplied by the user to the case defined by caseId
+        '''
+
+        self.name = name
+        self.Id = Id
+        self.sessionDetails = session
+
+        payload = {'name': self.name }
+        token = str(self.sessionDetails['token'])
+        attachmentURL = str(self.sessionDetails['instance']) + '/services/data/' + self._api_ver + '/sobjects/Attachment/'
+
+        gusObj = Gus()
+        postHeader = gusObj.generatePostHeader(self.sessionDetails, token)
+
+        try:
+            attach_item = requests.patch(attachmentURL + Id, data=json.dumps(payload), headers=postHeader)
+            if attach_item.status_code != 204:
+                logging.debug(attach_item.text,attach_item.status_code,attach_item)
             return attach_item
         except Exception, e:
             print('Unable to add file to case: ', e)

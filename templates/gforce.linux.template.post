@@ -1,0 +1,3 @@
+
+- Scan the cluster
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant cluster hbscan" -host v_HOSTS

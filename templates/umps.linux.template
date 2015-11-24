@@ -16,21 +16,15 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
 - remove from pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role chan,prsn,sshare -host v_HOSTNAME_CPS -c remove_from_pool -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -host v_HOSTNAME_CPS -c remove_from_pool -threads -auto2
 
 - stop app
-<<<<<<< HEAD
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role v_ROLE -host v_HOSTNAME_CPS -c stop_server  -threads -auto2
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role v_ROLE -host v_HOSTNAME_MSG -c stop_server  -threads -auto2
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role V_ROLE -host v_HOSTNAME_DSTORE -c stop_server -threads -auto2
-=======
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role chan,prsn,sshare -host v_HOSTNAME_CPS -c stop_server -threads -auto2
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role msg -host v_HOSTNAME_MSG -c stop_server -threads -auto2
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role dstore -host v_HOSTNAME_DSTORE -c stop_server -threads -auto2
->>>>>>> master_cptops_case_gen/master
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -host v_HOSTNAME_CPS -c stop_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -host v_HOSTNAME_MSG -c stop_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -host v_HOSTNAME_DSTORE -c stop_server -threads -auto2
 
 - Stop Splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c stop_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2
 
 - Execute the update script
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -p" -threads -auto2
@@ -45,18 +39,18 @@ Exec: ~/check_reconnect.py -H v_HOSTS
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
 - Start the application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role dstore -host v_HOSTNAME_DSTORE -c start_server -threads -auto2
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -device_role msg -host v_HOSTNAME_MSG -c start_server -threads -auto2
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role prsn,chan,sshare -host v_HOSTNAME_CPS -c start_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -host v_HOSTNAME_DSTORE -c start_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -host v_HOSTNAME_MSG -c start_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -host v_HOSTNAME_CPS -c start_server -threads -auto2
 
 - validate app is up.
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "ps aux|grep -i sfdc|grep -v grep" -threads -auto2
 
 - Start Splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role prsn,chan,sshare,msg,dstore -host v_HOSTS -c start_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -threads -auto2
 
 - add to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -device_role prsn,chan,sshare -host v_HOSTNAME_CPS -c add_to_pool -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -host v_HOSTNAME_CPS -c add_to_pool -threads -auto2
 
 - Validate hosts are in pool and no issues with the pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -host v_HOSTNAME_CPS -c bigipcheck -d -threads -bigipstatus AVAILABILITY_STATUS_GREEN -auto2

@@ -2,8 +2,8 @@
 	"Details":
 	{
 	"RecordTypeId": "012B000000009fB",
-	"Change-Type": "Minor",
-	"Status": "New/Unassigned",
+	"Change-Type": "Standard Pre Approved",
+	"Status": "Approved, Scheduled",
 	"SRO-Resource": "No",
 	"Patch-Vendor": "Redhat",
 	"Patch-Desc": "Upgrades OS from RHEL 6u5 to 6u6",
@@ -15,7 +15,7 @@
 	"Change-Area": "Systems - Patch/Upgrade Redundant Systems",
 	"Business-Justification": "Hosts need to updated to the latest revision for compliance and security reasons",
 	"Business-Reason": "Routine Maintenance",
-	"Cloud-Team": "Infrastructure Delivery",
+	"Cloud-Team": "Compute Deploy",
 	"Backout": "This is a fix forward rollback",
 	"Shared-Infrastructure": "Yes",
 	"Tested-Change": "Yes",
