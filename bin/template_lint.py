@@ -19,7 +19,7 @@ def file_check(file):
     _failed_checks = 0
     _pass_checks = 0
     _total_lines_chk = 0
-    ignore_lines = re.compile(r'^\-.*|^\s+|^\#.*')
+    ignore_lines = re.compile(r'^\-.*|^\s+|^\#.*|^Manual:')
     if not os.path.exists(file):
         print "%s does not exists." % (file)
         sys.exit(1)   
@@ -45,13 +45,13 @@ def cmd_check(line):
             value = runner_cmds(line)
         elif cmd.group() == 'Exec:':
             pass
-            #exec_cmds(line)
+            #value = exec_cmds(line)
     except AttributeError:
         value += 1
-        err_tracker("E", 'Unrecognized command expecting "release_runner.pl or Exec:"\n')
+        err_tracker("E", 'Unrecognized command expecting "release_runner.pl, Manual:, or Exec:"\n')
     cmd_check_fail = cmd_check_fail + value
     return cmd_check_fail
-        
+
 def runner_cmds(line):
     runner_cmds_fail = 0
     options_parser = re.compile(r'(-[a-zA-Z_0-9]+)(?:\s+|$)([\"\'].+[\"\']|(?!-)\S+)?')
