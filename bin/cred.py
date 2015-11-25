@@ -23,9 +23,11 @@ class GusCred(Cred):
     '''
     GUS credentials class
     '''
-    def __init__(self, username, guspasswd=None):
+    def __init__(self, username, guspasswd=None, client_id=None, client_secret=None):
         self.username = username
         self.guspasswd = guspasswd
+        self.client_id = client_id
+        self.client_secret = client_secret
 
     def getCredentials(self):
         '''
@@ -33,10 +35,16 @@ class GusCred(Cred):
         '''
         if self.guspasswd == None:
             self.guspasswd = config.get('GUS', 'guspassword')
-        elif self.username == '':
-            print 'ERROR: please enter username'
-        credDict = { 'username': config.get('GUS', 'username'),
-                                'client_secret': config.get('GUS', 'client_secret'),
-                                'password': self.guspasswd, 'grant_type': 'password',
-                                'client_id': config.get('GUS', 'client_id') }
+        if self.username == None:
+                self.username = config.get('GUS', 'username')
+        if self.client_id == None:
+            self.client_id = config.get('GUS', 'client_id')
+        if self.client_secret == None:
+            self.client_secret = config.get('GUS', 'client_secret')
+        
+        credDict = { 'username': self.username,
+                    'client_secret': self.client_secret,
+                    'password': self.guspasswd, 
+                    'grant_type': 'password',
+                    'client_id': self.client_id }
         return credDict
