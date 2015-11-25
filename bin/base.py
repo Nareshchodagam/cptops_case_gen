@@ -13,6 +13,9 @@ import re
 import ConfigParser
 import common
 import logging
+from ssl_version import SSLAdapter
+import ssl
+import sys
 
 config = ConfigParser.ConfigParser()
 config.readfp(open('creds.config'))
@@ -31,8 +34,8 @@ class Gus(object):
         '''
         Print version information
         '''
-        self.version = '0.5'
-        self.author = 'sitereliability@salesforce.com'
+        self.version = '0.6'
+        self.author = 'cpt@salesforce.com'
         return self.version, self.author
 
     def generatePostHeader(self, sessionDetails, token):
@@ -518,24 +521,28 @@ class Auth(Gus):
     '''
     Auth baseclass
     '''
-    def __init__(self, username, guspasswd):
+    def __init__(self, username, guspasswd,client_id,client_secret):
         '''
         Initialise Auth class object
         '''
         Gus.__init__(self)
         self.username = username
         self.guspasswd = guspasswd
+        self.client_id = client_id
+        self.client_secret = client_secret
 
     def login(self):
         '''
         Login to SFDC application and return JSON
         '''
-        credObj = GusCred(self.username,self.guspasswd)
+        credObj = GusCred(self.username,self.guspasswd,self.client_id,self.client_secret)
         credDict = credObj.getCredentials()
 
         gusObj = Gus()
         authHeader = gusObj.generateAuthHeader()
-
+        s = requests.Session()
+        s.mount('https://', SSLAdapter(ssl_version=ssl.PROTOCOL_TLSv1_2))
+        logging.debug(self._oauthURL)
         gus_login = requests.post(self._oauthURL, data=credDict, headers=authHeader)
 
 
