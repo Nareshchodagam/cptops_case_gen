@@ -80,9 +80,15 @@ if __name__ == '__main__':
         gpass = config.get('GUS', 'guspassword')
     except ConfigParser.NoOptionError,e:
         gpass = getpass.getpass("Please enter your GUS password: ")
-    username = config.get('GUS', 'username')
+    try:
+        username = config.get('GUS', 'username')
+        client_id = config.get('GUS', 'client_id')
+        client_secret = config.get('GUS', 'client_secret')
+    except:
+        print('Problem getting username, client_id or client_secret')
+        sys.exit()
     # instantiate auth object and generate session dict
-    authObj = Auth(username,gpass)
+    authObj = Auth(username,gpass,client_id,client_secret)
     session = authObj.login()
     
     if not options.filename:
