@@ -2,20 +2,20 @@
 	"Details":
 	{
 	"RecordTypeId": "012B000000009fB",
-	"Change-Type": "Standard Pre Approved",
-	"Status": "Approved, Scheduled",
+	"Change-Type": "Minor",
+	"Status": "New",
 	"SRO-Resource": "No",
-	"Patch-Vendor": "Other",
-	"Patch-Desc": "Upgrade of firmwares on HP hardware",
+	"Patch-Vendor": "Redhat",
+	"Patch-Desc": "Upgrades OS to October Patch Bundle",
 	"Subject": "v_SUBJECT",
-	"Description": "Need to keep host firmware current",
+	"Description": "For SFDC Compliance, we need to upgrade the below hosts",
 	"Implementation": "See Implementation Plan Attached",
 	"Verification": "", 
 	"Priority": "Sev3",
 	"Change-Area": "Systems - Patch/Upgrade Redundant Systems",
 	"Business-Justification": "Hosts need to updated to the latest revision for compliance and security reasons",
 	"Business-Reason": "Routine Maintenance",
-	"Cloud-Team": "a3mB000000000BhIAI",
+	"Cloud-Team": "Infrastructure Delivery",
 	"Backout": "This is a fix forward rollback",
 	"Shared-Infrastructure": "Yes",
 	"Tested-Change": "Yes",
@@ -29,11 +29,20 @@
 	"Test-Evidence": "'Test Detail & Results Included (see Risk Summary)'",
 	"Vendor-Case-Number": ""
 	},
-	"Verif": [ "Run the following command after the reboot: : ",
+	"Verif": [ "Ensure Host has been rebooted and its uptime is less then 300: ",
 				" ", 
-				"$ hpacucli ctrl all show config",
+				"$ cat /proc/uptime | awk '{print $1}'",
 				" ",
-				"Ensure Firmware 6.64 is running"
+				"Confirm /etc/redhat-release is updated:", 
+				" ", 
+				"$ grep 6.7 /etc/redhat-release", 
+				" ", 
+				"Validate kernel version:", 
+				" ", 
+				"$ uname -a | grep 2.6.32-573.7.1.el6.x86_64 ",
+				" ",
+				"All checks will be included in the validation code ",
+				"validate_linux_patchset.py"
 				
 				]
 }
