@@ -75,7 +75,7 @@ class GusParse(object):
             elif k == 'Case-Owner':
                 self._gusDict['OwnerId'] = v
             elif k == 'Cloud-Team':
-                self._gusDict['SM_Cloud_Team__c'] = v
+                self._gusDict['Cloud_c'] = v
             elif k == 'Functional-System-Area':
                 self._gusDict['SM_Functional_System_Area__c'] = v
             elif k == 'Infrastructure-Type':
