@@ -40,6 +40,9 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 - Start Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c start_server -threads -auto2
 
+-Ping Check Cluster
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product searchserver -device_role v_ROLE -host v_HOSTS -c pingcheck -threads -auto2 -cluster_status v_CL_OPSTAT
+
 - Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
 
