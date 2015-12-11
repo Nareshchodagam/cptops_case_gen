@@ -16,10 +16,11 @@ global _templatesuffix
 class Buildplan_helper:
     
     
-    def __init__(self, resource, fields, cidblocal):
+    def __init__(self, resource, fields, cidblocal, usehostlist=False):
         """
            get = any idb "allhosts?"  
         """
+        self.usehostlist=usehostlist
         self.cidblocal = cidblocal
         self.idb_resource = resource
         self.fields = fields
@@ -173,7 +174,13 @@ class Buildplan_helper:
         reststring_list = self.get_uri_list(idbfilters)
         for dc in datacenters:    
             for reststring in reststring_list:
-                current=self.gen_request(reststring,dc)
+                if not self.usehostlist:
+                    current=self.gen_request(reststring,dc)
+                else:
+                    if reststring.split('=')[1].split('&')[0].split('-')[3]==dc:
+                        current=self.gen_request(reststring,dc)
+                    else:
+                        continue       
                 if current['total'] > 0:
                     for jsonresult in current['data']:
                         logging.debug( jsonresult )
@@ -186,6 +193,10 @@ class Buildplan_helper:
                     logging.debug( 'no values for: ' + reststring )
     
      
+        
+        
+        
+        
         return self.apply_regexfilters(regexfilters, results)
     
 
@@ -257,6 +268,8 @@ class Buildplan_helper:
         """
         
         results = self.get_hosts_from_idbquery(dcs,idbfilters,regexfilters)
+        for row in results:
+            print row
         if len(results)==0:    
             print 'No records qualify check your query filters'              
         results = self.set_default_fields(results)
