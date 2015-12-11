@@ -1,7 +1,7 @@
 {
-    "cluster": "stgmgt",
-    "datacenter": "chi",
+    "cluster": "monitor",
+    "datacenter": "chx",
     "superpod": "NA",
     "casenum": "000",
-    "role": "stgmgt"
+    "role": "chx"
  }
