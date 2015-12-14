@@ -23,6 +23,7 @@ HOSTS = []
 def write_to_file(filename,mode,data):
     fp = open(filename, mode)
     fp.write(data)
+    fp.flush()
     fp.close()
 
 #Clear the list to add  servers of group2
@@ -34,9 +35,9 @@ def clearList():
 
 #Assign hostnames based on hostfunc to the appropriate lists
 def build_Hostlist(hostname):
-    global v_HOSTS_CPS
-    global v_HOSTS_DSTORE
-    global v_HOSTS_MSG
+    global v_HOSTNAME_CPS
+    global v_HOSTNAME_DSTORE
+    global v_HOSTNAME_MSG
     global v_HOSTS
     if re.search(r'prsn|chan|sshare', hostname):
         HOSTS_CPS.append(hostname)
@@ -46,9 +47,9 @@ def build_Hostlist(hostname):
         HOSTS_MSG.append(hostname)
     HOSTS = HOSTS_CPS + HOSTS_DSTORE + HOSTS_MSG
 
-    v_HOSTS_CPS = ",".join(HOSTS_CPS)
-    v_HOSTS_DSTORE = ",".join(HOSTS_DSTORE)
-    v_HOSTS_MSG = ",".join(HOSTS_MSG)
+    v_HOSTNAME_CPS = ",".join(HOSTS_CPS)
+    v_HOSTNAME_DSTORE = ",".join(HOSTS_DSTORE)
+    v_HOSTNAME_MSG = ",".join(HOSTS_MSG)
     v_HOSTS = ",".join(HOSTS)
 
 #Remove existing output directory and create new one
@@ -64,7 +65,7 @@ def add_dc_cluster(cluster,filename,state):
         data = "\t" + 'BEGIN_GROUP: %s\n\n' % cluster
         write_to_file(out_file,"a+",data)
     elif state is 'END':
-        data = "\t" +  'END_GROUP: %s\n' % cluster
+        data = "\t" + 'END_GROUP: %s\n' % cluster
         write_to_file(out_file,"a+",data)
     else:
         raise Exception('XXXX')
@@ -86,9 +87,9 @@ def remove_down_hosts(hlist, downlist):
 def gen_plan(sp,cluster,dc,role):
     template_file="../templates/" + role + ".linux.template"
     s=open(template_file).read()
-    s = s.replace('v_HOSTS_CPS', v_HOSTS_CPS)
-    s = s.replace('v_HOSTS_DSTORE', v_HOSTS_DSTORE)
-    s = s.replace('v_HOSTS_MSG', v_HOSTS_MSG)
+    s = s.replace('v_HOSTNAME_CPS', v_HOSTNAME_CPS)
+    s = s.replace('v_HOSTNAME_DSTORE', v_HOSTNAME_DSTORE)
+    s = s.replace('v_HOSTNAME_MSG', v_HOSTNAME_MSG)
     s = s.replace('v_HOSTS', v_HOSTS)
     s = s.replace('v_CLUSTER', cluster)
     s = s.replace('v_DATACENTER', dc)
@@ -102,7 +103,20 @@ def get_hosts(cluster,hostsdict):
     hlist['g2'] = []
     for hosts in hostsdict.values():
         for host in hosts:
-            if host.split(".")[0].split("-")[-1] == "lon":
+            if host.split(".")[0].split("-")[-1] == "phx" or host.split(".")[0].split("-")[-1] == "dfw" or \
+                            host.split(".")[0].split("-")[-1] == "frf":
+                if host.split("-")[1].strip("1234") == "sshare":
+                    if host.split("-")[2] == "1" or host.split("-")[2] == "2":
+                        hlist['g1'].append(host.rstrip())
+                    elif host.split("-")[2] == "3" or host.split("-")[2] == "4":
+                        hlist['g2'].append(host.rstrip())
+                else:
+                    if host.split("-")[2] == "1":
+                        hlist['g1'].append(host.rstrip())
+                    elif host.split("-")[2] == "2":
+                        hlist['g2'].append(host.rstrip())
+
+            elif host.split(".")[0].split("-")[-1] == "lon":
                 if host.split("-")[1].strip("1234") == "msg" or  host.split("-")[1].strip("1234") == "dstore":
                     if host.split("-")[2] == "1":
                         hlist['g1'].append(host.rstrip())
@@ -160,26 +174,38 @@ if __name__ == "__main__":
 
         out_file="output/" + options.filename
         data = 'BEGIN_DC: %s\n' % options.datacenter.upper()
+
         write_to_file(out_file, "a+", data)
 
         for cluster in options.cluster.split(","):
             hosts = init_Host(options.datacenter,cluster)
-            hlist = get_hosts(cluster,hosts)
-            print hlist
+            host_list = ",".join(hosts[cluster])
             add_dc_cluster(cluster,options.filename,'BEGIN')
+            with open('../templates/umps.linux.template.pre', 'r') as f_read:
+                lines = f_read.read().replace('v_DATACENTER', options.datacenter)
+
+            write_to_file(out_file, "a+", lines + '\n')
+            cmd = '\nExec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H %s -c disable -d 4 \n' % (
+                host_list)
+            write_to_file('output/' + options.filename, "a+", cmd)
+            hlist = get_hosts(cluster, hosts)
             for group in sorted(hlist.keys()):
-            #for group in sorted(hlist.values()):
-                print group
-                #for host in group:
+
                 for host in hlist[group]:
-                    print host
+                    write_to_file('output/summarylist.txt', 'a+', host + '\n')
                     build_Hostlist(host)
                 plan = gen_plan(options.superpod,cluster,options.datacenter,options.role)
                 logging.debug(plan)
-                write_to_file('output/' + options.filename, "a+", plan)
+                write_to_file('output/' + options.filename, 'a+', plan)
 
                 clearList()
+
+
+            cmd = '\nExec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H %s -c enable\n' % (host_list)
+            write_to_file('output/' + options.filename, "a+", cmd)
             add_dc_cluster(cluster,options.filename,'END')
+
+
 
         data = 'END_DC: %s\n' % options.datacenter.upper()
         write_to_file(out_file,"a+", data)

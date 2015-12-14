@@ -132,18 +132,29 @@ def build_dynamic_groups(hosts):
     return outmap
 
 
-def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,cl_opstat=''):
+def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat='',ho_opstat=''):
     # Replace variables in the templates
     logging.debug('Running compile_template')
-
 
     output = input
 
     global gblSplitHosts
+    global gblExcludeList
+
     #before default ids in case of subsets
     for key, hostlist in gblSplitHosts.iteritems():
-        output = output.replace(key, ",".join(hostlist))
+        output = output.replace(key, ",".join(hostlist))    
 
+    hlist=hosts.split(",")
+
+    if gblExcludeList:
+        for excluded_host in gblExcludeList:
+            while True:
+                try:
+                    hlist.remove(str(excluded_host))
+                except:
+                    break
+    hosts=",".join(hlist )
 
     output = output.replace('v_HOSTS', hosts)
     output = output.replace('v_CLUSTER', cluster)
@@ -154,7 +165,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_PATCHSET', options.patch_set)
     output = output.replace('v_VERSION', options.patch_version)
     output = output.replace('v_CL_OPSTAT', cl_opstat)
-
+    output = output.replace('v_HO_OPSTAT', ho_opstat)
 
     return output
 
@@ -207,14 +218,14 @@ def prep_template(template, outfile):
 
 
 
-def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=0,cl_opstat=''):
+def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=0,cl_opstat='',ho_opstat=''):
     # Generate the main body of the template (per host)
     logging.debug('Executing gen_plan()')
     print "Generating: " + out_file
-
+    
     s = open(template_file).read()
 
-    s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat)
+    s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat,ho_opstat)
     if groupcount > 0 and options.tags:
         s = apply_grouptags(s, str(groupcount))
 
@@ -237,7 +248,7 @@ def humanreadable_key(s):
 def apply_grouptags(content,tag_id):
     return 'BEGIN_GROUP: ' + tag_id + '\n\n' + content + '\n\n' + \
                                 'END_GROUP: ' + tag_id + '\n\n'
-
+    
 
 def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
     # Consolidate all output into a single implementation plan.
@@ -256,9 +267,9 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
             with open(pre_file, "r") as pre:
                 pre = pre.read()
                 pre = compile_template(pre, hosts, cluster, datacenter, superpod, casenum, role)
-                if options.tags:
+                if options.tags:    
                     pre = apply_grouptags(pre, 'PRE')
-
+                    
                 logging.debug('Writing out prefile ' + pre_file + '  to ' + consolidated_file)
                 final_file.write(pre + '\n\n')
 
@@ -485,6 +496,16 @@ def gen_plan_by_cluster_hostnumber(inputdict):
                 gen_plan(','.join(hostnames).encode('ascii'), cl, dc, sp, options.caseNum, ro)
 
     consolidate_plan(','.join(fullhostlist), ','.join(clusters), dc, sp, options.caseNum, ro)
+
+    global gblExcludeList
+
+    if gblExcludeList:
+        for excluded_host in gblExcludeList:
+            while True:
+                try:
+                    fullhostlist.remove(str(excluded_host))
+                except:
+                    break
     write_list_to_file(common.outputdir + '/summarylist.txt', fullhostlist)
 
 def cleanup_out():
@@ -517,7 +538,7 @@ def chunks_tuple_list(tlist, n):
     n = max(1, n)
     return [l[i:i + n] for i in range(0, len(l), n)]
 
-
+    
 
 def gen_plan_by_idbquery(inputdict):
 
@@ -552,14 +573,14 @@ def gen_plan_by_idbquery(inputdict):
 
     gsize = inputdict['maxgroupsize'] if 'maxgroupsize' in inputdict else 1
 
+    grouping=['superpod']
     if 'grouping' in inputdict:
-        grouping=inputdict['grouping'].split(',')
-    if len(grouping) == 0:
-        grouping=['role']
+        grouping=grouping + inputdict['grouping'].split(',')
+    
 
     template_id = 'AUTO'
     if 'templateid' in inputdict:
-        template_id = inputdict['templateid']
+        template_id = inputdict['templateid']    
     if template_id != "AUTO":
         assert os.path.isfile(common.templatedir + "/" + str(template_id) + ".template"), template_id + " template not found"
 
@@ -570,7 +591,7 @@ def gen_plan_by_idbquery(inputdict):
         for pair in inputdict['regexfilter'].split(';'):
             field, regex = pair.split('=')
             regexfilters[field] = regex
-
+            
     print logging.debug('Regexfilters:')
     logging.debug( regexfilters )
 
@@ -615,6 +636,16 @@ def consolidate_idb_query_plans(writeplan,dcs,gsize):
 
 
     write_list_to_file(common.outputdir + '/plan_implementation.txt', writelist, newline=False)
+
+    global gblExcludeList
+
+    if gblExcludeList:
+        for excluded_host in gblExcludeList:
+            while True:
+                try:
+                    fullhostlist.remove(str(excluded_host))
+                except:
+                    break
     write_list_to_file(common.outputdir + '/summarylist.txt', fullhostlist)
 
 def write_plan_dc(dc,template_id,writeplan,gsize):
@@ -639,7 +670,8 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             clusters = set([results[group_enum][(host,)]['cluster'] for host in hostnames])
             roles = set([results[group_enum][(host,)]['role'] for host in hostnames])
             cluster_operationalstatus = set([results[group_enum][(host,)]['cluster_operationalstatus'] for host in hostnames])
-
+            host_operationalstatus = set([results[group_enum][(host,)]['host_operationalstatus'] for host in hostnames])
+            print host_operationalstatus, hostnames
             #gather rollup info
             allhosts.extend(hostnames)
             allclusters.extend(clusters)
@@ -652,7 +684,7 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             logging.debug(gblSplitHosts)
 
             prep_template(template_id, common.outputdir + '/' + fileprefix + "_plan_implementation.txt")
-            gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),i,','.join(cluster_operationalstatus))
+            gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),i,','.join(cluster_operationalstatus),','.join(host_operationalstatus))
 
     consolidated_plan = consolidate_plan(','.join(set(allhosts)), ','.join(set(allclusters)), dc, ','.join(set(allsuperpods)), options.caseNum, ','.join(set(allroles)))
 
@@ -668,14 +700,14 @@ def gen_plan_by_hostlist_idb(hostlist, templateid, gsize, grouping=['majorset', 
             dcs.append(dc)
         hostnames.append(line.rstrip('\n'))
     idbfilters = { 'name': hostnames }
-
+    
     groups = [['datacenter'],['superpod'] + grouping,['hostname']]
-    bph = Buildplan_helper('allhosts?', supportedfields,True)
+    bph = Buildplan_helper('allhosts?', supportedfields,True,True)
     writeplan = bph.prep_idb_plan_info(dcs,idbfilters,{},groups,templateid)
     consolidate_idb_query_plans(writeplan, dcs, gsize)
-
-
-
+            
+        
+    
 
 ###############################################################################
 #                Main
@@ -738,6 +770,7 @@ parser.add_option("-o", "--out", dest="out", help="output file")
 parser.add_option("-M", action="store_true", dest="grouping", help="Turn on grouping")
 parser.add_option("--gsize", dest="gsize", type="int", help="Group Size value")
 parser.add_option("--patchset", dest="patch_set", default="current", help="Patchset version")
+parser.add_option("--exclude", dest="exclude_list", default=False, help="Host Exclude List")
 parser.add_option("--patch_version", dest="patch_version", default="current", help="system_update.sh version")
 parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
@@ -748,6 +781,13 @@ if __name__ == "__main__":
         options.patch_version = "-a " + options.patch_version
     else:
         options.patch_version = "-a current"
+
+    if options.exclude_list:
+        with open(options.exclude_list) as f:
+            lines=f.read().splitlines()
+        gblExcludeList=lines
+    else:
+        gblExcludeList=False
 
     if not options.patch_set:
         options.patch_set = "current"
@@ -853,6 +893,5 @@ if __name__ == "__main__":
     elif not options.idbgen:
         prep_template(options.template, options.filename)
         gen_plan(options.host, options.cluster, options.datacenter, options.superpod, options.caseNum, options.role)
-
 
 
