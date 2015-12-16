@@ -136,14 +136,25 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     # Replace variables in the templates
     logging.debug('Running compile_template')
 
-
     output = input
 
     global gblSplitHosts
+    global gblExcludeList
+
     #before default ids in case of subsets
     for key, hostlist in gblSplitHosts.iteritems():
         output = output.replace(key, ",".join(hostlist))    
 
+    hlist=hosts.split(",")
+
+    if gblExcludeList:
+        for excluded_host in gblExcludeList:
+            while True:
+                try:
+                    hlist.remove(str(excluded_host))
+                except:
+                    break
+    hosts=",".join(hlist )
 
     output = output.replace('v_HOSTS', hosts)
     output = output.replace('v_CLUSTER', cluster)
@@ -485,6 +496,16 @@ def gen_plan_by_cluster_hostnumber(inputdict):
                 gen_plan(','.join(hostnames).encode('ascii'), cl, dc, sp, options.caseNum, ro)
 
     consolidate_plan(','.join(fullhostlist), ','.join(clusters), dc, sp, options.caseNum, ro)
+
+    global gblExcludeList
+
+    if gblExcludeList:
+        for excluded_host in gblExcludeList:
+            while True:
+                try:
+                    fullhostlist.remove(str(excluded_host))
+                except:
+                    break
     write_list_to_file(common.outputdir + '/summarylist.txt', fullhostlist)
 
 def cleanup_out():
@@ -611,6 +632,16 @@ def consolidate_idb_query_plans(writeplan,dcs,gsize):
 
 
     write_list_to_file(common.outputdir + '/plan_implementation.txt', writelist, newline=False)
+
+    global gblExcludeList
+
+    if gblExcludeList:
+        for excluded_host in gblExcludeList:
+            while True:
+                try:
+                    fullhostlist.remove(str(excluded_host))
+                except:
+                    break
     write_list_to_file(common.outputdir + '/summarylist.txt', fullhostlist)
 
 def write_plan_dc(dc,template_id,writeplan,gsize):
@@ -736,6 +767,7 @@ parser.add_option("-o", "--out", dest="out", help="output file")
 parser.add_option("-M", dest="grouping", type="str", default="majorset,minorset" ,help="Turn on grouping")
 parser.add_option("--gsize", dest="gsize", type="int", help="Group Size value")
 parser.add_option("--patchset", dest="patch_set", default="current", help="Patchset version")
+parser.add_option("--exclude", dest="exclude_list", default=False, help="Host Exclude List")
 parser.add_option("--patch_version", dest="patch_version", default="current", help="system_update.sh version")
 parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
@@ -746,6 +778,13 @@ if __name__ == "__main__":
         options.patch_version = "-a " + options.patch_version
     else:
         options.patch_version = "-a current"
+
+    if options.exclude_list:
+        with open(options.exclude_list) as f:
+            lines=f.read().splitlines()
+        gblExcludeList=lines
+    else:
+        gblExcludeList=False
 
     if not options.patch_set:
         options.patch_set = "current"
