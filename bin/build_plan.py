@@ -765,7 +765,7 @@ parser.add_option("-C", "--cidblocal", dest="cidblocal", action='store_true', de
 parser.add_option("-g", "--geo", dest="geo", help="geo list" )
 parser.add_option("-o", "--out", dest="out", help="output file")
 parser.add_option("-M", dest="grouping", type="str", default="majorset,minorset" ,help="Turn on grouping")
-parser.add_option("--gsize", dest="gsize", type="int", help="Group Size value")
+parser.add_option("--gsize", dest="gsize", type="int", default=1, help="Group Size value")
 parser.add_option("--patchset", dest="patch_set", default="current", help="Patchset version")
 parser.add_option("--exclude", dest="exclude_list", default=False, help="Host Exclude List")
 parser.add_option("--patch_version", dest="patch_version", default="current", help="system_update.sh version")
@@ -874,14 +874,9 @@ if __name__ == "__main__":
         consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role)
         exit()
 
-    if options.grouping:
+    if options.hostlist:
         groups = options.grouping.split(',')
         
-        if not options.hostlist:
-            print "Must specify an hostlist with grouping option."
-            exit(1)
-        if not options.gsize:
-            options.gsize = 1
         if not options.template:
             options.template='AUTO'
         print options.hostlist
