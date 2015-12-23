@@ -20,6 +20,7 @@ class Buildplan_helper:
         """
            get = any idb "allhosts?"  
         """
+    
         self.usehostlist=usehostlist
         self.cidblocal = cidblocal
         self.idb_resource = resource
@@ -30,11 +31,13 @@ class Buildplan_helper:
         self._templatesuffix= {
                  
                     (True, 'STANDBY') : self._suffixlist[0],
-                    (False, 'PRIMARY') : self._suffixlist[1],
-                    (True, 'STANDBY') : self._suffixlist[2],
+                    (True, 'PRIMARY') : self._suffixlist[1],
+                    (False, 'STANDBY') : self._suffixlist[2],
                     (False, 'PRIMARY') : self._suffixlist[3]
                             
                 }
+        #one list with all supported fields, majorest and minorset are implied so must be added here for validation
+        self.fieldcheck = self.fields.keys() + ['majorset','minorset','datacenter']
     
     def gen_request(self,reststring, dc, cidblocal=True, debug=False):
         """
@@ -266,6 +269,10 @@ class Buildplan_helper:
         """
         entry point function for generating an idb based plan
         """
+        groups = [['datacenter'],['superpod'] + groups,['hostname']]
+        for field_list in groups:
+            for item in field_list:
+                assert item in self.fieldcheck, "grouping field must be a supported field"
         
         results = self.get_hosts_from_idbquery(dcs,idbfilters,regexfilters)
         for row in results:
