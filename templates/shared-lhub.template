@@ -1,4 +1,4 @@
-RR based commands
+-RR based commands
 
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
@@ -32,7 +32,7 @@ Exec: sleep 60
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "lsof | grep '/hub/'" -threads -auto2
 Manual: ensure you have no file open before unmounting storage
 
-unmount fs
+-unmount fs
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/umountall.sh" -threads -auto2
 
 Manual: Contact SANENG resource to shut down fc ports for v_HOSTS
