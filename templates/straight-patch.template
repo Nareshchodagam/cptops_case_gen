@@ -1,10 +1,3 @@
-- Kinit for the backup copy
-Exec: kinit
-
--Backup the homedirectory
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -cf ~/v_HOSTS.sfdc_ops.tar /home/sfdc_ops --exclude '/home/sfdc_ops/edw/src/dat' --exclude '/home/sfdc_ops/edw/src/log'" -threads -auto2
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "chmod a+r ~/v_HOSTS.sfdc_ops.tar" -threads -auto2
-Exec: scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no v_HOSTS:v_HOSTS.sfdc_ops.tar ~/
 
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
@@ -14,9 +7,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
-
-- Disable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
 - Execute the update script
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -p" -threads -auto2
@@ -29,10 +19,5 @@ Exec: ~/check_reconnect.py -H v_HOSTS
 
 -Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c current -f ./remote_transfer/valid_versions.json -u" -threads -auto2
-
-- Enable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
-
-Exec: rm ~/v_HOSTS.sfdc_ops.tar
 
 Exec: echo "Host v_HOSTS system patching completed"
