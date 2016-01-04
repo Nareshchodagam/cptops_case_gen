@@ -483,7 +483,8 @@ def gen_plan_by_cluster_hostnumber(inputdict):
                 cl = ','.join(set([results[sp][host_enum][host]['clustername'] for host in hostnames]))
                 ro = ','.join(set([results[sp][host_enum][host]['rolename'] for host in hostnames]))
                 i += 1
-                fileprefix = host_enum + str(i) + '_' + cl
+                fileprefix = str(i)
+                print 'myprefix : ' + fileprefix
                 # build individual plans setting template to role name unless a template is specified
                 # want to use template for role by default unless overridden
                 template_id = ro + template_suffix if len(template_id) == 0 else template_id + template_suffix
@@ -675,7 +676,8 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             allsuperpods.append(superpod)
             #increment groupid
 
-            fileprefix = str(group_enum) + str(i) + '_' + str(clusters)
+            #fileprefix = str(group_enum) + str(i) + '_' + str(clusters)
+            fileprefix = str(i)
             gblSplitHosts = build_dynamic_groups(hostnames)
             logging.debug(gblSplitHosts)
 
