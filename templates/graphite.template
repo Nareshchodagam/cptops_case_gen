@@ -38,9 +38,6 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 - start consumer
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-graphite-kafka-consumer  -host v_HOSTNAME_MMCNSMR -c start_server -threads -auto2
 
-- start consumer metrics monitor
-release_runner.pl -forced_host v_MMCNSMR_METRICS -c sudo_cmd -m "/opt/ajna-metrics-monitor/bin/runMonitor.sh start" -threads -auto2
-
  start latency reporter
 release_runner.pl -forced_host v_MMCNSMR_LATENCY -c sudo_cmd -m "cd /home/appmon/current/ajna-latency-monitor; rm -f pid; runReporter.sh start" -threads -auto2
 
