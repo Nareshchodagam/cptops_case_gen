@@ -9,6 +9,7 @@ import os
 import logging
 import itertools
 import re
+#from build_plan import supportedfields
 
 common = Common()
 
@@ -210,6 +211,7 @@ class Buildplan_helper:
          
         """
         newres=[]
+        print res
         for row in res:
             # minorset never present so put it i
             row['minorset'] = row['hostname'].split('-')[2]
@@ -219,11 +221,16 @@ class Buildplan_helper:
             if 'superpod' not in row.keys():
                 row['superpod'] = 'none'
             if 'datacenter' not in row.keys():
-                row['datacenter'] = row['hostname'].split('-')[4]
+                row['datacenter'] = row['hostname'].split('-')[3]
             if 'role' not in row.keys():
                 row['role'] = ''.join([s for s in row['hostname'].split('-')[1] if not s.isdigit()])
             if 'cluster' not in row.keys():
                 row['cluster'] =  row['hostname'].split('-')[0] 
+                
+            #all other fields default to empth
+            for field in self.fieldcheck:
+                if field not in row.keys():
+                    row[field] = ''
             
             newres.append(row)
         
@@ -264,7 +271,40 @@ class Buildplan_helper:
                 groupeddata[tg_ident][rg_ident][row[node]] = row
         return groupeddata
     
+    def prep_plan_info_hostlist(self,hostlist,groups,templateid): 
+        
+        hostnames=[]
+        for host in hostlist:
+            hostnames.append( { 'hostname' : host })
+            
+
+        return self._prep_plan_info_common(hostnames,groups,templateid)
+        
     
+    def _prep_plan_info_common(self,results,groups,templateid):
+        """
+        this function a) sets default fields for grouping, b) groups query results then c) applies the relevant template
+        
+        """
+        groups = [['datacenter'],['superpod'] + groups, ['hostname']]
+        
+        for field_list in groups:
+            for item in field_list:
+                assert item in self.fieldcheck, "grouping field must be a supported field"
+       
+        if len(results)==0:    
+            print 'No records qualify check your query filters'              
+        results = self.set_default_fields(results)
+        
+        
+        groupedhosts = self.get_groupeddata(results,groups)    
+        print groupedhosts
+        writeplan = self._apply_templates(groupedhosts,templateid)
+       
+        return writeplan
+    
+   
+        
     def prep_idb_plan_info(self,dcs,idbfilters,regexfilters,groups,templateid):
         """
         entry point function for generating an idb based plan
@@ -274,18 +314,19 @@ class Buildplan_helper:
             for item in field_list:
                 assert item in self.fieldcheck, "grouping field must be a supported field"
         
+        if templateid.lower()=='AUTO'.lower():
+            #if AUTO group by idb template values
+            groups[:0]=[['role','dr','failoverstatus']]
+        
+            
+             
         results = self.get_hosts_from_idbquery(dcs,idbfilters,regexfilters)
         for row in results:
             print row
         if len(results)==0:    
             print 'No records qualify check your query filters'              
         results = self.set_default_fields(results)
-        
-        if templateid.lower()=='AUTO'.lower():
-            #if AUTO group by idb template values
-            groups[:0]=[['role','dr','failoverstatus']]
-        
-        
+         
         groupedhosts = self.get_groupeddata(results,groups)
         
             

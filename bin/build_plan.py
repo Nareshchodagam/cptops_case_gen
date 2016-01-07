@@ -668,7 +668,7 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             roles = set([results[group_enum][(host,)]['role'] for host in hostnames])
             cluster_operationalstatus = set([results[group_enum][(host,)]['cluster_operationalstatus'] for host in hostnames])
             host_operationalstatus = set([results[group_enum][(host,)]['host_operationalstatus'] for host in hostnames])
-            print host_operationalstatus, hostnames
+            
             #gather rollup info
             allhosts.extend(hostnames)
             allclusters.extend(clusters)
@@ -703,6 +703,22 @@ def gen_plan_by_hostlist_idb(hostlist, templateid, gsize, grouping):
     
     bph = Buildplan_helper('allhosts?', supportedfields,True,True)
     writeplan = bph.prep_idb_plan_info(dcs,idbfilters,{},groups,templateid)
+    consolidate_idb_query_plans(writeplan, dcs, gsize)
+    
+def gen_plan_by_hostlist(hostlist, templateid, gsize, groups):
+    hostnames =[]
+    dcs = []
+    
+    file = open(hostlist).readlines()
+    for line in file:
+        dc = line.split('-')[3].rstrip('\n')
+        if dc not in dcs:
+            dcs.append(dc)
+        hostnames.append(line.rstrip('\n'))
+    
+    
+    bph = Buildplan_helper('', supportedfields,True,True)
+    writeplan = bph.prep_plan_info_hostlist(hostnames,groups,templateid)
     consolidate_idb_query_plans(writeplan, dcs, gsize)
             
         
@@ -838,32 +854,34 @@ if __name__ == "__main__":
             superpod=options.superpod
             casenum=options.caseNum
 
-        hosts = get_hosts_from_file(options.hostlist)
-        gblSplitHosts = build_dynamic_groups(hosts)
+            hosts = get_hosts_from_file(options.hostlist)
+            gblSplitHosts = build_dynamic_groups(hosts)
 
-        if options.allatonce:
+            if options.allatonce:
             # process the plan in parallel
-            hostnames = []
-            for hostname in hosts:
-                outfile = common.outputdir + '/allhosts_plan_implementation.txt'
-                hostnames.append(hostname)
-                datacenter = hostname.rsplit('-', 1)[1]
+                hostnames = []
+                for hostname in hosts:
+                    outfile = common.outputdir + '/allhosts_plan_implementation.txt'
+                    hostnames.append(hostname)
+                    datacenter = hostname.rsplit('-', 1)[1]
 
-                if options.template:
-                    template = options.template
-                else:
-                    template = role
+                    if options.template:
+                        template = options.template
+                    else:
+                        template = role
 
-            allhosts = ','.join(hostnames)
-            hosts = allhosts
-            prep_template(template, outfile)
-            gen_plan(hosts, cluster, datacenter, superpod, casenum, role)
-        else:
-            # process the plan in series
-            for hostname in hosts:
-                outfile = common.outputdir + '/' + hostname + '_plan_implementation.txt'
-                hosts = hostname
-                datacenter = hostname.rsplit('-', 1)[1]
+                    allhosts = ','.join(hostnames)
+                    hosts = allhosts
+                    prep_template(template, outfile)
+                    gen_plan(hosts, cluster, datacenter, superpod, casenum, role)
+                    
+            else:
+            
+                # process the plan in series
+                for hostname in hosts:
+                    outfile = common.outputdir + '/' + hostname + '_plan_implementation.txt'
+                    hosts = hostname
+                    datacenter = hostname.rsplit('-', 1)[1]
 
                 if options.template:
                     template = options.template
@@ -873,8 +891,11 @@ if __name__ == "__main__":
                 prep_template(template, outfile)
                 gen_plan(hosts, cluster, datacenter, superpod, casenum, role)
 
-        consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role)
-        exit()
+            consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role)
+            exit()
+        if options.grouping:
+            gen_plan_by_hostlist(options.hostlist, options.template, options.gsize,options.grouping.split(','))
+            exit()
 
     if options.hostlist:
         groups = options.grouping.split(',')
