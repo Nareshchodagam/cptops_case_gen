@@ -162,8 +162,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_SUPERPOD', superpod)
     output = output.replace('v_CASENUM', casenum)
     output = output.replace('v_ROLE', role)
-    output = output.replace('v_PATCHSET', options.patch_set)
-    output = output.replace('v_VERSION', options.patch_version)
+    output = output.replace('v_BUNDLE', options.bundle)
     output = output.replace('v_CL_OPSTAT', cl_opstat)
     output = output.replace('v_HO_OPSTAT', ho_opstat)
 
@@ -784,18 +783,15 @@ parser.add_option("-g", "--geo", dest="geo", help="geo list" )
 parser.add_option("-o", "--out", dest="out", help="output file")
 parser.add_option("-M", dest="grouping", type="str", default="majorset,minorset" ,help="Turn on grouping")
 parser.add_option("--gsize", dest="gsize", type="int", default=1, help="Group Size value")
-parser.add_option("--patchset", dest="patch_set", default="current", help="Patchset version")
+parser.add_option("--bundle", dest="bundle", default="current", help="Patchset version")
 parser.add_option("--exclude", dest="exclude_list", default=False, help="Host Exclude List")
-parser.add_option("--patch_version", dest="patch_version", default="current", help="system_update.sh version")
 parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
 (options, args) = parser.parse_args()
 if __name__ == "__main__":
 
-    if  options.patch_version:
-        options.patch_version = "-a " + options.patch_version
-    else:
-        options.patch_version = "-a current"
+    if not options.bundle:
+        options.bundle = "current"
 
     if options.exclude_list:
         with open(options.exclude_list) as f:
@@ -803,9 +799,6 @@ if __name__ == "__main__":
         gblExcludeList=lines
     else:
         gblExcludeList=False
-
-    if not options.patch_set:
-        options.patch_set = "current"
 
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
