@@ -78,13 +78,15 @@ def runner_cmds(line):
                 elif command not in lc.require_options and options != None:
                     runner_cmds_fail += 1
                     err_tracker('E', "Illegal parameter \"%s\" specified after %s\n" % (options, command))
+                if command == "-m":
+                    val2 = script_checker(options)
             if command not in lc.valid_cmd:
                 runner_cmds_fail += 1
                 err_tracker('E', "%s is not an valid command option\n" % command)
         except StopIteration:
             result = "End"
     val = syntax_checker(line)
-    runner_cmds_fail = runner_cmds_fail + val
+    runner_cmds_fail = runner_cmds_fail + val + val2
     return runner_cmds_fail
 
 def syntax_checker(line):
@@ -99,6 +101,36 @@ def syntax_checker(line):
         syntax_checker_fail += 1
         err_tracker('W', "One or more trailing whitespaces found\n")
     return syntax_checker_fail
+
+def script_checker(line):
+    script_checker_fail = 0 
+    options_schecker = re.compile(r'(-[a-zA-Z_0-9]+)(?:\s+|\S+|$)([a-z_A-Z\.\/]+\S+\b)?')
+    result ="Begin"
+    for cmd in lc.script_checks.iterkeys():
+        if cmd in str(line):
+            cmd_option = options_schecker.finditer(line)
+            while result == "Begin":
+                try:
+                    match_value = cmd_option.next()
+                    (command, option) = match_value.groups()
+                    if command in lc.script_checks[cmd] and lc.script_checks[cmd][command] != "NA":
+                        if isinstance(lc.script_checks[cmd][command], list):
+                            if option not in lc.script_checks[cmd][command]:
+                                script_checker_fail += 1
+                                err_tracker('E', "\"%s\" has a unrecognized value for \"%s\" option.\n" % (cmd, command))
+                        elif option == None and lc.script_checks[cmd][command] != "":
+                            script_checker_fail += 1
+                            err_tracker('E', "\"%s\" has a unrecognized value for \"%s\" option.\n" % (cmd, command))
+                        elif option != None and not re.findall(lc.script_checks[cmd][command], option):
+                        #if option not in lc.script_checks[cmd][command] or not re.findall(lc.script_checks[cmd][command], option):
+                            script_checker_fail += 1
+                            err_tracker('E', "\"%s\" has a unrecognized value for \"%s\" option.\n" % (cmd, command))
+                    elif command not in lc.script_checks[cmd]:
+                        script_checker_fail += 1
+                        err_tracker('E', "\"%s\" invalid option \"%s\"\n" % (cmd, command))
+                except StopIteration:
+                    result = "End"
+    return script_checker_fail
 
 def err_tracker(err_code, msg):
     report.write("%s: %d: %s" % (err_code, _linenum, msg))
