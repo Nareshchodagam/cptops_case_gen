@@ -1,6 +1,7 @@
 #!/usr/bin/python
 """
-Linter script that checks release_runner templates for syntax errors based on Compute Deploy standards
+Linter script that checks release_runner templates for syntax errors
+based on Compute Deploy standards
 """
 import re
 import sys
@@ -22,7 +23,7 @@ def file_check(file):
     ignore_lines = re.compile(r'^\-.*|^\s+|^\#.*|^Manual:')
     if not os.path.exists(file):
         print "%s does not exists." % (file)
-        sys.exit(1)   
+        sys.exit(1)
     file_data = open(file).readlines()
     report.write("\n************* Template %s \n" % (args.file_name))
     for line in file_data:
@@ -56,28 +57,32 @@ def runner_cmds(line):
     runner_cmds_fail = 0
     options_parser = re.compile(r'(-[a-zA-Z_0-9]+)(?:\s+|$)([\"\'].+[\"\']|(?!-)\S+)?')
     result = "None"
-    rr_option = options_parser.finditer(line) 
+    rr_option = options_parser.finditer(line)
     while result == "None":
         try:
             match_value = rr_option.next()
             (command, options) = match_value.groups()
             if command in lc.default_cmd:
-                if isinstance(lc.default_cmd[command], list): 
+                if isinstance(lc.default_cmd[command], list):
                     if options not in lc.default_cmd[command]:
                         values = ', '.join(lc.default_cmd[command])
                         runner_cmds_fail += 1
-                        err_tracker('E', "Expecting %s value for the command option %s\n" % (values, command))
+                        err_tracker('E', "Expecting %s value for the command option %s\n" \
+                                     % (values, command))
                 else:
                     if options != lc.default_cmd[command]:
                         runner_cmds_fail += 1
-                        err_tracker('E', "Expecting %s value for the command option %s\n" % (lc.default_cmd[command], command))             
+                        err_tracker('E', "Expecting %s value for the command option %s\n" \
+                                     % (lc.default_cmd[command], command))
             elif command in lc.valid_cmd:
                 if options == None and command in lc.require_options:
                     runner_cmds_fail += 1
-                    err_tracker('E', "%s missing command parameters.  Usage: %s \"%s\"\n" % (command, command, lc.require_options[command]))
+                    err_tracker('E', "%s missing command parameters.  Usage: %s \"%s\"\n" \
+                                 % (command, command, lc.require_options[command]))
                 elif command not in lc.require_options and options != None:
                     runner_cmds_fail += 1
-                    err_tracker('E', "Illegal parameter \"%s\" specified after %s\n" % (options, command))
+                    err_tracker('E', "Illegal parameter \"%s\" specified after %s\n" \
+                                 % (options, command))
                 if command == "-m":
                     val2 = script_checker(options)
             if command not in lc.valid_cmd:
@@ -103,9 +108,9 @@ def syntax_checker(line):
     return syntax_checker_fail
 
 def script_checker(line):
-    script_checker_fail = 0 
+    script_checker_fail = 0
     options_schecker = re.compile(r'(-[a-zA-Z_0-9]+)(?:\s+|\S+|$)([a-z_A-Z\.\/]+\S+\b)?')
-    result ="Begin"
+    result = "Begin"
     for cmd in lc.script_checks.iterkeys():
         if cmd in str(line):
             cmd_option = options_schecker.finditer(line)
@@ -117,14 +122,16 @@ def script_checker(line):
                         if isinstance(lc.script_checks[cmd][command], list):
                             if option not in lc.script_checks[cmd][command]:
                                 script_checker_fail += 1
-                                err_tracker('E', "\"%s\" has a unrecognized value for \"%s\" option.\n" % (cmd, command))
+                                err_tracker('E', "\"%s\" has a unrecognized value for \"%s\" option.\n" \
+                                             % (cmd, command))
                         elif option == None and lc.script_checks[cmd][command] != "":
                             script_checker_fail += 1
-                            err_tracker('E', "\"%s\" has a unrecognized value for \"%s\" option.\n" % (cmd, command))
+                            err_tracker('E', "\"%s\" has a unrecognized value for \"%s\" option.\n" \
+                                         % (cmd, command))
                         elif option != None and not re.findall(lc.script_checks[cmd][command], option):
-                        #if option not in lc.script_checks[cmd][command] or not re.findall(lc.script_checks[cmd][command], option):
                             script_checker_fail += 1
-                            err_tracker('E', "\"%s\" has a unrecognized value for \"%s\" option.\n" % (cmd, command))
+                            err_tracker('E', "\"%s\" has a unrecognized value for \"%s\" option.\n" \
+                                         % (cmd, command))
                     elif command not in lc.script_checks[cmd]:
                         script_checker_fail += 1
                         err_tracker('E', "\"%s\" invalid option \"%s\"\n" % (cmd, command))
@@ -134,7 +141,6 @@ def script_checker(line):
 
 def err_tracker(err_code, msg):
     report.write("%s: %d: %s" % (err_code, _linenum, msg))
-          
 
 def summary():
     total_checks = 5 * _total_lines_chk
@@ -145,14 +151,13 @@ def summary():
     if args.verbose:
         report.write("\nLines with errors\n")
         report.write("---------------------\n")
-        for key,value in sorted(_error_line.iteritems()):
+        for key, value in sorted(_error_line.iteritems()):
             report.write("%d: %s" % (key, value))
     report.write("\nGlobal evaluation\n")
     report.write("-----------------\n")
     report.write("Total number of Errors/Warnings: %d" % _failed_checks)
     report.write("\nYour template has been rated at %.2f/10\n" % template_score)
-    
-           
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Template syntax checker: Program to check syntax of release_runner templates.")
     parser.add_argument('-t', '--template', metavar='<Template Name>', dest='file_name', required=True)
@@ -171,9 +176,8 @@ if __name__ == "__main__":
     with open(args.file_name + ".report", 'r') as fin:
         print fin.read()
     os.remove(args.file_name + ".report")
-    
+
     if _failed_checks >= 1:
         exit(1)
     else:
         exit(0)
-        
