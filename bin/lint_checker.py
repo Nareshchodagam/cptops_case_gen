@@ -47,3 +47,14 @@ default_cmd = {"-superpod": "v_SUPERPOD",
                "-forced_host": "v_HOSTS",
                "-device_role": "v_ROLE",
                "-cluster_status": "v_CL_OPSTAT"}
+
+script_checks = {"validate_linux_patchset.py": {"-c": "v_BUNDLE",
+                                          "-f": "valid_versions.json",
+                                          "-k": "NA",
+                                          "-r": "NA",
+                                          "-u": "NA",
+                                          "-v": "NA"},
+                  "manage_bootdevice.py": {"-d": ["HDD", "PXE"],
+                                           "-s": "NA"},
+                  "system_update.sh":     {"-a": "v_BUNDLE"}
+                  }
