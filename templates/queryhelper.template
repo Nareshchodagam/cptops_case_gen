@@ -1,19 +1,20 @@
 -BODY
-======================================
-Datacenter: v_DATACENTER
-Superpod: v_SUPERPOD
-Role: v_ROLE
+-======================================
+-Datacenter: v_DATACENTER
+-Datacenter: v_DATACENTER
+-Superpod: v_SUPERPOD
+-Role: v_ROLE
 
 
-Cluster:    v_CLUSTER
+-Cluster:    v_CLUSTER
 
-Cluster operational status: v_CL_OPSTAT
+-Cluster operational status: v_CL_OPSTAT
 
-===============================================
+-===============================================
 
-Hosts: v_HOSTS
+-Hosts: v_HOSTS
 
-Host operational status : v_HO_OPSTAT
+-Host operational status : v_HO_OPSTAT
 
 
 
