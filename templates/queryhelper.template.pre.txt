@@ -1,0 +1,7 @@
+-HEADER
+
+-All Superpods: v_SUPERPOD
+-All clusters :  v_CLUSTER
+-All roles : v_ROLE
+-All hosts : v_HOSTS
+-=======
