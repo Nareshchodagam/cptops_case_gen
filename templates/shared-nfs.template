@@ -50,7 +50,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/sbin/reboot" -thread
 Exec: ~/check_reconnect.py -H v_HOSTS
 
 -run the patch presuming host comes up clean
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
 
 -check host updated successfully
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_patchset.py -u" -threads -auto2
