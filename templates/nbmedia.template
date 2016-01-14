@@ -14,7 +14,7 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c 
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/openv/netbackup/bin/goodies/netbackup stop" -threads -auto2
 
 - Execute the update script
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
 
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
