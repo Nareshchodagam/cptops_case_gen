@@ -1,4 +1,4 @@
--RR based commands
+
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
@@ -18,7 +18,7 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py  -H v_HOSTS -c
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py  -H v_HOSTS -c disable -m ops-monitor-v_DATACENTER
 
 - Stop the application
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n nagios -e '/usr/bin/nagios -d /etc/nagios/nagios.cfg' -c '/etc/init.d/nagios stop' -k" -threads -auto2
+elease_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n nagios -e '/usr/bin/nagios -d /etc/nagios/nagios.cfg' -c '/etc/init.d/nagios stop' -k" -threads -auto2
 
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
