@@ -65,7 +65,7 @@ _Generating based on clusterType this makes it easier to use as you dont have to
 _multiple datacenters now supported (originally for UMPS) to allow you to create a plan for all datacenters, -T flag should also be used to add katzmeow GROUP and DC tags_
 
 	./build_plan.py -c 0000001 -C -G '{"clusterTypes" : "CHATTER" ,"datacenter": "sjl,asg,was,chi,tyo,dfw" , "templateid" : "umps.linux", "grouping": "majorset", "maxgroupsize": 20 }' -T
-	with -T options plan is called then as follows for example : katzmeow.pl --case 0000001 --dc chx
+	
 
 _host operationalstatus and cluster operationalstsatus should be used to include hosts which are inactive or clusters which are inactive not active eg graphite_
 	
@@ -95,12 +95,30 @@ _Implicit template selection: if you leave out the templateid parameter it will 
 _build plan from a file: there are 2 basic options: 1) file of idb hosts 2) file of non idb hosts (simply add -x to your command). Please note that while the syntax is a little different than the -G option for specifiying the template ( -t specifies the template, -M specifies the groups and --gsize specifies maxgroupsize). the same grouping and implicit template lookup rules apply whether the hosts are in idb or not_
 
 
-	1 (a) IDB hosts, implicit lookup no grouping no maxgroupsize	: 	 	eg ./build_plan.py -l ~/host_lists
-	  (b) IDB hosts, specifying template, group by superpod,cluster, groupsize 5 :		eg ./build_plan.py -l ~/host_lists -t dusty -M superpod,cluster --gsize 5
+	1 (a) IDB hosts, implicit lookup no grouping no maxgroupsize	: 	 	eg ./build_plan.py -l ~/host_list
+	  (b) IDB hosts, specifying template, group by superpod,cluster, groupsize 5 :		eg ./build_plan.py -l ~/host_list -t dusty -M superpod,cluster --gsize 5
 	  
-	2 (a) skip idb, no grouping, no maxgroupsize, implicit lookup : eg ./build_plan.py -l ~/host_lists -x
-	  (b) skip idb, specifying template, groupsize 3 group by role:  eg ./build_plan.py -l ~/host_lists -t dusty --gsize 3 -M role -x
+	2 (a) skip idb, no grouping, no maxgroupsize, implicit lookup : eg ./build_plan.py -l ~/host_list -x
+	  (b) skip idb, specifying template, groupsize 3 group by role:  eg ./build_plan.py -l ~/host_list -t dusty --gsize 3 -M role -x
 	  
+	  
+other command switches:
+==================
+_--excludelist. list of hosts to exclude from plan being generated works from list as well as with -G option_
+
+	./build_plan.py -l ~/dhub_stragglers.txt -t dusty -x --exclude ~/excludelist
+	
+_-T option. adds katzmeow DC tags and group tags add to any command_
+
+	./build_plan.py -l ~/dhub_stragglers.txt -t dusty -x --exclude ~/excludelist -T
+	with -T option plan is called then specifying the --dc flag as follows from the release host example : katzmeow.pl --case 0000001 --dc chx
+
+_--bundle <bundlename> will populate the v_BUNDLE variable with <bunldename>_
+
+	./build_plan.py -l ~/dhub_stragglers.txt -t dusty -x --exclude ~/excludelist --bundle 2016.01
+
+
+
 	
 
 setup:
