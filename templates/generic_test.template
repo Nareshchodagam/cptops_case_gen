@@ -14,7 +14,7 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c 
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base,sfdc-splunk-forwarder -host v_HOSTS -c server_status -auto2
 
 - Test the  update script:
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -t" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
 
 - Check redhat version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "uname -a && cat /etc/redhat-release" -threads -auto2
