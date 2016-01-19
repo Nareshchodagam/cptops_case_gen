@@ -3,6 +3,7 @@
 """A wrapper to generate umps implementation plan and to create cases"""
 
 import argparse
+import logging
 import getpass
 import shlex
 import json
@@ -10,9 +11,13 @@ from subprocess import check_call
 from common import Common
 from idbhost import Idbhost
 
+idb = Idbhost()
+
 template_file = 'umps.linux.template'
 
 data = {
+    "chatter1": "cs1,cs12,cs30",
+    "chatter3": "na1",
     "chatter2": "na0,cs2",
     "chatter4": "cs13",
     "chatter5": "na10,cs7",
@@ -101,27 +106,35 @@ if __name__ == '__main__':
     parser.add_argument("-C", "--clusters", help="UMPS clusters name")
     parser.add_argument("-S", "--superpod", help="superpod name")
     parser.add_argument("-P", "--preprod", help="preprod", action="store_true")
+    parser.add_argument("-V", "--verbose", help="To get debug info")
     args = parser.parse_args()
     dc = args.datacenter
+    sp = args.superpod
 
     if args.clusters:
        clusters = args.clusters
     else:
         clusters = get_clusters(dc, sp)
-    sp = args.superpod
+    print(clusters)
+
+    if args.verbose:
+        logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG)
+    else:
+        logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+
 
     if dc and sp:
-        insts = ",".join([data[cluster] for cluster in clusters.split(',') if data[cluster]])
-        #plan_cmd = 'python build_plan.py -c 0000001 -C -G \'{"clusters" : "%s",'\
-                   #'"datacenter": "%s", "grouping" : "majorset", "maxgroupsize"'\
-                   #':50, "templateid" :  "umps.linux"}\'' % (clusters, dc)
-        if args.clusters:
+        if isinstance(clusters, list):
+            clusters = [cluster.lower() for cluster in clusters]
+            insts = ",".join([data[cluster] for cluster in clusters if data[cluster]])
+        else:
+            insts = ",".join([data[cluster] for cluster in clusters.split(',') if data[cluster]])
 
+        if args.clusters:
             if 'gus' in clusters:
-                template_file = template_file.replace('umps.linux.template', 'umps.linux.template.gus')
+                template_file = template_file.replace('umps.linux.template', 'umps.linux.gus.template')
             elif args.preprod:
-                template_file = template_file.replace('umps.linux.template', 'umps.linux.template.preprod')
-            print(template_file)
+                template_file = template_file.replace('umps.linux.template', 'umps.linux.preprod.template')
             plan_cmd = "python UMPS_gen_plan.py -s  %s -i %s -g ../templates/%s -d %s  -r " \
                     "umps -b 2016.01" % (sp, clusters.upper(), template_file, dc)
         else:
@@ -131,7 +144,8 @@ if __name__ == '__main__':
         case_cmd = 'python gus_cases.py -T change  -f ../templates/jan-patch.json  -s "Jan Patch ' \
                     'Bundle: UMPS %s-%s  %s PROD" -k ../templates/6u6-plan.json  -l output/summarylist.txt -D %s -i ' \
                     'output/plan_implementation.txt' % (dc.upper(), sp.upper(), insts, dc)
-        print(plan_cmd)
+        logging.info("Running plan generation command \n %s" % plan_cmd)
+        logging.info("Running case generation command \n %s" % case_cmd)
         run_command(plan_cmd)
         #run_command(case_cmd)
 

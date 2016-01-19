@@ -61,6 +61,8 @@ def recreate_dir(dirname):
     if os.path.isdir(dirname):
         shutil.rmtree(dirname)
         os.mkdir(dirname)
+    else:
+        os.mkdir(dirname)
 
 
 # Appned the DC and CLUSTER name to the plan
