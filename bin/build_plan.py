@@ -256,12 +256,17 @@ def apply_grouptags(content,tag_id):
     
 
 def rewrite_groups(myglob,taggroups):
+    
     myglob.sort(key=humanreadable_key)
     groupid=1
     i = 1
     content = ''
     if taggroups > len(myglob):
         raise Exception('taggroups parameter is greater than the number of groups, try reducing value for maxgroupsize or taggroups')
+    # we need to decrement the taggroups if there will be hosts left over in the last group
+    if len(myglob) % taggroups != 0:
+        taggroups -= 1
+        
     gtsize = len(myglob) / taggroups
     gtsize = 1 if gtsize == 0 else gtsize
     
