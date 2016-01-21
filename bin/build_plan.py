@@ -32,6 +32,7 @@ post_file = ''
 hosts = []
 hostlist = []
 
+
 iDBurl = {'asg': "https://inventorydb1-0-asg.data.sfdc.net/api/1.03",
           'chi': "https://inventorydb1-0-chi.data.sfdc.net/api/1.03",
           'chx': "https://inventorydb1-0-chx.data.sfdc.net/api/1.03",
@@ -171,7 +172,8 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 def prep_template(template, outfile):
     # Determine which bits are necessary to include in the final output.
     # This only preps the template. It does not write out anything.
-
+    
+    
     global pre_file
     global post_file
     global out_file
@@ -226,7 +228,9 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=0,cl
 
     s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat,ho_opstat)
     if groupcount > 0 and options.tags:
-        s = apply_grouptags(s, str(groupcount))
+        if options.gtsize <= 1:
+            s = apply_grouptags(s, str(groupcount))
+     
 
     f = open(out_file, 'w')
     f.write(s)
@@ -247,17 +251,50 @@ def humanreadable_key(s):
 def apply_grouptags(content,tag_id):
     return 'BEGIN_GROUP: ' + tag_id + '\n\n' + content + '\n\n' + \
                                 'END_GROUP: ' + tag_id + '\n\n'
+                                
+                            
     
+
+def rewrite_groups(myglob,gtsize):
+    myglob.sort(key=humanreadable_key)
+    groupid=1
+    i = 1
+    content = ''
+    print 'number of files ' + str(len(myglob))
+    for f in myglob:
+       print 'rewriting file : ' + f
+       content += open(f, "r").read() + '\n\n'
+       os.remove(f) 
+       if i == len(myglob):
+          print 'rewriting all content to file :' + str(groupid) + '_group_plan_implementation.txt'
+          content = apply_grouptags(content, str(groupid))
+          open(common.outputdir + '/' + str(groupid) + '_group_plan_implementation.txt','w').write(content)
+          break 
+       if (i >= gtsize ) and (i % gtsize == 0):
+          print 'rewriting all above to file :' + str(groupid) + '_group_plan_implementation.txt'
+          content = apply_grouptags(content, str(groupid))
+          open(common.outputdir + '/' + str(groupid) + '_group_plan_implementation.txt','w').write(content)
+          content = ''
+          groupid += 1
+       i += 1 
+            #with open(f, "r") as infile:
+            #    logging.debug('Writing out: ' + f + ' to ' + consolidated_file)
+            #    final_file.write(infile.read() + '\n\n')
+
 
 def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
     # Consolidate all output into a single implementation plan.
     # This is the bit that tacks on the pre-post scripts
 
     logging.debug('Executing consolidate_plan()')
+    if options.gtsize > 1:
+            rewrite_groups(glob.glob(common.outputdir + "/*"), options.gtsize)
     consolidated_file = common.outputdir + '/plan_implementation.txt'
     print "Consolidating output into " + consolidated_file
     print 'Role :' +  role
-
+    
+    
+            
     with open(consolidated_file, 'a') as final_file:
         if options.tags:
             final_file.write("BEGIN_DC: " + datacenter.upper() + '\n\n')
@@ -273,8 +310,9 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
                 final_file.write(pre + '\n\n')
 
         # Append individual host files.
+        
+            
         read_files = glob.glob(common.outputdir + "/*")
-
         read_files.sort(key=humanreadable_key)
         for f in read_files:
             if f != common.outputdir + '/plan_implementation.txt':
@@ -647,6 +685,7 @@ def consolidate_idb_query_plans(writeplan,dcs,gsize):
 def write_plan_dc(dc,template_id,writeplan,gsize):
 
     global gblSplitHosts
+    grouptagcount=0
     results=writeplan[template_id][(dc,)]
     i=0
 
@@ -684,7 +723,7 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),i,','.join(cluster_operationalstatus),','.join(host_operationalstatus))
 
     consolidated_plan = consolidate_plan(','.join(set(allhosts)), ','.join(set(allclusters)), dc, ','.join(set(allsuperpods)), options.caseNum, ','.join(set(allroles)))
-
+    print 'Template: '+ template_id
     return consolidated_plan, sorted(allhosts)
 
 def gen_plan_by_hostlist_idb(hostlist, templateid, gsize, grouping):
@@ -787,9 +826,11 @@ parser.add_option("--bundle", dest="bundle", default="current", help="Patchset v
 parser.add_option("--exclude", dest="exclude_list", default=False, help="Host Exclude List")
 parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
+parser.add_option("--gtsize", dest="gtsize", type="int", default=1, help="number of sub-plans per group tag")
+
 (options, args) = parser.parse_args()
 if __name__ == "__main__":
-
+    
     if not options.bundle:
         options.bundle = "current"
 
