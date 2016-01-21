@@ -255,11 +255,19 @@ def apply_grouptags(content,tag_id):
                             
     
 
-def rewrite_groups(myglob,gtsize):
+def rewrite_groups(myglob,taggroups):
     myglob.sort(key=humanreadable_key)
     groupid=1
     i = 1
     content = ''
+    if taggroups > len(myglob):
+        raise Exception('taggroups parameter is greater than the number of groups, try reducing value for maxgroupsize or taggroups')
+    gtsize = len(myglob) / taggroups
+    gtsize = 1 if gtsize == 0 else gtsize
+    
+    
+    print 'Tag groups : ' + str(taggroups)
+    print 'tag group size :' + str(gtsize)
     print 'number of files ' + str(len(myglob))
     for f in myglob:
        print 'rewriting file : ' + f
@@ -287,8 +295,8 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
     # This is the bit that tacks on the pre-post scripts
 
     logging.debug('Executing consolidate_plan()')
-    if options.gtsize > 1:
-            rewrite_groups(glob.glob(common.outputdir + "/*"), options.gtsize)
+    if options.taggroups > 0:
+            rewrite_groups(glob.glob(common.outputdir + "/*"), options.taggroups)
     consolidated_file = common.outputdir + '/plan_implementation.txt'
     print "Consolidating output into " + consolidated_file
     print 'Role :' +  role
@@ -826,7 +834,7 @@ parser.add_option("--bundle", dest="bundle", default="current", help="Patchset v
 parser.add_option("--exclude", dest="exclude_list", default=False, help="Host Exclude List")
 parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
-parser.add_option("--gtsize", dest="gtsize", type="int", default=1, help="number of sub-plans per group tag")
+parser.add_option("--taggroups", dest="taggroups", type="int", default=0, help="number of sub-plans per group tag")
 
 (options, args) = parser.parse_args()
 if __name__ == "__main__":
