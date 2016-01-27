@@ -90,8 +90,8 @@ def run_command(cmd):
     check_call(cmd)
 
 # Function to get the clusters name from idb in a given dc
-def get_clusters(dc, sp):
-    idb.sp_info(dc, sp, 'active', 'CHATTER')
+def get_clusters(dc, sp, op_status):
+    idb.sp_info(dc, sp, op_status, 'CHATTER')
     clus_json = idb.spcl_grp
     for key, vals in clus_json.iteritems():
         clusters = vals['Primary'].split(',')
@@ -105,23 +105,23 @@ if __name__ == '__main__':
     parser.add_argument("-D", "--datacenter", help="Please enter the DC", required=True)
     parser.add_argument("-C", "--clusters", help="UMPS clusters name")
     parser.add_argument("-S", "--superpod", help="superpod name")
+    parser.add_argument("-O", "--op_status", help="operational_status")
     parser.add_argument("-P", "--preprod", help="preprod", action="store_true")
     parser.add_argument("-V", "--verbose", help="To get debug info")
     args = parser.parse_args()
     dc = args.datacenter
     sp = args.superpod
+    op_status = args.op_status
 
     if args.clusters:
-       clusters = args.clusters
+        clusters = args.clusters
     else:
-        clusters = get_clusters(dc, sp)
-    print(clusters)
+        clusters = get_clusters(dc, sp, op_status)
 
     if args.verbose:
         logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG)
     else:
         logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
-
 
     if dc and sp:
         if isinstance(clusters, list):
@@ -136,16 +136,18 @@ if __name__ == '__main__':
             elif args.preprod:
                 template_file = template_file.replace('umps.linux.template', 'umps.linux.preprod.template')
             plan_cmd = "python UMPS_gen_plan.py -s  %s -i %s -g ../templates/%s -d %s  -r " \
-                    "umps -b 2016.01" % (sp, clusters.upper(), template_file, dc)
+                "umps -b 2016.01 -o %s" % (sp, clusters.upper(), template_file, dc, op_status)
         else:
-            plan_cmd = "python UMPS_gen_plan.py -s  %s  -g ../templates/umps.linux.template -d %s  -r " \
-                    "umps -b 2016.01" % (sp, dc)
+            if args.preprod:
+                template_file = template_file.replace('umps.linux.template', 'umps.linux.preprod.template')
+            plan_cmd = "python UMPS_gen_plan.py -s  %s  -g ../templates/%s -d %s  -r " \
+                "umps -b 2016.01 -o %s" % (sp, template_file, dc, op_status)
 
         case_cmd = 'python gus_cases.py -T change  -f ../templates/jan-patch.json  -s "Jan Patch ' \
-                    'Bundle: UMPS %s-%s  %s PROD" -k ../templates/6u6-plan.json  -l output/summarylist.txt -D %s -i ' \
-                    'output/plan_implementation.txt' % (dc.upper(), sp.upper(), insts, dc)
+            'Bundle: UMPS %s-%s  %s %s NotLive" -k ../templates/6u6-plan.json  -l output/summarylist.txt -D %s -i ' \
+            'output/plan_implementation.txt' % (dc.upper(), sp.upper(), insts, ",".join(clusters), dc)
         logging.info("Running plan generation command \n %s" % plan_cmd)
         logging.info("Running case generation command \n %s" % case_cmd)
         run_command(plan_cmd)
-        #run_command(case_cmd)
+        run_command(case_cmd)
 
