@@ -158,8 +158,8 @@ def init_Host(dc, cluster):
 
 
 # Function to get the clusters name from idb in a given dc
-def get_clusters(dc, sp):
-    idb.sp_info(dc, sp, 'active', 'CHATTER')
+def get_clusters(dc, sp, op_status):
+    idb.sp_info(dc, sp, op_status, 'CHATTER')
     clus_json = idb.spcl_grp
     for key, vals in clus_json.iteritems():
         clusters = vals['Primary'].split(',')
@@ -186,6 +186,7 @@ if __name__ == "__main__":
     parser.add_option("-s", "--superpod", dest="superpod", help="The superpod")
     parser.add_option("-b", "--patch_bundle", dest="bundle", help="The patch bundle name")
     parser.add_option("-i", "--cluster", dest="cluster", help="The instance")
+    parser.add_option("-o", "--op_status", dest="op_status", help="Operational Status")
     parser.add_option("-d", "--datacenter", dest="datacenter", help="The datacenter")
     parser.add_option("-g", "--gensetup", dest="gensetup", help="test")
     parser.add_option("-r", "--role", dest="role", help="The role")
@@ -200,7 +201,7 @@ if __name__ == "__main__":
         if options.cluster:
             clusters = options.cluster.split(",")
         else:
-            clusters = get_clusters(options.datacenter, options.superpod)
+            clusters = get_clusters(options.datacenter, options.superpod, options.op_status)
 
         recreate_dir('output')
         out_file = "output/" + options.filename
@@ -236,10 +237,6 @@ if __name__ == "__main__":
                 cmd = '\nExec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H %s -c enable\n' % (host_list)
                 write_to_file('output/' + options.filename, "a+", cmd)
                 add_dc_cluster(cluster, options.filename, 'END')
-
-
-
-
             else:
                 for host in hosts[options.cluster]:
                     write_to_file('output/summarylist.txt', 'a+', host + '\n')
@@ -252,8 +249,6 @@ if __name__ == "__main__":
                 #write_to_file(out_file, "a+", data)
         data = 'END_DC: %s\n' % options.datacenter.upper()
         write_to_file(out_file, "a+", data)
-
-        
         print "Generating: output/%s" % options.filename
 
     else:
