@@ -8,6 +8,7 @@ import sys
 import argparse
 import os
 import lint_checker as lc
+from distutils.cmd import Command
 
 def file_check(file):
     global _linenum
@@ -55,6 +56,7 @@ def cmd_check(line):
 
 def runner_cmds(line):
     runner_cmds_fail = 0
+    val2 = 0
     options_parser = re.compile(r'(-[a-zA-Z_0-9]+)(?:\s+|$)([\"\'].+[\"\']|(?!-)\S+)?')
     result = "None"
     rr_option = options_parser.finditer(line)

@@ -10,16 +10,17 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 - Disable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
-- Stop the running application on primary
+-Stop the running application on primary
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-traffic -c stop_server -stopall -threads -auto2
 
-Manual: ensure you stop the POD_HUBs below as a single step and sure that they stop cleanly
+- Stop Splunk
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c stop_server -auto2 -threads
 
 - Stop pods
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER --product mandm-traffic -c sudo_cmd -m "./remote_transfer/manage_sharedhub.py -k" -threads -auto2
 
-- Stop Splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c stop_server -auto2 -threads
+-unmount storage
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER --product mandm-traffic -c sudo_cmd -m "umount /hub" -threads -auto2
 
 Manual: Log on to the host console
 
