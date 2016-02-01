@@ -33,7 +33,7 @@
 				" ", 
 				"$ cat /proc/uptime | awk '{print $1}'",
 				" ",
-				"Confirm /etc/redhat-release is updated:", 
+				"Confirm /etc/redhat-release is updated: ", 
 				" ", 
 				"$ grep 6.7 /etc/redhat-release", 
 				" ", 
