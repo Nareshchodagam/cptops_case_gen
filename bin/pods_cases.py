@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+ 
 import os
 import re
 import sys
@@ -18,7 +18,7 @@ def groupType(role):
     if role in groupings:
         return groupings[role]
     else:
-	       return 'majorset'
+        return 'majorset'
 
 def groupSize(role):
     groupsizes = {'search': 15,
@@ -28,8 +28,7 @@ def groupSize(role):
     if role in groupsizes:
         return groupsizes[role]
     else:
-	       return 1
-
+        return 1
 def getData(filename):
     with open(filename) as data_file:
         data = data_file.readlines()
@@ -48,10 +47,6 @@ if __name__ == "__main__":
     parser.add_option("-b", "--bundle", dest="bundle", help="Bundle short name eg may oct")
     parser.add_option("--patchset", dest="patchset", help="Patchset name eg 2015.10 or 2016.01")
     parser.add_option("--taggroups", dest="taggroups", help="Size for blocked groups for large running cases like hbase")
-    
-    
-    
-    
     #python = '/usr/local/Cellar/python/2.7.10_2/bin/python2.7'
     python = 'python'
     (options, args) = parser.parse_args()
@@ -75,7 +70,7 @@ if __name__ == "__main__":
                 if re.search(r'LAPP.*CS', pods, re.IGNORECASE):
                     groupsize = 2
                 else:
-                    groupsize = options.groupsize
+                    groupsize = groupSize(options.role)
             if options.filter:
                 print("""%s build_plan.py -C --bundle %s -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "%s", "maxgroupsize": %s, "templateid" : "%s", "dr": "%s" , "hostfilter": "^.*%s"}' --taggroups %s -v""" % (python,options.patchset,pods,dc,options.role,grouping,groupsize,options.template,options.dr,options.filter,options.taggroups))
             else:
