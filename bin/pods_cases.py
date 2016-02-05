@@ -12,14 +12,13 @@ import common
 
 def groupType(role):
     groupings = {'search': 'majorset',
-                 'mnds,dnds': 'majorset,minorset',
-                 'insights_iworker,insights_redis': 'insights_iworker,insights_redis' 
+                 'mnds,dnds': 'majorset',
+                 'insights_iworker,insights_redis': 'majorset' 
                  }
     if role in groupings:
         return groupings[role]
     else:
-        print('No group type set. Update the code or provide one with the -g flag')
-        sys.exit(1)
+	       return 'majorset'
 
 def groupSize(role):
     groupsizes = {'search': 15,
@@ -29,8 +28,7 @@ def groupSize(role):
     if role in groupsizes:
         return groupsizes[role]
     else:
-        print('No groupsize set. Update the code or provide one with the -s flag')
-        sys.exit(1)
+	       return 1
 
 def getData(filename):
     with open(filename) as data_file:
@@ -62,14 +60,8 @@ if __name__ == "__main__":
     grouping = "majorset"
     groupsize = 1
     if options.role:
-        if options.role == 'search':
-            grouping = groupType(options.role)
-            groupsize = groupSize(options.role)
-        elif options.role =='mnds,dnds':
-            grouping = groupType(options.role)
-            groupsize = groupSize(options.role)
-        else:
-            grouping = "majorset"
+        grouping = groupType(options.role)
+        groupsize = groupSize(options.role)     
     if options.podgroups:
         data = getData(options.podgroups)
         for l in data:
@@ -83,7 +75,7 @@ if __name__ == "__main__":
                 if re.search(r'LAPP.*CS', pods, re.IGNORECASE):
                     groupsize = 2
                 else:
-                    groupsize = groupSize(options.role)
+                    groupsize = options.groupsize
             if options.filter:
                 print("""%s build_plan.py -C --bundle %s -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "%s", "maxgroupsize": %s, "templateid" : "%s", "dr": "%s" , "hostfilter": "^.*%s"}' --taggroups %s -v""" % (python,options.patchset,pods,dc,options.role,grouping,groupsize,options.template,options.dr,options.filter,options.taggroups))
             else:
