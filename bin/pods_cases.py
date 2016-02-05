@@ -12,8 +12,8 @@ import common
 
 def groupType(role):
     groupings = {'search': 'majorset',
-                 'mnds,dnds': 'majorset,minorset',
-                 'insights_iworker,insights_redis': 'insights_iworker,insights_redis' 
+                 'mnds,dnds': 'majorset',
+                 'insights_iworker,insights_redis': 'majorset' 
                  }
     if role in groupings:
         return groupings[role]
@@ -29,7 +29,6 @@ def groupSize(role):
         return groupsizes[role]
     else:
         return 1
-    
 def getData(filename):
     with open(filename) as data_file:
         data = data_file.readlines()
@@ -48,10 +47,6 @@ if __name__ == "__main__":
     parser.add_option("-b", "--bundle", dest="bundle", help="Bundle short name eg may oct")
     parser.add_option("--patchset", dest="patchset", help="Patchset name eg 2015.10 or 2016.01")
     parser.add_option("--taggroups", dest="taggroups", help="Size for blocked groups for large running cases like hbase")
-    
-    
-    
-    
     #python = '/usr/local/Cellar/python/2.7.10_2/bin/python2.7'
     python = 'python'
     (options, args) = parser.parse_args()
@@ -60,14 +55,8 @@ if __name__ == "__main__":
     grouping = "majorset"
     groupsize = 1
     if options.role:
-        if options.role == 'search':
-            grouping = groupType(options.role)
-            groupsize = groupSize(options.role)
-        elif options.role =='mnds,dnds':
-            grouping = groupType(options.role)
-            groupsize = groupSize(options.role)
-        else:
-            grouping = "majorset"
+        grouping = groupType(options.role)
+        groupsize = groupSize(options.role)     
     if options.podgroups:
         data = getData(options.podgroups)
         for l in data:
