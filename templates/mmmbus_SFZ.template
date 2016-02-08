@@ -3,8 +3,8 @@ RR based commands
 
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -auto2 -threads
 
-- Disable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
+#- Disable nagios monitoring
+#Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
 -stop kafka
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-kafka -host v_HOSTS -device_role v_ROLE -c stop_server -auto2 -threads
@@ -27,7 +27,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 -start kafka
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product  mandm-kafka  -device_role v_ROLE -host v_HOSTS -c start_server -auto2 -threads
 
-- Enable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
+#- Enable nagios monitoring
+#Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
 
 Exec: echo "Host v_HOSTS system patching completed"
