@@ -15,9 +15,13 @@ import re
 import json
 import sys
 from datetime import datetime, date, time, timedelta
+try:
+    import pyczar
+except:
+    print('no %s installed' % 'pyczar')
 
 config = ConfigParser.ConfigParser()
-config.readfp(open('creds.config'))
+config.readfp(open('vaultcreds.config'))
 
 
 def getImplPlanDetails(caseId,session):
@@ -60,6 +64,19 @@ def getCaseId(caseNum,session):
     gusObj = Gus()
     case_details = gusObj.get_case_details_caseNum(caseNum,session)
     return case_details.rstrip()
+
+def getCreds():
+    pc = pyczar.Pyczar()
+    keyDir = config.get('VAULT', 'keydir')
+    valut = config.get('VAULT', 'vault')
+    server = config.get('VAULT', 'servera')
+    port = config.get('VAULT', 'port')
+    new_server = pc.change_server(server,port)
+    client_id = pc.get_secret(valut, 'client_id', keyDir)
+    client_secret = pc.get_secret(valut, 'client_secret', keyDir)
+    username = pc.get_secret(valut, 'username', keyDir)
+    passwd = pc.get_secret(valut, 'passwd', keyDir)
+    return client_id,client_secret,username,passwd
     
 if __name__ == '__main__':
     
@@ -80,20 +97,15 @@ if __name__ == '__main__':
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     # set username and details of case
-
     try:
-        gpass = config.get('GUS', 'guspassword')
-    except ConfigParser.NoOptionError,e:
-        gpass = getpass.getpass("Please enter your GUS password: ")
-    try:
-        username = config.get('GUS', 'username')
-        client_id = config.get('GUS', 'client_id')
-        client_secret = config.get('GUS', 'client_secret')
-    except:
-        print('Problem getting username, client_id or client_secret')
+        client_id,client_secret,username,passwd = getCreds()
+        logging.debug('%s, %s, %s' % (client_id,client_secret,username))
+ 
+    except Exception as e:
+        print('Problem getting username, client_id or client_secret: %s')
         sys.exit()
     # instantiate auth object and generate session dict
-    authObj = Auth(username,gpass,client_id,client_secret)
+    authObj = Auth(username,passwd,client_id,client_secret)
     session = authObj.login()
     
     if options.caseNum:
