@@ -249,7 +249,7 @@ def humanreadable_key(s):
 
 def apply_grouptags(content,tag_id):
     return 'BEGIN_GROUP: ' + tag_id + '\n\n' + content + '\n\n' + \
-                                'END_GROUP: ' + tag_id + '\n\n'
+                                'END_GROUP: ' + tag_id + '\n'
                                 
                             
     
