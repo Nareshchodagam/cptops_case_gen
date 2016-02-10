@@ -99,8 +99,9 @@ _build plan from a file: there are 2 basic options: 1) file of idb hosts 2) file
 	  (b) IDB hosts, specifying template, group by superpod,cluster, groupsize 5 :		eg ./build_plan.py -l ~/host_list -t dusty -M superpod,cluster --gsize 5
 	  
 	2 (a) skip idb, no grouping, no maxgroupsize, implicit lookup : eg ./build_plan.py -l ~/host_list -x
-	  (b) skip idb, specifying template, groupsize 3 group by role:  eg ./build_plan.py -l ~/host_list -t dusty --gsize 3 -M role -x
-	  
+	  (b)(i) skip idb, specifying template, groupsize 3 group by role:  eg ./build_plan.py -l ~/host_list -t dusty --gsize 3 -M role -x
+	  also: (b)(ii) utilizing both majorset grouping and groupsize on a list of splunk hsts
+	 ./build_plan.py -l <(grep 'logsearch.*crz' ~/allddi_08022016 | awk '{print $1}') -M majorset --gsize 4 -x -t ../templates/mandm-splunk-idxr --taggroups 20
 	  
 other command switches:
 ==================

@@ -22,11 +22,15 @@ class Buildplan_helper:
            get = any idb "allhosts?"  
         """
     
-        self.usehostlist=usehostlist
+        
         self.cidblocal = cidblocal
         self.idb_resource = resource
         self.fields = fields
         self.cache={}
+        
+        #one list with all supported fields, majorest and minorset are implied so must be added here for validation
+        self.fieldcheck = self.fields.keys() + ['majorset','minorset','datacenter']
+        self.usehostlist=usehostlist
         #setting as separate list to preserve order
         self._suffixlist = ['_dr_standby','_dr','_standby','']
         self._templatesuffix= {
@@ -37,8 +41,7 @@ class Buildplan_helper:
                     (False, 'PRIMARY') : self._suffixlist[3]
                             
                 }
-        #one list with all supported fields, majorest and minorset are implied so must be added here for validation
-        self.fieldcheck = self.fields.keys() + ['majorset','minorset','datacenter']
+        
     
     def gen_request(self,reststring, dc, cidblocal=True, debug=False):
         """
@@ -298,7 +301,7 @@ class Buildplan_helper:
         
         
         groupedhosts = self.get_groupeddata(results,groups)    
-        print groupedhosts
+        
         writeplan = self._apply_templates(groupedhosts,templateid)
        
         return writeplan
