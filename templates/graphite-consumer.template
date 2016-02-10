@@ -1,4 +1,4 @@
-RR based commands
+- RR based commands
 -Copy remote scripts to the target hosts
 
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
@@ -13,15 +13,10 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
 - stop consumer
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-graphite-kafka-consumer  -host v_HOSTNAME_MMCNSMR -c stop_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-graphite-kafka-consumer -host v_HOSTNAME_MMCNSMR -c stop_server -threads -auto2
 
 - Execute the update script
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE" -threads -auto2
-
-- stop storage
-release_runner.pl -forced_host v_HOSTNAME_MMAPP -c sudo_cmd -m "/home/appmon/current/mandm-graphite-kafka-consumer/kmcg/build/ant stop" -threads -auto2
-
-release_runner.pl -forced_host v_HOSTNAME_MMAPP -c sudo_cmd -m "ps -ef | grep carbon-cache | grep '^carbon' | awk '{print $2}' | xargs kill -9" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
 
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
@@ -36,10 +31,13 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -threads -auto2
 
 - start consumer
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-graphite-kafka-consumer  -host v_HOSTNAME_MMCNSMR -c start_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-graphite-kafka-consumer -host v_HOSTNAME_MMCNSMR -c start_server -threads -auto2
 
- start latency reporter
-release_runner.pl -forced_host v_MMCNSMR_LATENCY -c sudo_cmd -m "cd /home/appmon/current/ajna-latency-monitor; rm -f pid; runReporter.sh start" -threads -auto2
+- start metrics monitor (ajna-mmcnsmr{1-2}-1-sfz)
+release_runner.pl -forced_host ajna-mmcnsmr1-1-sfz,ajna-mmcnsmr2-1-sfz -c sudo_cmd -m "./remote_transfer/graphite.py --start-metrics" -threads -auto2
+
+- start latency reporter (ajna-mmcnsmr{6-8}-2-sfz)
+release_runner.pl -forced_host ajna-mmcnsmr6-2-sfz,ajna-mmcnsmr8-2-sfz -c sudo_cmd -m "./remote_transfer/graphite.py --start-reporter" -threads -auto2
 
 - Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
