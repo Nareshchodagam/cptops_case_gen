@@ -228,7 +228,6 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=0,cl
 
     s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat,ho_opstat)
     if groupcount > 0 and options.tags:
-        if options.gtsize <= 1:
             s = apply_grouptags(s, str(groupcount))
      
 
