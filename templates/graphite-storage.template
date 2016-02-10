@@ -15,6 +15,9 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c 
 - Execute the update script
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
 
+- stop storage - Kill carbon-cache
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_tranfer/graphite.py --kill-cache" -threads -auto2
+
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
 
@@ -26,9 +29,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 
 - Start Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -threads -auto2
-
-- http file check
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/graphite.py --filechk" -threads -auto2
 
 - Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
