@@ -9,7 +9,7 @@ import logging
 from optparse import OptionParser
 import subprocess
 import common
-
+ 
 def groupType(role):
     groupings = {'search': 'majorset',
                  'mnds,dnds': 'majorset',
@@ -57,6 +57,8 @@ if __name__ == "__main__":
     if options.role:
         grouping = groupType(options.role)
         groupsize = groupSize(options.role)     
+    if options.groupsize:
+        groupsize = options.groupsize
     if options.podgroups:
         data = getData(options.podgroups)
         for l in data:
@@ -66,15 +68,15 @@ if __name__ == "__main__":
             #msg =  { "clusters" : pods ,"datacenter": dc , "roles": options.role, "cl_opstat" : "ACTIVE", "grouping" : "majorset", "maxgroupsize": 4, "templateid" : options.template, "dr": options.dr }
             #print("""python build_plan.py -c 0000001 -C -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "majorset", "maxgroupsize": 4, "templateid" : "%s", "hostfilter": "^.*%s" }' -v""" % (pods,dc,options.role,options.template,options.filter))
             #print("""python build_plan.py -c 0000001 -C -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "majorset", "maxgroupsize": 4, "templateid" : "%s", "dr": "%s", "hostfilter": "^.*%s" }' -v""" % (pods,dc,options.role,options.template,options.dr,options.filter))
-            if options.groupsize:
-                if re.search(r'LAPP.*CS', pods, re.IGNORECASE):
-                    groupsize = 2
-                else:
-                    groupsize = groupSize(options.role)
+            #if options.groupsize:
+            #    if re.search(r'LAPP.*CS', pods, re.IGNORECASE):
+            #        groupsize = 2
+            #    else:
+            #        groupsize = groupSize(options.role)
             if options.filter:
                 print("""%s build_plan.py -C --bundle %s -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "%s", "maxgroupsize": %s, "templateid" : "%s", "dr": "%s" , "hostfilter": "^.*%s"}' --taggroups %s -v""" % (python,options.patchset,pods,dc,options.role,grouping,groupsize,options.template,options.dr,options.filter,options.taggroups))
             else:
-                #print("""python build_plan.py -C -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "majorset","cl_opstat" :  "ACTIVE,PROVISIONING", "host_opstat": "ACTIVE,PRE_PRODUCTION,PROVISIONING","maxgroupsize": %s, "templateid" : "%s", "dr": "%s" }' -v""" % (pods,dc,options.role,groupsize,options.template,options.dr))
+                #print("""python build_plan.py -C --bundle %s -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "majorset","cl_opstat" :  "PROVISIONING,PRE_PRODUCTION", "host_opstat": "ACTIVE,PRE_PRODUCTION,PROVISIONING","maxgroupsize": %s, "templateid" : "%s", "dr": "%s" }' -v""" % (options.patchset,pods,dc,options.role,groupsize,options.template,options.dr))
                 print("""%s build_plan.py -C --bundle %s -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "%s","maxgroupsize": %s, "templateid" : "%s", "dr": "%s" }' --taggroups %s -v""" % (python,options.patchset,pods,dc,options.role,grouping,groupsize,options.template,options.dr,options.taggroups))
             #print("""python build_plan.py -C -G '%s' -v""" % msg)
             if options.group:

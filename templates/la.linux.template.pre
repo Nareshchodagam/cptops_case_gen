@@ -9,6 +9,7 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opsen
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py ~/releaserunner/remote_transfer/common.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage-hermes-peer.sh ~/releaserunner/remote_transfer/manage-hermes-peer.sh
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/zookeeper_status.py ~/releaserunner/remote_transfer/zookeeper_status.py
 
 - Get the local update scripts:
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/idbhost.py ~/idbhost.py
@@ -18,3 +19,4 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opsen
 
 - Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+
