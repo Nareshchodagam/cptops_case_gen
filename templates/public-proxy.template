@@ -10,7 +10,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
 -Validate hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster PUBLICPROXY -product bigip -c bigipcheck -threads -auto2 -d -cluster_status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -c bigipcheck -threads -auto2 -d -cluster_status v_CL_OPSTAT
 
 - Get initial static routes
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_static_routes.py -f static_route.orig" -auto2
@@ -19,13 +19,13 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_s
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
 -Remove from pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster PUBLICPROXY -product bigip -host v_HOSTS -c remove_from_pool -threads -auto2 -cluster_status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -host v_HOSTS -c remove_from_pool -threads -auto2 -cluster_status v_CL_OPSTAT
 
 - Stop the running application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/squid stop" -threads -auto2
 
 - Stop Splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster PUBLICPROXY -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2 -cluster_status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2 -cluster_status v_CL_OPSTAT
 
 - Execute the update script
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
@@ -34,7 +34,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
     
 - Check the host is online
-Exec: /home/paulf/check_reconnect.py -H v_HOSTS
+Exec: ~/check_reconnect.py -H v_HOSTS
 
 -Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
@@ -55,10 +55,10 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/squid status"
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_maxfs_desc.py" -auto2
    
 - Start Splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster PUBLICPROXY -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -threads -auto2 -cluster_status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -threads -auto2 -cluster_status v_CL_OPSTAT
   
 - add to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster PUBLICPROXY -product bigip -host v_HOSTS -c add_to_pool -threads -auto2 -cluster_status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -host v_HOSTS -c add_to_pool -threads -auto2 -cluster_status v_CL_OPSTAT
 
 - Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
