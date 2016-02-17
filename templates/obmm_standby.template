@@ -11,7 +11,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
 - Stop the running application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product obmm -c stop_server -threads -host v_HOSTS -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product obmm -c stop_server -pkging -threads -standby -host v_HOSTS
 
 - Execute the update script
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
@@ -19,14 +19,17 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
 
-- Check the host is online
+- Wait for the hosts to boot up
 Exec: ~/check_reconnect.py -H v_HOSTS
 
 -Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
 - Start the application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product obmm -c start_server -threads -host v_HOSTS -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product obmm -c start_server -pkging -threads -standby -host v_HOSTS
 
 - Verify service
-Exec: wget -qO- http://v_HOSTS.ops.sfdc.net:8088/services/Soap/o/OutboundChecker
+Exec: wget http://v_HOSTS.ops.sfdc.net:8088/services/Soap/o/OutboundChecker
+
+- Patchset completed comment
+Exec: echo "host v_HOSTS patching completed"
