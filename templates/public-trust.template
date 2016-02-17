@@ -18,7 +18,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product b
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -host v_HOSTS -c remove_from_pool -threads -auto2 -cluster_status v_CL_OPSTAT
 
 -Shutdown application. 
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product trust2 -c stop_server -host v_HOSTS -threads -auto2 
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product trust2 -c stop_server -host v_HOSTS -threads -auto2
 
 - Stop Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c stop_server -auto2
