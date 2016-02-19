@@ -26,7 +26,9 @@ valid_cmd = ('-product',
               '-property',
               '-g',
               '-stopall',
-              '-cluster_status')
+              '-cluster_status',
+              '-status',
+              '-standby')
 
 require_options = {"-product": "Application name",
                    "-i": "Instance Name",
