@@ -10,7 +10,7 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opsen
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_sbcheck.sh ~/releaserunner/remote_transfer/nagios_sbcheck.sh
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_service.py ~/releaserunner/remote_transfer/manage_service.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin /nagios_backup.sh ~/releaserunner/remote_transfer/nagios_backup.sh
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_backup.sh ~/releaserunner/remote_transfer/nagios_backup.sh
 
 
 
