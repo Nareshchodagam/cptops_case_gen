@@ -4,14 +4,15 @@ BUNDLE=$1
 PATCHJSON=feb-patch.json
 PREAMBLE="FEB and GLIBC Patch Bundle : "
 OTHER="-T"
-EXCLUDE=/Users/dsheehan/dva_canary
-GROUPSIZE=1
-GROUPING=majorset,minorset
-FILE_SPL_WEB_CRZ=
-FILE_SPL_API_CRZ=
-FILE_SPL_DEP_CRZ=
-FILE_SPL_IDX_CRZ=
-FILE_SPL_IDX_CRZ_IDB=
+EXCLUDE='../hostlists/dva_canary'
+GROUPSIZE=10
+GROUPING=role
+FILE_SPL_SWI_CRZ='../hostlists/file_spl_swi_crz'
+FILE_SPL_WEB_CRZ='../hostlists/file_spl_web_crz'
+FILE_SPL_API_CRZ='../hostlists/file_spl_api_crz'
+FILE_SPL_DEP_CRZ='../hostlists/file_spl_dep_crz'
+FILE_SPL_IDX_CRZ='../hostlists/file_spl_idx_crz'
+FILE_SPL_IDX_CRZ_IDB='../hostlists/file_spl_idx_crz_idb'
 
 
 function create_case {
@@ -46,10 +47,8 @@ function build_case_hostlist {
 DC=$1
 ROLE=$2
 PREAMBLE=$3
-CTYPE=$4
-STATUS=$5
-HOSTLIST=$6
-TEMPLATEID=$8
+HOSTLIST=$4
+TEMPLATEID=$5
 if [ -z "$TEMPLATEID" ]; then TEMPLATEID=$ROLE; fi
 
 ./build_plan.py -l $HOSTLIST -x -M $GROUPING --gsize $GROUPSIZE -t $TEMPLATEID $EXTRA
@@ -64,11 +63,8 @@ function build_case_hostlist_idb {
 DC=$1
 ROLE=$2
 PREAMBLE=$3
-CTYPE=$4
-STATUS=$5
-DCUP="$(echo $DC | awk '{print toupper($0)}')"
-HOSTLIST=$6
-TEMPLATEID=$8
+HOSTLIST=$4
+TEMPLATEID=$5
 if [ -z "$TEMPLATEID" ]; then TEMPLATEID=$ROLE; fi
 
 
@@ -102,11 +98,21 @@ echo "TITLE will be $MYSUBJECT"
 }
 
 DC=crz
-ROLE=mandm-splunk-web
-CTYPE=HUB
-STATUS=ACTIVE
-#
-build_case_hostlist $DC $ROLE "$PREAMBLE" $CTYPE $STATUS
+
+#ROLE=mandm-splunk-api
+#build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_API_CRZ
+
+#ROLE=mandm-splunk-deployer
+#build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_DEP_CRZ
+
+ROLE=mandm-splunk-idxr
+build_case_hostlist $DC $ROLE "$PREAMBLE NON AFW" $FILE_SPL_IDX_CRZ
+
+ROLE=mandm-splunk-idxr
+build_case_hostlist $DC $ROLE "$PREAMBLE AFW" $FILE_SPL_IDX_CRZ_IDB
+
+#ROLE=mandm-splunk-web
+#build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_WEB_CRZ
 
 #DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
 #ROLE=log_hub
