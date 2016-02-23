@@ -13,9 +13,6 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product i
 - Disable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
-- disable monitoring on entire cluster (to cover pulse test)
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices,insights-redis,waveagent,ajnada -c disable_monitor -auto2 -threads -g 1,2,3,4,5,6
-
 - Remove from pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,ajnada -host v_HOSTS -c remove_from_pool -threads -auto2
 
@@ -48,8 +45,5 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product i
 
 - Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
-
--enable monitoring on entire cluster (to cover pulse test)
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices,insights-redis,waveagent,ajnada -c enable_monitor -auto2 -threads -g 1,2,3,4,5,6
 
 Exec: echo "Host system patching completed"
