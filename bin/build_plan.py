@@ -260,6 +260,7 @@ def rewrite_groups(myglob,taggroups):
     groupid=1
     i = 1
     content = ''
+    logging.debug("Files in output dir: " + str(len(myglob)))
     if taggroups > len(myglob):
         raise Exception('taggroups parameter is greater than the number of groups, try reducing value for maxgroupsize or taggroups')
     # we need to decrement the taggroups if there will be hosts left over in the last group
@@ -306,12 +307,14 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
     print 'Role :' +  role
     
     
+    
             
     with open(consolidated_file, 'a') as final_file:
         if options.tags:
             final_file.write("BEGIN_DC: " + datacenter.upper() + '\n\n')
 
         if pre_file:
+            
             with open(pre_file, "r") as pre:
                 pre = pre.read()
                 pre = compile_template(pre, hosts, cluster, datacenter, superpod, casenum, role)
@@ -347,7 +350,7 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
     with open(consolidated_file, 'r') as resultfile:
         result = resultfile.readlines()
 
-
+    
     return result
 
 def gen_request(reststring, cidblocal=False, derivedc='', debug=False):
@@ -661,7 +664,7 @@ def consolidate_idb_query_plans(writeplan,dcs,gsize):
     writelist=[]
     ok_dclist=[]
 
-    logging.debug(dcs)
+    
 
     for template in writeplan:
         allplans[template]={}
@@ -696,6 +699,7 @@ def consolidate_idb_query_plans(writeplan,dcs,gsize):
 
 def write_plan_dc(dc,template_id,writeplan,gsize):
 
+    
     global gblSplitHosts
     grouptagcount=0
     results=writeplan[template_id][(dc,)]
@@ -735,37 +739,40 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),i,','.join(cluster_operationalstatus),','.join(host_operationalstatus))
 
     consolidated_plan = consolidate_plan(','.join(set(allhosts)), ','.join(set(allclusters)), dc, ','.join(set(allsuperpods)), options.caseNum, ','.join(set(allroles)))
+    
     print 'Template: '+ template_id
     return consolidated_plan, sorted(allhosts)
 
-def gen_plan_by_hostlist_idb(hostlist, templateid, gsize, grouping):
+def get_clean_hostlist(hostlist):
     hostnames =[]
     dcs = []
     
     file = open(hostlist).readlines()
     for line in file:
+        print line
+        
         dc = line.split('-')[3].rstrip('\n')
         if dc not in dcs:
             dcs.append(dc)
-        hostnames.append(line.rstrip('\n'))
-    idbfilters = { 'name': hostnames }
+        hostnames.append(line.rstrip('\n').rstrip())
     
+    return dcs,hostnames
+    
+
+def gen_plan_by_hostlist_idb(hostlist, templateid, gsize, grouping):
+    
+    dcs, hostnames = get_clean_hostlist(hostlist)
+    idbfilters = { 'name': hostnames }
     
     bph = Buildplan_helper('allhosts?', supportedfields,True,True)
     writeplan = bph.prep_idb_plan_info(dcs,idbfilters,{},groups,templateid)
+    
     consolidate_idb_query_plans(writeplan, dcs, gsize)
     
 def gen_plan_by_hostlist(hostlist, templateid, gsize, groups):
-    hostnames =[]
-    dcs = []
-    
-    file = open(hostlist).readlines()
-    for line in file:
-        dc = line.split('-')[3].rstrip('\n')
-        if dc not in dcs:
-            dcs.append(dc)
-        hostnames.append(line.rstrip('\n'))
-    
+
+        
+    dcs, hostnames = get_clean_hostlist(hostlist)
     
     bph = Buildplan_helper('', supportedfields,True,True)
     writeplan = bph.prep_plan_info_hostlist(hostnames,groups,templateid)
@@ -959,5 +966,10 @@ if __name__ == "__main__":
     elif not options.idbgen:
         prep_template(options.template, options.filename)
         gen_plan(options.host, options.cluster, options.datacenter, options.superpod, options.caseNum, options.role)
+else:
+    #default options for build_plan unit test
+    options.idbgen=True
+    gblExcludeList=False
+    
 
 
