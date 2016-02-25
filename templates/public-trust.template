@@ -3,7 +3,7 @@
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
 -Validate the host needs to be patched 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2
 
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
@@ -12,19 +12,19 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable 
 
 -Validate hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -c bigipcheck -threads -auto2 -d -cluster_status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product trust2 -c bigipcheck -threads -auto2 -d -cluster_status v_CL_OPSTAT
 
 -Remove from pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -host v_HOSTS -c remove_from_pool -threads -auto2 -cluster_status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product trust2 -host v_HOSTS -c remove_from_pool -threads -auto2 -cluster_status v_CL_OPSTAT
 
 -Shutdown application. 
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product trust2 -c stop_server -host v_HOSTS -threads -auto2 
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product trust2 -c stop_server -host v_HOSTS -threads -auto2
 
 - Stop Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c stop_server -auto2
 
 -Update host to RHEL6u6
-release_runner.pl -forced_host v_HOSTS -c cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE" -threads -auto2
 
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
@@ -42,10 +42,10 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product t
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c start_server -auto2
 
 - add to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -host v_HOSTS -c add_to_pool -threads -auto2 -cluster_status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product trust2 -host v_HOSTS -c add_to_pool -threads -auto2 -cluster_status v_CL_OPSTAT
 
 -Validate hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -c bigipcheck -threads -auto2 -d -cluster_status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product trust2 -c bigipcheck -threads -auto2 -d -cluster_status v_CL_OPSTAT
 
 - Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable 
