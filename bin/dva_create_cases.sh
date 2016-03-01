@@ -51,7 +51,7 @@ HOSTLIST=$4
 TEMPLATEID=$5
 if [ -z "$TEMPLATEID" ]; then TEMPLATEID=$ROLE; fi
 
-./build_plan.py -l $HOSTLIST -x -M $GROUPING --gsize $GROUPSIZE -t $TEMPLATEID $EXTRA
+./build_plan.py -l $HOSTLIST -x -M $GROUPING --gsize $GROUPSIZE --bundle $BUNDLE -t $TEMPLATEID $EXTRA
 
 SUBJECT="$PREAMBLE $DC $ROLE PROD"
 create_case "$SUBJECT" $DC
@@ -68,7 +68,7 @@ TEMPLATEID=$5
 if [ -z "$TEMPLATEID" ]; then TEMPLATEID=$ROLE; fi
 
 
-./build_plan.py -l $HOSTLIST -M $GROUPING --gsize $GROUPSIZE -t $TEMPLATEID $EXTRA
+./build_plan.py -l $HOSTLIST -M $GROUPING --gsize $GROUPSIZE --bundle $BUNDLE -t $TEMPLATEID $EXTRA
 
 
 SUBJECT="$PREAMBLE $DC $ROLE PROD"
