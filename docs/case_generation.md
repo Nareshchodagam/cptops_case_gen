@@ -3,6 +3,18 @@ Case generation examples
 
 implementation planner patch details must be in json format
 
+Updated gus_case.py so it can handle instances and infra structure on the command line
+
+examples
+
+python gus_cases.py -T change  -f ../templates/sites-proxy-rh6u6-patch.json  -s "May Patch Bundle : Sites Proxies CHI $1 DR" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D chi -i ../output/plan_implementation.txt --inst na5,na19,na20 --infra Primary
+
+or 
+
+python gus_cases.py -T change  -f ../templates/sites-proxy-rh6u6-patch.json  -s "May Patch Bundle : Sites Proxies CHI $1 DR" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D '{"chi": "na5,na19,na20", "tyo": "ap0,ap1}' -i ../output/plan_implementation.txt --infra Primary
+
+python gus_cases.py -T change  -f ../templates/sites-proxy-rh6u6-patch.json  -s "May Patch Bundle : Sites Proxies CHI $1 DR" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D chi,tyo -i ../output/plan_implementation.txt --infra "Supporting Infrastructure"
+
 Sites proxy
 
 DR
