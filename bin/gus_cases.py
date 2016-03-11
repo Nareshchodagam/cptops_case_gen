@@ -119,8 +119,9 @@ def gen_time():
     end_time = start_time + timedelta(hours = 5)
     return start_time.isoformat(),end_time.isoformat()
 
-def create_implamentation_planner(data, caseId, session,role=None,DCS=None):
+def create_implamentation_planner(data, caseId, session,role=None,insts=None,DCS=None):
     logging.debug(data)
+    print(insts)
     if DCS != None:
         DCS = DCS.split(',')
     else:
@@ -132,13 +133,14 @@ def create_implamentation_planner(data, caseId, session,role=None,DCS=None):
     case_number = case_details['CaseNumber']
     for dc in DCS:
         print(dc)
-        data['DCs'] = data['DCs'].replace('v_DATACENTER', dc.upper())
-        print(details)
+        data['DCs'] = data['DCs'].replace('v_DATACENTER', dc.upper()) 
         data['Details']['Case__c'] = caseId
         data['Details']['Name'] = dc.upper()
         data['Details']['SM_Data_Center__c'] = dc
+        data['Details']['SM_Instance_List__c'] = data['Details']['SM_Instance_List__c'].replace('v_INSTANCES', insts.upper())
         details['SM_Estimated_End_Time__c'] = end_time
         details['SM_Estimated_Start_Time__c'] = start_time
+        print(details)
         data['Details']['SM_Implementation_Steps__c'] = '\n'.join(data['Implementation_Steps'])
         if role != None:
             data['Details']['SM_Implementation_Steps__c'] = data['Details']['SM_Implementation_Steps__c'].replace('v_DATACENTER', dc)
@@ -304,6 +306,7 @@ if __name__ == '__main__':
     parser.add_option("-C", "--category", dest="category", help="The category of the case")
     parser.add_option("-b", "--subcategory", dest="subcategory", help="The subcategory of the case")
     parser.add_option("-A", "--submit", action="store_true", dest="submit", help="Submit the case for approval")
+    parser.add_option("--inst", dest="inst", help="List of comma separated instances")
     parser.add_option("-n", "--new", action="store_true", dest="newcase",
                                     help=
                                     """Create a new case. Required args :
@@ -338,6 +341,7 @@ if __name__ == '__main__':
         checkEmptyFile(options.iplan)
 
     if options.casetype == 'change':
+        insts = ''
         hosts = get_hosts(options.hostlist)
 
         #case_details = get_change_details(options.filename, options.subject, hosts)
@@ -359,13 +363,17 @@ if __name__ == '__main__':
         else:
             planner_json = get_json(options.implanner)
         if options.role:
-            create_implamentation_planner(planner_json, caseId, session,options.role)
+            if options.inst:
+                insts = options.inst
+            create_implamentation_planner(planner_json, caseId, session,options.role,insts)
         else:
             if options.dc:
                 if options.yaml:
                     createImplamentationPlannerYAML(planner_json, caseId, session, DCS=options.dc)
                 else:
-                    create_implamentation_planner(planner_json, caseId, session, DCS=options.dc)
+                    if options.inst:
+                        insts = options.inst
+                    create_implamentation_planner(planner_json, caseId, session, DCS=options.dc, insts=insts)
             else:
                 create_implamentation_planner(planner_json, caseId, session)
         if options.vplan:
