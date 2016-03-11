@@ -118,7 +118,7 @@ def build_dynamic_groups(hosts):
     # to generate more complex plans.
 
     outmap = {}
-    with open('../etc/host_regex.json') as data_file:
+    with open(common.etcdir + '/host_regex.json') as data_file:
         hostmap = json.load(data_file)
 
     for r, v in hostmap.items():
@@ -859,9 +859,9 @@ if __name__ == "__main__":
       else:
           logging.basicConfig(level=logging.ERROR)
   
-      if not os.path.exists('../output'):
+      if not os.path.exists(common.outputdir):
           logging.debug('Creating output dir')
-          os.makedirs('../output')
+          os.makedirs(common.outputdir)
   
       if options.geo:
           geolist = options.geo.split(',')
