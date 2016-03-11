@@ -25,7 +25,7 @@
 	"Impact-Scope": "Host/Node",
 	"Impact-Summary": "Low impact due to validations within ORB framework",
 	"Functional-System-Area": "Servers",
-	"Infrastructure-Type": "'Supporting Infrastructure'",
+	"Infrastructure-Type": "Supporting Infrastructure",
 	"Test-Evidence": "'Test Detail & Results Included (see Risk Summary)'",
 	"Vendor-Case-Number": ""
 	},

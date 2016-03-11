@@ -121,9 +121,15 @@ def gen_time():
 
 def create_implamentation_planner(data, caseId, session,role=None,insts=None,DCS=None):
     logging.debug(data)
-    print(insts)
+    logging.debug(insts)
     if DCS != None:
-        DCS = DCS.split(',')
+        try:
+            dcs_data = json.loads(DCS)
+            DCS = dcs_data.keys()
+        except Exception, e:
+            if not isinstance(DCS, list):
+                print('here')
+                DCS = DCS.split(',')
     else:
         DCS = data['DCs'].split(',')
     print(DCS)
@@ -133,11 +139,14 @@ def create_implamentation_planner(data, caseId, session,role=None,insts=None,DCS
     case_number = case_details['CaseNumber']
     for dc in DCS:
         print(dc)
+        if 'dcs_data' in locals():
+            insts = dcs_data[dc]
         data['DCs'] = data['DCs'].replace('v_DATACENTER', dc.upper()) 
         data['Details']['Case__c'] = caseId
         data['Details']['Name'] = dc.upper()
         data['Details']['SM_Data_Center__c'] = dc
-        data['Details']['SM_Instance_List__c'] = data['Details']['SM_Instance_List__c'].replace('v_INSTANCES', insts.upper())
+        #data['Details']['SM_Instance_List__c'] = data['Details']['SM_Instance_List__c'].replace('v_INSTANCES', insts.upper())
+        data['Details']['SM_Instance_List__c'] = insts.upper()
         details['SM_Estimated_End_Time__c'] = end_time
         details['SM_Estimated_Start_Time__c'] = start_time
         print(details)
@@ -187,7 +196,7 @@ def getYamlChangeDetails(filename, subject, hosts):
     logging.debug(output['Verification'])
     return output
     
-def get_json_change_details(filename, subject, hosts):
+def get_json_change_details(filename, subject, hosts, infratype):
     hl_len = str(len(hosts))
     msg = "\n\nHostlist:\n" + "\n".join(hosts)
     with open(filename) as data_file:
@@ -198,6 +207,7 @@ def get_json_change_details(filename, subject, hosts):
         details['Verification'] = '\n'.join(data['Verif'])
     details['Description'] += msg
     details['Subject'] = subject + " [" + hl_len + "]"
+    details['Infrastructure-Type'] = infratype
     logging.debug(details['Description'])
     logging.debug(details['Subject'])
     logging.debug(details['Verification'])
@@ -307,6 +317,7 @@ if __name__ == '__main__':
     parser.add_option("-b", "--subcategory", dest="subcategory", help="The subcategory of the case")
     parser.add_option("-A", "--submit", action="store_true", dest="submit", help="Submit the case for approval")
     parser.add_option("--inst", dest="inst", help="List of comma separated instances")
+    parser.add_option("--infra", dest="infra", help="Infrastructure type")
     parser.add_option("-n", "--new", action="store_true", dest="newcase",
                                     help=
                                     """Create a new case. Required args :
@@ -339,6 +350,10 @@ if __name__ == '__main__':
     session = authObj.login()
     if options.iplan:
         checkEmptyFile(options.iplan)
+        
+    infratype="Supporting Infrastructure"
+    if options.infra:
+        infratype = options.infra    
 
     if options.casetype == 'change':
         insts = ''
@@ -352,7 +367,7 @@ if __name__ == '__main__':
             except:
                 print('problem with yaml loading')
         else:
-            jsoncase = get_json_change_details(options.filename, options.subject, hosts)
+            jsoncase = get_json_change_details(options.filename, options.subject, hosts,infratype)
         logging.debug(jsoncase)
         
         logging.debug(hosts)
