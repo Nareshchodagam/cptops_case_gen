@@ -8,7 +8,6 @@ import subprocess
 import logging
 from optparse import OptionParser
 import subprocess
-import common
  
 def groupType(role):
     groupings = {'search': 'majorset',
