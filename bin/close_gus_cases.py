@@ -52,6 +52,11 @@ def getCaseId(caseNum,session):
     gusObj = Gus()
     case_details = gusObj.get_case_details_caseNum(caseNum,session)
     return case_details.rstrip()
+
+def getCaseSub(caseId,session):
+    gusObj = Gus()
+    case_subject = gusObj.get_case_subject_caseNum(caseId,session)
+    return case_subject.rstrip()
     
 if __name__ == '__main__':
     
@@ -89,11 +94,22 @@ if __name__ == '__main__':
     session = authObj.login()
     
     if options.caseNum:
+        caseDetails = { }
         casenums = options.caseNum.split(',')
+        print "Closing the following below cases..\n"
         for case in casenums:
             caseId = getCaseId(case, session)
             logging.debug(caseId)
-            impl_plan_ids = getImplPlanDetails(caseId,session)
+            caseSub = getCaseSub(caseId, session)
+            caseDetails[case] = caseSub
+        for key,val in caseDetails.iteritems():
+            print key + " - " + val
+        response = raw_input('\nDo you wish to continue? (y|n)')
+        if response.lower() != "y":
+            print "Exiting....."
+            sys.exit(1)
+        for id in caseDetails.iterkeys():
+            impl_plan_ids = getImplPlanDetails(id,session)
             logging.debug(impl_plan_ids)
-            closeImplPlan(impl_plan_ids,caseId,session)
+            closeImplPlan(impl_plan_ids,id,session)
             closeCase(caseId, session)
