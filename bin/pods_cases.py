@@ -79,6 +79,6 @@ if __name__ == "__main__":
                 print("""%s build_plan.py -C --bundle %s -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "%s","maxgroupsize": %s, "templateid" : "%s", "dr": "%s" }' --taggroups %s -v""" % (python,options.patchset,pods,dc,options.role,grouping,groupsize,options.template,options.dr,options.taggroups))
             #print("""python build_plan.py -C -G '%s' -v""" % msg)
             if options.group:
-                print("""%s gus_cases.py -T change  -f ../templates/%s-patch.json  -s "%s and GLIBC Patch Bundle: %s %s %s %s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (python,options.bundle,options.bundle.upper(),options.role.upper(),dc.upper(),pods,options.group,dc))
+                print("""%s gus_cases.py -T change  -f ../templates/%s-patch.json  -s "%s Patch Bundle: %s %s %s %s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (python,options.bundle,options.bundle.upper(),options.role.upper(),dc.upper(),pods,options.group,dc))
             else:
-                print("""%s gus_cases.py -T change  -f ../templates/%s-patch.json  -s "%s and GLIBC Patch Bundle: %s %s %s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (python,options.bundle,options.bundle.upper(),options.role.upper(),dc.upper(),pods,dc))
+                print("""%s gus_cases.py -T change  -f ../templates/%s-patch.json  -s "%s Patch Bundle: %s %s %s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (python,options.bundle,options.bundle.upper(),options.role.upper(),dc.upper(),pods,dc))

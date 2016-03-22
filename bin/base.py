@@ -335,6 +335,30 @@ class Gus(object):
                 return d['records'][0]['Id']
         except Exception, e:
             print('Unable to get case details: ', e)
+            
+    def get_case_subject_caseNum(self, caseNum, session):
+        '''
+        get case subject from a case number
+        '''
+        self.caseNum = caseNum
+        self.session = session
+        query = "Select subject from Case where Id ='" + self.caseNum + "'"
+        token = str(self.session['token'])
+        instance = str(self.session['instance']) + '/services/data/' + self._api_ver + '/query?q=' + query
+
+        payload = { }
+        gObj = Gus()
+        postHeader = gObj.generatePostHeader(self.session, token)
+
+        try:
+            case_details = requests.get(instance, data=json.dumps(payload), headers=postHeader)
+            if case_details.status_code != 200:
+                return "Case not found"
+            else:
+                d = case_details.json()
+                return d['records'][0]['Subject']
+        except Exception, e:
+            print('Unable to get the case subject: ', e)
 
     def getWorkItemDetailsNum(self, workItemNum, session):
         '''
