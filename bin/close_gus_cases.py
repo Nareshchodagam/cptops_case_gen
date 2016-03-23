@@ -101,7 +101,7 @@ if __name__ == '__main__':
             caseId = getCaseId(case, session)
             logging.debug(caseId)
             caseSub = getCaseSub(caseId, session)
-            caseDetails[case] = caseSub
+            caseDetails[caseId] = caseSub
         for key,val in caseDetails.iteritems():
             print key + " - " + val
         response = raw_input('\nDo you wish to continue? (y|n)')
