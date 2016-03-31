@@ -101,10 +101,10 @@ if __name__ == '__main__':
             caseId = getCaseId(case, session)
             logging.debug(caseId)
             caseSub = getCaseSub(caseId, session)
-            caseDetails[case] = caseSub
-        for key,val in caseDetails.iteritems():
-            print key + " - " + val
-        response = raw_input('\nDo you wish to continue? (y|n)')
+            caseDetails[caseId] = case + " - " +caseSub
+        for subject in caseDetails.itervalues():
+            print subject
+        response = raw_input('\nDo you wish to continue? (y|n) ')
         if response.lower() != "y":
             print "Exiting....."
             sys.exit(1)
