@@ -69,7 +69,7 @@ Manual: check storage came back okay before starting apps
 
 
 -restore root crontab
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab ~/cronroor.bck" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab ~/cronroot.bck" -threads -auto2
 
 -start vsftpd
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service vsftpd start" -threads -auto2
