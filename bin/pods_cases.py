@@ -38,6 +38,7 @@ if __name__ == "__main__":
     parser.add_option("-v", action="store_true", dest="verbose", default=False, help="verbosity")
     parser.add_option("-r", "--role", dest="role", help="role to be used")
     parser.add_option("-t", "--template", dest="template", help="template to be used")
+    parser.add_option("--infra", dest="infra", help="Infra type [Primary|Secondary|Primary and Secondary|Supporting Infrastructure")
     parser.add_option("-g", "--group", dest="group", help="group for subject")
     parser.add_option("-s", "--groupsize", dest="groupsize", help="max groupsize for subject")
     parser.add_option("-p", "--podgroups", dest="podgroups", help="File with pod groupings")
@@ -79,6 +80,6 @@ if __name__ == "__main__":
                 print("""%s build_plan.py -C --bundle %s -G '{"clusters" : "%s" ,"datacenter": "%s" , "roles": "%s", "grouping" : "%s","maxgroupsize": %s, "templateid" : "%s", "dr": "%s" }' --taggroups %s -v""" % (python,options.patchset,pods,dc,options.role,grouping,groupsize,options.template,options.dr,options.taggroups))
             #print("""python build_plan.py -C -G '%s' -v""" % msg)
             if options.group:
-                print("""%s gus_cases.py -T change  -f ../templates/%s-patch.json  -s "%s Patch Bundle: %s %s %s %s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (python,options.bundle,options.bundle.upper(),options.role.upper(),dc.upper(),pods,options.group,dc))
+                print("""%s gus_cases.py -T change  -f ../templates/%s-patch.json  --inst %s --infra %s -s "%s Patch Bundle: %s %s %s %s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (python,options.bundle,pods,options.infra,options.bundle.upper(),options.role.upper(),dc.upper(),pods,options.group,dc))
             else:
-                print("""%s gus_cases.py -T change  -f ../templates/%s-patch.json  -s "%s Patch Bundle: %s %s %s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (python,options.bundle,options.bundle.upper(),options.role.upper(),dc.upper(),pods,dc))
+                print("""%s gus_cases.py -T change  -f ../templates/%s-patch.json  --inst %s --infra %s -s "%s Patch Bundle: %s %s %s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (python,options.bundle,pods,options.infra,options.bundle.upper(),options.role.upper(),dc.upper(),pods,dc))
