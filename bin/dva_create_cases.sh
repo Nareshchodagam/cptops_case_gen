@@ -103,40 +103,40 @@ echo "TITLE will be $MYSUBJECT"
 DC=crz
 
 ROLE=mandm-splunk-api
-build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_API_CRZ
+build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_API_CRZ 1 role
 
 ROLE=mandm-splunk-deployer
-build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_DEP_CRZ
+build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_DEP_CRZ 1 role
 
 ROLE=mandm-splunk-idxr
-build_case_hostlist $DC $ROLE "$PREAMBLE NON AFW" $FILE_SPL_IDX_CRZ
+build_case_hostlist $DC $ROLE "$PREAMBLE NON AFW" $FILE_SPL_IDX_CRZ 15 role
 
 ROLE=mandm-splunk-idxr
-build_case_hostlist $DC $ROLE "$PREAMBLE AFW" $FILE_SPL_IDX_CRZ_IDB
+build_case_hostlist $DC $ROLE "$PREAMBLE AFW" $FILE_SPL_IDX_CRZ_IDB 15 role
 
 ROLE=mandm-splunk-web
-build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_WEB_CRZ
+build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_WEB_CRZ 1 role
 
 DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
 ROLE=log_hub
 CTYPE=HUB
 STATUS=ACTIVE
 #
-build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS
+build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 role
 #
 ROLE=mmxcvr
 CTYPE=AJNA
 STATUS=ACTIVE
 DC="sfz"
 #
-build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS
+build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
 #
 ROLE=mmmbus
 CTYPE=AJNA
 STATUS=ACTIVE
 DC="sfz"
 #
-build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS mmmbus_SFZ
+build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset mmmbus_SFZ
 #
 #
 CTYPE=AJNA
@@ -145,7 +145,7 @@ STATUS=ACTIVE
 for DC in asg sjl tyo chi was lon dfw phx frf
 do
    echo "$DC $ROLE $PREAMBLE $CTYPE"
-   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS
+   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
 done
 #
 #
@@ -155,7 +155,7 @@ STATUS=ACTIVE
 for DC in asg sjl tyo chi was lon dfw phx frf
 do
    echo "$DC $ROLE $PREAMBLE $CTYPE"
-   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS
+   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
 done
 
 
@@ -166,7 +166,7 @@ STATUS=ACTIVE
 for DC in asg sjl tyo chi was lon dfw phx frf
 do
    echo "$DC $ROLE $PREAMBLE $CTYPE"
-   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS
+   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
 done
 #
 CTYPE=SMARTS
@@ -175,7 +175,7 @@ STATUS=ACTIVE,PRE_PRODUCTION,PROVISIONING
 for DC in asg sjl tyo chi was lon dfw phx frf
 do
    echo "$DC $ROLE $PREAMBLE $CTYPE"
-   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS
+   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
 done
 
 CTYPE=SPLUNK-IDX
@@ -184,7 +184,7 @@ STATUS=ACTIVE
 for DC in asg sjl tyo chi was lon dfw phx frf
 do
    echo "$DC $ROLE $PREAMBLE $CTYPE"
-   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS
+   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 10 role
 done
 
 
