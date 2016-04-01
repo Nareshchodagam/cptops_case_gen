@@ -108,12 +108,16 @@ if __name__ == '__main__':
     for dc in dcs:
         print(dc)
         data = idb.sp_data(dc, status, cluster_type)
+        logging.debug(data)
         pdata = idb.poddata(dc)
+        logging.debug(pdata)
         dc_data[dc] = idb.spcl_grp
+        logging.debug(idb.spcl_grp)
         
     output_pri = open(fname_pri, 'w')
     output_sec = open(fname_sec, 'w')
     for dc in dc_data:
+        logging.debug(dc_data)
         pri_grps,sec_grps = parseData(dc,dc_data[dc])
         for grp in pri_grps:
             chunked = list(chunks(grp, 3))
