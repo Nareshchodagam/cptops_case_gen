@@ -18,6 +18,6 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opsen
 
 
 -custom lhub scripts
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patchingn/bin/restore_storage_config.sh ~/releaserunner/remote_transfer/restore_storage_config.sh
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/restore_storage_config.sh ~/releaserunner/remote_transfer/restore_storage_config.sh
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/save_storage_config.sh ~/releaserunner/remote_transfer/save_storage_config.sh
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/umountall.sh ~/releaserunner/remote_transfer/umountall.sh
