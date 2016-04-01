@@ -34,7 +34,7 @@ GROUPING=$7
 TEMPLATEID=$8
 if [ -z "$TEMPLATEID" ]; then TEMPLATEID=$ROLE; fi
 
-./build_plan.py -c 0000001 -C -G '{"clusterTypes" : "'$CTYPE'" ,"datacenter": "'$DC'", "roles": "'$ROLE'", "grouping": "'$GROUPING'", "templateid" : "'$TEMPLATEID'",  "maxgroupsize": '$GROUPSIZE', "ho_opstat" : "'$STATUS'" }'  $OTHER --exclude $EXCLUDE --bundle $BUNDLE
+./build_plan.py -c 0000001 -C -G '{"clusterTypes" : "'$CTYPE'" ,"datacenter": "'$DC'", "roles": "'$ROLE'", "grouping": "'$GROUPING'", "templateid" : "'$TEMPLATEID'",  "maxgroupsize": '$GROUPSIZE', "ho_opstat" : "'$STATUS'" }'  $OTHER --exclude $EXCLUDE --bundle $BUNDLE || exit 1
 
 SUBJECT="$PREAMBLE $DC $ROLE PROD"
 create_case "$SUBJECT" $DC
@@ -52,7 +52,7 @@ GROUPING=$6
 TEMPLATEID=$7
 if [ -z "$TEMPLATEID" ]; then TEMPLATEID=$ROLE; fi
 
-./build_plan.py -l $HOSTLIST -x -M $GROUPING --gsize $GROUPSIZE --bundle $BUNDLE -t $TEMPLATEID $EXTRA
+./build_plan.py -l $HOSTLIST -x -M $GROUPING --gsize $GROUPSIZE --bundle $BUNDLE -t $TEMPLATEID $EXTRA || exit 1
 
 SUBJECT="$PREAMBLE $DC $ROLE PROD"
 create_case "$SUBJECT" $DC
@@ -71,7 +71,7 @@ TEMPLATEID=$7
 if [ -z "$TEMPLATEID" ]; then TEMPLATEID=$ROLE; fi
 
 
-./build_plan.py -l $HOSTLIST -M $GROUPING --gsize $GROUPSIZE --bundle $BUNDLE -t $TEMPLATEID $EXTRA
+./build_plan.py -l $HOSTLIST -M $GROUPING --gsize $GROUPSIZE --bundle $BUNDLE -t $TEMPLATEID $EXTRA || exit 1
 
 
 SUBJECT="$PREAMBLE $DC $ROLE PROD"
@@ -94,7 +94,7 @@ if [ $DRSTAT == 'True' ]; then PRODSTAT=DR; else PRODSTAT=PROD; fi
 DCUP="$(echo $DC | awk '{print toupper($0)}')"
 MYSUBJECT=$(echo "$PREAMBLE $ROLE $DC $FOSTAT $PRODSTAT" |  tr 'a-z' 'A-Z')
 echo "TITLE will be $MYSUBJECT"
-./build_plan.py -c 0000002 -C -G '{"clusterTypes" : "POD" ,"datacenter": "'$DC'", "dr" : "'$DRSTAT'" ,"grouping": "role", "maxgroupsize": 8 , "regexfilter" : "failOverStatus='$FOSTAT'", "roles" : "'$ROLE'" }' --exclude /Users/dsheehan/dva_canary --bundle $BUNDLE
+./build_plan.py -c 0000002 -C -G '{"clusterTypes" : "POD" ,"datacenter": "'$DC'", "dr" : "'$DRSTAT'" ,"grouping": "role", "maxgroupsize": 8 , "regexfilter" : "failOverStatus='$FOSTAT'", "roles" : "'$ROLE'" }' --exclude /Users/dsheehan/dva_canary --bundle $BUNDLE || exit 1
 
 /usr/local/bin/python gus_cases.py -T change -f ../templates/$PATCHJSON -s "$MYSUBJECT" -k ../templates/6u6-plan.json -l ../output/summarylist.txt -D $DCUP -i ../output/plan_implementation.txt --infra "Supporting Infrastructure"
 
@@ -103,19 +103,19 @@ echo "TITLE will be $MYSUBJECT"
 DC=crz
 
 ROLE=mandm-splunk-api
-build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_API_CRZ 1 role
+build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_API_CRZ 1 role $ROLE
 
 ROLE=mandm-splunk-deployer
-build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_DEP_CRZ 1 role
+build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_DEP_CRZ 1 role $ROLE
 
 ROLE=mandm-splunk-idxr
-build_case_hostlist $DC $ROLE "$PREAMBLE NON AFW" $FILE_SPL_IDX_CRZ 15 role
+build_case_hostlist $DC $ROLE "$PREAMBLE NON AFW" $FILE_SPL_IDX_CRZ 15 role $ROLE
 
 ROLE=mandm-splunk-idxr
-build_case_hostlist $DC $ROLE "$PREAMBLE AFW" $FILE_SPL_IDX_CRZ_IDB 15 role
+build_case_hostlist $DC $ROLE "$PREAMBLE AFW" $FILE_SPL_IDX_CRZ_IDB 15 role $ROLE
 
 ROLE=mandm-splunk-web
-build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_WEB_CRZ 1 role
+build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_WEB_CRZ 1 role $ROLE
 
 DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
 ROLE=log_hub
