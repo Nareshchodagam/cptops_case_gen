@@ -34,11 +34,13 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab -r" -threads -aut
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "pkill -f '/hub/'" -threads -auto2
 
 -check for open files 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "lsof | grep '/hub/'" -threads -auto2
-Manual: ensure you have no file open before unmounting storage
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "[ $(lsof | grep '/hub/' | wc -l) -eq 0 ]" -threads -auto2
 
 -unmount fs
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/umountall.sh '/hub/'" -threads -auto2
+
+-check for open files 
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "[ $(mount | grep '/hub/' | wc -l) -eq 0 ]" -threads -auto2
 
 Manual: Contact SANENG resource to shut down fc ports for v_HOSTS
 
@@ -62,11 +64,8 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/restore
 -mount fs
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "mount -a" -threads -auto2
 
--mount fs
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "ls -ltr /hub" -threads -auto2
-
-Manual: check storage came back okay before starting apps
-
+-check for open files 
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "[ $(mount | grep '/hub/' | wc -l) -gt 0 ]" -threads -auto2
 
 -restore root crontab
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab ~/cronroot.bck" -threads -auto2
