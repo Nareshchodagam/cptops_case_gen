@@ -3,6 +3,8 @@
 BUNDLE=$1
 PATCHJSON=$2
 PREAMBLE=$3 #eg "FEB and GLIBC Patch Bundle : "
+SIGNOFFTEAM=$4 # one of LOG_TRANSPORT LOG_ANALYTICS DATA_BROKER ARGUS ALERTING
+
 OTHER="-T"
 EXCLUDE='<(cat ../hostlists/dva*canary)'
 FILE_SPL_SWI_CRZ='../hostlists/file_spl_swi_crz'
@@ -12,7 +14,106 @@ FILE_SPL_DEP_CRZ='../hostlists/file_spl_dep_crz'
 FILE_SPL_IDX_CRZ='../hostlists/file_spl_idx_crz'
 FILE_SPL_IDX_CRZ_IDB='../hostlists/file_spl_idx_crz_idb'
 
+case "$SIGNOFFTEAM" in
+	LOG_TRANSPORT)
+    	echo $SIGNOFFTEAM
+	DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
+	ROLE=log_hub
+	CTYPE=HUB
+	STATUS=ACTIVE
+#
+	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 role
+#
+	;;
+	LOG_ANALYTICS)
+    	echo $SIGNOFFTEAM
+	DC=crz
 
+	ROLE=mandm-splunk-api
+	build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_API_CRZ 1 role $ROLE
+
+	ROLE=mandm-splunk-deployer
+	build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_DEP_CRZ 1 role $ROLE
+
+	ROLE=mandm-splunk-idxr
+	build_case_hostlist $DC $ROLE "$PREAMBLE NON AFW" $FILE_SPL_IDX_CRZ 15 role $ROLE
+
+	ROLE=mandm-splunk-idxr
+	build_case_hostlist $DC $ROLE "$PREAMBLE AFW" $FILE_SPL_IDX_CRZ_IDB 15 role $ROLE
+
+	ROLE=mandm-splunk-web
+	build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_WEB_CRZ 1 role $ROLE
+	
+        CTYPE=SPLUNK-IDX
+	ROLE=mandm-splunk-switch
+	STATUS=ACTIVE
+	for DC in asg sjl tyo chi was lon dfw phx frf
+	do
+   		echo "$DC $ROLE $PREAMBLE $CTYPE"
+   		build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 10 role
+	done
+    	;;
+	
+	DATA_BROKER) 
+    	echo $SIGNOFFTEAM
+	ROLE=mmxcvr
+	CTYPE=AJNA
+	STATUS=ACTIVE
+	DC="sfz"
+#
+	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+#
+	ROLE=mmmbus
+	CTYPE=AJNA
+	STATUS=ACTIVE
+	DC="sfz"
+#
+	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset mmmbus_SFZ
+#
+#
+	CTYPE=AJNA
+	ROLE=mmdcs
+	STATUS=ACTIVE
+	for DC in asg sjl tyo chi was lon dfw phx frf
+	do
+   		echo "$DC $ROLE $PREAMBLE $CTYPE"
+   		build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+	done
+#
+#
+	CTYPE=AJNA
+	ROLE=mmrs
+	STATUS=ACTIVE
+	for DC in asg sjl tyo chi was lon dfw phx frf
+	do
+   		echo "$DC $ROLE $PREAMBLE $CTYPE"
+   		build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+	done
+    	;;
+	SR_SR_TOOLS)
+    	echo $SIGNOFFTEAM
+
+	CTYPE=POD
+	ROLE=mgmt_hub
+
+	for DC in chi was lon dfw phx frf asg sjl
+	do
+   		build_case_extra $DC $ROLE "$PREAMBLE" STANDBY False 
+   		build_case_extra $DC $ROLE "$PREAMBLE" PRIMARY False
+   		build_case_extra $DC $ROLE "$PREAMBLE" STANDBY True 
+   		build_case_extra $DC $ROLE "$PREAMBLE" PRIMARY True
+	done
+	#no DR in TYO
+	build_case_extra tyo $ROLE "$PREAMBLE" STANDBY False 
+	build_case_extra tyo $ROLE "$PREAMBLE" PRIMARY False
+
+        ;;
+	ARGUS)
+    	echo $SIGNOFFTEAM
+    	;;
+	*) echo "Invalid option specified"
+   	;;
+esac
 function create_case {
 
 SUBJECT=$1
@@ -100,63 +201,7 @@ echo "TITLE will be $MYSUBJECT"
 
 }
 
-DC=crz
 
-ROLE=mandm-splunk-api
-build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_API_CRZ 1 role $ROLE
-
-ROLE=mandm-splunk-deployer
-build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_DEP_CRZ 1 role $ROLE
-
-ROLE=mandm-splunk-idxr
-build_case_hostlist $DC $ROLE "$PREAMBLE NON AFW" $FILE_SPL_IDX_CRZ 15 role $ROLE
-
-ROLE=mandm-splunk-idxr
-build_case_hostlist $DC $ROLE "$PREAMBLE AFW" $FILE_SPL_IDX_CRZ_IDB 15 role $ROLE
-
-ROLE=mandm-splunk-web
-build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_WEB_CRZ 1 role $ROLE
-
-DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
-ROLE=log_hub
-CTYPE=HUB
-STATUS=ACTIVE
-#
-build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 role
-#
-ROLE=mmxcvr
-CTYPE=AJNA
-STATUS=ACTIVE
-DC="sfz"
-#
-build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
-#
-ROLE=mmmbus
-CTYPE=AJNA
-STATUS=ACTIVE
-DC="sfz"
-#
-build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset mmmbus_SFZ
-#
-#
-CTYPE=AJNA
-ROLE=mmdcs
-STATUS=ACTIVE
-for DC in asg sjl tyo chi was lon dfw phx frf
-do
-   echo "$DC $ROLE $PREAMBLE $CTYPE"
-   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
-done
-#
-#
-CTYPE=AJNA
-ROLE=mmrs
-STATUS=ACTIVE
-for DC in asg sjl tyo chi was lon dfw phx frf
-do
-   echo "$DC $ROLE $PREAMBLE $CTYPE"
-   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
-done
 
 
 CTYPE=AJNA
@@ -177,30 +222,6 @@ do
    echo "$DC $ROLE $PREAMBLE $CTYPE"
    build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
 done
-
-CTYPE=SPLUNK-IDX
-ROLE=mandm-splunk-switch
-STATUS=ACTIVE
-for DC in asg sjl tyo chi was lon dfw phx frf
-do
-   echo "$DC $ROLE $PREAMBLE $CTYPE"
-   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 10 role
-done
-
-
-CTYPE=POD
-ROLE=mgmt_hub
-
-for DC in chi was lon dfw phx frf asg sjl
-do
-   build_case_extra $DC $ROLE "$PREAMBLE" STANDBY False 
-   build_case_extra $DC $ROLE "$PREAMBLE" PRIMARY False
-   build_case_extra $DC $ROLE "$PREAMBLE" STANDBY True 
-   build_case_extra $DC $ROLE "$PREAMBLE" PRIMARY True
-done
-#no DR in TYO
-build_case_extra tyo $ROLE "$PREAMBLE" STANDBY False 
-build_case_extra tyo $ROLE "$PREAMBLE" PRIMARY False
 
 
 
