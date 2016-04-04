@@ -67,10 +67,11 @@ def chunks(l, n):
         
 if __name__ == '__main__':
     usage = """
-    Code to check host details from idb
+    Code to get pods of cluster types from idb
 
-    %prog -H hostname [-v]    
-    %prog -H ops-monitor1-1-was
+    %prog [-d comma seperated list of dc's short code] [-t cluster type of pod hbase etc] [-v]
+    %prog -d asg [-v]   
+    %prog -d asg,sjl,chi,was -t hbase
 
     """
     parser = OptionParser(usage)
@@ -78,17 +79,14 @@ if __name__ == '__main__':
                             help="The dc(s) to get data for ")
     parser.add_option("-s", "--status", dest="status",
                             help="The SP status eg hw_provisioning or provisioning or active ")
-    parser.add_option("-H", "--hosts", dest="hosts",
-                            help="The case number(s) of the case to attach the file ")
+    parser.add_option("-t", "--type", dest="type",
+                            help="The type of clusters eg pod, hbase, insights ")
     parser.add_option("-v", action="store_true", dest="verbose", default=False, help="verbosity") # will set to False later
     (options, args) = parser.parse_args()
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     site=where_am_i()
     print(site)
-    fname = 'pods'
-    fname_pri = fname + ".pri"
-    fname_sec = fname + ".sec"
     
     if site == 'sfm':
         idb=Idbhost()
@@ -99,20 +97,27 @@ if __name__ == '__main__':
         status = options.status
     else:
         status = 'active'
+    if options.type:
+        cluster_type = options.type
+    else:
+        cluster_type = 'pod'
+    
+    fname_pri = cluster_type + ".pri"
+    fname_sec = cluster_type + ".sec"
     dc_data ={}
     for dc in dcs:
         print(dc)
-        data = idb.sp_data(dc, status)
+        data = idb.sp_data(dc, status, cluster_type)
+        logging.debug(data)
         pdata = idb.poddata(dc)
-        #print(idb.sp_list)
-        #print(idb.dcs)
+        logging.debug(pdata)
         dc_data[dc] = idb.spcl_grp
+        logging.debug(idb.spcl_grp)
         
-        #parseData(idb.spcl_grp)
-    #print(dc_data)
     output_pri = open(fname_pri, 'w')
     output_sec = open(fname_sec, 'w')
     for dc in dc_data:
+        logging.debug(dc_data)
         pri_grps,sec_grps = parseData(dc,dc_data[dc])
         for grp in pri_grps:
             chunked = list(chunks(grp, 3))
@@ -121,13 +126,12 @@ if __name__ == '__main__':
                 w = ','.join(sub_lst) + " " + dc + "\n"
                 output_pri.write(w)
         for grp in sec_grps:
-            #print(grp,dc)
             chunked = list(chunks(grp, 3))
-            print(chunked)
+            logging.debug(chunked)
             for sub_lst in chunked:
                 w = ','.join(sub_lst) + " " + dc + "\n"
                 output_sec.write(w)
-        #print("primary %s %s" % (dc,pri_grps))
-        #print("secondary %s %s" % (dc,sec_grps))
+        logging.debug("primary %s %s" % (dc,pri_grps))
+        logging.debug("secondary %s %s" % (dc,sec_grps))
     output_pri.close()
     output_sec.close()
