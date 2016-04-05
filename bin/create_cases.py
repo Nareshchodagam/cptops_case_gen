@@ -87,7 +87,8 @@ def splitSP(lst):
         if re.match('ap', pod, re.IGNORECASE):
             ap_lst.append(pod)
         if re.match('cs', pod, re.IGNORECASE):
-            cs_lst.append(pod)
+            if not re.match('cs46', pod, re.IGNORECASE):
+                cs_lst.append(pod)
         if re.match('na', pod, re.IGNORECASE):
             na_lst.append(pod)
         if re.match('eu', pod, re.IGNORECASE):
@@ -96,7 +97,7 @@ def splitSP(lst):
             gs_lst.append(pod)
         if re.match('sr', pod, re.IGNORECASE):
             sr_lst.append(pod)
-    return ap_lst,cs_lst,na_lst,eu_lst,gs_lst,sr_lst
+    return ap_lst,cs_lst,na_lst,eu_lst
 
 def splitHbaseSP(lst):
     ap_lst = []
@@ -123,7 +124,7 @@ def splitHbaseSP(lst):
             if re.search(r'hbase', pod, re.IGNORECASE):
                 other_lst.append(pod)
             
-    return ap_lst,cs_lst,na_lst,eu_lst,gs_lst,sr_lst,other_lst
+    return ap_lst,cs_lst,na_lst,eu_lst,other_lst
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
@@ -207,15 +208,31 @@ if __name__ == '__main__':
                 print(chunked)
                 for sub_lst in chunked:
                     if [ s for s in sub_lst if re.match("HBASE\d",s)]:
-                        print('match')
-                    w = ','.join(sub_lst) + " " + dc + "\n"
-                    output_pri.write(w)
+                        print('match %s' % s)
+                        loc = sub_lst.index(s)
+                        del sub_lst[loc]
+                        w = s + " " + dc + "\n"
+                        output_pri.write(w)
+                        w = ','.join(sub_lst) + " " + dc + "\n"
+                        output_pri.write(w)
+                    else:
+                        w = ','.join(sub_lst) + " " + dc + "\n"
+                        output_pri.write(w)
             for grp in sec_grps:
                 chunked = list(chunks(grp, 3))
                 logging.debug(chunked)
                 for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc + "\n"
-                    output_sec.write(w)
+                    if [ s for s in sub_lst if re.match("HBASE\d",s)]:
+                        print('match %s' % s)
+                        loc = sub_lst.index(s)
+                        del sub_lst[loc]
+                        w = s + " " + dc + "\n"
+                        output_sec.write(w)
+                        w = ','.join(sub_lst) + " " + dc + "\n"
+                        output_sec.write(w)
+                    else:
+                        w = ','.join(sub_lst) + " " + dc + "\n"
+                        output_sec.write(w)
             logging.debug("primary %s %s" % (dc,pri_grps))
             logging.debug("secondary %s %s" % (dc,sec_grps))
         else:
