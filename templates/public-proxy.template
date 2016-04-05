@@ -67,7 +67,7 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c 
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_static_routes.py -g" -threads -auto2
 
 - Verify outbound connection
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl https://na1.salesforce.com/smth.jsp" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl https://na44.salesforce.com/smth.jsp" -threads -auto2
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl http://www.amazon.com" -threads -auto2
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl https://ultra-api.ultradns.com" -threads -auto2
 
