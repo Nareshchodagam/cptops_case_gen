@@ -112,4 +112,4 @@ if __name__ == '__main__':
             impl_plan_ids = getImplPlanDetails(id,session)
             logging.debug(impl_plan_ids)
             closeImplPlan(impl_plan_ids,id,session)
-            closeCase(caseId, session)
+            closeCase(id, session)
