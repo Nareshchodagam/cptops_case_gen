@@ -8,7 +8,9 @@ import re
 def where_am_i():
     hostname = socket.gethostname()
     logging.debug(hostname)
-    if re.search(r'internal.salesforce.com', hostname):
+    if not re.search(r'(sfdc.net|salesforce.com)', hostname):
+        short_site = 'sfm'
+    elif re.search(r'internal.salesforce.com', hostname):
         short_site = 'sfm'
     else:
         inst,hfuc,g,site = hostname.split('-')
