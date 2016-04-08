@@ -125,7 +125,7 @@ case "$SIGNOFFTEAM" in
 	CTYPE=HUB
 	STATUS=ACTIVE
 #
-	#build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 role
+	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 role
 #
 	ROLE=logbus
 	CTYPE=LOGBUS
@@ -202,10 +202,11 @@ case "$SIGNOFFTEAM" in
 #
 	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
 
-	CTYPE=AJNA
+	ROLE=mmpal
+	DC="sfz,chi,was"
+	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+	
 	ROLE=mmrelay
-	STATUS=ACTIVE
-
 	for DC in asg sjl tyo chi was lon dfw phx frf
 	do
    		echo "$DC $ROLE $PREAMBLE $CTYPE"
