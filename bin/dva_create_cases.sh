@@ -108,14 +108,6 @@ echo "TITLE will be $MYSUBJECT"
 
 
 #
-#CTYPE=SMARTS
-#ROLE=smarts
-#STATUS=ACTIVE,PRE_PRODUCTION,PROVISIONING
-#for DC in asg sjl tyo chi was lon dfw phx frf
-#do
-#   echo "$DC $ROLE $PREAMBLE $CTYPE"
-#   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
-#done
 
 case "$SIGNOFFTEAM" in
 	LOG_TRANSPORT)
@@ -232,6 +224,14 @@ case "$SIGNOFFTEAM" in
     	;;
 	MONITOR)
     	echo $SIGNOFFTEAM
+	CTYPE=SMARTS
+	ROLE=smarts
+	STATUS=ACTIVE,PRE_PRODUCTION,PROVISIONING
+	for DC in asg sjl tyo chi was lon dfw phx frf
+	do
+		   echo "$DC $ROLE $PREAMBLE $CTYPE"
+		   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+	done
     	;;
 	*) echo "Invalid option specified"
    	;;
