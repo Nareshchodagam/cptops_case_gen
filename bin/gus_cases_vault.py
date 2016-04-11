@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-        Script for working incident cases in Gus
+    Script for creating cases in Gus
 '''
 from base import Auth
 from base import Gus
