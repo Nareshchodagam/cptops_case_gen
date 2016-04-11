@@ -72,13 +72,16 @@ def parseHbaseData(dc,spcl_grp):
     logging.debug(spcl_grp)
     pri_grps = []
     sec_grps = []
+    cluster_grps = []
     for sp in spcl_grp:
         logging.debug(sp)
         if 'Primary' in spcl_grp[sp]:
             logging.debug(spcl_grp[sp]['Primary'])
             for inst in spcl_grp[sp]['Primary'].split(","):
                 if re.match(r"HBASE\d", inst, re.IGNORECASE):
-                    pri_grps.append(inst)
+                    cluster_grps.append(inst)
+                    next
+                elif re.match(r"GS", inst, re.IGNORECASE):
                     next
                 # would be good to replace this with idbhost data
                 loc = isInstancePri(inst,dc)
@@ -88,7 +91,7 @@ def parseHbaseData(dc,spcl_grp):
                 elif loc == "DR":
                     sec_grps.append(inst)
     logging.debug("%s : %s" % (pri_grps,sec_grps))
-    return pri_grps,sec_grps
+    return pri_grps,sec_grps,cluster_grps
 
 def parseNonPodData(spcl_grp):
     logging.debug(spcl_grp)
@@ -201,6 +204,7 @@ if __name__ == '__main__':
     
     fname_pri = cluster_type + ".pri"
     fname_sec = cluster_type + ".sec"
+    fname_clusters = cluster_type + ".clusters"
     logging.debug("%s : %s" % (fname_pri,fname_sec))
     
     dc_data ={}
@@ -215,6 +219,7 @@ if __name__ == '__main__':
         
     output_pri = open(fname_pri, 'w')
     output_sec = open(fname_sec, 'w')
+    out_clusters = open(fname_clusters, 'w')
     for dc in dc_data:
         logging.debug(dc_data)
         if re.match(r'(pod)', cluster_type, re.IGNORECASE):
@@ -234,18 +239,19 @@ if __name__ == '__main__':
             logging.debug("primary %s %s" % (dc,pri_grps))
             logging.debug("secondary %s %s" % (dc,sec_grps))
         elif re.match(r'(hbase)', cluster_type, re.IGNORECASE):
-            pri_grps,sec_grps = parseHbaseData(dc,dc_data[dc])
-            print(pri_grps,sec_grps)
+            
+            pri_grps,sec_grps,cluster_grps = parseHbaseData(dc,dc_data[dc])
+            print(pri_grps,sec_grps,cluster_grps)
             pri_sub_chunks=[pri_grps[x:x+3] for x in xrange(0, len(pri_grps), 3)]
             print(pri_sub_chunks)
             for sub_lst in pri_sub_chunks:
-                for l in sub_lst:
-                    if re.search(r"HBASE\d",l):
-                        loc = sub_lst.index(l)
-                        w = l + " " + dc + "\n"
-                        output_pri.write(w)
-                        del sub_lst[loc]
-                        next   
+                #for l in sub_lst:
+                #    if re.search(r"HBASE\d",l):
+                #        loc = sub_lst.index(l)
+                #        w = l + " " + dc + "\n"
+                #        output_pri.write(w)
+                #        del sub_lst[loc]
+                #        next   
                 if sub_lst != []:
                     w = ','.join(sub_lst) + " " + dc + "\n"
                     output_pri.write(w)
@@ -253,8 +259,12 @@ if __name__ == '__main__':
             for sub_lst in sec_sub_chunks:
                 w = ','.join(sub_lst) + " " + dc + "\n"
                 output_sec.write(w)
+            for c in cluster_grps:
+                w = c + " " + dc + "\n"
+                out_clusters.write(w)
             logging.debug("primary %s %s" % (dc,pri_grps))
             logging.debug("secondary %s %s" % (dc,sec_grps))
+            logging.debug("clusters %s %s" % (dc,cluster_grps))
         else:
             print(cluster_type)
             pri_grps,sec_grps = parseNonPodData(dc_data[dc])
