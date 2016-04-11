@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-        Script for working incident cases in Gus
+    Script for creating cases in Gus
 '''
 from base import Auth
 from base import Gus
@@ -27,6 +27,8 @@ except:
 
 config = ConfigParser.ConfigParser()
 config.readfp(open('vaultcreds.config'))
+
+os.environ['NO_PROXY'] = "ops-vaultczar1-1-crz.ops.sfdc.net,ops-vaultczar2-1-crz.ops.sfdc.net"
 
 def saveSession(savedsession,session):
     with open(savedsession, 'w') as f:

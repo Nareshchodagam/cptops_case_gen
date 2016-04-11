@@ -4,11 +4,14 @@ from optparse import OptionParser
 import socket
 import logging
 import re
+import subprocess
 
 def where_am_i():
     hostname = socket.gethostname()
     logging.debug(hostname)
-    if re.search(r'internal.salesforce.com', hostname):
+    if not re.search(r'(sfdc.net|salesforce.com)', hostname):
+        short_site = 'sfm'
+    elif re.search(r'internal.salesforce.com', hostname):
         short_site = 'sfm'
     else:
         inst,hfuc,g,site = hostname.split('-')
@@ -38,27 +41,57 @@ def parseData(dc,spcl_grp):
                     sec_grps.append(sp_lst)
     return pri_grps,sec_grps
 
+def run_cmd(cmdlist):
+    logging.debug(cmdlist)
+    run_cmd = subprocess.Popen(cmdlist, stdout=subprocess.PIPE)
+    out, err = run_cmd.communicate()
+    return out
+
+def get_inst_site(host):
+    inst,hfunc,g,site = host.split('-')
+    short_site = site.replace(".ops.sfdc.net.", "")
+    return inst,hfunc,short_site
+
+def isInstancePri(inst,dc):
+    inst = inst.replace('-HBASE', '')
+    monhost = inst + '-monitor.ops.sfdc.net'
+    cmdlist = ['dig', monhost, '+short']
+    output = run_cmd(cmdlist)
+    logging.debug(output)
+    for o in output.split('\n'):
+        logging.debug(o)
+        if re.search(r'monitor', o):
+            inst,hfunc,short_site = get_inst_site(o)
+            logging.debug("%s : %s " % (short_site,dc))
+            if short_site != dc:
+                return "DR"
+            else:
+                return "PROD"
+    
 def parseHbaseData(dc,spcl_grp):
     logging.debug(spcl_grp)
     pri_grps = []
     sec_grps = []
+    cluster_grps = []
     for sp in spcl_grp:
         logging.debug(sp)
         if 'Primary' in spcl_grp[sp]:
-            #print(spcl_grp[sp]['Primary'])
-            pri_lsts = splitHbaseSP(spcl_grp[sp]['Primary'])
-            for sp_lst in pri_lsts:
-                if sp_lst != []:
-                    #print(dc,sp_lst)
-                    pri_grps.append(sp_lst)
-        if 'Secondary' in spcl_grp[sp]:
-            #print(spcl_grp[sp]['Secondary'])
-            sec_lsts = splitHbaseSP(spcl_grp[sp]['Secondary'])
-            for sp_lst in sec_lsts:
-                if sp_lst != []:
-                    #print(dc,sp_lst)
-                    sec_grps.append(sp_lst)
-    return pri_grps,sec_grps
+            logging.debug(spcl_grp[sp]['Primary'])
+            for inst in spcl_grp[sp]['Primary'].split(","):
+                if re.match(r"HBASE\d", inst, re.IGNORECASE):
+                    cluster_grps.append(inst)
+                    next
+                elif re.match(r"GS", inst, re.IGNORECASE):
+                    next
+                # would be good to replace this with idbhost data
+                loc = isInstancePri(inst,dc)
+                logging.debug(loc)
+                if loc == "PROD":
+                    pri_grps.append(inst)
+                elif loc == "DR":
+                    sec_grps.append(inst)
+    logging.debug("%s : %s" % (pri_grps,sec_grps))
+    return pri_grps,sec_grps,cluster_grps
 
 def parseNonPodData(spcl_grp):
     logging.debug(spcl_grp)
@@ -130,6 +163,8 @@ def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in xrange(0, len(l), n):
         yield l[i:i+n]
+
+
         
 if __name__ == '__main__':
     usage = """
@@ -169,6 +204,7 @@ if __name__ == '__main__':
     
     fname_pri = cluster_type + ".pri"
     fname_sec = cluster_type + ".sec"
+    fname_clusters = cluster_type + ".clusters"
     logging.debug("%s : %s" % (fname_pri,fname_sec))
     
     dc_data ={}
@@ -183,6 +219,7 @@ if __name__ == '__main__':
         
     output_pri = open(fname_pri, 'w')
     output_sec = open(fname_sec, 'w')
+    out_clusters = open(fname_clusters, 'w')
     for dc in dc_data:
         logging.debug(dc_data)
         if re.match(r'(pod)', cluster_type, re.IGNORECASE):
@@ -202,39 +239,32 @@ if __name__ == '__main__':
             logging.debug("primary %s %s" % (dc,pri_grps))
             logging.debug("secondary %s %s" % (dc,sec_grps))
         elif re.match(r'(hbase)', cluster_type, re.IGNORECASE):
-            pri_grps,sec_grps = parseHbaseData(dc,dc_data[dc])
-            for grp in pri_grps:
-                chunked = list(chunks(grp, 3))
-                print(chunked)
-                for sub_lst in chunked:
-                    if [ s for s in sub_lst if re.match("HBASE\d",s)]:
-                        print('match %s' % s)
-                        loc = sub_lst.index(s)
-                        del sub_lst[loc]
-                        w = s + " " + dc + "\n"
-                        output_pri.write(w)
-                        w = ','.join(sub_lst) + " " + dc + "\n"
-                        output_pri.write(w)
-                    else:
-                        w = ','.join(sub_lst) + " " + dc + "\n"
-                        output_pri.write(w)
-            for grp in sec_grps:
-                chunked = list(chunks(grp, 3))
-                logging.debug(chunked)
-                for sub_lst in chunked:
-                    if [ s for s in sub_lst if re.match("HBASE\d",s)]:
-                        print('match %s' % s)
-                        loc = sub_lst.index(s)
-                        del sub_lst[loc]
-                        w = s + " " + dc + "\n"
-                        output_sec.write(w)
-                        w = ','.join(sub_lst) + " " + dc + "\n"
-                        output_sec.write(w)
-                    else:
-                        w = ','.join(sub_lst) + " " + dc + "\n"
-                        output_sec.write(w)
+            
+            pri_grps,sec_grps,cluster_grps = parseHbaseData(dc,dc_data[dc])
+            print(pri_grps,sec_grps,cluster_grps)
+            pri_sub_chunks=[pri_grps[x:x+3] for x in xrange(0, len(pri_grps), 3)]
+            print(pri_sub_chunks)
+            for sub_lst in pri_sub_chunks:
+                #for l in sub_lst:
+                #    if re.search(r"HBASE\d",l):
+                #        loc = sub_lst.index(l)
+                #        w = l + " " + dc + "\n"
+                #        output_pri.write(w)
+                #        del sub_lst[loc]
+                #        next   
+                if sub_lst != []:
+                    w = ','.join(sub_lst) + " " + dc + "\n"
+                    output_pri.write(w)
+            sec_sub_chunks=[sec_grps[x:x+3] for x in xrange(0, len(sec_grps), 3)]
+            for sub_lst in sec_sub_chunks:
+                w = ','.join(sub_lst) + " " + dc + "\n"
+                output_sec.write(w)
+            for c in cluster_grps:
+                w = c + " " + dc + "\n"
+                out_clusters.write(w)
             logging.debug("primary %s %s" % (dc,pri_grps))
             logging.debug("secondary %s %s" % (dc,sec_grps))
+            logging.debug("clusters %s %s" % (dc,cluster_grps))
         else:
             print(cluster_type)
             pri_grps,sec_grps = parseNonPodData(dc_data[dc])
