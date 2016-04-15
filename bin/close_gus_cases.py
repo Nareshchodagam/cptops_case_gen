@@ -72,6 +72,7 @@ if __name__ == '__main__':
     parser = OptionParser(usage)
     parser.add_option("-c", "--case", dest="caseNum",
                             help="The case number(s) of the case to attach the file ")
+    parser.add_option("-y", "--confirm", action="store_true", dest="confirm", help="Answer yes to prompts.")
     parser.add_option("-v", action="store_true", dest="verbose", default=False, help="verbosity") # will set to False later
     (options, args) = parser.parse_args()
     if options.verbose:
@@ -104,10 +105,11 @@ if __name__ == '__main__':
             caseDetails[caseId] = case + " - " +caseSub
         for subject in caseDetails.itervalues():
             print subject
-        response = raw_input('\nDo you wish to continue? (y|n) ')
-        if response.lower() != "y":
-            print "Exiting....."
-            sys.exit(1)
+        if not options.confirm:
+            response = raw_input('\nDo you wish to continue? (y|n) ')
+            if response.lower() != "y":
+                print "Exiting....."
+                sys.exit(1)
         for id in caseDetails.iterkeys():
             impl_plan_ids = getImplPlanDetails(id,session)
             logging.debug(impl_plan_ids)
