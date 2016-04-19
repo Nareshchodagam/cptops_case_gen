@@ -111,9 +111,8 @@ class Buildplan_helper:
     
         retval=True
         for key in self.fields:
-            idbfield = self.fields[key]
-            if idbfield in regexfilters and not re.match(regexfilters[idbfield], row[key]):     
-                logging.debug( 'regex ' + regexfilters[idbfield] + ' does not match ' + idbfield + ':' + row[key] )
+            if key in regexfilters and not re.match(regexfilters[key], row[key]):     
+                logging.debug( 'regex ' + regexfilters[key] + ' does not match ' + key + ':' + row[key] )
                 retval = retval and False
         
         return retval
@@ -128,8 +127,8 @@ class Buildplan_helper:
         results = []
         
 	for key in regexfilters:
-	    logging.debug( "regexfilter: " + key + ", supportedfields: " + ','.join(self.fields.values()) )
-            assert key in self.fields.values(), "regexfilter  is not a supported field "
+	    logging.debug( "regexfilter: " + key + ", supportedfields: " + ','.join(self.fields.keys()) )
+            assert key in self.fields.keys(), "regexfilter  is not a supported field "
             
         for row in unfilteredlist:
             if self.row_test_regex(row,regexfilters):
@@ -158,8 +157,14 @@ class Buildplan_helper:
         for key in idbfilters:
             assert (isinstance(idbfilters[key], list) and len(idbfilters[key][0]) > 0), "idbfilter " + key + " must have at least one value"
             requestlist.append([(key,val) for val in idbfilters[key] ])
+        myfields=[]
+        for val in fields.values():
+	    if type(val) is list:
+	        myfields.append( val[0] )
+	    else:
+		myfields.append( val )
             
-        requestlist.append([('fields', ','.join(fields.values()))] )
+        requestlist.append([('fields', ','.join(myfields))] )
       
         for clauses in itertools.product(*requestlist):
             reststring = self.idb_resource + '&'.join(['='.join(clause) for clause in clauses ])
@@ -168,7 +173,19 @@ class Buildplan_helper:
         logging.debug( results )
         return results
         
-    
+    def get_configs_fields(self, jsonresult, configdetails ):
+        configlookup = configdetails[1]
+        assert len(configlookup) == 1
+        allconfigs = self.check_cache(jsonresult,configdetails[0])
+        retval = None
+        for mykey in configlookup:
+	    myvalue = configlookup[mykey]
+        for config in allconfigs:
+	    if config[mykey] == myvalue:
+		retval = config['value']
+	assert not retval is None
+        return retval
+   
     def get_hosts_from_idbquery(self,datacenters,idbfilters,regexfilters):
         """
            datacenters: tuple of 3 character datacenter ids eg : was,chi,tyo ..
@@ -194,16 +211,13 @@ class Buildplan_helper:
                         row={}
                         row['datacenter']=dc
                         for key in self.fields:
-                            row[key] = self.check_cache(jsonresult,self.fields[key])    
+                            if not type(self.fields[key]) is list:
+                                row[key] = self.check_cache(jsonresult,self.fields[key])
+                            else:
+                                row[key] = self.get_configs_fields(jsonresult,self.fields[key])
                             results.append(row)
                 else:
                     logging.debug( 'no values for: ' + reststring )
-    
-     
-        
-        
-        
-        
         return self.apply_regexfilters(regexfilters, results)
     
 

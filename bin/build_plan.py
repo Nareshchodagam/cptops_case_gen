@@ -56,7 +56,7 @@ supportedfields = { 'superpod' : 'cluster.superpod.name',
                   'dr' : 'cluster.dr',
                   'host_operationalstatus': 'operationalStatus',
                   'cluster_operationalstatus': 'cluster.operationalStatus',
-                  'clustertype' : 'cluster.clusterType'
+                  'clustertype' : 'cluster.clusterType',
                  }
 
 cache = dict()
@@ -133,7 +133,7 @@ def build_dynamic_groups(hosts):
     return outmap
 
 
-def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat='',ho_opstat=''):
+def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat='',ho_opstat='',template_vars=None):
     # Replace variables in the templates
     logging.debug('Running compile_template')
 
@@ -141,11 +141,11 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
     global gblSplitHosts
     global gblExcludeList
-
     #before default ids in case of subsets
     for key, hostlist in gblSplitHosts.iteritems():
         output = output.replace(key, ",".join(hostlist))    
 
+    print 'template_vars', template_vars 
     hlist=hosts.split(",")
 
     if gblExcludeList:
@@ -164,7 +164,9 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_CASENUM', casenum)
     output = output.replace('v_ROLE', role)
     output = output.replace('v_BUNDLE', options.bundle)
-    output = output.replace('v_MONITOR', options.monitor)
+    if not template_vars == None:
+    	output = output.replace('v_MONITOR', template_vars['monitor-host'])
+    #output = output.replace('v_SERIAL', options.monitor)
     output = output.replace('v_CL_OPSTAT', cl_opstat)
     output = output.replace('v_HO_OPSTAT', ho_opstat)
 
@@ -220,14 +222,13 @@ def prep_template(template, outfile):
 
 
 
-def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=0,cl_opstat='',ho_opstat=''):
+def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=0,cl_opstat='',ho_opstat='',template_vars={}):
     # Generate the main body of the template (per host)
     logging.debug('Executing gen_plan()')
     print "Generating: " + out_file
-    
     s = open(template_file).read()
-
-    s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat,ho_opstat)
+    print 'template_vars', template_vars
+    s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat,ho_opstat,template_vars)
      
 
     f = open(out_file, 'w')
@@ -633,11 +634,12 @@ def gen_plan_by_idbquery(inputdict):
         assert os.path.isfile(common.templatedir + "/" + str(template_id) + ".template"), template_id + " template not found"
 
     if 'hostfilter' in inputdict:  # this is for backwards compatibility
-        regexfilters['name'] = inputdict['hostfilter']
+        regexfilters['hostname'] = inputdict['hostfilter']
 
     if 'regexfilter' in inputdict:
         for pair in inputdict['regexfilter'].split(';'):
             field, regex = pair.split('=')
+            field = field.lower() #for backward compatibility
             regexfilters[field] = regex
             
     print logging.debug('Regexfilters:')
@@ -648,7 +650,7 @@ def gen_plan_by_idbquery(inputdict):
     logging.debug(idbfilters)
     logging.debug(regexfilters)
 
-    bph = Buildplan_helper('allhosts?', supportedfields,True)
+    bph = Buildplan_helper(endpoint, supportedfields,options.cidblocal==True)
     writeplan = bph.prep_idb_plan_info(dcs,idbfilters,regexfilters,grouping,template_id)
     consolidate_idb_query_plans(writeplan, dcs, gsize)
 
@@ -705,6 +707,7 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
     allsuperpods=[]
     allroles=[]
 
+    template_vars = {}
     cleanup_out()
     for group_enum in sorted(results.keys()):
 
@@ -717,7 +720,8 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             roles = set([results[group_enum][(host,)]['role'] for host in hostnames])
             cluster_operationalstatus = set([results[group_enum][(host,)]['cluster_operationalstatus'] for host in hostnames])
             host_operationalstatus = set([results[group_enum][(host,)]['host_operationalstatus'] for host in hostnames])
-            
+            if options.monitor == True:
+		template_vars['monitor-host'] = ','.join(set([results[group_enum][(host,)]['monitor-host'] for host in hostnames]))
             #gather rollup info
             allhosts.extend(hostnames)
             allclusters.extend(clusters)
@@ -731,7 +735,8 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             logging.debug(gblSplitHosts)
 
             prep_template(template_id, common.outputdir + '/' + fileprefix + "_plan_implementation.txt")
-            gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),i,','.join(cluster_operationalstatus),','.join(host_operationalstatus))
+            gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),i,','.join(cluster_operationalstatus),','.join(host_operationalstatus),\
+		template_vars)
 
     consolidated_plan = consolidate_plan(','.join(set(allhosts)), ','.join(set(allclusters)), dc, ','.join(set(allsuperpods)), options.caseNum, ','.join(set(allroles)))
     
@@ -759,7 +764,7 @@ def gen_plan_by_hostlist_idb(hostlist, templateid, gsize, grouping):
     dcs, hostnames = get_clean_hostlist(hostlist)
     idbfilters = { 'name': hostnames }
     
-    bph = Buildplan_helper('allhosts?', supportedfields,True,True)
+    bph = Buildplan_helper(endpoint, supportedfields,options.cidblocal==True,True)
     writeplan = bph.prep_idb_plan_info(dcs,idbfilters,{},groups,templateid)
     
     consolidate_idb_query_plans(writeplan, dcs, gsize)
@@ -769,7 +774,7 @@ def gen_plan_by_hostlist(hostlist, templateid, gsize, groups):
         
     dcs, hostnames = get_clean_hostlist(hostlist)
     
-    bph = Buildplan_helper('', supportedfields,True,True)
+    bph = Buildplan_helper('', supportedfields,options.cidblocal==True,True)
     writeplan = bph.prep_plan_info_hostlist(hostnames,groups,templateid)
     consolidate_idb_query_plans(writeplan, dcs, gsize)
             
@@ -837,7 +842,7 @@ parser.add_option("-o", "--out", dest="out", help="output file")
 parser.add_option("-M", dest="grouping", type="str", default="majorset,minorset" ,help="Turn on grouping")
 parser.add_option("--gsize", dest="gsize", type="int", default=1, help="Group Size value")
 parser.add_option("--bundle", dest="bundle", default="current", help="Patchset version")
-parser.add_option("--monitor", dest="monitor", default="", help="Monitor host")
+parser.add_option("--monitor", dest="monitor", action="store_true", default=False, help="Monitor host")
 parser.add_option("--exclude", dest="exclude_list", default=False, help="Host Exclude List")
 parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
@@ -846,6 +851,9 @@ parser.add_option("--taggroups", dest="taggroups", type="int", default=0, help="
 (options, args) = parser.parse_args()
 if __name__ == "__main__":
   try:
+      endpoint='allhosts?'
+      if options.monitor == True: 
+          supportedfields['monitor-host'] =  ['cluster.clusterConfigs',  { 'key' : 'monitor-host' }]
       if not options.bundle:
           options.bundle = "current"
   
