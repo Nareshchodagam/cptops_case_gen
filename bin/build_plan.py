@@ -164,8 +164,11 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_CASENUM', casenum)
     output = output.replace('v_ROLE', role)
     output = output.replace('v_BUNDLE', options.bundle)
-    if not template_vars == None:
-    	output = output.replace('v_MONITOR', template_vars['monitor-host'])
+    if not template_vars == None: 
+        if 'monitor-host' in template_vars.keys():
+    	    output = output.replace('v_MONITOR', template_vars['monitor-host'])
+        if 'serialnumber' in template_vars.keys():
+    	    output = output.replace('v_SERIAL', template_vars['serialnumber'])
     #output = output.replace('v_SERIAL', options.monitor)
     output = output.replace('v_CL_OPSTAT', cl_opstat)
     output = output.replace('v_HO_OPSTAT', ho_opstat)
@@ -722,6 +725,8 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             host_operationalstatus = set([results[group_enum][(host,)]['host_operationalstatus'] for host in hostnames])
             if options.monitor == True:
 		template_vars['monitor-host'] = ','.join(set([results[group_enum][(host,)]['monitor-host'] for host in hostnames]))
+            if options.serial == True:
+		template_vars['serialnumber'] = ','.join(set([results[group_enum][(host,)]['serialnumber'] for host in hostnames]))
             #gather rollup info
             allhosts.extend(hostnames)
             allclusters.extend(clusters)
@@ -843,6 +848,7 @@ parser.add_option("-M", dest="grouping", type="str", default="majorset,minorset"
 parser.add_option("--gsize", dest="gsize", type="int", default=1, help="Group Size value")
 parser.add_option("--bundle", dest="bundle", default="current", help="Patchset version")
 parser.add_option("--monitor", dest="monitor", action="store_true", default=False, help="Monitor host")
+parser.add_option("--serial", dest="serial", action="store_true", default=False, help="Monitor host")
 parser.add_option("--exclude", dest="exclude_list", default=False, help="Host Exclude List")
 parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
@@ -851,7 +857,11 @@ parser.add_option("--taggroups", dest="taggroups", type="int", default=0, help="
 (options, args) = parser.parse_args()
 if __name__ == "__main__":
   try:
-      endpoint='allhosts?'
+      if options.serial == True:
+         endpoint='hosts?'
+         supportedfields['serialnumber'] = 'serialNumber'
+      else:
+         endpoint='allhosts?'
       if options.monitor == True: 
           supportedfields['monitor-host'] =  ['cluster.clusterConfigs',  { 'key' : 'monitor-host' }]
       if not options.bundle:
