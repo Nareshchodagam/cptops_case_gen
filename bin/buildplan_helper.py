@@ -182,8 +182,8 @@ class Buildplan_helper:
 	    myvalue = configlookup[mykey]
         for config in allconfigs:
 	    if config[mykey] == myvalue:
-		retval = config['value']
-	assert not retval is None
+	        retval = config['value']
+        assert not retval is None
         return retval
    
     def get_hosts_from_idbquery(self,datacenters,idbfilters,regexfilters):
