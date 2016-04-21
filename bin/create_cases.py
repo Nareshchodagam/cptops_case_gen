@@ -257,7 +257,7 @@ if __name__ == '__main__':
     fname_pri = cluster_type + ".pri"
     fname_sec = cluster_type + ".sec"
     fname_clusters = cluster_type + ".clusters"
-    logging.debug("%s : %s" % (fname_pri,fname_sec, fname_clusters))
+    logging.debug("%s : %s : %s" % (fname_pri,fname_sec, fname_clusters))
     
     dc_data ={}
     # Get the clusters for a given type based on status in a dc
