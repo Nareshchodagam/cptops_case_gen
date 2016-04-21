@@ -54,12 +54,14 @@ if __name__ == "__main__":
     parser.add_option("-s", "--groupsize", dest="groupsize", help="max groupsize for subject")
     parser.add_option("-p", "--podgroups", dest="podgroups", help="File with pod groupings")
     parser.add_option("-f", "--filter", dest="filter", help="regex host filter")
+    parser.add_option("-e", "--exclude", dest="exclude", help="exclude file")
     parser.add_option("-d", "--dr", dest="dr", default="False", help="dr true or false")
     parser.add_option("-b", "--bundle", dest="bundle", help="Bundle short name eg may oct")
     parser.add_option("--casesubject", dest="casesubject", help="Initital case subject to use")
     parser.add_option("--patchset", dest="patchset", help="Patchset name eg 2015.10 or 2016.01")
     parser.add_option("--taggroups", dest="taggroups", help="Size for blocked groups for large running cases like hbase")
     python = 'python'
+    excludelist = ''
     (options, args) = parser.parse_args()
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
@@ -94,10 +96,13 @@ if __name__ == "__main__":
             opts_str = json.dumps(opt_bp)
             opts_str = re.sub('maxgroupsize": ("\d+")', inputDictStrtoInt, opts_str)
             logging.debug(opts_str)
-            print("""python build_plan.py -C --bundle %s -G '%s' --taggroups %s -v""" % (options.patchset,opts_str,options.taggroups))
-            
+            output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s -v""" % \
+                            (options.patchset,opts_str,options.taggroups)
+            if options.exclude:
+                output_str = output_str + " --exclude " + options.exclude
+            print(output_str)
             subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag
             logging.debug(subject)
             if options.group:
                 subject = subject + " " + options.group
-            print("""python gus_cases_vault.py -T change  -f ../templates/%s-patch.json  --inst %s --infra "%s" -s "%s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt -A""" % (options.bundle,pods,options.infra,subject,dc))
+            print("""python gus_cases_vault.py -T change  -f ../templates/%s-patch.json  --inst %s --infra "%s" -s "%s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,pods,options.infra,subject,dc))
