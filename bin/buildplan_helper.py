@@ -187,7 +187,7 @@ class Buildplan_helper:
         return retval
     def format_field(self,jsonresult, row, formatfield):
         retval=False
-        if formatfield  == 'drtext':
+        if formatfield  == 'sitelocation':
            tempfield = self.check_cache(jsonresult,self.fields[formatfield])
            row[formatfield] =  U'Secondary' if tempfield else U'Primary'
            retval = True

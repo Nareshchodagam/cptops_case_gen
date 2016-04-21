@@ -54,7 +54,7 @@ supportedfields = { 'superpod' : 'cluster.superpod.name',
                   'hostname' : 'name',
                   'failoverstatus' : 'failOverStatus',
 		  'dr' : 'cluster.dr',
-                  'drtext' : 'cluster.dr',
+                  'sitelocation' : 'cluster.dr',
                   'host_operationalstatus': 'operationalStatus',
                   'cluster_operationalstatus': 'cluster.operationalStatus',
                   'clustertype' : 'cluster.clusterType',
@@ -170,8 +170,8 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     	    output = output.replace('v_MONITOR', template_vars['monitor-host'])
         if 'serialnumber' in template_vars.keys():
     	    output = output.replace('v_SERIAL', template_vars['serialnumber'])
-        if 'drtext' in template_vars.keys():
-    	    output = output.replace('v_DR', template_vars['drtext'])
+        if 'sitelocation' in template_vars.keys():
+    	    output = output.replace('v_SITELOCATION', template_vars['sitelocation'])
     #output = output.replace('v_SERIAL', options.monitor)
     output = output.replace('v_CL_OPSTAT', cl_opstat)
     output = output.replace('v_HO_OPSTAT', ho_opstat)
@@ -729,7 +729,7 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
 		template_vars['monitor-host'] = ','.join(set([results[group_enum][(host,)]['monitor-host'] for host in hostnames]))
             if options.serial == True:
 		template_vars['serialnumber'] = ','.join(set([results[group_enum][(host,)]['serialnumber'] for host in hostnames]))
-            template_vars['drtext'] = ','.join(set([results[group_enum][(host,)]['drtext'] for host in hostnames]))
+            template_vars['sitelocation'] = ','.join(set([results[group_enum][(host,)]['sitelocation'] for host in hostnames]))
             #gather rollup info
             allhosts.extend(hostnames)
             allclusters.extend(clusters)
@@ -762,7 +762,7 @@ def get_clean_hostlist(hostlist):
         dc = line.split('-')[3].rstrip('\n')
         if dc not in dcs:
             dcs.append(dc)
-        hostnames.append(line.rstrip('\n').rstrip().lstrip())
+        hostnames.append(line.rstrip('\n').rstrip())
     
     return dcs,hostnames
     
