@@ -53,7 +53,8 @@ supportedfields = { 'superpod' : 'cluster.superpod.name',
                   'cluster' : 'cluster.name',
                   'hostname' : 'name',
                   'failoverstatus' : 'failOverStatus',
-                  'dr' : 'cluster.dr',
+		  'dr' : 'cluster.dr',
+                  'sitelocation' : 'cluster.dr',
                   'host_operationalstatus': 'operationalStatus',
                   'cluster_operationalstatus': 'cluster.operationalStatus',
                   'clustertype' : 'cluster.clusterType',
@@ -169,6 +170,8 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     	    output = output.replace('v_MONITOR', template_vars['monitor-host'])
         if 'serialnumber' in template_vars.keys():
     	    output = output.replace('v_SERIAL', template_vars['serialnumber'])
+        if 'sitelocation' in template_vars.keys():
+    	    output = output.replace('v_SITELOCATION', template_vars['sitelocation'])
     #output = output.replace('v_SERIAL', options.monitor)
     output = output.replace('v_CL_OPSTAT', cl_opstat)
     output = output.replace('v_HO_OPSTAT', ho_opstat)
@@ -230,7 +233,6 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=0,cl
     logging.debug('Executing gen_plan()')
     print "Generating: " + out_file
     s = open(template_file).read()
-    print 'template_vars', template_vars
     s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat,ho_opstat,template_vars)
      
 
@@ -727,6 +729,7 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
 		template_vars['monitor-host'] = ','.join(set([results[group_enum][(host,)]['monitor-host'] for host in hostnames]))
             if options.serial == True:
 		template_vars['serialnumber'] = ','.join(set([results[group_enum][(host,)]['serialnumber'] for host in hostnames]))
+            template_vars['sitelocation'] = ','.join(set([results[group_enum][(host,)]['sitelocation'] for host in hostnames]))
             #gather rollup info
             allhosts.extend(hostnames)
             allclusters.extend(clusters)

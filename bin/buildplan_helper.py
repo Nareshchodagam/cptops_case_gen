@@ -185,6 +185,14 @@ class Buildplan_helper:
 	        retval = config['value']
         assert not retval is None
         return retval
+    def format_field(self,jsonresult, row, formatfield):
+        retval=False
+        if formatfield  == 'sitelocation':
+           tempfield = self.check_cache(jsonresult,self.fields[formatfield])
+           row[formatfield] =  U'Secondary' if tempfield else U'Primary'
+           retval = True
+        return retval
+           
    
     def get_hosts_from_idbquery(self,datacenters,idbfilters,regexfilters):
         """
@@ -211,7 +219,9 @@ class Buildplan_helper:
                         row={}
                         row['datacenter']=dc
                         for key in self.fields:
-                            if not type(self.fields[key]) is list:
+			    if self.format_field(jsonresult,row, key): #see if there are any special format fields and do them first	
+                                continue 
+			    if not type(self.fields[key]) is list:
                                 row[key] = self.check_cache(jsonresult,self.fields[key])
                             else:
                                 row[key] = self.get_configs_fields(jsonresult,self.fields[key])
