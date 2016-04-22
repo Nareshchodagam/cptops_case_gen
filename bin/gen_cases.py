@@ -54,6 +54,7 @@ if __name__ == "__main__":
     parser.add_option("-s", "--groupsize", dest="groupsize", help="max groupsize for subject")
     parser.add_option("-p", "--podgroups", dest="podgroups", help="File with pod groupings")
     parser.add_option("-f", "--filter", dest="filter", help="regex host filter")
+    parser.add_option("--regexfilter", dest="regexfilter", help="regex generic filter: <supportedfield>=value")
     parser.add_option("-e", "--exclude", dest="exclude", help="exclude file")
     parser.add_option("-d", "--dr", dest="dr", default="False", help="dr true or false")
     parser.add_option("-b", "--bundle", dest="bundle", help="Bundle short name eg may oct")
@@ -91,6 +92,8 @@ if __name__ == "__main__":
             if options.filter:
                 filter = "^.*" + options.filter
                 opt_bp["hostfilter"] = filter
+            if options.regexfilter:
+                opt_bp["regexfilter"] = options.regexfilter
             # Bug in build_plan.py that does not handle quoted ints. 
             # This regex sub converts "1" into 1 and returns it
             opts_str = json.dumps(opt_bp)
