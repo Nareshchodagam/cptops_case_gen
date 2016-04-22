@@ -20,8 +20,9 @@ from common import Common
 from idbhost import Idbhost
 from buildplan_helper import Buildplan_helper
 import sys
+reload(sys)
 
-
+sys.setdefaultencoding('utf8')
 ###############################################################################
 #                Constants
 ###############################################################################
@@ -157,7 +158,9 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
                 except:
                     break
     hosts=",".join(hlist )
-
+    
+    if options.checkhosts:
+        hosts = '`~/check_hosts.py -H ' + hosts  + '`'
     output = output.replace('v_HOSTS', hosts)
     output = output.replace('v_CLUSTER', cluster)
     output = output.replace('v_DATACENTER', datacenter)
@@ -852,6 +855,7 @@ parser.add_option("--gsize", dest="gsize", type="int", default=1, help="Group Si
 parser.add_option("--bundle", dest="bundle", default="current", help="Patchset version")
 parser.add_option("--monitor", dest="monitor", action="store_true", default=False, help="Monitor host")
 parser.add_option("--serial", dest="serial", action="store_true", default=False, help="Monitor host")
+parser.add_option("--checkhosts", dest="checkhosts", action="store_true", default=False, help="Monitor host")
 parser.add_option("--exclude", dest="exclude_list", default=False, help="Host Exclude List")
 parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
