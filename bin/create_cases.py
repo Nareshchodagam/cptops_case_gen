@@ -7,6 +7,12 @@ import re
 import subprocess
 
 def where_am_i():
+    """
+    Figures out location based on hostname
+    
+    Input : nothing
+    Returns : 3 letter site code
+    """
     hostname = socket.gethostname()
     logging.debug(hostname)
     if not re.search(r'(sfdc.net|salesforce.com)', hostname):
@@ -42,17 +48,38 @@ def parseData(dc,spcl_grp):
     return pri_grps,sec_grps
 
 def run_cmd(cmdlist):
+    """
+    Uses subprocess to run a command and return the output
+    
+    Input : A list containing a command and args to execute
+    
+    Returns : the output of the command execution
+    """
     logging.debug(cmdlist)
     run_cmd = subprocess.Popen(cmdlist, stdout=subprocess.PIPE)
     out, err = run_cmd.communicate()
     return out
 
 def get_inst_site(host):
+    """
+    Splits a host into a list splitting at - in the hostname
+    The list contains inst,host function, group and 3 letter site code
+    Input : hostname 
+    
+    Returns : list containing inst,host function and 3 letter site code ignoring group.
+    """
     inst,hfunc,g,site = host.split('-')
     short_site = site.replace(".ops.sfdc.net.", "")
     return inst,hfunc,short_site
 
 def isInstancePri(inst,dc):
+    """
+    Confirms if an instance is primary or secondary based on site code
+    DNS is used to confirm as the source of truth
+    Input : an instance and a 3 letter site code
+    
+    Returns either PROD or DR 
+    """
     inst = inst.replace('-HBASE', '')
     monhost = inst + '-monitor.ops.sfdc.net'
     cmdlist = ['dig', monhost, '+short']
@@ -69,11 +96,22 @@ def isInstancePri(inst,dc):
                 return "PROD"
     
 def parseHbaseData(dc,spcl_grp):
+    """
+    Parses the list of hbase pods by super pod and 
+    converts them into a list of primary and secondary due to the fact
+    that the normal primary secondary flags are not used correctly in iDB
+    
+    Input : 3 letter site code and pod data at sp level
+    
+    Returns : dict containing sp and pri,sec and cluster groups in that sp
+    """
     logging.debug(spcl_grp)
-    pri_grps = []
-    sec_grps = []
-    cluster_grps = []
+    groups = {}
     for sp in spcl_grp:
+        pri_grps = []
+        sec_grps = []
+        cluster_grps = []
+        groups[sp] = {}
         logging.debug(sp)
         if 'Primary' in spcl_grp[sp]:
             logging.debug(spcl_grp[sp]['Primary'])
@@ -90,8 +128,15 @@ def parseHbaseData(dc,spcl_grp):
                     pri_grps.append(inst)
                 elif loc == "DR":
                     sec_grps.append(inst)
-    logging.debug("%s : %s" % (pri_grps,sec_grps))
-    return pri_grps,sec_grps,cluster_grps
+        
+        logging.debug('%s %s %s' % (pri_grps,sec_grps,cluster_grps))
+        groups[sp]['pri_grps'] = pri_grps
+        groups[sp]['sec_grps'] = sec_grps
+        groups[sp]['cluster_grps'] = cluster_grps
+        
+        logging.debug("%s : %s" % (pri_grps,sec_grps))
+    #return pri_grps,sec_grps,cluster_grps
+    return groups 
 
 def parseNonPodData(spcl_grp):
     logging.debug(spcl_grp)
@@ -110,6 +155,11 @@ def parseNonPodData(spcl_grp):
     return pri_grps,sec_grps
 
 def splitSP(lst):
+    """
+    Splits the instances into related groups for grouping later
+    
+    Returns a set of lists containing instances
+    """
     ap_lst = []
     cs_lst = []
     na_lst = []
@@ -183,31 +233,34 @@ if __name__ == '__main__':
                             help="The SP status eg hw_provisioning or provisioning or active ")
     parser.add_option("-t", "--type", dest="type",
                             help="The type of clusters eg pod, hbase, insights ")
-    parser.add_option("-v", action="store_true", dest="verbose", default=False, help="verbosity") # will set to False later
+    parser.add_option("-v", action="store_true", dest="verbose", help="verbosity")
     (options, args) = parser.parse_args()
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
+    # Figure out where code is running
     site=where_am_i()
     print(site)
-    #status = 'active'
-    #cluster_type = 'pod'
     
+    #Set the correct location for the Idbhost object
     if site == 'sfm':
         idb=Idbhost()
     else:
         idb=Idbhost(site)
+    # Create a list from the supplied dcs
     dcs = options.dc.split(",")
     if options.status:
         status = options.status
     if options.type:
         cluster_type = options.type.lower()
     
+    # Create the filename variables
     fname_pri = cluster_type + ".pri"
     fname_sec = cluster_type + ".sec"
     fname_clusters = cluster_type + ".clusters"
-    logging.debug("%s : %s" % (fname_pri,fname_sec))
+    logging.debug("%s : %s : %s" % (fname_pri,fname_sec, fname_clusters))
     
     dc_data ={}
+    # Get the clusters for a given type based on status in a dc
     for dc in dcs:
         print(dc)
         data = idb.sp_data(dc, status, cluster_type)
@@ -217,12 +270,16 @@ if __name__ == '__main__':
         dc_data[dc] = idb.spcl_grp
         logging.debug(idb.spcl_grp)
         
+    #Set the output filename and open them for writing
     output_pri = open(fname_pri, 'w')
     output_sec = open(fname_sec, 'w')
     out_clusters = open(fname_clusters, 'w')
+    
+    # Parse the returned cluster data
     for dc in dc_data:
         logging.debug(dc_data)
         if re.match(r'(pod)', cluster_type, re.IGNORECASE):
+            # Parses the groups of pods into groups of 3 and writes the output to files
             pri_grps,sec_grps = parseData(dc,dc_data[dc])
             for grp in pri_grps:
                 chunked = list(chunks(grp, 3))
@@ -239,34 +296,42 @@ if __name__ == '__main__':
             logging.debug("primary %s %s" % (dc,pri_grps))
             logging.debug("secondary %s %s" % (dc,sec_grps))
         elif re.match(r'(hbase)', cluster_type, re.IGNORECASE):
-            
-            pri_grps,sec_grps,cluster_grps = parseHbaseData(dc,dc_data[dc])
-            print(pri_grps,sec_grps,cluster_grps)
-            pri_sub_chunks=[pri_grps[x:x+3] for x in xrange(0, len(pri_grps), 3)]
-            print(pri_sub_chunks)
-            for sub_lst in pri_sub_chunks:
-                #for l in sub_lst:
-                #    if re.search(r"HBASE\d",l):
-                #        loc = sub_lst.index(l)
-                #        w = l + " " + dc + "\n"
-                #        output_pri.write(w)
-                #        del sub_lst[loc]
-                #        next   
-                if sub_lst != []:
+            """
+            This code splits up hbase clusters into primary, secondary and sp cluster lists
+            writing the output to files
+            """
+            groups = parseHbaseData(dc,dc_data[dc])
+            logging.debug(groups)
+            for sp in groups:
+                pri_grps = groups[sp]['pri_grps']
+                sec_grps = groups[sp]['sec_grps']
+                cluster_grps = groups[sp]['cluster_grps']
+                logging.debug('%s %s %s' % (pri_grps,sec_grps,cluster_grps))
+                pri_sub_chunks=[pri_grps[x:x+3] for x in xrange(0, len(pri_grps), 3)]
+                print(pri_sub_chunks)
+                for sub_lst in pri_sub_chunks:
+                    if sub_lst != []:
+                        w = ','.join(sub_lst) + " " + dc + "\n"
+                        output_pri.write(w)
+                sec_sub_chunks=[sec_grps[x:x+3] for x in xrange(0, len(sec_grps), 3)]
+                for sub_lst in sec_sub_chunks:
                     w = ','.join(sub_lst) + " " + dc + "\n"
-                    output_pri.write(w)
-            sec_sub_chunks=[sec_grps[x:x+3] for x in xrange(0, len(sec_grps), 3)]
-            for sub_lst in sec_sub_chunks:
-                w = ','.join(sub_lst) + " " + dc + "\n"
-                output_sec.write(w)
-            for c in cluster_grps:
-                w = c + " " + dc + "\n"
-                out_clusters.write(w)
-            logging.debug("primary %s %s" % (dc,pri_grps))
-            logging.debug("secondary %s %s" % (dc,sec_grps))
-            logging.debug("clusters %s %s" % (dc,cluster_grps))
+                    output_sec.write(w)
+                for c in cluster_grps:
+                    w = c + " " + dc + "\n"
+                    out_clusters.write(w)
+                logging.debug("primary %s %s" % (dc,pri_grps))
+                logging.debug("secondary %s %s" % (dc,sec_grps))
+                logging.debug("clusters %s %s" % (dc,cluster_grps))
         else:
-            print(cluster_type)
+            """
+            Parses any sp level instances and writes them to the output files
+            Generally of the type cluster DC on successive lines. 
+            Eg 
+            MTA was
+            MTA chi 
+            """
+            logging.debug(cluster_type)
             pri_grps,sec_grps = parseNonPodData(dc_data[dc])
             for grp in pri_grps:
                 if grp != 'None':
@@ -278,5 +343,7 @@ if __name__ == '__main__':
                     output_sec.write(w)
             logging.debug("primary %s %s" % (dc,pri_grps))
             logging.debug("secondary %s %s" % (dc,sec_grps))
+    # close writing the output files
     output_pri.close()
     output_sec.close()
+    out_clusters.close()
