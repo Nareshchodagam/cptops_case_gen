@@ -195,10 +195,9 @@ class Buildplan_helper:
         assert not retval is None
         return retval
 
-    def _lookup_product(self,jsonresult):
+    def _lookup_product(self,jsonresult,rolename):
         prodlist =[] 
         ignore=""
-        rolename = self.check_cache(jsonresult,self.fields['role'])
         print 'Rolename: ' + rolename
         for prod in self._product_role_map:
            prodlist_temp = self._product_role_map[prod]
@@ -219,12 +218,15 @@ class Buildplan_helper:
     
     def format_field(self,jsonresult, row, formatfield):
         retval=False
+        tempfield = self.check_cache(jsonresult,self.fields[formatfield])
         if formatfield  == 'sitelocation':
-           tempfield = self.check_cache(jsonresult,self.fields[formatfield])
            row[formatfield] =  U'Secondary' if tempfield else U'Primary'
            retval = True
         if formatfield  == 'product_rrcmd':
-           row[formatfield] = self._lookup_product(jsonresult)
+           row[formatfield] = self._lookup_product(jsonresult,tempfield)
+           retval = True 
+        if formatfield  == 'drnostart_rrcmd':
+           row[formatfield] =  U'-drnostart' if tempfield else ""
            retval = True 
         return retval
            
@@ -376,9 +378,9 @@ class Buildplan_helper:
             for item in field_list:
                 assert item in self.fieldcheck, "grouping field must be a supported field"
         
-        if templateid.lower()=='AUTO'.lower():
+        #if templateid.lower()=='AUTO'.lower():
             #if AUTO group by idb template values
-            groups[:0]=[['role','dr','failoverstatus']]
+            #groups[:0]=[['role','dr','failoverstatus']]
         
             
              
