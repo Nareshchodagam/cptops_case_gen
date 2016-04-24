@@ -12,7 +12,6 @@ import re
 #from build_plan import supportedfields
 
 common = Common()
-
 global _templatesuffix
 class Buildplan_helper:
     
@@ -22,6 +21,16 @@ class Buildplan_helper:
            get = any idb "allhosts?"  
         """
     
+        self._product_role_map = {
+           'chatterbox' : ['sshare','prsn'],
+           'chatternow' : ['chan','dstore','msg','prsn'],
+           'mandm-hub' : ['mgmt_hub'],
+           'mq-broker' : ['mq'],
+           'onboarding' : [ 'app' ],
+           'sfdc-base' : ['ffx','cbatch','app','dapp',\
+               { 'ignored_process_names' : ['redis-server','memcached'] }\
+            ] 
+        }
         
         self.cidblocal = cidblocal
         self.idb_resource = resource
@@ -185,12 +194,38 @@ class Buildplan_helper:
 	        retval = config['value']
         assert not retval is None
         return retval
+
+    def _lookup_product(self,jsonresult):
+        prodlist =[] 
+        ignore=""
+        rolename = self.check_cache(jsonresult,self.fields['role'])
+        print 'Rolename: ' + rolename
+        for prod in self._product_role_map:
+           prodlist_temp = self._product_role_map[prod]
+           print prodlist_temp
+           if rolename in prodlist_temp:
+              prodlist.append( prod )
+           print prodlist
+           if prod == 'sfdc-base':
+              ignorelist = prodlist_temp[-1]['ignored_process_names']
+              ignore = " -ignored_process_names " + ",".join(ignorelist)
+        if len(prodlist) > 0:
+            return "-product "  + ",".join(prodlist) + ignore
+        else:
+            return ""
+
+         
+
+    
     def format_field(self,jsonresult, row, formatfield):
         retval=False
         if formatfield  == 'sitelocation':
            tempfield = self.check_cache(jsonresult,self.fields[formatfield])
            row[formatfield] =  U'Secondary' if tempfield else U'Primary'
            retval = True
+        if formatfield  == 'product_rrcmd':
+           row[formatfield] = self._lookup_product(jsonresult)
+           retval = True 
         return retval
            
    
