@@ -199,13 +199,10 @@ class Buildplan_helper:
     def _lookup_product(self,jsonresult,rolename):
         prodlist =[] 
         ignore=""
-        print 'Rolename: ' + rolename
         for prod in self._product_role_map:
            prodlist_temp = self._product_role_map[prod]
-           print prodlist_temp
            if rolename in prodlist_temp:
               prodlist.append( prod )
-           print prodlist
            if prod == 'sfdc-base':
               ignorelist = prodlist_temp[-1]['ignored_process_names']
         if len(prodlist) > 0:
