@@ -52,6 +52,7 @@ iDBurl = {'asg': "https://inventorydb1-0-asg.data.sfdc.net/api/1.03",
 supportedfields = { 'superpod' : 'cluster.superpod.name',
                   'role' : 'deviceRole',
                   'product_rrcmd' : 'deviceRole',
+                  'ignored_process_names_rr_cmd' : 'productrr_cmd',
                   'cluster' : 'cluster.name',
                   'hostname' : 'name',
                   'failoverstatus' : 'failOverStatus',
@@ -179,8 +180,10 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     	    output = output.replace('v_SITELOCATION', template_vars['sitelocation'])
         if 'product_rrcmd' in template_vars.keys():
     	    output = output.replace('v_PRODUCT_RRCMD', template_vars['product_rrcmd'])
+        if 'ignored_process_names_rr_cmd' in template_vars.keys():
+    	    output = output.replace('v_IGNORE_PROCS_RRCMD_', template_vars['ignored_process_names_rr_cmd'])
         if 'drnostart_rrcmd' in template_vars.keys():
-    	    output = output.replace('v_DRNOSTART_RRCMD', template_vars['drnostart_rrcmd'])
+    	    output = output.replace('v_DRNOSTART_RRCMD_', template_vars['drnostart_rrcmd'])
     #output = output.replace('v_SERIAL', options.monitor)
     output = output.replace('v_CL_OPSTAT', cl_opstat)
     output = output.replace('v_HO_OPSTAT', ho_opstat)
@@ -742,6 +745,7 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             template_vars['sitelocation'] = ','.join(set([results[group_enum][(host,)]['sitelocation'] for host in hostnames]))
             template_vars['drnostart_rrcmd'] = ','.join(set([results[group_enum][(host,)]['drnostart_rrcmd'] for host in hostnames]))
             template_vars['product_rrcmd'] = ','.join(set([results[group_enum][(host,)]['product_rrcmd'] for host in hostnames]))
+            template_vars['ignored_process_names_rr_cmd'] = ','.join(set([results[group_enum][(host,)]['ignored_process_names_rr_cmd'] for host in hostnames]))
             #gather rollup info
             allhosts.extend(hostnames)
             allclusters.extend(clusters)
@@ -784,12 +788,15 @@ def gen_nested_plan_idb(hostlist, templates, gsize, grouping):
         'plan' : [],
         'hostlist': [] 
     }
+    bph = Buildplan_helper(endpoint, supportedfields,options.cidblocal==True,True)
+    dcs, hostnames = get_clean_hostlist(hostlist)
+    idbfilters = { 'name': hostnames }
     for templateid in templates:
-        writeplan = bph.prep_idb_plan_info(dcs,idbfilters,{},groups,templateid)
+        writeplan = bph.prep_idb_plan_info(dcs,idbfilters,{},groups,templateid.strip() )
         consolidate_idb_query_plans(writeplan, dcs, gsize)
-        imp_plans['plan'].extend( 'BEGIN_GROUP: ' + templateid.upper(), '\n' )
+        imp_plans['plan'].extend( ['BEGIN_GROUP: ' + templateid.upper(), '\n'] )
         imp_plans['plan'].extend( open(common.outputdir + '/plan_implementation.txt').readlines() )
-        imp_plans['plan'].extend( 'END_GROUP: ' + templateid.upper(), '\n' )
+        imp_plans['plan'].extend( ['END_GROUP: ' + templateid.upper(), '\n'] )
         imp_plans['hostlist'].extend( open( common.outputdir + '/summarylist.txt' ).readlines())
     cleanup_out()
     write_list_to_file(common.outputdir + '/plan_implementation.txt', imp_plans['plan'], newline=False)
@@ -878,7 +885,7 @@ parser.add_option("--gsize", dest="gsize", type="int", default=1, help="Group Si
 parser.add_option("--bundle", dest="bundle", default="current", help="Patchset version")
 parser.add_option("--monitor", dest="monitor", action="store_true", default=False, help="Monitor host")
 parser.add_option("--serial", dest="serial", action="store_true", default=False, help="Monitor host")
-parser.add_option("--nested_template", dest="nested", help="pass a list of templates, for use with hostlists only")
+parser.add_option("--nested_template", dest="nested", default=False, help="pass a list of templates, for use with hostlists only")
 parser.add_option("--checkhosts", dest="checkhosts", action="store_true", default=False, help="Monitor host")
 parser.add_option("--exclude", dest="exclude_list", default=False, help="Host Exclude List")
 parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
@@ -995,6 +1002,12 @@ if __name__ == "__main__":
               gen_plan_by_hostlist(options.hostlist, options.template, options.gsize,options.grouping.split(','))
               exit()
   
+      if options.nested and options.hostlist:
+          groups = options.grouping.split(',')
+          templates = open(common.templatedir + "/" + options.nested +'.template').readlines() 
+          gen_nested_plan_idb(options.hostlist, templates, options.gsize, groups)
+          exit()
+
       if options.hostlist:
           groups = options.grouping.split(',')
           
@@ -1002,12 +1015,6 @@ if __name__ == "__main__":
               options.template='AUTO'
           print options.hostlist
           gen_plan_by_hostlist_idb(options.hostlist, options.template, options.gsize,groups)
-          exit()
-       
-      if options.nested:
-          groups = options.grouping.split(',')
-          templates = open(common.templatedir + "/" + options.nested).readlines() 
-          gen_nested_plan_idb(options.hostlist, templates, options.gsize, groups)
           exit()
  
       if options.endrun:

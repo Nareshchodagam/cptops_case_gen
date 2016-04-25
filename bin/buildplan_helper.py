@@ -10,9 +10,10 @@ import logging
 import itertools
 import re
 #from build_plan import supportedfields
-
 common = Common()
-global _templatesuffix
+import sys
+reload(sys)
+
 class Buildplan_helper:
     
     
@@ -29,7 +30,7 @@ class Buildplan_helper:
            'onboarding' : [ 'app' ],
            'sfdc-base' : ['ffx','cbatch','app','dapp',\
                { 'ignored_process_names' : ['redis-server','memcached'] }\
-            ] 
+            ]
         }
         
         self.cidblocal = cidblocal
@@ -207,23 +208,22 @@ class Buildplan_helper:
            print prodlist
            if prod == 'sfdc-base':
               ignorelist = prodlist_temp[-1]['ignored_process_names']
-              ignore = " -ignored_process_names " + ",".join(ignorelist)
         if len(prodlist) > 0:
-            return "-product "  + ",".join(prodlist) + ignore
+            return (",".join(prodlist), '-ignored_process_names ' + ','.join(ignorelist) + ' ')
         else:
-            return ""
-
-         
+            return "", ""
 
     
     def format_field(self,jsonresult, row, formatfield):
         retval=False
+        if formatfield == 'ignored_process_names_rr_cmd':
+           return True
         tempfield = self.check_cache(jsonresult,self.fields[formatfield])
         if formatfield  == 'sitelocation':
            row[formatfield] =  U'Secondary' if tempfield else U'Primary'
            retval = True
         if formatfield  == 'product_rrcmd':
-           row[formatfield] = self._lookup_product(jsonresult,tempfield)
+           row[formatfield], row['ignored_process_names_rr_cmd'] = self._lookup_product(jsonresult,tempfield)
            retval = True 
         if formatfield  == 'drnostart_rrcmd':
            row[formatfield] =  U'-drnostart' if tempfield else ""
@@ -378,9 +378,9 @@ class Buildplan_helper:
             for item in field_list:
                 assert item in self.fieldcheck, "grouping field must be a supported field"
         
-        #if templateid.lower()=='AUTO'.lower():
+        if templateid.lower()=='AUTO'.lower():
             #if AUTO group by idb template values
-            #groups[:0]=[['role','dr','failoverstatus']]
+            groups[:0]=[['role','dr','failoverstatus']]
         
             
              
