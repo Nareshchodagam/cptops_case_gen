@@ -223,7 +223,7 @@ class Buildplan_helper:
            row[formatfield], row['ignored_process_names_rr_cmd'] = self._lookup_product(jsonresult,tempfield)
            retval = True 
         if formatfield  == 'drnostart_rrcmd':
-           row[formatfield] =  U'-drnostart' if tempfield else ""
+           row[formatfield] =  U'-drnostart ' if tempfield else ""
            retval = True 
         return retval
            
