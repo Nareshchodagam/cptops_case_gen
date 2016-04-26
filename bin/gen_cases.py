@@ -58,6 +58,8 @@ if __name__ == "__main__":
     parser.add_option("-e", "--exclude", dest="exclude", help="exclude file")
     parser.add_option("-d", "--dr", dest="dr", default="False", help="dr true or false")
     parser.add_option("-b", "--bundle", dest="bundle", help="Bundle short name eg may oct")
+    parser.add_option("--clusteropstat", dest="clusteropstat", help="Cluster operational status")
+    parser.add_option("--hostopstat", dest="hostopstat", help="Host operation status")
     parser.add_option("--casesubject", dest="casesubject", help="Initital case subject to use")
     parser.add_option("--patchset", dest="patchset", help="Patchset name eg 2015.10 or 2016.01")
     parser.add_option("--taggroups", dest="taggroups", help="Size for blocked groups for large running cases like hbase")
@@ -94,6 +96,10 @@ if __name__ == "__main__":
                 opt_bp["hostfilter"] = filter
             if options.regexfilter:
                 opt_bp["regexfilter"] = options.regexfilter
+            if options.clusteropstat:
+                opt_bp["cl_opstat"] = options.clusteropstat
+            if options.hostopstat:
+                opt_bp["ho_opstat"] = options.hostopstat
             # Bug in build_plan.py that does not handle quoted ints. 
             # This regex sub converts "1" into 1 and returns it
             opts_str = json.dumps(opt_bp)
