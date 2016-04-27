@@ -58,6 +58,7 @@ if __name__ == "__main__":
     parser.add_option("-e", "--exclude", dest="exclude", help="exclude file")
     parser.add_option("-d", "--dr", dest="dr", default="False", help="dr true or false")
     parser.add_option("-b", "--bundle", dest="bundle", help="Bundle short name eg may oct")
+    parser.add_option("--casetype", dest="casetype", help="Case type to use eg patch or re-image")
     parser.add_option("--clusteropstat", dest="clusteropstat", help="Cluster operational status")
     parser.add_option("--hostopstat", dest="hostopstat", help="Host operation status")
     parser.add_option("--casesubject", dest="casesubject", help="Initital case subject to use")
@@ -87,7 +88,7 @@ if __name__ == "__main__":
         for l in data:
             pods,dc = l.split()
             # Create a dict containing the options used for input to build_plan
-            opt_bp = {"clusters" : pods ,"datacenter": dc , "roles": options.role, 
+            opt_bp = {"clusters" : pods ,"datacenter": dc.lower() , "roles": options.role, 
                       "grouping" : grouping, "maxgroupsize": groupsize,
                       "templateid" : options.template, "dr": options.dr}
             opt_gc = {}
@@ -109,9 +110,13 @@ if __name__ == "__main__":
                             (options.patchset,opts_str,options.taggroups)
             if options.exclude:
                 output_str = output_str + " --exclude " + options.exclude
+            if options.casetype == "reimage":
+                output_str = output_str + " --serial --monitor"
             print(output_str)
             subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag
             logging.debug(subject)
             if options.group:
                 subject = subject + " " + options.group
-            print("""python gus_cases_vault.py -T change  -f ../templates/%s-patch.json  --inst %s --infra "%s" -s "%s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,pods,options.infra,subject,dc))
+            if not re.search(r"json", options.bundle):
+                options.bundle = options.bundle + "-patch.json"
+            print("""python gus_cases_vault.py -T change  -f ../templates/%s  --inst %s --infra "%s" -s "%s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,pods,options.infra,subject,dc))
