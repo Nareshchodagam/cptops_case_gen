@@ -339,7 +339,7 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
                 pre = compile_template(pre, hosts, cluster, datacenter, superpod, casenum, role)
                     
                 logging.debug('Writing out prefile ' + pre_file + '  to ' + consolidated_file)
-                final_file.write(pre + '\n\n')
+                final_file.write('BEGIN_GROUP: PRE\n' + pre + '\nEND_GROUP: PRE\n\n')
 
         # Append individual host files.
         
@@ -358,9 +358,9 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
                 post = post.read()
                 post = compile_template(post, hosts, cluster, datacenter, superpod, casenum, role)
                 logging.debug('Writing out post file ' + post_file + ' to ' + consolidated_file)
-                final_file.write(post + '\n\n')
+                final_file.write('BEGIN_GROUP POST\n' + post + '\nEND_GROUP: POST\n\n')
         if options.tags:
-                final_file.write("END_DC: " + datacenter.upper() + '\n\n')
+                final_file.write("END_DC:  " + datacenter.upper() + '\n\n')
 
     with open(consolidated_file, 'r') as resultfile:
         result = resultfile.readlines()
