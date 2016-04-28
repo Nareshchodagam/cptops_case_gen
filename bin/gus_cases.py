@@ -143,7 +143,7 @@ def create_implamentation_planner(data, caseId, session,role=None,insts=None,DCS
             insts = dcs_data[dc]
         data['DCs'] = data['DCs'].replace('v_DATACENTER', dc.upper()) 
         data['Details']['Case__c'] = caseId
-        data['Details']['Name'] = dc.upper()
+        #data['Details']['Descrition__c'] = dc.upper()
         data['Details']['SM_Data_Center__c'] = dc
         #data['Details']['SM_Instance_List__c'] = data['Details']['SM_Instance_List__c'].replace('v_INSTANCES', insts.upper())
         data['Details']['SM_Instance_List__c'] = insts.upper()
