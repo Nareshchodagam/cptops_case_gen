@@ -1,11 +1,11 @@
 - Check job execution status
-Exec: /usr/lib/gigantor/bin/kp_client executions --url="https://gig-kingpin1-0-v_DATACENTER.data.sfdc.net" --state running --name AFW_Racktastic_RPSApps_Reimage --started 10m+
+Exec: /usr/lib/gigantor/bin/kp_client executions --url="https://gig-kingpin1-0-v_DATACENTER.data.sfdc.net" --state running --name AFW_Razor_RPSApps_Reimage --started 10m+
 
 - Check the server is back up
 Exec: ~/check_reconnect.py -H v_HOSTS -d 2700
 
 - Check job execution status
-Exec: /usr/lib/gigantor/bin/kp_client executions --url="https://gig-kingpin1-0-v_DATACENTER.data.sfdc.net" --state success --name AFW_Racktastic_RPSApps_Reimage --started 120m+
+Exec: /usr/lib/gigantor/bin/kp_client executions --url="https://gig-kingpin1-0-v_DATACENTER.data.sfdc.net" --state success --name AFW_Razor_RPSApps_Reimage --started 120m+
 
 - Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
