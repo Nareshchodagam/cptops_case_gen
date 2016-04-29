@@ -373,7 +373,7 @@ def gen_request(reststring, cidblocal=False, derivedc='', debug=False):
         derivepath + '/' + dc + '/' + derivever + reststring
         # Use the java cli tool to sign the CIDB request and return a
         # keyed URL.
-        url = os.popen('java -jar ' + common.cidb_jar_path + '/cidb-security-client-0.0.3.jar ' + common.cidb_jar_path + '/keyrepo "' + url + '"').read()
+        url = os.popen('java -jar ' + common.cidb_jar_path + '/cidb-security-client-0.0.7.jar ' + common.cidb_jar_path + '/keyrepo "' + url + '"').read()
     else:
         url = iDBurl[dc] + reststring
 

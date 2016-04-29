@@ -1,0 +1,18 @@
+
+
+- Cooling period
+
+- SVN clean, Nagios, fstab, hosts, rules... (Python Script)
+
+- Remove from DNS (Python Script)
+
+-5) Remove from iDB
+- Issues around managed and unmanaged hosts
+- Would need to determine for host or unmanagedhost, could use role or just keep task separate in a Python script. 
+- Or it's an entire POD you would just set the cluster status to DECOMM and then 
+- blow away the entire cluster rather than each individual host.
+Exec: inventory-action.pl delete -resource host -name v_HOSTS
+
+- Again maybe easier initially to keep separate. 
+
+- Submit DCP
