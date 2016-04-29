@@ -64,7 +64,7 @@ class Buildplan_helper:
             # CIDB URL is slightly different, so it needs to be cut up and
             # reassembled.
             url =  "https://cidb1-0-sfm.data.sfdc.net/cidb-api/%s/1.03/" % dc    + reststring              
-            url = os.popen('java -jar ' + common.cidb_jar_path + '/cidb-security-client-0.0.3.jar ' + common.cidb_jar_path + '/keyrepo "' + url + '"').read()
+            url = os.popen('java -jar ' + common.cidb_jar_path + '/cidb-security-client-0.0.7.jar ' + common.cidb_jar_path + '/keyrepo "' + url + '"').read()
         else:
             url = "https://inventorydb1-0-%s.data.sfdc.net/api/1.03/" % dc + reststring
 
