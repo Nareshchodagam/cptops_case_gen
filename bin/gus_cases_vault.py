@@ -171,7 +171,6 @@ def create_implamentation_planner(data, caseId, session,role=None,insts=None,DCS
             DCS = dcs_data.keys()
         except Exception, e:
             if not isinstance(DCS, list):
-                print('here')
                 DCS = DCS.split(',')
     else:
         DCS = data['DCs'].split(',')
@@ -186,10 +185,11 @@ def create_implamentation_planner(data, caseId, session,role=None,insts=None,DCS
             insts = dcs_data[dc]
         data['DCs'] = data['DCs'].replace('v_DATACENTER', dc.upper()) 
         data['Details']['Case__c'] = caseId
-        data['Details']['Name'] = dc.upper()
+        #data['Details']['Description__c'] = dc.upper()
         data['Details']['SM_Data_Center__c'] = dc
         #data['Details']['SM_Instance_List__c'] = data['Details']['SM_Instance_List__c'].replace('v_INSTANCES', insts.upper())
         data['Details']['SM_Instance_List__c'] = insts.upper()
+        logging.debug(data['Details']['SM_Instance_List__c'])
         details['SM_Estimated_End_Time__c'] = end_time
         details['SM_Estimated_Start_Time__c'] = start_time
         print(details)
@@ -239,7 +239,7 @@ def getYamlChangeDetails(filename, subject, hosts):
     logging.debug(output['Verification'])
     return output
     
-def get_json_change_details(filename, subject, hosts, infratype):
+def get_json_change_details(filename, subject, hosts, infratype,full_instances):
     hl_len = str(len(hosts))
     msg = "\n\nHostlist:\n" + "\n".join(hosts)
     with open(filename) as data_file:
@@ -251,6 +251,9 @@ def get_json_change_details(filename, subject, hosts, infratype):
     details['Description'] += msg
     details['Subject'] = subject + " [" + hl_len + "]"
     details['Infrastructure-Type'] = infratype
+    if full_instances != '':
+        details['SM_Instance_List__c'] = full_instances
+        logging.debug(details['SM_Instance_List__c'])
     logging.debug(details['Description'])
     logging.debug(details['Subject'])
     logging.debug(details['Verification'])
@@ -312,6 +315,20 @@ def add_case_comment(comment, cId, session):
     logging.debug(new_comment)
     return new_comment
 
+def combineInstanceValues(data):
+    """
+    Takes a dict containing a set of instances and combines them into a list
+    Input : dict with dc and instance in comma separated list
+    Output : comma separated str of instances
+    """
+    logging.debug(data)
+    insts = []
+    for d in data:
+        insts.append(data[d])
+    print(insts)
+    output = ",".join(insts)
+    return output
+    
 def checkEmptyFile(filename):
     try:
         if os.stat(filename).st_size == 0:
@@ -380,6 +397,7 @@ if __name__ == '__main__':
     # check for existing session
     session = ''
     valid_login = ''
+    full_instances = ''
     print(savedsession)
     if os.path.isfile(savedsession):
         session = getSession(savedsession)
@@ -414,9 +432,25 @@ if __name__ == '__main__':
     infratype="Supporting Infrastructure"
     if options.infra:
         infratype = options.infra    
+    
+    if options.dc:
+        # Code added to get the instance list from the cmd 
+        DCS = options.dc 
+        if DCS != None:
+            try:
+                dcs_data = json.loads(DCS)
+                print('DC variable contains instance keys')
+                full_instances = combineInstanceValues(dcs_data)
+                loging.debug(full_instances)
+            except Exception as e:
+                if options.inst:
+                    full_instances = options.inst
+                print('DC variable does not contain instance keys : %s' % e)
 
     if options.casetype == 'change':
         insts = ''
+        if options.inst:
+            insts = options.inst
         hosts = get_hosts(options.hostlist)
 
         #case_details = get_change_details(options.filename, options.subject, hosts)
@@ -427,7 +461,7 @@ if __name__ == '__main__':
             except:
                 print('problem with yaml loading')
         else:
-            jsoncase = get_json_change_details(options.filename, options.subject, hosts,infratype)
+            jsoncase = get_json_change_details(options.filename, options.subject, hosts,infratype, full_instances)
         logging.debug(jsoncase)
         
         logging.debug(hosts)
