@@ -1,0 +1,20 @@
+
+- 1) Disable nagios
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
+
+- 2) System (iLO/DRAC) Reset
+
+- Reset Drac
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_ilo.py -r" -threads -auto2
+
+- 3) System shutdown
+
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/sbin/shutdown -h now" -threads -auto2
+
+- 4) Change iDB Status to DECOMM (optional) (can we give comma seperated list?)
+- Issues around managed and unmanaged hosts
+- Would need to determine for host or unmanagedhost, could use role or just keep task separate in a Python script. 
+- Or it's an entire POD you would just set the cluster status to DECOMM and then 
+- blow away the entire cluster rather than each individual host.
+Exec: inventory-action.pl update -resource host -name v_HOSTS -updateFields "operationalStatus=DECOM"
+
