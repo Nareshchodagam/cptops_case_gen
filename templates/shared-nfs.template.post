@@ -9,3 +9,7 @@ release_runner.pl -forced_host "$(~/remountlist.sh )"  -force_update_bootstrap -
 -check mounts on all servers to ensure they are rebalanced you should see roughly equal PROD pod nfs connections on all nfs boxes with a more or less even spread of pods
 Exec: ~/genSummary.py -H v_LISTOFHOSTS -c netstat_nfs
 
+
+- To regenerate this Implementation Plan use the following command.
+
+- v_COMMAND

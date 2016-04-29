@@ -144,6 +144,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     logging.debug('Running compile_template')
 
     output = input
+    build_command = " ".join(sys.argv)
 
     global gblSplitHosts
     global gblExcludeList
@@ -188,6 +189,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     #output = output.replace('v_SERIAL', options.monitor)
     output = output.replace('v_CL_OPSTAT', cl_opstat)
     output = output.replace('v_HO_OPSTAT', ho_opstat)
+    output = output.replace('v_COMMAND', build_command)
 
     return output
 
