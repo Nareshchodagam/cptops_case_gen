@@ -360,9 +360,9 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
                 post = post.read()
                 post = compile_template(post, hosts, cluster, datacenter, superpod, casenum, role)
                 logging.debug('Writing out post file ' + post_file + ' to ' + consolidated_file)
-                final_file.write('BEGIN_GROUP POST\n' + post + '\nEND_GROUP: POST\n\n')
+                final_file.write('BEGIN_GROUP: POST\n' + post + '\nEND_GROUP: POST\n\n')
         if options.tags:
-                final_file.write("END_DC:  " + datacenter.upper() + '\n\n')
+                final_file.write("END_DC: " + datacenter.upper() + '\n\n')
 
     with open(consolidated_file, 'r') as resultfile:
         result = resultfile.readlines()
