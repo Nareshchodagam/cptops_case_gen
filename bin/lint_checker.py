@@ -43,8 +43,8 @@ require_options = {"-product": "Application name",
                    "-property": "Domain override option",
                    "-g": "Group numbers"}
 
-default_cmd = {"-superpod": "v_SUPERPOD",
-               "-cluster": "v_CLUSTER",
+default_cmd = {"-superpod": [ "v_SUPERPOD", "NONE"],
+               "-cluster": [ "v_CLUSTER", "WEB" ],
                "-host": ["v_HOSTS", "v_HOSTNAME_CPS", "v_HOSTNAME_DSTORE", "v_HOSTNAME_MSG", "v_HOSTNAME_MMAPP", "v_MMCNSMR_LATENCY", "v_HOSTNAME_MMCNSMR"],
                "-bigipstatus": "AVAILABILITY_STATUS_GREEN",
                "-forced_host": "v_HOSTS",
