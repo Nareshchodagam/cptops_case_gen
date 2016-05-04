@@ -70,7 +70,7 @@ if __name__ == "__main__":
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     if not options.casesubject:
-        options.casesubject = options.bundle.upper() + " Patch Bundle"
+        options.casesubject = options.patchset + " Patch Bundle"
     casesubject = options.casesubject
     grouping = "majorset"
     groupsize = 1
