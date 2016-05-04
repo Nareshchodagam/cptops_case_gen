@@ -10,10 +10,10 @@ import logging
 import itertools
 import re
 #from build_plan import supportedfields
-
 common = Common()
+import sys
+reload(sys)
 
-global _templatesuffix
 class Buildplan_helper:
     
     
@@ -22,6 +22,16 @@ class Buildplan_helper:
            get = any idb "allhosts?"  
         """
     
+        self._product_role_map = {
+           'chatterbox' : ['sshare','prsn'],
+           'chatternow' : ['chan','dstore','msg','prsn'],
+           'mandm-hub' : ['mgmt_hub'],
+           'mq-broker' : ['mq'],
+           'onboarding' : [ 'app' ],
+           'sfdc-base' : ['ffx','cbatch','app','dapp',\
+               { 'ignored_process_names' : ['redis-server','memcached'] }\
+            ]
+        }
         
         self.cidblocal = cidblocal
         self.idb_resource = resource
@@ -54,7 +64,7 @@ class Buildplan_helper:
             # CIDB URL is slightly different, so it needs to be cut up and
             # reassembled.
             url =  "https://cidb1-0-sfm.data.sfdc.net/cidb-api/%s/1.03/" % dc    + reststring              
-            url = os.popen('java -jar ' + common.cidb_jar_path + '/cidb-security-client-0.0.3.jar ' + common.cidb_jar_path + '/keyrepo "' + url + '"').read()
+            url = os.popen('java -jar ' + common.cidb_jar_path + '/cidb-security-client-0.0.7.jar ' + common.cidb_jar_path + '/keyrepo "' + url + '"').read()
         else:
             url = "https://inventorydb1-0-%s.data.sfdc.net/api/1.03/" % dc + reststring
 
@@ -185,12 +195,36 @@ class Buildplan_helper:
 	        retval = config['value']
         assert not retval is None
         return retval
+
+    def _lookup_product(self,jsonresult,rolename):
+        prodlist =[] 
+        ignore=""
+        for prod in self._product_role_map:
+           prodlist_temp = self._product_role_map[prod]
+           if rolename in prodlist_temp:
+              prodlist.append( prod )
+           if prod == 'sfdc-base':
+              ignorelist = prodlist_temp[-1]['ignored_process_names']
+        if len(prodlist) > 0:
+            return (",".join(prodlist), '-ignored_process_names ' + ','.join(ignorelist) + ' ')
+        else:
+            return "", ""
+
+    
     def format_field(self,jsonresult, row, formatfield):
         retval=False
+        if formatfield == 'ignored_process_names_rr_cmd':
+           return True
+        tempfield = self.check_cache(jsonresult,self.fields[formatfield])
         if formatfield  == 'sitelocation':
-           tempfield = self.check_cache(jsonresult,self.fields[formatfield])
            row[formatfield] =  U'Secondary' if tempfield else U'Primary'
            retval = True
+        if formatfield  == 'product_rrcmd':
+           row[formatfield], row['ignored_process_names_rr_cmd'] = self._lookup_product(jsonresult,tempfield)
+           retval = True 
+        if formatfield  == 'drnostart_rrcmd':
+           row[formatfield] =  U'-drnostart ' if tempfield else ""
+           retval = True 
         return retval
            
    
