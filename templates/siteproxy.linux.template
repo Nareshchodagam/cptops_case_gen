@@ -47,7 +47,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_m
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c start_server -threads -auto2
 
 -Add to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role proxy -host v_HOSTS -c add_to_pool -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role v_ROLE -host v_HOSTS -c add_to_pool -threads -auto2
 
 - Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
