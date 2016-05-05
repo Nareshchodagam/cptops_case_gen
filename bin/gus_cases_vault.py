@@ -185,9 +185,11 @@ def create_implamentation_planner(data, caseId, session,role=None,insts=None,DCS
             insts = dcs_data[dc]
         data['DCs'] = data['DCs'].replace('v_DATACENTER', dc.upper()) 
         data['Details']['Case__c'] = caseId
-        data['Details']['Description__c'] = dc.upper()
+        data['Details']['Description__c'] = dc.upper() + " " + insts
+        if re.search(r'-',dc):
+            dc,sp = dc.split('-')
         data['Details']['SM_Data_Center__c'] = dc
-        #data['Details']['SM_Instance_List__c'] = data['Details']['SM_Instance_List__c'].replace('v_INSTANCES', insts.upper())
+        ##data['Details']['SM_Instance_List__c'] = data['Details']['SM_Instance_List__c'].replace('v_INSTANCES', insts.upper())
         data['Details']['SM_Instance_List__c'] = insts.upper()
         logging.debug(data['Details']['SM_Instance_List__c'])
         details['SM_Estimated_End_Time__c'] = end_time
@@ -240,16 +242,18 @@ def getYamlChangeDetails(filename, subject, hosts):
     return output
     
 def get_json_change_details(filename, subject, hosts, infratype,full_instances):
-    hl_len = str(len(hosts))
-    msg = "\n\nHostlist:\n" + "\n".join(hosts)
     with open(filename) as data_file:
         data = json.load(data_file)
     details = data['Details']
     if 'Verif' in data:
         logging.debug('\n'.join(data['Verif']))
         details['Verification'] = '\n'.join(data['Verif'])
-    details['Description'] += msg
-    details['Subject'] = subject + " [" + hl_len + "]"
+        details['Subject'] = subject
+    if hosts != None:
+        hl_len = str(len(hosts))
+        msg = "\n\nHostlist:\n" + "\n".join(hosts)
+        details['Description'] += msg
+        details['Subject'] = subject + " [" + hl_len + "]"    
     details['Infrastructure-Type'] = infratype
     if full_instances != '':
         details['SM_Instance_List__c'] = full_instances
@@ -441,7 +445,7 @@ if __name__ == '__main__':
                 dcs_data = json.loads(DCS)
                 print('DC variable contains instance keys')
                 full_instances = combineInstanceValues(dcs_data)
-                loging.debug(full_instances)
+                logging.debug(full_instances)
             except Exception as e:
                 if options.inst:
                     full_instances = options.inst
@@ -451,7 +455,10 @@ if __name__ == '__main__':
         insts = ''
         if options.inst:
             insts = options.inst
-        hosts = get_hosts(options.hostlist)
+        if options.hostlist:
+            hosts = get_hosts(options.hostlist)
+        else:
+            hosts = None
 
         #case_details = get_change_details(options.filename, options.subject, hosts)
         #logging.debug(case_details)

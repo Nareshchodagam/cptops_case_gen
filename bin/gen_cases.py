@@ -38,6 +38,16 @@ def getData(filename):
         data = data_file.readlines()
     return data
 
+def genDCINST(data):
+    clusters_dc = {}
+    for l in data:
+        clusters,dc = l.split()
+        clusters_dc[clusters] = dc.rstrip()  
+    output = "{ " 
+    output = output + ', '.join(['"%s": "%s"' % (value,key) for (key,value) in clusters_dc.items()])
+    output = output + " }"
+    return output
+
 def inputDictStrtoInt(m):
     # do a replace on the matching in m to remove quotes on ints
     str = 'maxgroupsize": ' + m.group(1).replace('"','')
@@ -63,6 +73,7 @@ if __name__ == "__main__":
     parser.add_option("--hostopstat", dest="hostopstat", help="Host operation status")
     parser.add_option("--casesubject", dest="casesubject", help="Initital case subject to use")
     parser.add_option("--patchset", dest="patchset", help="Patchset name eg 2015.10 or 2016.01")
+    parser.add_option("--implplan", dest="implplansection", help="Template to use for implementation steps in planner")
     parser.add_option("--taggroups", dest="taggroups", help="Size for blocked groups for large running cases like hbase")
     python = 'python'
     excludelist = ''
@@ -70,10 +81,14 @@ if __name__ == "__main__":
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     if not options.casesubject:
-        options.casesubject = options.bundle.upper() + " Patch Bundle"
+        options.casesubject = options.patchset + " Patch Bundle"
     casesubject = options.casesubject
     grouping = "majorset"
     groupsize = 1
+    implplansection = "../templates/6u6-plan.json"
+    if options.implplansection:
+        implplansection = options.implplansection
+    
     if re.match(r'True', options.dr, re.IGNORECASE):
         site_flag = "DR"
     else:
@@ -83,7 +98,13 @@ if __name__ == "__main__":
         groupsize = groupSize(options.role)     
     if options.groupsize:
         groupsize = options.groupsize
-    if options.podgroups:
+    if options.podgroups and options.casetype == "coreappafw":
+        data = getData(options.podgroups)
+        inst_data = genDCINST(data)
+        subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
+        print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k %s -D '%s'""" % (options.bundle,options.infra,subject,implplansection,inst_data))
+
+    elif options.podgroups:
         data = getData(options.podgroups)
         for l in data:
             pods,dc = l.split()
@@ -119,4 +140,4 @@ if __name__ == "__main__":
                 subject = subject + " " + options.group
             if not re.search(r"json", options.bundle):
                 options.bundle = options.bundle + "-patch.json"
-            print("""python gus_cases_vault.py -T change  -f ../templates/%s  --inst %s --infra "%s" -s "%s" -k ../templates/6u6-plan.json  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,pods,options.infra,subject,dc))
+            print("""python gus_cases_vault.py -T change  -f ../templates/%s  --inst %s --infra "%s" -s "%s" -k %s  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,pods,options.infra,subject,implplansection,dc))
