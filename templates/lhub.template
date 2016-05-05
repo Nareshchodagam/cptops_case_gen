@@ -1,0 +1,82 @@
+-RR based commands
+
+-Copy remote scripts to the target hosts
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+
+- Validate the host needs to be patched
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2
+
+- Disable nagios monitoring
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable -m v_CLUSTER-monitor-v_DATACENTER
+
+
+
+
+-stop and disable vsftpd and httpd
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service vsftpd status" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service httpd status" -threads -auto2
+
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service vsftpd stop" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "chkconfig vsftpd off" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service httpd stop" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "chkconfig httpd off" -threads -auto2
+
+-save storage storage config
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/save_storage_config.sh" -threads -auto2
+
+-backup root crontab
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab -l > ~/cronroot.bck" -threads -auto2
+
+-remove root crontab
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab -r" -threads -auto2
+
+-kill processes accessing /hub 
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "pkill -f '/hub/'" -threads -auto2
+
+-check for open files 
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "[ $(lsof | grep '/hub/' | wc -l) -eq 0 ]" -threads -auto2
+
+-unmount fs
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/umountall.sh '/hub/'" -threads -auto2
+
+-check for open files 
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "[ $(mount | grep '/hub/' | wc -l) -eq 0 ]" -threads -auto2
+
+Manual: Contact SANENG resource to shut down fc ports for v_HOSTS
+
+- Execute the update script
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
+
+- Reboot the host
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
+
+- Wait for the hosts to boot up
+Exec: ~/check_reconnect.py -H v_HOSTS
+
+- Validate that the hosts have been patched and are running the correct version
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
+
+Manual: Contact SANENG resource to start fc ports v_HOSTS
+
+-restore storage config
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/restore_storage_config.sh" -threads -auto2
+
+-mount fs
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "mount -a" -threads -auto2
+
+-check for open files 
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "[ $(mount | grep '/hub/' | wc -l) -gt 0 ]" -threads -auto2
+
+-restore root crontab
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab ~/cronroot.bck" -threads -auto2
+
+-start vsftpd
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service vsftpd start" -threads -auto2
+
+-start httpd
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service httpd start" -threads -auto2
+
+- Enable nagios monitoring
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable -m v_CLUSTER-monitor-v_DATACENTER
+
+Exec: echo "Host v_HOSTS system patching completed"
