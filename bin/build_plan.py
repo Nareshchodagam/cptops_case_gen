@@ -173,6 +173,10 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_CASENUM', casenum)
     output = output.replace('v_ROLE', role)
     output = output.replace('v_BUNDLE', options.bundle)
+    # Added to enable passing the hostfilter inside the plan.
+    if options.idbgen and 'hostfilter' in json.loads(options.idbgen):
+        input_values = json.loads(options.idbgen)
+        output = output.replace('v_HOSTFILTER', input_values['hostfilter'])
     if not template_vars == None: 
         if 'monitor-host' in template_vars.keys():
     	    output = output.replace('v_MONITOR', template_vars['monitor-host'])

@@ -1,3 +1,5 @@
+Exec: ~/check_prod.py -i v_CLUSTER -l primary
+
 RR based commands
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
@@ -15,13 +17,13 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable 
 
 -Remove from pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role proxy -host v_HOSTS -c remove_from_pool -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role v_ROLE -host v_HOSTS -c remove_from_pool -threads -auto2
 
 - Stop the running application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role proxy -host v_HOSTS -c stop_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role v_ROLE -host v_HOSTS -c stop_server -threads -auto2
 
 - Stop Splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role proxy -host v_HOSTS -c stop_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c stop_server -threads -auto2
 
 -Update host to RHEL6u6
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
@@ -36,16 +38,16 @@ Exec: ~/check_reconnect.py -H v_HOSTS
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
 -Start app
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role proxy -host v_HOSTS -c start_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role v_ROLE -host v_HOSTS -c start_server -threads -auto2
 
 -Validate the max file descriptors as squid startup can be problematic target is 65k if it fails do a stop and start to restart it.
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_maxfs_desc.py" -auto2
 
 - Start Splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role proxy -host v_HOSTS -c start_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c start_server -threads -auto2
 
 -Add to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role proxy -host v_HOSTS -c add_to_pool -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role v_ROLE -host v_HOSTS -c add_to_pool -threads -auto2
 
 - Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
