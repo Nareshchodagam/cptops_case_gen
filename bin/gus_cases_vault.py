@@ -189,7 +189,7 @@ def create_implamentation_planner(data, caseId, session,role=None,insts=None,DCS
         if re.search(r'-',dc):
             dc,sp = dc.split('-')
         data['Details']['SM_Data_Center__c'] = dc
-        #data['Details']['SM_Instance_List__c'] = data['Details']['SM_Instance_List__c'].replace('v_INSTANCES', insts.upper())
+        ##data['Details']['SM_Instance_List__c'] = data['Details']['SM_Instance_List__c'].replace('v_INSTANCES', insts.upper())
         data['Details']['SM_Instance_List__c'] = insts.upper()
         logging.debug(data['Details']['SM_Instance_List__c'])
         details['SM_Estimated_End_Time__c'] = end_time
