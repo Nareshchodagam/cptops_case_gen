@@ -214,16 +214,6 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     return output
 
 def getConcurFailure(role,cluster):
-    #rates = {
-    #         'failthresh': 2,
-    #         'concur': 5,
-    #         'na1': {'app': {'failthresh': 2, 'concur': 5} },
-    #         'na': {'app': {'failthresh': 2, 'concur': 5} },
-    #         'eu': {'app': {'failthresh': 2, 'concur': 5} },
-    #         'ap': {'app': {'failthresh': 2, 'concur': 5} },
-    #         'cs': {'app': {'failthresh': 2, 'concur': 5} },
-    #         'gs': {'app': {'failthresh': 2, 'concur': 5} }
-    #         }
     rates = get_json('afw_presets.json')
     cluster_type = ''.join([i for i in cluster if not i.isdigit()])
     if cluster in rates and role in rates[cluster]:
