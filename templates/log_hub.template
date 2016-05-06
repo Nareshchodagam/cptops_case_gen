@@ -26,11 +26,10 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab -l > ~/cronroot.b
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab -r" -threads -auto2
 
 -kill processes accessing /hub 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "pkill -f 'hub|service.stats|^hub'" -threads -auto2
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/sbin/service httpd stop" -threads -auto2
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "lsof | awk '{print \$2}' | sort | uniq | xargs | kill -9" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "pkill -f 'hub|service.stats|lftp'" -threads -auto2
 
--unmount /hub
+-unmount /hub If fails due to outstanding processes log in and kill manually
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "umount /hub" -threads -auto2 -threads
 
 - Execute the update script
