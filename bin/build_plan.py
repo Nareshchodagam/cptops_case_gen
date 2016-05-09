@@ -117,6 +117,13 @@ def write_list_to_file(filename, list, newline=True):
     f.write(s)
     f.close()
 
+def get_json(input_file):
+    with open(common.etcdir + '/' + input_file) as data_file:
+        try:
+            data = json.load(data_file)
+        except Exception as e:
+            print('Problem loading json from file %s : %s' % (input_file,e))
+    return data
 
 def build_dynamic_groups(hosts):
 
@@ -175,10 +182,19 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_CASENUM', casenum)
     output = output.replace('v_ROLE', role)
     output = output.replace('v_BUNDLE', options.bundle)
+    # Total hack to pass kp_client concurrency and threshold values. Include in refactoring
+    if options.concur and options.failthresh:
+        concur = options.concur
+        failthresh = options.failthresh
+    else:
+        concur, failthresh = getConcurFailure(role,cluster)
+    output = output.replace('v_CONCUR', str(concur))
+    output = output.replace('v_FAILTHRESH', str(failthresh))
     # Added to enable passing the hostfilter inside the plan.
     if options.idbgen and 'hostfilter' in json.loads(options.idbgen):
         input_values = json.loads(options.idbgen)
         output = output.replace('v_HOSTFILTER', input_values['hostfilter'])
+    
     if not template_vars == None: 
         if 'monitor-host' in template_vars.keys():
     	    output = output.replace('v_MONITOR', template_vars['monitor-host'])
@@ -198,6 +214,17 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_COMMAND', build_command)
 
     return output
+
+def getConcurFailure(role,cluster):
+    rates = get_json('afw_presets.json')
+    cluster_type = ''.join([i for i in cluster if not i.isdigit()])
+    if cluster in rates and role in rates[cluster]:
+        return rates[cluster][role]['concur'], rates[cluster][role]['failthresh']
+    elif cluster_type in rates and role in rates[cluster_type]:
+        return rates[cluster_type][role]['concur'], rates[cluster_type][role]['failthresh']
+    else:
+        return rates['concur'],rates['failthresh']
+        
 
 def prep_template(template, outfile):
     # Determine which bits are necessary to include in the final output.
@@ -900,6 +927,8 @@ parser.add_option("--gsize", dest="gsize", type="int", default=1, help="Group Si
 parser.add_option("--bundle", dest="bundle", default="current", help="Patchset version")
 parser.add_option("--monitor", dest="monitor", action="store_true", default=False, help="Monitor host")
 parser.add_option("--serial", dest="serial", action="store_true", default=False, help="Monitor host")
+parser.add_option("--concurr", dest="concur", type="int", help="Concurrency for kp_client batch")
+parser.add_option("--failthresh", dest="failthresh", type="int", help="Failure threshold for kp_client batch")
 parser.add_option("--nested_template", dest="nested", default=False, help="pass a list of templates, for use with hostlists only")
 parser.add_option("--checkhosts", dest="checkhosts", action="store_true", default=False, help="Monitor host")
 parser.add_option("--exclude", dest="exclude_list", default=False, help="Host Exclude List")
