@@ -145,6 +145,8 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
     output = input
     build_command = " ".join(sys.argv)
+    build_command = build_command.replace("{","'{")
+    build_command = build_command.replace("}","}'")
 
     global gblSplitHosts
     global gblExcludeList
