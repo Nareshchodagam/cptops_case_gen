@@ -27,7 +27,9 @@ class Buildplan_helper:
            'chatternow' : ['chan','dstore','msg','prsn'],
            'mandm-hub' : ['mgmt_hub'],
            'mq-broker' : ['mq'],
-           'onboarding' : [ 'app' ],
+           #'onboarding' : [ 'app' ],
+           'acs' : [ 'acs' ],
+           'searchserver' : [ 'search' ],
            'sfdc-base' : ['ffx','cbatch','app','dapp',\
                { 'ignored_process_names' : ['redis-server','memcached'] }\
             ]
