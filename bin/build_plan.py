@@ -718,7 +718,7 @@ def consolidate_idb_query_plans(writeplan,dcs,gsize,nestedtemplate=None):
          writeplan[nestedtemplate]=copy.deepcopy(writeplan[options.nested])
       
     for template in writeplan:
-        if nestedtemplate and template == 'nested':
+        if nestedtemplate and template == options.nested:
             continue
         allplans[template] = {}   
         for dc in dcs:
@@ -727,7 +727,7 @@ def consolidate_idb_query_plans(writeplan,dcs,gsize,nestedtemplate=None):
             allplans[template][dc] = write_plan_dc(dc,template,writeplan,gsize)
             ok_dclist.append(dc)
     if nestedtemplate:
-        del writeplan[nestedtemplate]    
+        del writeplan[nestedtemplate]
     logging.debug( allplans )
     for template in allplans:
         for dc in set(ok_dclist):
