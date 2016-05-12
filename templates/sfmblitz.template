@@ -1,2 +1,4 @@
-blitzstop_server
-blitzstart_server
+blitz_pre
+blitz_stop:product_rrcmd:
+blitz_patch
+blitz_start:product_rrcmd:

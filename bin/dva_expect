@@ -1,5 +1,7 @@
 #! /bin/bash
 
+# eg ./dva_expect 2016.05 2016.05-patch.json '"2016.05 Patch Bundle: "' CMS
+
 BUNDLE=$1
 PATCHJSON=$2
 PREAMBLE=$3 #eg "FEB and GLIBC Patch Bundle : "

@@ -89,8 +89,10 @@ function build_case_extra {
 DC=$1
 ROLE=$2
 PREAMBLE=$3
-FOSTAT=$4
-DRSTAT=$5
+CTYPE=$4
+FOSTAT=$5
+DRSTAT=$6
+GROUPSIZE=$7
 
 
 if [ $DRSTAT == 'True' ]; then PRODSTAT=DR; else PRODSTAT=PROD; fi
@@ -98,7 +100,7 @@ if [ $DRSTAT == 'True' ]; then PRODSTAT=DR; else PRODSTAT=PROD; fi
 DCUP="$(echo $DC | awk '{print toupper($0)}')"
 MYSUBJECT=$(echo "$PREAMBLE $ROLE $DC $FOSTAT $PRODSTAT" |  tr 'a-z' 'A-Z')
 echo "TITLE will be $MYSUBJECT"
-./build_plan.py -c 0000002 -C -G '{"clusterTypes" : "POD" ,"datacenter": "'$DC'", "dr" : "'$DRSTAT'" ,"grouping": "role", "maxgroupsize": 8 , "regexfilter" : "failOverStatus='$FOSTAT'", "roles" : "'$ROLE'" }' --exclude /Users/dsheehan/dva_canary --bundle $BUNDLE || exit 1
+./build_plan.py -c 0000002 -C -G '{"clusterTypes" : "'$CTYPE'" ,"datacenter": "'$DC'", "dr" : "'$DRSTAT'" ,"grouping": "role", "maxgroupsize": '$GROUPSIZE' , "regexfilter" : "failOverStatus='$FOSTAT'", "roles" : "'$ROLE'" }' --exclude $EXCLUDE --bundle $BUNDLE || exit 1
 
 /usr/local/bin/python gus_cases.py -T change -f ../templates/$PATCHJSON -s "$MYSUBJECT" -k ../templates/6u6-plan.json -l ../output/summarylist.txt -D $DCUP -i ../output/plan_implementation.txt --infra "Supporting Infrastructure"
 
@@ -106,10 +108,20 @@ echo "TITLE will be $MYSUBJECT"
 
 
 
+    
 
+    
 #
 
 case "$SIGNOFFTEAM" in
+        CMS) 
+	DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
+	ROLE=cms
+	CTYPE=CMS
+	STATUS=ACTIVE
+#
+	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 role
+        ;;
 	LOG_TRANSPORT)
     	echo $SIGNOFFTEAM
 	DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
@@ -186,24 +198,25 @@ case "$SIGNOFFTEAM" in
 	done
     	;;
 	SR_SR_TOOLS)
-    	echo $SIGNOFFTEAM
+        echo $SIGNOFFTEAM
 	ROLE=mmxcvr
 	CTYPE=AJNA
 	STATUS=ACTIVE
 	DC="sfz"
-#
-	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
 
-	ROLE=mmpal
-	DC="sfz,chi,was"
-	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+	build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE PRIMARY False 1
+	build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE STANDBY False 1
+
+	#ROLE=mmpal
+	#DC="sfz,chi,was"
+	#build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
 	
-	ROLE=mmrelay
-	for DC in asg sjl tyo chi was lon dfw phx frf
-	do
-   		echo "$DC $ROLE $PREAMBLE $CTYPE"
-   		build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
-	done
+	#ROLE=mmrelay
+	#for DC in asg sjl tyo chi was lon dfw phx frf
+	#do
+   	#	echo "$DC $ROLE $PREAMBLE $CTYPE"
+   	#	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+	#done
 	#CTYPE=POD
 	#ROLE=mgmt_hub
 
@@ -216,8 +229,16 @@ case "$SIGNOFFTEAM" in
 #	done
 	#no DR in TYO
 #	build_case_extra tyo $ROLE "$PREAMBLE" STANDBY False 
-#	build_case_extra tyo $ROLE "$PREAMBLE" PRIMARY False
+	#build_case_extra tyo $ROLE "$PREAMBLE" PRIMARY False
 
+	#ROLE=dusty
+	#CTYPE=DUSTYHUB
+	#STATUS=ACTIVE
+
+	#DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
+	#build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE PRIMARY False 1 
+	#DC="tyo,lon,dfw,phx,frf"
+	#build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE STANDBY False 1
         ;;
 	ARGUS)
     	echo $SIGNOFFTEAM
