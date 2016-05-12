@@ -173,6 +173,10 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
                     break
     hosts=",".join(hlist )
     
+    #Ability to reuse templates and include sections. Include in refactoring
+    if options.dowork:
+        output = getDoWork(output, options.dowork)
+    
     if options.checkhosts:
         hosts = '`~/check_hosts.py -H ' + hosts  + '`'
     output = output.replace('v_HOSTS', hosts)
@@ -214,6 +218,15 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_COMMAND', build_command)
 
     return output
+
+def getDoWork(input, dowork):
+    template_file = common.templatedir + "/" + str(dowork) + ".template"
+    if os.path.isfile(template_file):
+        with open(template_file, 'r') as f:
+            data = f.readlines()
+    v_include = "".join(data)
+    input = input.replace('v_INCLUDE', v_include)
+    return input
 
 def getConcurFailure(role,cluster):
     rates = get_json('afw_presets.json')
@@ -944,6 +957,7 @@ parser.add_option("--exclude", dest="exclude_list", default=False, help="Host Ex
 parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("--taggroups", dest="taggroups", type="int", default=0, help="number of sub-plans per group tag")
+parser.add_option("--dowork", dest="dowork", help="command to supply for dowork functionality")
 
 (options, args) = parser.parse_args()
 if __name__ == "__main__":
