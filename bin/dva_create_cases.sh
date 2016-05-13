@@ -17,6 +17,89 @@ FILE_SPL_IDX_CRZ_IDB='../hostlists/file_spl_idx_crz_idb'
 
 cat ../hostlists/dva*canary > canaryhosts
 
+# LOG TRANSPORT
+function log_hub {
+
+}
+
+function logbus {
+
+}
+
+function lhub {
+
+}
+
+# LOG ANALYTICS
+function mandm-splunk-api {
+
+}
+
+function mandm-splunk-deployer {
+
+}
+
+function mandm-splunk-idxr {
+
+}
+
+function mandm-splunk-web {
+
+}
+
+function mandm-splunk-switch {
+
+}
+
+
+#DATA BROKER
+function mmmbus {
+
+}
+
+function mmdcs {
+
+}
+
+function mmrs {
+
+}
+
+
+#SR / SR TOOLS
+function mmxcvr {
+
+}
+
+function mmpal {
+
+}
+
+function mmrelay {
+
+}
+
+function mgmt_hub {
+
+}
+
+function dusty {
+
+}
+
+#ALERTING
+function smarts {
+
+}
+
+#CMS
+
+function cms {
+
+}
+
+
+
 function create_case {
 
 SUBJECT=$1
@@ -107,11 +190,15 @@ echo "TITLE will be $MYSUBJECT"
 }
 
 
+#DATA BROKER
 
+#LOG TRANSPORT
+
+#LOG ANALYTICS
+    
+#SR / SR TOOLS
     
 
-    
-#
 
 case "$SIGNOFFTEAM" in
         CMS) 
@@ -119,7 +206,7 @@ case "$SIGNOFFTEAM" in
 	ROLE=cms
 	CTYPE=CMS
 	STATUS=ACTIVE
-#
+
 	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 role
         ;;
 	LOG_TRANSPORT)
@@ -128,14 +215,14 @@ case "$SIGNOFFTEAM" in
 	ROLE=log_hub
 	CTYPE=HUB
 	STATUS=ACTIVE
-#
+
 	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 role
-#
+
 	ROLE=logbus
 	CTYPE=LOGBUS
 	STATUS=ACTIVE
         DC=SFM
-#       
+       
 	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 2 role
 	;;
 	LOG_ANALYTICS)
@@ -207,38 +294,38 @@ case "$SIGNOFFTEAM" in
 	build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE PRIMARY False 1
 	build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE STANDBY False 1
 
-	#ROLE=mmpal
-	#DC="sfz,chi,was"
-	#build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+	ROLE=mmpal
+	DC="sfz,chi,was"
+	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
 	
-	#ROLE=mmrelay
-	#for DC in asg sjl tyo chi was lon dfw phx frf
-	#do
-   	#	echo "$DC $ROLE $PREAMBLE $CTYPE"
-   	#	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
-	#done
-	#CTYPE=POD
-	#ROLE=mgmt_hub
+	ROLE=mmrelay
+	for DC in asg sjl tyo chi was lon dfw phx frf
+	do
+   		echo "$DC $ROLE $PREAMBLE $CTYPE"
+   		build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+	done
+	CTYPE=POD
+	ROLE=mgmt_hub
 
-	#for DC in chi was lon dfw phx frf asg sjl
-	#do
-   #		build_case_extra $DC $ROLE "$PREAMBLE" STANDBY False 
-   #		build_case_extra $DC $ROLE "$PREAMBLE" PRIMARY False
-   #		build_case_extra $DC $ROLE "$PREAMBLE" STANDBY True 
-   #		build_case_extra $DC $ROLE "$PREAMBLE" PRIMARY True
-#	done
+	for DC in chi was lon dfw phx frf asg sjl
+	do
+   		build_case_extra $DC $ROLE "$PREAMBLE" STANDBY False 
+   		build_case_extra $DC $ROLE "$PREAMBLE" PRIMARY False
+   		build_case_extra $DC $ROLE "$PREAMBLE" STANDBY True 
+   		build_case_extra $DC $ROLE "$PREAMBLE" PRIMARY True
+	done
 	#no DR in TYO
-#	build_case_extra tyo $ROLE "$PREAMBLE" STANDBY False 
-	#build_case_extra tyo $ROLE "$PREAMBLE" PRIMARY False
+	build_case_extra tyo $ROLE "$PREAMBLE" STANDBY False 
+	build_case_extra tyo $ROLE "$PREAMBLE" PRIMARY False
 
-	#ROLE=dusty
-	#CTYPE=DUSTYHUB
-	#STATUS=ACTIVE
+	ROLE=dusty
+	CTYPE=DUSTYHUB
+	STATUS=ACTIVE
 
-	#DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
-	#build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE PRIMARY False 1 
-	#DC="tyo,lon,dfw,phx,frf"
-	#build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE STANDBY False 1
+	DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
+	build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE PRIMARY False 1 
+	DC="tyo,lon,dfw,phx,frf"
+	build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE STANDBY False 1
         ;;
 	ARGUS)
     	echo $SIGNOFFTEAM
