@@ -13,9 +13,9 @@ release_runner.pl -forced_host v_MSG -c cmd -m "./remote_transfer/check_local_po
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_os.py -t rhel" -threads -auto2
 
 - get version numbers for apps
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder,mq-broker -c versioncheck -threads -auto2 -host v_HOSTS > /tmp/version_output.txt
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder,chatternow -c versioncheck -threads -auto2 -host v_HOSTS > /tmp/version_output.txt
 
-Exec: python ~/get_versions.py -f /tmp/version_output.txt -o ~/manifests.txt -a mq-broker,sfdc-splunk-forwarder
+Exec: python ~/get_versions.py -f /tmp/version_output.txt -o ~/manifests.txt -a chatternow,sfdc-splunk-forwarder
 
 Exec: cat ~/manifests.txt
 
