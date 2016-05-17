@@ -138,6 +138,22 @@ def parseHbaseData(dc,spcl_grp):
     #return pri_grps,sec_grps,cluster_grps
     return groups 
 
+def parseHammerData(dc,spcl_grp):
+    logging.debug(spcl_grp)
+    pri_grps = []
+    sec_grps = []
+    for sp in spcl_grp:
+        logging.debug(sp)
+        if 'Primary' in spcl_grp[sp]:
+            pri_lsts = spcl_grp[sp]['Primary']
+            if pri_lsts != []:
+                pri_grps.append(pri_lsts)
+        if 'Secondary' in spcl_grp[sp]:
+            sec_lsts = spcl_grp[sp]['Secondary']
+            if sec_lsts != []:
+                sec_grps.append(sec_lsts)
+    return pri_grps,sec_grps
+
 def parseNonPodData(spcl_grp):
     logging.debug(spcl_grp)
     pri_grps = []
@@ -243,14 +259,17 @@ if __name__ == '__main__':
     # Figure out where code is running
     site=where_am_i()
     print(site)
-    
+    all_prod_dcs = ['asg', 'sjl', 'chi', 'was', 'tyo', 'lon', 'phx', 'dfw', 'frf']
     #Set the correct location for the Idbhost object
     if site == 'sfm':
         idb=Idbhost()
     else:
         idb=Idbhost(site)
     # Create a list from the supplied dcs
-    dcs = options.dc.split(",")
+    if re.match(r'all', options.dc, re.IGNORECASE):
+        dcs = all_prod_dcs
+    else:
+        dcs = options.dc.split(",")
     if options.status:
         status = options.status
     if options.type:
@@ -313,6 +332,18 @@ if __name__ == '__main__':
                     output_sec.write(w)
             logging.debug("primary %s %s" % (dc,pri_grps))
             logging.debug("secondary %s %s" % (dc,sec_grps))
+        elif re.match(r'(hammer)', cluster_type, re.IGNORECASE):
+            pri_grps,sec_grps = parseHammerData(dc,dc_data[dc])
+            logging.debug("%s %s" % (pri_grps,sec_grps))
+            for sp_lst in pri_grps:
+                logging.debug("pri : %s" % sp_lst)
+                w = sp_lst + " " + dc + "\n"
+                output_pri.write(w)
+            for sp_lst in sec_grps:
+                logging.debug("sec : %s" % sp_lst)
+                if sp_lst != "None":
+                    w = sp_lst + " " + dc + "\n"
+                    output_sec.write(w)
         elif re.match(r'(hbase)', cluster_type, re.IGNORECASE):
             """
             This code splits up hbase clusters into primary, secondary and sp cluster lists
