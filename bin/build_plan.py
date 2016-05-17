@@ -731,7 +731,7 @@ def consolidate_idb_query_plans(writeplan,dcs,gsize,nestedtemplate=None):
          writeplan[nestedtemplate]=copy.deepcopy(writeplan[options.nested])
       
     for template in writeplan:
-        if nestedtemplate and template == 'nested':
+        if nestedtemplate and template == options.nested:
             continue
         allplans[template] = {}   
         for dc in dcs:
@@ -740,7 +740,7 @@ def consolidate_idb_query_plans(writeplan,dcs,gsize,nestedtemplate=None):
             allplans[template][dc] = write_plan_dc(dc,template,writeplan,gsize)
             ok_dclist.append(dc)
     if nestedtemplate:
-        del writeplan[nestedtemplate]    
+        del writeplan[nestedtemplate]
     logging.debug( allplans )
     for template in allplans:
         for dc in set(ok_dclist):
@@ -834,7 +834,7 @@ def get_clean_hostlist(hostlist):
     
     return dcs,hostnames
     
-def gen_nested_plan_idb(hostlist, templates, regex_dict, gsize, grouping):
+def gen_nested_plan_idb(hostlist, templates, regex_dict,group_dict,gsize):
    
     imp_plans = {
         'plan' : []
@@ -842,15 +842,24 @@ def gen_nested_plan_idb(hostlist, templates, regex_dict, gsize, grouping):
     bph = Buildplan_helper(endpoint, supportedfields,options.cidblocal==True,True)
     dcs, hostnames = get_clean_hostlist(hostlist)
     idbfilters = { 'name': hostnames }
-    writeplan = bph.prep_idb_plan_info(dcs,idbfilters,{},groups,options.nested)
+    writeplan = bph.prep_idb_plan_info(dcs,idbfilters,{},[],options.nested)
     for nestedtemplate in templates:
         if not os.path.isfile(common.templatedir +  '/' + nestedtemplate + '.template' ):
             continue
-        if regex_dict[nestedtemplate] is not None:
-            regexwriteplan = bph.prep_idb_plan_info(dcs,idbfilters,{ "hostname" : regex_dict[nestedtemplate] },groups,options.nested)
-            consolidate_idb_query_plans(regexwriteplan, dcs, gsize,nestedtemplate)
-        else:
-            consolidate_idb_query_plans(writeplan, dcs, gsize,nestedtemplate)
+        regexfilters={}
+        groups=[]
+        refresh = False
+        print 'options:', regex_dict[nestedtemplate], group_dict[nestedtemplate]
+        if regex_dict[nestedtemplate] != '':
+            regexfilters= { "hostname" : regex_dict[nestedtemplate] }
+            refresh = True
+        if group_dict[nestedtemplate] != '':
+            groups=[group_dict[nestedtemplate]] 
+            refresh = True
+        print 'REfresh: ', True
+        if refresh is True: 
+            writeplan = bph.prep_idb_plan_info(dcs,idbfilters, regexfilters, groups,options.nested)
+        consolidate_idb_query_plans(writeplan, dcs, gsize,nestedtemplate)
         imp_plans['plan'].extend( ['BEGIN_GROUP: ' + nestedtemplate.upper(), '\n'] )
         imp_plans['plan'].extend( open(common.outputdir + '/plan_implementation.txt').readlines() )
         imp_plans['plan'].extend( ['END_GROUP: ' + nestedtemplate.upper(), '\n', '\n'] )
@@ -1064,17 +1073,20 @@ if __name__ == "__main__":
           groups = options.grouping.split(',')
           templates = open(common.templatedir + "/" + options.nested +'.template').readlines()
           regex_dict = {}
+          grouping_dict = {}
           template_list = []
           for template in templates:
               values = template.strip().split(':')
-              hostregex=None
-              if len(values) > 1:
-                  temp, hostregex = values
+              hostregex=''
+              groupby=''
+              if len(values) == 3:
+                  temp, groupby, hostregex = values
               else:
                   temp = values[0]     
+              grouping_dict[temp] = groupby
               regex_dict[temp]=hostregex
               template_list.append(temp)  
-          gen_nested_plan_idb(options.hostlist, template_list, regex_dict, options.gsize, groups)
+          gen_nested_plan_idb(options.hostlist, template_list, regex_dict, grouping_dict, options.gsize)
           exit()
 
       if options.hostlist:
