@@ -3,7 +3,7 @@
 BUNDLE=$1
 PATCHJSON=$2
 PREAMBLE=$3 #eg "FEB and GLIBC Patch Bundle : "
-SIGNOFFTEAM=$4 # one of LOG_TRANSPORT LOG_ANALYTICS DATA_BROKER ARGUS ALERTING
+SELECTOR=$4 # one of role function, or signoff team as defined in case statement :LOG_TRANSPORT LOG_ANALYTICS DATA_BROKER ARGUS ALERTING
 
 OTHER="-T"
 EXCLUDE='canaryhosts'
@@ -14,7 +14,7 @@ FILE_SPL_DEP_CRZ='../hostlists/file_spl_dep_crz'
 FILE_SPL_IDX_CRZ='../hostlists/file_spl_idx_crz'
 FILE_SPL_IDX_CRZ_IDB='../hostlists/file_spl_idx_crz_idb'
 
-
+#collect canary host for exclusion
 cat ../hostlists/dva*canary > canaryhosts
 
 function create_case {
@@ -82,7 +82,7 @@ SUBJECT="$PREAMBLE $DC $ROLE PROD"
 create_case "$SUBJECT" $DC
 }
 
-function build_case_extra {
+function build_case_fostat {
 
 #this builds case dynamically looking up template and takes failoverstatus as well
 
@@ -106,156 +106,336 @@ echo "TITLE will be $MYSUBJECT"
 
 }
 
+# LOG TRANSPORT
+function log_hub {
+  DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
+  ROLE=log_hub
+  CTYPE=HUB
+  FOSTAT=PRIMARY
+  GSIZE=1
+  build_case_fostat $DC $ROLE "$PREAMBLE" $CTYPE $FOSTAT False $GSIZE
+}
+
+function log_hub_standby {
+  DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
+  ROLE=log_hub
+  CTYPE=HUB
+  FOSTAT=STANDBY
+  GSIZE=1
+  build_case_fostat $DC $ROLE "$PREAMBLE" $CTYPE $FOSTAT False $GSIZE
+}
+
+function lhub {
+  DC="sfz"
+  ROLE=lhub
+  CTYPE=HUB
+  FOSTAT=PRIMARY
+  GSIZE=1
+  build_case_fostat $DC $ROLE "$PREAMBLE" $CTYPE $FOSTAT False $GSIZE
+}
+
+function lhub_standby {
+  DC="sfz"
+  ROLE=lhub
+  CTYPE=HUB
+  FOSTAT=STANDBY
+  GSIZE=1
+  build_case_fostat $DC $ROLE "$PREAMBLE" $CTYPE $FOSTAT False $GSIZE
+}
+
+function logbus {
+  DC=sfm
+  ROLE=logbus
+  CTYPE=LOGBUS
+  STATUS=ACTIVE
+  build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 2 role
+}
+
+# LOG ANALYTICS
+function mandm-splunk-api {
+
+  DC=crz
+  ROLE=mandm-splunk-api
+  build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_API_CRZ 1 role $ROLE
+
+}
+
+function mandm-splunk-deployer {
+
+  DC=crz
+  ROLE=mandm-splunk-deployer
+  build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_DEP_CRZ 1 role $ROLE
+}
+
+function mandm-splunk-idxr {
+
+  DC=crz
+  ROLE=mandm-splunk-idxr
+  build_case_hostlist $DC $ROLE "$PREAMBLE NON IDB" $FILE_SPL_IDX_CRZ 15 role $ROLE
+  build_case_hostlist $DC $ROLE "$PREAMBLE IDB" $FILE_SPL_IDX_CRZ_IDB 15 role $ROLE
+}
+
+function mandm-splunk-web {
+
+  DC=crz
+  ROLE=mandm-splunk-web
+  build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_WEB_CRZ 1 role $ROLE
+	
+}
+
+function mandm-splunk-switch {
+
+  CTYPE=SPLUNK-IDX
+  ROLE=mandm-splunk-switch
+  STATUS=ACTIVE
+  for DC in asg sjl tyo chi was lon dfw phx frf
+  do
+	echo "$DC $ROLE $PREAMBLE $CTYPE"
+   	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 10 role
+  done
+}
 
 
-    
+#DATA BROKER
+function mmmbus {
 
-    
-#
+  CTYPE=AJNA
+  ROLE=mmmbus
+  STATUS=ACTIVE
+  for DC in asg sjl tyo chi was lon dfw phx frf
+  do
+    build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+  done
+}
+function mmmbus_SFZ {
+  CTYPE=AJNA
+  ROLE=mmmbus
+  STATUS=ACTIVE
+  DC="sfz"
+  build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset mmmbus_SFZ
+}
 
-case "$SIGNOFFTEAM" in
-        CMS) 
-	DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
-	ROLE=cms
-	CTYPE=CMS
-	STATUS=ACTIVE
-#
-	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 role
+function mmdcs {
+  CTYPE=AJNA
+  ROLE=mmdcs
+  STATUS=ACTIVE
+  for DC in asg sjl tyo chi was lon dfw phx frf
+  do
+    echo "$DC $ROLE $PREAMBLE $CTYPE"
+    build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+  done
+}
+
+function mmrs {
+  CTYPE=AJNA
+  ROLE=mmrs
+  STATUS=ACTIVE
+  for DC in asg sjl tyo chi was lon dfw phx frf
+  do
+    echo "$DC $ROLE $PREAMBLE $CTYPE"
+    build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+  done
+}
+
+
+#SR / SR TOOLS
+function mmxcvr {
+  DC="sfz"
+  ROLE=mmxcvr
+  CTYPE=AJNA
+  FOSTAT=PRIMARY
+  GSIZE=1
+  build_case_fostat $DC $ROLE "$PREAMBLE" $CTYPE $FOSTAT False $GSIZE
+}
+
+function mmxcvr_standby {
+  DC="sfz"
+  ROLE=mmxcvr
+  CTYPE=AJNA
+  FOSTAT=STANDBY
+  GSIZE=1
+  build_case_fostat $DC $ROLE "$PREAMBLE" $CTYPE $FOSTAT False $GSIZE
+}
+
+function mmpal {
+
+  CTYPE=AJNA
+  ROLE=mmpal
+  STATUS=ACTIVE
+  DC="sfz,chi,was"
+  build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+}
+
+function mmrelay {
+
+  CTYPE=AJNA
+  ROLE=mmrelay
+  STATUS=ACTIVE
+  for DC in asg sjl tyo chi was lon dfw phx frf
+  do
+    echo "$DC $ROLE $PREAMBLE $CTYPE"
+    build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+  done
+}
+
+function mgmt_hub {
+  ROLE=mgmt_hub
+  for DC in chi was lon dfw phx frf asg sjl
+  do
+    build_case_fostat $DC $ROLE "$PREAMBLE" POD STANDBY False 15
+    build_case_fostat $DC $ROLE "$PREAMBLE" POD PRIMARY False 15
+    build_case_fostat $DC $ROLE "$PREAMBLE" POD STANDBY True 15
+    build_case_fostat $DC $ROLE "$PREAMBLE" POD PRIMARY True 15
+  done
+  #no DR in TYO
+  build_case_fostat tyo $ROLE "$PREAMBLE" POD STANDBY False 15
+  build_case_fostat tyo $ROLE "$PREAMBLE" POD PRIMARY False 15
+}
+
+function dusty {
+  DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
+  ROLE=dusty
+  CTYPE=DUSTYHUB
+  FOSTAT=PRIMARY
+  GSIZE=1
+  build_case_fostat $DC $ROLE "$PREAMBLE" $CTYPE $FOSTAT False $GSIZE
+}
+
+function dusty_standby {
+  #standby for dustyhub  only in these dcs
+  DC="tyo,lon,dfw,phx,frf"
+  ROLE=dusty
+  CTYPE=DUSTYHUB
+  FOSTAT=STANDBY
+  GSIZE=1
+  build_case_fostat $DC $ROLE "$PREAMBLE" $CTYPE $FOSTAT False $GSIZE
+}
+
+#ALERTING
+function smarts {
+  CTYPE=SMARTS
+  ROLE=smarts
+  STATUS=ACTIVE,PRE_PRODUCTION,PROVISIONING
+  for DC in asg sjl tyo chi was lon dfw phx frf
+  do
+    build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
+  done
+}
+
+#CMS
+
+function cms {
+
+  DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
+  ROLE=cms
+  CTYPE=CMS
+  STATUS=ACTIVE
+  build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 role
+}
+
+case "$SELECTOR" in
+	MONITOR)
+	  smarts
+   	;;
+        CMS)
+          cms 
         ;;
 	LOG_TRANSPORT)
-    	echo $SIGNOFFTEAM
-	DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
-	ROLE=log_hub
-	CTYPE=HUB
-	STATUS=ACTIVE
-#
-	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 role
-#
-	ROLE=logbus
-	CTYPE=LOGBUS
-	STATUS=ACTIVE
-        DC=SFM
-#       
-	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 2 role
+	  log_hub
+	  log_hub_standby
+	  lhub
+	  lhub_standby
+          logbus
 	;;
 	LOG_ANALYTICS)
-    	echo $SIGNOFFTEAM
-	DC=crz
-
-	ROLE=mandm-splunk-api
-	build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_API_CRZ 1 role $ROLE
-
-	ROLE=mandm-splunk-deployer
-	build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_DEP_CRZ 1 role $ROLE
-
-	ROLE=mandm-splunk-idxr
-	build_case_hostlist $DC $ROLE "$PREAMBLE NON AFW" $FILE_SPL_IDX_CRZ 15 role $ROLE
-
-	ROLE=mandm-splunk-idxr
-	build_case_hostlist $DC $ROLE "$PREAMBLE AFW" $FILE_SPL_IDX_CRZ_IDB 15 role $ROLE
-
-	ROLE=mandm-splunk-web
-	build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SPL_WEB_CRZ 1 role $ROLE
+    	  mandm-splunk-api
+	  mandm-splunk-deployer
+	  mandm-splunk-idxr
+	  mandm-splunk-web
+	  mandm-splunk-switch
+	;;
 	
-        CTYPE=SPLUNK-IDX
-	ROLE=mandm-splunk-switch
-	STATUS=ACTIVE
-	for DC in asg sjl tyo chi was lon dfw phx frf
-	do
-   		echo "$DC $ROLE $PREAMBLE $CTYPE"
-   		build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 10 role
-	done
-    	;;
-	
-	DATA_BROKER) 
-    	echo $SIGNOFFTEAM
-#
-	ROLE=mmmbus
-	CTYPE=AJNA
-	STATUS=ACTIVE
-	DC="sfz"
-#
-	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset mmmbus_SFZ
-#
-#
-	CTYPE=AJNA
-	ROLE=mmdcs
-	STATUS=ACTIVE
-	for DC in asg sjl tyo chi was lon dfw phx frf
-	do
-   		echo "$DC $ROLE $PREAMBLE $CTYPE"
-   		build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
-	done
-#
-#
-	CTYPE=AJNA
-	ROLE=mmrs
-	STATUS=ACTIVE
-	for DC in asg sjl tyo chi was lon dfw phx frf
-	do
-   		echo "$DC $ROLE $PREAMBLE $CTYPE"
-   		build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
-	done
+	DATA_BROKER)
+	  mmmbus_SFZ
+	  mmmbus
+	  mmdcs
+	  mmrs 
     	;;
 	SR_SR_TOOLS)
-        echo $SIGNOFFTEAM
-	ROLE=mmxcvr
-	CTYPE=AJNA
-	STATUS=ACTIVE
-	DC="sfz"
-
-	build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE PRIMARY False 1
-	build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE STANDBY False 1
-
-	#ROLE=mmpal
-	#DC="sfz,chi,was"
-	#build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
-	
-	#ROLE=mmrelay
-	#for DC in asg sjl tyo chi was lon dfw phx frf
-	#do
-   	#	echo "$DC $ROLE $PREAMBLE $CTYPE"
-   	#	build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
-	#done
-	#CTYPE=POD
-	#ROLE=mgmt_hub
-
-	#for DC in chi was lon dfw phx frf asg sjl
-	#do
-   #		build_case_extra $DC $ROLE "$PREAMBLE" STANDBY False 
-   #		build_case_extra $DC $ROLE "$PREAMBLE" PRIMARY False
-   #		build_case_extra $DC $ROLE "$PREAMBLE" STANDBY True 
-   #		build_case_extra $DC $ROLE "$PREAMBLE" PRIMARY True
-#	done
-	#no DR in TYO
-#	build_case_extra tyo $ROLE "$PREAMBLE" STANDBY False 
-	#build_case_extra tyo $ROLE "$PREAMBLE" PRIMARY False
-
-	#ROLE=dusty
-	#CTYPE=DUSTYHUB
-	#STATUS=ACTIVE
-
-	#DC="asg,sjl,tyo,chi,was,lon,dfw,phx,frf"
-	#build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE PRIMARY False 1 
-	#DC="tyo,lon,dfw,phx,frf"
-	#build_case_extra $DC $ROLE "$PREAMBLE" $CTYPE STANDBY False 1
+	  mmpal
+	  mmrelay
+	  mgmt_hub
+	  mmxcvr
+	  mmxcvr_standby
+	  dusty
+	  dusty_standby
         ;;
 	ARGUS)
-    	echo $SIGNOFFTEAM
+    	echo $SELECTOR
     	;;
-	MONITOR)
-    	echo $SIGNOFFTEAM
-	CTYPE=SMARTS
-	ROLE=smarts
-	STATUS=ACTIVE,PRE_PRODUCTION,PROVISIONING
-	for DC in asg sjl tyo chi was lon dfw phx frf
-	do
-		   echo "$DC $ROLE $PREAMBLE $CTYPE"
-		   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 majorset,minorset
-	done
-    	;;
-	*) echo "Invalid option specified"
-   	;;
+	log_hub)
+	  log_hub
+         ;;
+	log_hub_standby)
+	  log_hub_standby
+	;;
+	lhub)
+	  lhub
+	;;
+	lhub_standby)
+	  lhub_standby
+	;;
+        logbus)
+          logbus
+	;;
+    	mandm-splunk-api)
+    	  mandm-splunk-api
+	;;
+	mandm-splunk-deployer)
+	  mandm-splunk-deployer
+	;;
+	mandm-splunk-idxr)
+	  mandm-splunk-idxr
+	;;
+	mandm-splunk-web)
+	  mandm-splunk-web
+	;;
+	mandm-splunk-switch)
+	  mandm-splunk-switch
+	;;
+	mmmbus_SFZ)
+	  mmmbus_SFZ
+	;;
+	mmmbus)
+	  mmmbus
+	;;
+	mmdcs)
+	  mmdcs
+	;;
+	mmrs)
+	  mmrs 
+	;;
+	mmxcvr)
+	  mmxcvr
+        ;;
+	mmxcvr_standby)
+	  mmxcvr_standby
+        ;;
+	mmpal)
+	  mmpal
+	;;
+	mmrelay)
+	  mmrelay
+	;;
+	mgmt_hub)
+	  mgmt_hub
+	;;
+	dusty)
+	  dusty
+	;;
+	dusty_standby)
+	  dusty_standby
+	;;
 esac
 
 

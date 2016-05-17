@@ -5,7 +5,7 @@ PATCHJSON=$2
 PREAMBLE=$3 #eg "FEB and GLIBC Patch Bundle : "
 SIGNOFFTEAM=$4 # one of LOG_TRANSPORT LOG_ANALYTICS DATA_BROKER ARGUS ALERTING
 OTHER="-T"
-PLAN=6u6-plan
+PLAN=$4
 EXCLUDE='canaryhosts'
 FILE_SPL_SWI_CRZ='../hostlists/file_spl_swi_crz'
 FILE_SPL_WEB_CRZ='../hostlists/file_spl_web_crz'
@@ -33,6 +33,7 @@ PREAMBLE=$3
 HOSTLIST=$4
 GROUPSIZE=$5
 GROUPING=$6
+PLAN=$7
 if [ -z "$TEMPLATEID" ]; then TEMPLATEID=$ROLE; fi
 
 ./build_plan.py -l $HOSTLIST -x -M $GROUPING --gsize $GROUPSIZE --bundle $BUNDLE -t $TEMPLATEID $OTHER || exit 1
@@ -88,5 +89,5 @@ build_case_hostlist_idb asg,sfm,sfz CANARY "$3 LOGTRANSPORT" ../hostlists/dva_lo
 build_case_hostlist_idb asg CANARY "$3 DATABROKER " ../hostlists/dva_databroker.canary 1 role $PLAN
 build_case_hostlist_idb sjl,sfz,chi,asg CANARY "$3 SR TOOLS " ../hostlists/dva_sr_sr_tools.canary 1 role $PLAN
 build_case_hostlist_idb crd CANARY  "$3 CMS " ../hostlists/cms.canary 1 role $PLAN
-build_case_hostlist sfm CANARY  "$3 DELPHI GACKPARSER " ../hostlists/dva_delphi.canary 1 role manage_apps-patch
-build_case_hostlist prd CANARY "$3 ARGUS " ../hostlists/dva_argus.canary 1 role manage_apps-patch
+build_case_hostlist sfm CANARY  "$3 DELPHI GACKPARSER " ../hostlists/dva_delphi.canary 1 role manage_apps-patch $PLAN
+build_case_hostlist prd CANARY "$3 ARGUS " ../hostlists/dva_argus.canary 1 role manage_apps-patch $PLAN
