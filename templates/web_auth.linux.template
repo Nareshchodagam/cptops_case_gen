@@ -5,10 +5,10 @@ Exec: kinit
 Exec: for i in $(echo public-webauthdb1-1-v_DATACENTER,v_HOSTS,public-webauth2-1-was | sed 's/,/ /g'); do ssh -o StrictHostKeyChecking=no ${i} "touch .zshrc" 2>/dev/null; done
 
 -Copy remote scripts to the target hosts
-release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+release_runner.pl -forced_host v_HOSTS,public-webauth2-1-was -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
 - Validate the host needs to be patched
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2
+release_runner.pl -forced_host v_HOSTS,public-webauth2-1-was -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2
 
 - Disable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H public-webauthdb1-1-v_DATACENTER,v_HOSTS -c disable
