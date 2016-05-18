@@ -75,6 +75,7 @@ if __name__ == "__main__":
     parser.add_option("--patchset", dest="patchset", help="Patchset name eg 2015.10 or 2016.01")
     parser.add_option("--implplan", dest="implplansection", help="Template to use for implementation steps in planner")
     parser.add_option("--taggroups", dest="taggroups", help="Size for blocked groups for large running cases like hbase")
+    parser.add_option("--dowork", dest="dowork", help="Include template to use for v_INCLUDE replacement")
     python = 'python'
     excludelist = ''
     (options, args) = parser.parse_args()
@@ -133,6 +134,8 @@ if __name__ == "__main__":
                 output_str = output_str + " --exclude " + options.exclude
             if options.casetype == "reimage":
                 output_str = output_str + " --serial --monitor"
+            if options.dowork:
+                output_str = output_str + " --dowork " + options.dowork
             print(output_str)
             subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag
             logging.debug(subject)
