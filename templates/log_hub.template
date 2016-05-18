@@ -22,7 +22,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER --product 
 
 -backup crontabs
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-traffic -c cmd -m "crontab -l > ~/crontraffic.bck && crontab -r" -threads -auto2
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab -l > ~/cronroot.bck" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab -l 1> ~/cronroot.bck" -threads -auto2
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab -r" -threads -auto2
 
 -kill processes accessing /hub 
