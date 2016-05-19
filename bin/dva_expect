@@ -18,12 +18,12 @@ stty -echo
 read PASS
 stty echo
 
-PASS=$(echo $PASS | sed -E 's/([#$%&_\])/\\\\\\&/g' )
+PASS=$(echo $PASS | sed -E 's/([#$%&_\])/\\&/g' )
 expect - <<EOF 
 set timeout -1
 spawn $SCRIPT $BUNDLE $PATCHJSON $PREAMBLE $MISCL
 expect password: {
-	send $PASS\r
+	send "$PASS\r"
 	exp_continue
 }
 EOF
