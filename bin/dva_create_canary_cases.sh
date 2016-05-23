@@ -21,8 +21,8 @@ SUBJECT=$1
 DC=$2
 DCUP="$(echo $DC | awk '{print toupper($0)}')"
 PLAN=$4
-echo "/usr/local/bin/python gus_cases.py -T change -f ../templates/$PATCHJSON -s \"$SUBJECT\" -k ../templates/$PLAN -l ../output/summarylist.txt -D $DCUP -i ../output/plan_implementation.txt --infra \"Supporting Infrastructure\"" 
-/usr/local/bin/python gus_cases.py -T change -f ../templates/$PATCHJSON -s "$SUBJECT" -k ../templates/$PLAN -l ../output/summarylist.txt -D $DCUP -i ../output/plan_implementation.txt --infra "Supporting Infrastructure" 
+echo "python gus_cases.py -T change -f ../templates/$PATCHJSON -s \"$SUBJECT\" -k ../templates/$PLAN -l ../output/summarylist.txt -D $DCUP -i ../output/plan_implementation.txt --infra \"Supporting Infrastructure\"" 
+python gus_cases.py -T change -f ../templates/$PATCHJSON -s "$SUBJECT" -k ../templates/$PLAN -l ../output/summarylist.txt -D $DCUP -i ../output/plan_implementation.txt --infra "Supporting Infrastructure" 
 }
 
 function build_case_hostlist {
@@ -77,15 +77,15 @@ MYSUBJECT=$(echo "$PREAMBLE $ROLE $DC $FOSTAT $PRODSTAT" |  tr 'a-z' 'A-Z')
 echo "TITLE will be $MYSUBJECT"
 ./build_plan.py -c 0000002 -C -G '{"clusterTypes" : "POD" ,"datacenter": "'$DC'", "dr" : "'$DRSTAT'" ,"grouping": "role", "maxgroupsize": 8 , "regexfilter" : "failOverStatus='$FOSTAT'", "roles" : "'$ROLE'" }' --exclude /Users/dsheehan/dva_canary --bundle $BUNDLE || exit 1
 
-/usr/local/bin/python gus_cases.py -T change -f ../templates/$PATCHJSON -s "$MYSUBJECT" -k ../templates/6u6-plan.json -l ../output/summarylist.txt -D $DCUP -i ../output/plan_implementation.txt --infra "Supporting Infrastructure"
+python gus_cases.py -T change -f ../templates/$PATCHJSON -s "$MYSUBJECT" -k ../templates/6u6-plan.json -l ../output/summarylist.txt -D $DCUP -i ../output/plan_implementation.txt --infra "Supporting Infrastructure"
 
 }
 
 
 build_case_hostlist_idb sfm CANARY "$3 SMARTS " ../hostlists/dva_smarts.canary 1 role $PLAN
 build_case_hostlist_idb asg,crz CANARY "$3 LOGANALYTICS " ../hostlists/dva_loganalytics.canary 1 role $PLAN
-build_case_hostlist_idb sfz CANARY "$3 LOGTRANSPORT LHUB" ~/lhubcanary 1 role lhub-plan.json
-build_case_hostlist_idb asg,sfm,sfz CANARY "$3 LOGTRANSPORT" ../hostlists/dva_logtransport.canary 1 role $PLAN
+build_case_hostlist_idb sfz CANARY "$3 LOGTRANSPORT LHUB" ../hostlists/dva_lhub.canary 1 role lhub-plan.json
+build_case_hostlist_idb asg,sfm,sfz CANARY "$3 LOGTRANSPORT" ../hostlists/dva_log_transport.canary 1 role $PLAN
 build_case_hostlist_idb asg CANARY "$3 DATABROKER " ../hostlists/dva_databroker.canary 1 role $PLAN
 build_case_hostlist_idb sjl,sfz,chi,asg CANARY "$3 SR TOOLS " ../hostlists/dva_sr_sr_tools.canary 1 role $PLAN
 build_case_hostlist_idb crd CANARY  "$3 CMS " ../hostlists/cms.canary 1 role $PLAN

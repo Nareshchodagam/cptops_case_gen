@@ -18,11 +18,12 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "chkconfig vsftpd off" -th
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service httpd stop" -threads -auto2
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "chkconfig httpd off" -threads -auto2
 
--save storage storage config
+-save storage storage config : we this needs to be done as a prerequisite to SANENG shutting down the fc ports see further down
+-Shutting down the fc ports is necessary because reconnecting the san disks during system boot / startup takes far too long
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/save_storage_config.sh" -threads -auto2
 
 -backup root crontab
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab -l > ~/cronroot.bck" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab -l 1> ~/cronroot.bck" -threads -auto2
 
 -remove root crontab
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab -r" -threads -auto2
@@ -61,9 +62,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/restore
 -mount fs
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "mount -a" -threads -auto2
 
--check for open files 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "[ $(mount | grep '/hub/' | wc -l) -gt 0 ]" -threads -auto2
-
 -restore root crontab
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab ~/cronroot.bck" -threads -auto2
 
@@ -73,7 +71,11 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service vsftpd start" -th
 -start httpd
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service httpd start" -threads -auto2
 
+#
+#-check for mount points commenting out as redundant 
+#release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "[ $(mount | grep '/hub/' | wc -l) -gt 0 ]" -threads -auto2
 - Enable nagios monitoring
 #Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable -m v_MONITOR
 
+Manual: check that the datacenters mounted on /hub are accessible on https://loghub-sfz.dmz.salesforce.com/
 Exec: echo "Host v_HOSTS system patching completed"
