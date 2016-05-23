@@ -62,9 +62,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/restore
 -mount fs
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "mount -a" -threads -auto2
 
--check for open files 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "[ $(mount | grep '/hub/' | wc -l) -gt 0 ]" -threads -auto2
-
 -restore root crontab
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "crontab ~/cronroot.bck" -threads -auto2
 
@@ -74,6 +71,9 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service vsftpd start" -th
 -start httpd
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service httpd start" -threads -auto2
 
+#
+#-check for mount points commenting out as redundant 
+#release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "[ $(mount | grep '/hub/' | wc -l) -gt 0 ]" -threads -auto2
 - Enable nagios monitoring
 #Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable -m v_MONITOR
 
