@@ -337,8 +337,9 @@ if __name__ == '__main__':
             logging.debug("%s %s" % (pri_grps,sec_grps))
             for sp_lst in pri_grps:
                 logging.debug("pri : %s" % sp_lst)
-                w = sp_lst + " " + dc + "\n"
-                output_pri.write(w)
+                if sp_lst != "None":
+                    w = sp_lst + " " + dc + "\n"
+                    output_pri.write(w)
             for sp_lst in sec_grps:
                 logging.debug("sec : %s" % sp_lst)
                 if sp_lst != "None":
