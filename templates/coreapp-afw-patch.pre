@@ -1,7 +1,0 @@
-- Get the local update scripts:
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/idbhost.py ~/idbhost.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py ~/common.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/build_plan.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_monitor.py ~/nagios_monitor.py
-
-
