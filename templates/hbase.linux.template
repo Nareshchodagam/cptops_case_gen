@@ -14,8 +14,7 @@ release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product b
 - Stop Splunk
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product sfdc-splunk-forwarder  -auto2 -c stop_server -host v_HOSTS
 
-- Execute Update script
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
+v_INCLUDE
 
 - Set boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
