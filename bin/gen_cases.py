@@ -115,7 +115,7 @@ if __name__ == "__main__":
         groupsize = groupSize(options.role)     
     if options.groupsize:
         groupsize = options.groupsize
-    if options.podgroups and options.casetype == "hostlist" and re.search(r"straight-patch", options.template):
+    if options.podgroups and options.casetype == "hostlist":
         data = getData(options.podgroups)
         dcs = getDCs(data)
         subject = casesubject + ": " + options.role.upper()
@@ -133,8 +133,7 @@ if __name__ == "__main__":
         inst_data = genDCINST(data)
         subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
         print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k %s -D '%s'""" % (options.bundle,options.infra,subject,implplansection,inst_data))
-
-    elif options.podgroups:
+    elif options.podgroups and not options.casetype:
         data = getData(options.podgroups)
         for l in data:
             pods,dc = l.split()
