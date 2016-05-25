@@ -48,6 +48,21 @@ def genDCINST(data):
     output = output + " }"
     return output
 
+
+def get_site(host):
+    inst,hfuc,g,site = host.split('-')
+    short_site = site.replace(".ops.sfdc.net", "")
+    logging.debug(short_site)
+    return short_site
+
+def getDCs(data):
+    dcs = []
+    for l in data:
+        dc = get_site(l.rstrip())
+        if dc not in dcs:
+            dcs.append(dc)
+    return dcs
+
 def inputDictStrtoInt(m):
     # do a replace on the matching in m to remove quotes on ints
     str = 'maxgroupsize": ' + m.group(1).replace('"','')
@@ -68,6 +83,7 @@ if __name__ == "__main__":
     parser.add_option("-e", "--exclude", dest="exclude", help="exclude file")
     parser.add_option("-d", "--dr", dest="dr", default="False", help="dr true or false")
     parser.add_option("-b", "--bundle", dest="bundle", help="Bundle short name eg may oct")
+    parser.add_option("--idb", dest="idb", action="store_true", default=False, help="Use idb to get host information")
     parser.add_option("--casetype", dest="casetype", help="Case type to use eg patch or re-image")
     parser.add_option("--clusteropstat", dest="clusteropstat", help="Cluster operational status")
     parser.add_option("--hostopstat", dest="hostopstat", help="Host operation status")
@@ -99,7 +115,20 @@ if __name__ == "__main__":
         groupsize = groupSize(options.role)     
     if options.groupsize:
         groupsize = options.groupsize
-    if options.podgroups and options.casetype == "coreappafw":
+    if options.podgroups and options.casetype == "hostlist" and re.search(r"straight-patch", options.template):
+        data = getData(options.podgroups)
+        dcs = getDCs(data)
+        subject = casesubject + ": " + options.role.upper()
+        dcs_list = ",".join(dcs)
+        #python build_plan.py -l ../hostlists/restoreffx -x -t straight-patch -T --bundle 2016.02
+        str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s""" % (options.podgroups, options.template, options.patchset,grouping)
+        if options.idb != True:
+            str = str + " -x"
+        if options.groupsize:
+            str = str + " --gsize %s" % groupsize 
+        print("%s" % str)
+        print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k %s -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,options.infra,subject,implplansection,dcs_list))
+    elif options.podgroups and options.casetype == "coreappafw":
         data = getData(options.podgroups)
         inst_data = genDCINST(data)
         subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
