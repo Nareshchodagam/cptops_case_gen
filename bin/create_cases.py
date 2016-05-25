@@ -138,6 +138,22 @@ def parseHbaseData(dc,spcl_grp):
     #return pri_grps,sec_grps,cluster_grps
     return groups 
 
+def parseHammerData(dc,spcl_grp):
+    logging.debug(spcl_grp)
+    pri_grps = []
+    sec_grps = []
+    for sp in spcl_grp:
+        logging.debug(sp)
+        if 'Primary' in spcl_grp[sp]:
+            pri_lsts = spcl_grp[sp]['Primary']
+            if pri_lsts != []:
+                pri_grps.append(pri_lsts)
+        if 'Secondary' in spcl_grp[sp]:
+            sec_lsts = spcl_grp[sp]['Secondary']
+            if sec_lsts != []:
+                sec_grps.append(sec_lsts)
+    return pri_grps,sec_grps
+
 def parseNonPodData(spcl_grp):
     logging.debug(spcl_grp)
     pri_grps = []
@@ -231,23 +247,29 @@ if __name__ == '__main__':
                             help="The dc(s) to get data for ")
     parser.add_option("-s", "--status", dest="status",
                             help="The SP status eg hw_provisioning or provisioning or active ")
+    parser.add_option("-g", "--groupsize", dest="groupsize", type="int", default=3,
+                            help="Groupsize of pods or clusters for build file")
     parser.add_option("-t", "--type", dest="type",
                             help="The type of clusters eg pod, hbase, insights ")
     parser.add_option("-v", action="store_true", dest="verbose", help="verbosity")
     (options, args) = parser.parse_args()
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
+    groupsize = options.groupsize
     # Figure out where code is running
     site=where_am_i()
     print(site)
-    
+    all_prod_dcs = ['asg', 'sjl', 'chi', 'was', 'tyo', 'lon', 'phx', 'dfw', 'frf']
     #Set the correct location for the Idbhost object
     if site == 'sfm':
         idb=Idbhost()
     else:
         idb=Idbhost(site)
     # Create a list from the supplied dcs
-    dcs = options.dc.split(",")
+    if re.match(r'all', options.dc, re.IGNORECASE):
+        dcs = all_prod_dcs
+    else:
+        dcs = options.dc.split(",")
     if options.status:
         status = options.status
     if options.type:
@@ -263,6 +285,8 @@ if __name__ == '__main__':
     # Get the clusters for a given type based on status in a dc
     for dc in dcs:
         print(dc)
+        if re.match(r'(afw)', cluster_type, re.IGNORECASE):
+            cluster_type = 'pod'
         data = idb.sp_data(dc, status, cluster_type)
         logging.debug(data)
         pdata = idb.poddata(dc)
@@ -278,23 +302,49 @@ if __name__ == '__main__':
     # Parse the returned cluster data
     for dc in dc_data:
         logging.debug(dc_data)
-        if re.match(r'(pod)', cluster_type, re.IGNORECASE):
+        if re.match(r'(afw)', options.type, re.IGNORECASE):
+            print(dc_data[dc])
+            for sp in dc_data[dc]:
+                print(dc_data[dc][sp])
+                if 'Primary' in dc_data[dc][sp]:
+                    if dc_data[dc][sp]['Primary'] != "None":
+                        w = dc_data[dc][sp]['Primary'] + " " + dc + "-" + sp + "\n"
+                        output_pri.write(w)
+                if 'Secondary' in dc_data[dc][sp]:
+                    if dc_data[dc][sp]['Secondary'] != "None":
+                        w = dc_data[dc][sp]['Secondary'] + " " + dc + "-" + sp + "\n"
+                        output_sec.write(w)
+                    
+        elif re.match(r'(pod)', cluster_type, re.IGNORECASE):
             # Parses the groups of pods into groups of 3 and writes the output to files
             pri_grps,sec_grps = parseData(dc,dc_data[dc])
             for grp in pri_grps:
-                chunked = list(chunks(grp, 3))
+                chunked = list(chunks(grp, groupsize))
                 print(chunked)
                 for sub_lst in chunked:
                     w = ','.join(sub_lst) + " " + dc + "\n"
                     output_pri.write(w)
             for grp in sec_grps:
-                chunked = list(chunks(grp, 3))
+                chunked = list(chunks(grp, groupsize))
                 logging.debug(chunked)
                 for sub_lst in chunked:
                     w = ','.join(sub_lst) + " " + dc + "\n"
                     output_sec.write(w)
             logging.debug("primary %s %s" % (dc,pri_grps))
             logging.debug("secondary %s %s" % (dc,sec_grps))
+        elif re.match(r'(hammer)', cluster_type, re.IGNORECASE):
+            pri_grps,sec_grps = parseHammerData(dc,dc_data[dc])
+            logging.debug("%s %s" % (pri_grps,sec_grps))
+            for sp_lst in pri_grps:
+                logging.debug("pri : %s" % sp_lst)
+                if sp_lst != "None":
+                    w = sp_lst + " " + dc + "\n"
+                    output_pri.write(w)
+            for sp_lst in sec_grps:
+                logging.debug("sec : %s" % sp_lst)
+                if sp_lst != "None":
+                    w = sp_lst + " " + dc + "\n"
+                    output_sec.write(w)
         elif re.match(r'(hbase)', cluster_type, re.IGNORECASE):
             """
             This code splits up hbase clusters into primary, secondary and sp cluster lists
@@ -307,13 +357,13 @@ if __name__ == '__main__':
                 sec_grps = groups[sp]['sec_grps']
                 cluster_grps = groups[sp]['cluster_grps']
                 logging.debug('%s %s %s' % (pri_grps,sec_grps,cluster_grps))
-                pri_sub_chunks=[pri_grps[x:x+3] for x in xrange(0, len(pri_grps), 3)]
+                pri_sub_chunks=[pri_grps[x:x+groupsize] for x in xrange(0, len(pri_grps), groupsize)]
                 print(pri_sub_chunks)
                 for sub_lst in pri_sub_chunks:
                     if sub_lst != []:
                         w = ','.join(sub_lst) + " " + dc + "\n"
                         output_pri.write(w)
-                sec_sub_chunks=[sec_grps[x:x+3] for x in xrange(0, len(sec_grps), 3)]
+                sec_sub_chunks=[sec_grps[x:x+groupsize] for x in xrange(0, len(sec_grps), groupsize)]
                 for sub_lst in sec_sub_chunks:
                     w = ','.join(sub_lst) + " " + dc + "\n"
                     output_sec.write(w)

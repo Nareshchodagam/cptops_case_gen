@@ -16,6 +16,7 @@ import glob
 import os.path
 import logging
 import pprint
+import copy
 from common import Common
 from idbhost import Idbhost
 from buildplan_helper import Buildplan_helper
@@ -51,11 +52,14 @@ iDBurl = {'asg': "https://inventorydb1-0-asg.data.sfdc.net/api/1.03",
 
 supportedfields = { 'superpod' : 'cluster.superpod.name',
                   'role' : 'deviceRole',
+                  'product_rrcmd' : 'deviceRole',
+                  'ignored_process_names_rr_cmd' : 'productrr_cmd',
                   'cluster' : 'cluster.name',
                   'hostname' : 'name',
                   'failoverstatus' : 'failOverStatus',
 		  'dr' : 'cluster.dr',
                   'sitelocation' : 'cluster.dr',
+                  'drnostart_rrcmd' : 'cluster.dr',
                   'host_operationalstatus': 'operationalStatus',
                   'cluster_operationalstatus': 'cluster.operationalStatus',
                   'clustertype' : 'cluster.clusterType',
@@ -113,6 +117,13 @@ def write_list_to_file(filename, list, newline=True):
     f.write(s)
     f.close()
 
+def get_json(input_file):
+    with open(common.etcdir + '/' + input_file) as data_file:
+        try:
+            data = json.load(data_file)
+        except Exception as e:
+            print('Problem loading json from file %s : %s' % (input_file,e))
+    return data
 
 def build_dynamic_groups(hosts):
 
@@ -141,6 +152,8 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
     output = input
     build_command = " ".join(sys.argv)
+    build_command = build_command.replace("{","'{")
+    build_command = build_command.replace("}","}'")
 
     global gblSplitHosts
     global gblExcludeList
@@ -160,6 +173,10 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
                     break
     hosts=",".join(hlist )
     
+    #Ability to reuse templates and include sections. Include in refactoring
+    if options.dowork:
+        output = getDoWork(output, options.dowork)
+    
     if options.checkhosts:
         hosts = '`~/check_hosts.py -H ' + hosts  + '`'
     output = output.replace('v_HOSTS', hosts)
@@ -169,6 +186,19 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_CASENUM', casenum)
     output = output.replace('v_ROLE', role)
     output = output.replace('v_BUNDLE', options.bundle)
+    # Total hack to pass kp_client concurrency and threshold values. Include in refactoring
+    if options.concur and options.failthresh:
+        concur = options.concur
+        failthresh = options.failthresh
+    else:
+        concur, failthresh = getConcurFailure(role,cluster)
+    output = output.replace('v_CONCUR', str(concur))
+    output = output.replace('v_FAILTHRESH', str(failthresh))
+    # Added to enable passing the hostfilter inside the plan.
+    if options.idbgen and 'hostfilter' in json.loads(options.idbgen):
+        input_values = json.loads(options.idbgen)
+        output = output.replace('v_HOSTFILTER', input_values['hostfilter'])
+    
     if not template_vars == None: 
         if 'monitor-host' in template_vars.keys():
     	    output = output.replace('v_MONITOR', template_vars['monitor-host'])
@@ -176,12 +206,38 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     	    output = output.replace('v_SERIAL', template_vars['serialnumber'])
         if 'sitelocation' in template_vars.keys():
     	    output = output.replace('v_SITELOCATION', template_vars['sitelocation'])
+        if 'product_rrcmd' in template_vars.keys():
+    	    output = output.replace('v_PRODUCT_RRCMD', template_vars['product_rrcmd'])
+        if 'ignored_process_names_rr_cmd' in template_vars.keys():
+    	    output = output.replace('v_IGNORE_PROCS_RRCMD_', template_vars['ignored_process_names_rr_cmd'])
+        if 'drnostart_rrcmd' in template_vars.keys():
+    	    output = output.replace('v_DRNOSTART_RRCMD_', template_vars['drnostart_rrcmd'])
     #output = output.replace('v_SERIAL', options.monitor)
     output = output.replace('v_CL_OPSTAT', cl_opstat)
     output = output.replace('v_HO_OPSTAT', ho_opstat)
     output = output.replace('v_COMMAND', build_command)
 
     return output
+
+def getDoWork(input, dowork):
+    template_file = common.templatedir + "/" + str(dowork) + ".template"
+    if os.path.isfile(template_file):
+        with open(template_file, 'r') as f:
+            data = f.readlines()
+    v_include = "".join(data)
+    input = input.replace('v_INCLUDE', v_include)
+    return input
+
+def getConcurFailure(role,cluster):
+    rates = get_json('afw_presets.json')
+    cluster_type = ''.join([i for i in cluster if not i.isdigit()])
+    if cluster in rates and role in rates[cluster]:
+        return rates[cluster][role]['concur'], rates[cluster][role]['failthresh']
+    elif cluster_type in rates and role in rates[cluster_type]:
+        return rates[cluster_type][role]['concur'], rates[cluster_type][role]['failthresh']
+    else:
+        return rates['concur'],rates['failthresh']
+        
 
 def prep_template(template, outfile):
     # Determine which bits are necessary to include in the final output.
@@ -215,6 +271,7 @@ def prep_template(template, outfile):
         exit()
 
     template_basename = re.sub(r'_standby', "", template_file)
+
     logging.debug('Basename template: ' + template_basename)
 
     if os.path.isfile(str(template_basename) + ".pre"):
@@ -323,14 +380,14 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
         if options.tags:
             final_file.write("BEGIN_DC: " + datacenter.upper() + '\n\n')
 
-        if pre_file:
+        if pre_file and not options.nested: #skip pre template for nested
             
             with open(pre_file, "r") as pre:
                 pre = pre.read()
                 pre = compile_template(pre, hosts, cluster, datacenter, superpod, casenum, role)
                     
                 logging.debug('Writing out prefile ' + pre_file + '  to ' + consolidated_file)
-                final_file.write(pre + '\n\n')
+                final_file.write('BEGIN_GROUP: PRE\n' + pre + '\nEND_GROUP: PRE\n\n')
 
         # Append individual host files.
         
@@ -343,13 +400,13 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
                     logging.debug('Writing out: ' + f + ' to ' + consolidated_file)
                     final_file.write(infile.read() + '\n\n')
 
-        if post_file:
+        if post_file and not options.nested: #skip post template for nested
             # Append postfile
             with open(post_file, "r") as post:
                 post = post.read()
                 post = compile_template(post, hosts, cluster, datacenter, superpod, casenum, role)
                 logging.debug('Writing out post file ' + post_file + ' to ' + consolidated_file)
-                final_file.write(post + '\n\n')
+                final_file.write('BEGIN_GROUP: POST\n' + post + '\nEND_GROUP: POST\n\n')
         if options.tags:
                 final_file.write("END_DC: " + datacenter.upper() + '\n\n')
 
@@ -402,7 +459,6 @@ def cacher(current_obj, arglist):
           cache[current_obj['@' + arg + 'JacksonId']] = current_obj
     return current_obj
 
-    #write_list_to_file(common.outputdir + '/summarylist.txt', [totalhosts)
 
 
 def get_hosts_by_enum(clusterlist, dr, dc, roles, grouping, cidblocal=True, debug=False):
@@ -664,23 +720,27 @@ def gen_plan_by_idbquery(inputdict):
     writeplan = bph.prep_idb_plan_info(dcs,idbfilters,regexfilters,grouping,template_id)
     consolidate_idb_query_plans(writeplan, dcs, gsize)
 
-def consolidate_idb_query_plans(writeplan,dcs,gsize):
+def consolidate_idb_query_plans(writeplan,dcs,gsize,nestedtemplate=None):
 
     allplans={}
     fullhostlist=[]
     writelist=[]
     ok_dclist=[]
 
-    
-
+    if nestedtemplate: 
+         writeplan[nestedtemplate]=copy.deepcopy(writeplan[options.nested])
+      
     for template in writeplan:
-        allplans[template]={}
+        if nestedtemplate and template == options.nested:
+            continue
+        allplans[template] = {}   
         for dc in dcs:
             if (dc,) not in writeplan[template].keys():
                 continue
             allplans[template][dc] = write_plan_dc(dc,template,writeplan,gsize)
             ok_dclist.append(dc)
-
+    if nestedtemplate:
+        del writeplan[nestedtemplate]
     logging.debug( allplans )
     for template in allplans:
         for dc in set(ok_dclist):
@@ -735,6 +795,9 @@ def write_plan_dc(dc,template_id,writeplan,gsize):
             if options.serial == True:
 		template_vars['serialnumber'] = ','.join(set([results[group_enum][(host,)]['serialnumber'] for host in hostnames]))
             template_vars['sitelocation'] = ','.join(set([results[group_enum][(host,)]['sitelocation'] for host in hostnames]))
+            template_vars['drnostart_rrcmd'] = ''.join(set([results[group_enum][(host,)]['drnostart_rrcmd'] for host in hostnames]))
+            template_vars['product_rrcmd'] = ','.join(set([results[group_enum][(host,)]['product_rrcmd'] for host in hostnames]))
+            template_vars['ignored_process_names_rr_cmd'] = ''.join(set([results[group_enum][(host,)]['ignored_process_names_rr_cmd'] for host in hostnames]))
             #gather rollup info
             allhosts.extend(hostnames)
             allclusters.extend(clusters)
@@ -771,15 +834,44 @@ def get_clean_hostlist(hostlist):
     
     return dcs,hostnames
     
+def gen_nested_plan_idb(hostlist, templates, regex_dict,group_dict,gsize):
+   
+    imp_plans = {
+        'plan' : []
+    }
+    bph = Buildplan_helper(endpoint, supportedfields,options.cidblocal==True,True)
+    dcs, hostnames = get_clean_hostlist(hostlist)
+    idbfilters = { 'name': hostnames }
+    writeplan = bph.prep_idb_plan_info(dcs,idbfilters,{},[],options.nested)
+    for nestedtemplate in templates:
+        if not os.path.isfile(common.templatedir +  '/' + nestedtemplate + '.template' ):
+            continue
+        regexfilters={}
+        groups=[]
+        refresh = False
+        print 'options:', regex_dict[nestedtemplate], group_dict[nestedtemplate]
+        if regex_dict[nestedtemplate] != '':
+            regexfilters= { "hostname" : regex_dict[nestedtemplate] }
+            refresh = True
+        if group_dict[nestedtemplate] != '':
+            groups=[group_dict[nestedtemplate]] 
+            refresh = True
+        print 'REfresh: ', True
+        if refresh is True: 
+            writeplan = bph.prep_idb_plan_info(dcs,idbfilters, regexfilters, groups,options.nested)
+        consolidate_idb_query_plans(writeplan, dcs, gsize,nestedtemplate)
+        imp_plans['plan'].extend( ['BEGIN_GROUP: ' + nestedtemplate.upper(), '\n'] )
+        imp_plans['plan'].extend( open(common.outputdir + '/plan_implementation.txt').readlines() )
+        imp_plans['plan'].extend( ['END_GROUP: ' + nestedtemplate.upper(), '\n', '\n'] )
+    write_list_to_file(common.outputdir + '/plan_implementation.txt', imp_plans['plan'], newline=False)
+    write_list_to_file(common.outputdir + '/summarylist.txt', hostnames , newline=True)
 
 def gen_plan_by_hostlist_idb(hostlist, templateid, gsize, grouping):
     
     dcs, hostnames = get_clean_hostlist(hostlist)
     idbfilters = { 'name': hostnames }
-    
     bph = Buildplan_helper(endpoint, supportedfields,options.cidblocal==True,True)
     writeplan = bph.prep_idb_plan_info(dcs,idbfilters,{},groups,templateid)
-    
     consolidate_idb_query_plans(writeplan, dcs, gsize)
     
 def gen_plan_by_hostlist(hostlist, templateid, gsize, groups):
@@ -857,11 +949,15 @@ parser.add_option("--gsize", dest="gsize", type="int", default=1, help="Group Si
 parser.add_option("--bundle", dest="bundle", default="current", help="Patchset version")
 parser.add_option("--monitor", dest="monitor", action="store_true", default=False, help="Monitor host")
 parser.add_option("--serial", dest="serial", action="store_true", default=False, help="Monitor host")
+parser.add_option("--concurr", dest="concur", type="int", help="Concurrency for kp_client batch")
+parser.add_option("--failthresh", dest="failthresh", type="int", help="Failure threshold for kp_client batch")
+parser.add_option("--nested_template", dest="nested", default=False, help="pass a list of templates, for use with hostlists only")
 parser.add_option("--checkhosts", dest="checkhosts", action="store_true", default=False, help="Monitor host")
 parser.add_option("--exclude", dest="exclude_list", default=False, help="Host Exclude List")
 parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("--taggroups", dest="taggroups", type="int", default=0, help="number of sub-plans per group tag")
+parser.add_option("--dowork", dest="dowork", help="command to supply for dowork functionality")
 
 (options, args) = parser.parse_args()
 if __name__ == "__main__":
@@ -973,6 +1069,26 @@ if __name__ == "__main__":
               gen_plan_by_hostlist(options.hostlist, options.template, options.gsize,options.grouping.split(','))
               exit()
   
+      if options.nested and options.hostlist:
+          groups = options.grouping.split(',')
+          templates = open(common.templatedir + "/" + options.nested +'.template').readlines()
+          regex_dict = {}
+          grouping_dict = {}
+          template_list = []
+          for template in templates:
+              values = template.strip().split(':')
+              hostregex=''
+              groupby=''
+              if len(values) == 3:
+                  temp, groupby, hostregex = values
+              else:
+                  temp = values[0]     
+              grouping_dict[temp] = groupby
+              regex_dict[temp]=hostregex
+              template_list.append(temp)  
+          gen_nested_plan_idb(options.hostlist, template_list, regex_dict, grouping_dict, options.gsize)
+          exit()
+
       if options.hostlist:
           groups = options.grouping.split(',')
           
@@ -981,7 +1097,7 @@ if __name__ == "__main__":
           print options.hostlist
           gen_plan_by_hostlist_idb(options.hostlist, options.template, options.gsize,groups)
           exit()
-  
+ 
       if options.endrun:
           # This hack will go away once Mitchells idbhelper module is merged.
           prep_template(options.template,options.filename)

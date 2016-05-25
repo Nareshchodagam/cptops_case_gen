@@ -16,9 +16,15 @@ import logging
 from ssl_version import SSLAdapter
 import ssl
 import sys
+import os
 
-config = ConfigParser.ConfigParser()
-config.readfp(open('creds.config'))
+try:    
+    config = ConfigParser.ConfigParser()
+    config.readfp(open('vaultcreds.config'))
+except:
+    config = ConfigParser.ConfigParser()
+    config.readfp(open('creds.config'))
+
 
 class Gus(object):
     '''
