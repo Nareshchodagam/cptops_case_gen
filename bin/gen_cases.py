@@ -71,6 +71,7 @@ def inputDictStrtoInt(m):
 
 if __name__ == "__main__":
     parser = OptionParser()
+    parser.set_defaults(dowork='system_update')
     parser.add_option("-v", action="store_true", dest="verbose", default=False, help="verbosity")
     parser.add_option("-r", "--role", dest="role", help="role to be used")
     parser.add_option("-t", "--template", dest="template", help="template to be used")
