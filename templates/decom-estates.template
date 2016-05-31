@@ -1,0 +1,14 @@
+- Get serial number from host
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "dmidecode -s system-serial-number" -threads -auto2 > /tmp/serial.txt
+
+- Verify serial numbers match
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/serial_check.py -H v_HOSTS
+
+- Disable nagios
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
+
+- Change iDB Status to DECOM
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/decomm_idb.py -H v_HOSTS
+
+- System shutdown
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/sbin/shutdown -h now" -threads -auto2
