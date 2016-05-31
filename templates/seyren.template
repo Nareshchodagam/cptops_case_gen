@@ -1,24 +1,26 @@
-RR based commands
-
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
 - Validate the host needs to be patched
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c 2016.04 -f ./remote_transfer/valid_versions.json" -threads -auto2
 
 - Disable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
 -mongodb 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service mongodb stop" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service mongod stop" -threads -auto2
 
--zookeepser
+-zookeepser SHARED-HUB1-1-SFZ only
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service zookeeper-server stop" -threads -auto2
 
-Manual: Stop seyren : 1)switch to sfdc user using sudo su - sfdc, 2) find out seyren screen sessions using screen -ls. There should be one called: seyren, 3) use an existing session using screen -dr [session name]. stop the app using Ctrl+c
+-kill java apps
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "pkill java" -threads -auto2
+
+-check for running java apps if any log in and kill -9
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "[ \$(pgrep java | wc -l) -eq 0 ]" -threads -auto2
 
 - Execute the update script
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a 2016.04 -p" -threads -auto2
 
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
@@ -27,21 +29,19 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
 Exec: ~/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
-
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c 2016.04 -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
 -zookeepser
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service zookeeper-server start" -threads -auto2
 
 -mongodb 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service mongodb start§" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/sbin/service mongod start" -threads -auto2
 
-- run seyren start
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/start_with_clustering.sh" -threads -auto2
-
-Manual: check seyren 1)verify the app is starting properly, 2) detach from a screen session using Ctrl+a d OR Ctrl+a Ctrl+d
-
+-Start application on ops-seyren1-1-sfz, shared-hub1-1-sfz mongo autostarts
+Manual: start application  ~appmon/seyren/start.sh
 - Enable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable -m v_CLUSTER-monitor-v_DATACENTER
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable -m ops-monitor-sfz
 
 Exec: echo "Host v_HOSTS system patching completed"
+
+

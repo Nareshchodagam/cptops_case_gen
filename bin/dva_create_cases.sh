@@ -3,7 +3,7 @@
 BUNDLE=$1
 PATCHJSON=$2
 PREAMBLE=$3 #eg "FEB and GLIBC Patch Bundle : "
-SELECTOR=$4 # one of role function, or signoff team as defined in case statement :LOG_TRANSPORT LOG_ANALYTICS DATA_BROKER ARGUS ALERTING
+SELECTORS=$4 # one of role function, or signoff team as defined in case statement :LOG_TRANSPORT LOG_ANALYTICS DATA_BROKER ARGUS ALERTING
 
 OTHER="-T"
 EXCLUDE='canaryhosts'
@@ -13,6 +13,9 @@ FILE_SPL_API_CRZ='../hostlists/file_spl_api_crz'
 FILE_SPL_DEP_CRZ='../hostlists/file_spl_dep_crz'
 FILE_SPL_IDX_CRZ='../hostlists/file_spl_idx_crz'
 FILE_SPL_IDX_CRZ_IDB='../hostlists/file_spl_idx_crz_idb'
+FILE_DEPHI_GACK_ALL='../hostlists/file_delphi_gack_all'
+FILE_SEYREN_SFZ='../hostlists/file_seyren_sfz'
+FILE_DICE_SFZ='../hostlists/file_dice_sfz'
 
 #collect canary host for exclusion
 cat ../hostlists/dva*canary > canaryhosts
@@ -56,7 +59,7 @@ GROUPING=$6
 TEMPLATEID=$7
 if [ -z "$TEMPLATEID" ]; then TEMPLATEID=$ROLE; fi
 
-./build_plan.py -l $HOSTLIST -x -M $GROUPING --gsize $GROUPSIZE --bundle $BUNDLE -t $TEMPLATEID $EXTRA || exit 1
+./build_plan.py -l $HOSTLIST -x -M $GROUPING --gsize $GROUPSIZE --bundle $BUNDLE --exclude $EXCLUDE -t $TEMPLATEID $EXTRA || exit 1
 
 SUBJECT="$PREAMBLE $DC $ROLE PROD"
 create_case "$SUBJECT" $DC
@@ -75,7 +78,7 @@ TEMPLATEID=$7
 if [ -z "$TEMPLATEID" ]; then TEMPLATEID=$ROLE; fi
 
 
-./build_plan.py -l $HOSTLIST -M $GROUPING --gsize $GROUPSIZE --bundle $BUNDLE -t $TEMPLATEID $EXTRA || exit 1
+./build_plan.py -l $HOSTLIST -M $GROUPING --gsize $GROUPSIZE --bundle $BUNDLE --exclude $EXCLUDE -t $TEMPLATEID $EXTRA || exit 1
 
 
 SUBJECT="$PREAMBLE $DC $ROLE PROD"
@@ -333,9 +336,41 @@ function cms {
   build_case $DC $ROLE "$PREAMBLE" $CTYPE $STATUS 1 role
 }
 
-case "$SELECTOR" in
+function delphi {
+
+  DC=sfz,sfm
+  ROLE=delphi
+  build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_DEPHI_GACK_ALL 1 role manage_apps-patch
+
+}
+
+function seyren {
+
+  DC=sfz
+  ROLE=seyren
+  build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_SEYREN_SFZ 1 role seyren
+
+}
+
+function dice {
+
+  DC=sfz
+  ROLE=dice
+  build_case_hostlist $DC $ROLE "$PREAMBLE" $FILE_DICE_SFZ 1 role dice-app
+
+}
+
+for SELECTOR in $(echo $SELECTORS | sed 's/,/ /g')
+do
+  case "$SELECTOR" in
 	MONITOR)
 	  smarts
+   	;;
+	SYNTHETICS)
+	  dice
+   	;;
+	DELPHI)
+	  delphi
    	;;
         CMS)
           cms 
@@ -436,6 +471,15 @@ case "$SELECTOR" in
 	dusty_standby)
 	  dusty_standby
 	;;
-esac
-
+	dice)
+	  dice
+	;;
+	delphi)
+	  delphi
+	;;
+	seyren)
+	  seyren
+	;;
+  esac
+done
 
