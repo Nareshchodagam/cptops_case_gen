@@ -8,7 +8,7 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opsen
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/validate_linux_patchset.py  ~/releaserunner/remote_transfer/validate_linux_patchset.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py  ~/releaserunner/remote_transfer/common.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/syssec/patch/validate_auth_appauth.sh ~/releaserunner/remote_transfer/validate_auth_appauth.sh
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/syssec/patch/validate_auth.sh ~/releaserunner/remote_transfer/validate_auth_appauth.sh
 
 -Get the local scripts:
 
