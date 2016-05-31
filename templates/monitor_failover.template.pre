@@ -4,6 +4,7 @@ Exec: mkdir -p ~/releaserunner/remote_transfer
 
 - the get the remote scripts:
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_failover.py ~/releaserunner/remote_transfer/nagios_failover.py
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/COPS/migrate-to-centos.sh ~/releaserunner/remote_transfer/migrate-to-centos.sh
 
 - then get the local update scripts:
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_monitor.py ~/nagios_monitor.py
