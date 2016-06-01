@@ -134,6 +134,8 @@ if __name__ == "__main__":
     elif options.podgroups and options.casetype == "coreappafw":
         data = getData(options.podgroups)
         inst_data = genDCINST(data)
+        if not re.search(r"json", options.bundle):
+            options.bundle = options.bundle + "-patch.json"
         subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
         print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k %s -D '%s'""" % (options.bundle,options.infra,subject,implplansection,inst_data))
     elif options.podgroups and not options.casetype:
