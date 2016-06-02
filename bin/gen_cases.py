@@ -104,9 +104,10 @@ if __name__ == "__main__":
     grouping = "majorset"
     groupsize = 1
     implplansection = "../templates/6u6-plan.json"
+    if re.match(r'ffx', options.role, re.IGNORECASE) and not options.casetype and not options.exclude:
+        options.exclude = "../hostlists/ffxexclude"
     if options.implplansection:
         implplansection = options.implplansection
-    
     if re.match(r'True', options.dr, re.IGNORECASE):
         site_flag = "DR"
     else:
