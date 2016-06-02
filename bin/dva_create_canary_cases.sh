@@ -3,7 +3,6 @@
 BUNDLE=$1
 PATCHJSON=$2
 PREAMBLE=$3 #eg "FEB and GLIBC Patch Bundle : "
-SIGNOFFTEAM=$4 # one of LOG_TRANSPORT LOG_ANALYTICS DATA_BROKER ARGUS ALERTING
 OTHER="-T"
 PLAN=$4
 EXCLUDE='canaryhosts'
@@ -58,7 +57,7 @@ PLAN=$7
 
 
 SUBJECT="$PREAMBLE $DC $ROLE PROD"
-create_case "$SUBJECT" $DC $ROLE $PLAN
+create_case "$SUBJECT" $DC $PLAN
 }
 
 function build_case_extra {
@@ -95,3 +94,4 @@ build_case_hostlist sfm CANARY  "$3 DELPHI GACKPARSER " ../hostlists/dva_delphi.
 build_case_hostlist sfm CANARY  "$3 DICE " ../hostlists/dva_dice.canary 1 role $PLAN dice-app
 build_case_hostlist sfm CANARY  "$3 SEYREN " ../hostlists/dva_seyren.canary 1 role $PLAN seyren
 build_case_hostlist prd CANARY "$3 ARGUS " ../hostlists/dva_argus.canary 1 role $PLAN manage_apps-patch
+build_case_hostlist_idb sfz CANARY  "$3 MMXCVR " ../hostlists/dva_ops_mm.canary 1 role $PLAN
