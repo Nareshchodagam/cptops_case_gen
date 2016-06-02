@@ -9,10 +9,10 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
 - Stop Splunk Forwarder
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c stop_server -auto2 -threads
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product sfdc-splunk-forwarder -device_role k2k -host v_HOSTS -c stop_server -auto2 -threads
 
 - Stop K2K
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product k2k -device_role v_ROLE -host v_HOSTS -c stop_server -auto2 -threads
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product k2k -device_role k2k -host v_HOSTS -c stop_server -auto2 -threads
 
 - Execute the update script
 #release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
@@ -31,10 +31,10 @@ Exec: ~/check_reconnect.py -H v_HOSTS
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/fix_secanchor.sh" -threads -auto2
 
 - Start K2K
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product k2k -device_role v_ROLE -host v_HOSTS -c start_server -auto2 -threads
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product k2k -device_role k2k -host v_HOSTS -c start_server -auto2 -threads
 
 - Start Splunk Forwarder
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c start_server -auto2 -threads
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product sfdc-splunk-forwarder -device_role k2k -host v_HOSTS -c start_server -auto2 -threads
 
 - Validate Secanchor host app is running
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_secanchor.sh" -threads -auto2
