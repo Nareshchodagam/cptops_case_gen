@@ -104,9 +104,10 @@ if __name__ == "__main__":
     grouping = "majorset"
     groupsize = 1
     implplansection = "../templates/6u6-plan.json"
+    if re.match(r'ffx', options.role, re.IGNORECASE) and not options.casetype and not options.exclude:
+        options.exclude = "../hostlists/ffxexclude"
     if options.implplansection:
         implplansection = options.implplansection
-    
     if re.match(r'True', options.dr, re.IGNORECASE):
         site_flag = "DR"
     else:
@@ -122,18 +123,20 @@ if __name__ == "__main__":
         subject = casesubject + ": " + options.role.upper()
         dcs_list = ",".join(dcs)
         #python build_plan.py -l ../hostlists/restoreffx -x -t straight-patch -T --bundle 2016.02
-        str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s""" % (options.podgroups, options.template, options.patchset,grouping)
+        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s""" % (options.podgroups, options.template, options.patchset,grouping)
         if options.idb != True:
             output_str = output_str + " -x"
         if options.groupsize:
             output_str = output_str + " --gsize %s" % groupsize 
         if options.dowork:
             output_str = output_str + " --dowork " + options.dowork
-        print("%s" % str)
+        print("%s" % output_str)
         print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k %s -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,options.infra,subject,implplansection,dcs_list))
     elif options.podgroups and options.casetype == "coreappafw":
         data = getData(options.podgroups)
         inst_data = genDCINST(data)
+        if not re.search(r"json", options.bundle):
+            options.bundle = options.bundle + "-patch.json"
         subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
         print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k %s -D '%s'""" % (options.bundle,options.infra,subject,implplansection,inst_data))
     elif options.podgroups and not options.casetype:
