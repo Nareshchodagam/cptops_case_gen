@@ -153,6 +153,7 @@ if __name__ == "__main__":
                 opt_bp["hostfilter"] = filter
             if options.regexfilter:
                 opt_bp["regexfilter"] = options.regexfilter
+                host_pri_sec = opt_bp.get("regexfilter").split('=')[1]
             if options.clusteropstat:
                 opt_bp["cl_opstat"] = options.clusteropstat
             if options.hostopstat:
@@ -171,7 +172,7 @@ if __name__ == "__main__":
             if options.dowork:
                 output_str = output_str + " --dowork " + options.dowork
             print(output_str)
-            subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag
+            subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec
             logging.debug(subject)
             if options.group:
                 subject = subject + " " + options.group
