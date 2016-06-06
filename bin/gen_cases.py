@@ -149,7 +149,7 @@ if __name__ == "__main__":
                       "templateid" : options.template, "dr": options.dr}
             opt_gc = {}
             if options.filter:
-                filter = "^.*" + options.filter
+                filter = options.filter
                 opt_bp["hostfilter"] = filter
             if options.regexfilter:
                 opt_bp["regexfilter"] = options.regexfilter
