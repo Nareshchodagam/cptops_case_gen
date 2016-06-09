@@ -1,5 +1,5 @@
 
-RR based commands
+-RR based commands
 - Copy it up to the target host
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
@@ -7,19 +7,19 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2
 
 - Set boot device
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
 -Validate hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbgeo -c bigipcheck -thread -auto2 -status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbsgeo -c bigipcheck -threads -auto2 -cluster_status v_CL_OPSTAT
 
 - Disable monitoring on appropriate monitor host
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
 - Remove from pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbgeo -host v_HOSTS -c remove_from_pool -auto2 -status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbsgeo -host v_HOSTS -c remove_from_pool -auto2 -cluster_status v_CL_OPSTAT
 
 - Stop app and splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbgeo,sfdc-splunk-forwarder -host v_HOSTS -c stop_server -auto2 -status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbsgeo,sfdc-splunk-forwarder -host v_HOSTS -c stop_server -auto2 -cluster_status v_CL_OPSTAT
 
 - Execute the  update script:
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
@@ -35,13 +35,13 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 
 
 - Start app (pbspectrum takes several minutes to start up)
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbgeo,sfdc-splunk-forwarder -host v_HOSTS -c start_server -auto2 -status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbsgeo,sfdc-splunk-forwarder -host v_HOSTS -c start_server -auto2 -cluster_status v_CL_OPSTAT
 
 - Add to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbgeo -host v_HOSTS -c add_to_pool -threads -auto2 -status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbsgeo -host v_HOSTS -c add_to_pool -threads -auto2 -cluster_status v_CL_OPSTAT
 
 -Validate hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbgeo -c bigipcheck -d -threads -auto2 -status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbsgeo -c bigipcheck -d -threads -auto2 -cluster_status v_CL_OPSTAT
 
 - test endpoint connectivity.
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m 'curl localhost:8080/validateDeployment.jsp' -auto2
