@@ -3,13 +3,8 @@ Exec: mkdir -p ~/releaserunner/remote_transfer
 
 - Get the remote scripts:
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_ilo.py ~/releaserunner/remote_transfer/manage_ilo.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/bmc/ib-passwd-rotation.sh ~/releaserunner/remote_transfer/ib-passwd-rotation.sh
 
 - Get the local update scripts:
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_monitor.py ~/nagios_monitor.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/decomm_idb.py ~/decomm_idb.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/delete_idb.py ~/delete_idb.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/serial_check.py ~/serial_check.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/check_ib_prereset.py ~/check_ib_prereset.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/check_ib_postreset.py ~/check_ib_postreset.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py ~/common.py
