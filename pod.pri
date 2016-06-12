@@ -1,0 +1,3 @@
+AP0,AP1,AP2 tyo
+AP3,AP4 tyo
+CS31,CS5,CS6 tyo
