@@ -20,9 +20,9 @@ try:
 except:
     print('no yaml installed')
 try:
-    import pyczar
-except:
-    print('no %s installed' % 'pyczar')
+    from pyczar import pyczar
+except Exception as e:
+    print('no %s installed : %s' % ('pyczar',e))
     sys.exit(1)
 
 config = ConfigParser.ConfigParser()

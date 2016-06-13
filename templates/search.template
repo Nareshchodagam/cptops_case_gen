@@ -19,8 +19,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 - Stop Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role v_ROLE -host v_HOSTS -c stop_server -threads -auto2
 
-- Execute the update script
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
+v_INCLUDE
 
 - Verify symlinks were created correctly
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/chk_symlinks.py" -threads -auto2

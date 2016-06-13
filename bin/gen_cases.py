@@ -48,6 +48,21 @@ def genDCINST(data):
     output = output + " }"
     return output
 
+
+def get_site(host):
+    inst,hfuc,g,site = host.split('-')
+    short_site = site.replace(".ops.sfdc.net", "")
+    logging.debug(short_site)
+    return short_site
+
+def getDCs(data):
+    dcs = []
+    for l in data:
+        dc = get_site(l.rstrip())
+        if dc not in dcs:
+            dcs.append(dc)
+    return dcs
+
 def inputDictStrtoInt(m):
     # do a replace on the matching in m to remove quotes on ints
     str = 'maxgroupsize": ' + m.group(1).replace('"','')
@@ -56,6 +71,7 @@ def inputDictStrtoInt(m):
 
 if __name__ == "__main__":
     parser = OptionParser()
+    parser.set_defaults(dowork='system_update')
     parser.add_option("-v", action="store_true", dest="verbose", default=False, help="verbosity")
     parser.add_option("-r", "--role", dest="role", help="role to be used")
     parser.add_option("-t", "--template", dest="template", help="template to be used")
@@ -68,6 +84,7 @@ if __name__ == "__main__":
     parser.add_option("-e", "--exclude", dest="exclude", help="exclude file")
     parser.add_option("-d", "--dr", dest="dr", default="False", help="dr true or false")
     parser.add_option("-b", "--bundle", dest="bundle", help="Bundle short name eg may oct")
+    parser.add_option("--idb", dest="idb", action="store_true", default=False, help="Use idb to get host information")
     parser.add_option("--casetype", dest="casetype", help="Case type to use eg patch or re-image")
     parser.add_option("--clusteropstat", dest="clusteropstat", help="Cluster operational status")
     parser.add_option("--hostopstat", dest="hostopstat", help="Host operation status")
@@ -87,9 +104,10 @@ if __name__ == "__main__":
     grouping = "majorset"
     groupsize = 1
     implplansection = "../templates/6u6-plan.json"
+    if re.match(r'ffx', options.role, re.IGNORECASE) and not options.casetype and not options.exclude:
+        options.exclude = "../hostlists/ffxexclude"
     if options.implplansection:
         implplansection = options.implplansection
-    
     if re.match(r'True', options.dr, re.IGNORECASE):
         site_flag = "DR"
     else:
@@ -99,13 +117,29 @@ if __name__ == "__main__":
         groupsize = groupSize(options.role)     
     if options.groupsize:
         groupsize = options.groupsize
-    if options.podgroups and options.casetype == "coreappafw":
+    if options.podgroups and options.casetype == "hostlist":
+        data = getData(options.podgroups)
+        dcs = getDCs(data)
+        subject = casesubject + ": " + options.role.upper()
+        dcs_list = ",".join(dcs)
+        #python build_plan.py -l ../hostlists/restoreffx -x -t straight-patch -T --bundle 2016.02
+        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s""" % (options.podgroups, options.template, options.patchset,grouping)
+        if options.idb != True:
+            output_str = output_str + " -x"
+        if options.groupsize:
+            output_str = output_str + " --gsize %s" % groupsize 
+        if options.dowork:
+            output_str = output_str + " --dowork " + options.dowork
+        print("%s" % output_str)
+        print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k %s -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,options.infra,subject,implplansection,dcs_list))
+    elif options.podgroups and options.casetype == "coreappafw":
         data = getData(options.podgroups)
         inst_data = genDCINST(data)
+        if not re.search(r"json", options.bundle):
+            options.bundle = options.bundle + "-patch.json"
         subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
         print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k %s -D '%s'""" % (options.bundle,options.infra,subject,implplansection,inst_data))
-
-    elif options.podgroups:
+    elif options.podgroups and not options.casetype:
         data = getData(options.podgroups)
         for l in data:
             pods,dc = l.split()
@@ -115,10 +149,11 @@ if __name__ == "__main__":
                       "templateid" : options.template, "dr": options.dr}
             opt_gc = {}
             if options.filter:
-                filter = "^.*" + options.filter
+                filter = options.filter
                 opt_bp["hostfilter"] = filter
             if options.regexfilter:
                 opt_bp["regexfilter"] = options.regexfilter
+                host_pri_sec = opt_bp.get("regexfilter").split('=')[1]
             if options.clusteropstat:
                 opt_bp["cl_opstat"] = options.clusteropstat
             if options.hostopstat:
@@ -137,7 +172,10 @@ if __name__ == "__main__":
             if options.dowork:
                 output_str = output_str + " --dowork " + options.dowork
             print(output_str)
-            subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag
+            if options.regexfilter:
+                subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec
+            else:
+                subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag
             logging.debug(subject)
             if options.group:
                 subject = subject + " " + options.group
