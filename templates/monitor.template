@@ -26,6 +26,8 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py  -H v_HOSTS -c
 - Stop the application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n nagios -e '/usr/bin/nagios -d /etc/nagios/nagios.cfg' -c '/etc/init.d/nagios stop' -k" -threads -auto2
 
+v_INCLUDE
+
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
 
