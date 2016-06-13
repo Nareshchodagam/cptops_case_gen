@@ -13,7 +13,7 @@ import json
 def groupType(role):
     # presets for certain roles for group type
     groupings = {'search': 'majorset',
-                 'mnds,dnds': 'majorset',
+                 'mnds,dnds': 'majorset,minorset',
                  'insights_iworker,insights_redis': 'majorset' 
                  }
     if role in groupings:

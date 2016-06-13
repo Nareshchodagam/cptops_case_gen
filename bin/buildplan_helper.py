@@ -217,6 +217,8 @@ class Buildplan_helper:
         retval=False
         if formatfield == 'ignored_process_names_rr_cmd':
            return True
+        if type(self.fields[formatfield]) is list:
+	   return True
         tempfield = self.check_cache(jsonresult,self.fields[formatfield])
         if formatfield  == 'sitelocation':
            row[formatfield] =  U'Secondary' if tempfield else U'Primary'
