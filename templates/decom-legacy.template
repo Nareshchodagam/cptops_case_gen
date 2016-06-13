@@ -11,19 +11,19 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/serial_check.py -H v_HOSTS
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
 - Change iDB Status to DECOM
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/decomm_idb.py -H v_HOSTS
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/decomm_idb.py -H v_HOSTS -u
 
-- Set the IB password to the latest 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/ib-passwd-rotation.sh" -threads -auto2
-
-- Check IB connection pre factory reset
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/check_ib_prereset.py -H v_HOSTS
+- Dump IB config pre factory reset
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/remote_transfer/manage_ilo.py -i" -threads -auto2
 
 - Reset IB (DRAC/iLO factory defaults)
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_ilo.py -r" -threads -auto2
 
-- Re-check IB connection post factory reset
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/check_ib_postreset.py -H v_HOSTS -d 180
+- Dump IB config post factory reset
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/remote_transfer/manage_ilo.py -i" -threads -auto2
+
+- Verify factory reset
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/remote_transfer/manage_ilo.py -c" -threads -auto2
 
 - System shutdown
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/sbin/shutdown -h now" -threads -auto2

@@ -13,7 +13,7 @@ import json
 def groupType(role):
     # presets for certain roles for group type
     groupings = {'search': 'majorset',
-                 'mnds,dnds': 'majorset',
+                 'mnds,dnds': 'majorset,minorset',
                  'insights_iworker,insights_redis': 'majorset' 
                  }
     if role in groupings:
@@ -149,10 +149,11 @@ if __name__ == "__main__":
                       "templateid" : options.template, "dr": options.dr}
             opt_gc = {}
             if options.filter:
-                filter = "^.*" + options.filter
+                filter = options.filter
                 opt_bp["hostfilter"] = filter
             if options.regexfilter:
                 opt_bp["regexfilter"] = options.regexfilter
+                host_pri_sec = opt_bp.get("regexfilter").split('=')[1]
             if options.clusteropstat:
                 opt_bp["cl_opstat"] = options.clusteropstat
             if options.hostopstat:
@@ -171,7 +172,10 @@ if __name__ == "__main__":
             if options.dowork:
                 output_str = output_str + " --dowork " + options.dowork
             print(output_str)
-            subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag
+            if options.regexfilter:
+                subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec
+            else:
+                subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag
             logging.debug(subject)
             if options.group:
                 subject = subject + " " + options.group
