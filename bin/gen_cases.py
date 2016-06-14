@@ -100,6 +100,8 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.DEBUG)
     if not options.casesubject:
         options.casesubject = options.patchset + " Patch Bundle"
+    if not re.search(r"json", options.bundle):
+        options.bundle = options.bundle + "-patch.json"
     casesubject = options.casesubject
     grouping = "majorset"
     groupsize = 1
@@ -179,6 +181,6 @@ if __name__ == "__main__":
             logging.debug(subject)
             if options.group:
                 subject = subject + " " + options.group
-            if not re.search(r"json", options.bundle):
-                options.bundle = options.bundle + "-patch.json"
+            #if not re.search(r"json", options.bundle):
+            #    options.bundle = options.bundle + "-patch.json"
             print("""python gus_cases_vault.py -T change  -f ../templates/%s  --inst %s --infra "%s" -s "%s" -k %s  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,pods,options.infra,subject,implplansection,dc))
