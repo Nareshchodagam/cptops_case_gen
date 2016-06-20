@@ -402,11 +402,10 @@ if __name__ == '__main__':
     session = ''
     valid_login = ''
     full_instances = ''
-    print(savedsession)
     if os.path.isfile(savedsession):
         session = getSession(savedsession)
         
-        print("%s" % session)
+        logging.debug("%s" % session)
         
     try:
         valid_login = validLogin(session)
