@@ -239,6 +239,8 @@ if __name__ == '__main__':
     %prog [-d comma seperated list of dc's short code] [-t cluster type of pod hbase etc] [-v]
     %prog -d asg [-v]   
     %prog -d asg,sjl,chi,was -t hbase
+    %prog -d all_prod -t mta
+    %prog -d all_non_prod -t DUST_DELPHI
 
     """
     parser = OptionParser(usage)
@@ -258,16 +260,21 @@ if __name__ == '__main__':
     groupsize = options.groupsize
     # Figure out where code is running
     site=where_am_i()
-    print(site)
-    all_prod_dcs = ['asg', 'sjl', 'chi', 'was', 'tyo', 'lon', 'phx', 'dfw', 'frf']
+    #print(site)
+    all_prod_dcs = ['asg', 'sjl', 'chi', 'was', 'tyo', 'lon', 'phx', 'dfw', 'frf', 'par']
+    all_non_prod_dcs = ['sfm', 'crz', 'prd', 'crd', 'sfz']
+
     #Set the correct location for the Idbhost object
     if site == 'sfm':
         idb=Idbhost()
     else:
         idb=Idbhost(site)
+
     # Create a list from the supplied dcs
-    if re.match(r'all', options.dc, re.IGNORECASE):
+    if re.match(r'all_prod', options.dc, re.IGNORECASE):
         dcs = all_prod_dcs
+    elif re.match(r'all_non_prod', options.dc, re.IGNORECASE):
+        dcs = all_non_prod_dcs
     else:
         dcs = options.dc.split(",")
     if options.status:
@@ -284,7 +291,7 @@ if __name__ == '__main__':
     dc_data ={}
     # Get the clusters for a given type based on status in a dc
     for dc in dcs:
-        print(dc)
+        print("Generating list for %s" % dc)
         if re.match(r'(afw)', cluster_type, re.IGNORECASE):
             cluster_type = 'pod'
         data = idb.sp_data(dc, status, cluster_type)
@@ -303,9 +310,9 @@ if __name__ == '__main__':
     for dc in dc_data:
         logging.debug(dc_data)
         if re.match(r'(afw)', options.type, re.IGNORECASE):
-            print(dc_data[dc])
+            #print(dc_data[dc])
             for sp in dc_data[dc]:
-                print(dc_data[dc][sp])
+                #print(dc_data[dc][sp])
                 if 'Primary' in dc_data[dc][sp]:
                     if dc_data[dc][sp]['Primary'] != "None":
                         w = dc_data[dc][sp]['Primary'] + " " + dc + "-" + sp + "\n"
@@ -320,7 +327,7 @@ if __name__ == '__main__':
             pri_grps,sec_grps = parseData(dc,dc_data[dc])
             for grp in pri_grps:
                 chunked = list(chunks(grp, groupsize))
-                print(chunked)
+                #print(chunked)
                 for sub_lst in chunked:
                     w = ','.join(sub_lst) + " " + dc + "\n"
                     output_pri.write(w)
@@ -358,7 +365,7 @@ if __name__ == '__main__':
                 cluster_grps = groups[sp]['cluster_grps']
                 logging.debug('%s %s %s' % (pri_grps,sec_grps,cluster_grps))
                 pri_sub_chunks=[pri_grps[x:x+groupsize] for x in xrange(0, len(pri_grps), groupsize)]
-                print(pri_sub_chunks)
+                #print(pri_sub_chunks)
                 for sub_lst in pri_sub_chunks:
                     if sub_lst != []:
                         w = ','.join(sub_lst) + " " + dc + "\n"
