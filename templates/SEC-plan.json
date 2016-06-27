@@ -2,8 +2,7 @@
 	"DCs": "v_DATACENTER",
 	"Details":
 	{
-		"SM_Instance_List__c": "test",
-		"SM_Infrastructure_Type__c": "test"
+		"SM_Infrastructure_Type__c": "Supporting Infrastructure"
 	},
 	"Implementation_Steps": [ 
 								"Connect to ops-release hosts and run: katzmeow.pl --case <00000000> --impl",
