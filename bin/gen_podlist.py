@@ -5,6 +5,7 @@ import socket
 import logging
 import re
 import subprocess
+import os
 
 def where_am_i():
     """
@@ -231,7 +232,40 @@ def chunks(l, n):
         yield l[i:i+n]
 
 
-        
+def read_file(file_name):
+    try:
+        file_name = '../hostlists/' + file_name
+        if os.path.exists(file_name):
+            logging.debug("File %s exists " % file_name)
+            with open(file_name) as f:
+                f_handle = f.readlines()
+                return f_handle
+    except IOError as e:
+        print(e)
+
+
+def listbuilder(pod_list, dc):
+    hostnum = re.compile(r"(^monitor)([1-6])")
+    if isinstance(pod_list, list):
+        pods = pod_list
+    else:
+        pods = pod_list.split(',')
+    for val in pods:
+        if val != "None":
+            output = os.popen("dig %s-monitor-%s.ops.sfdc.net +short | tail -2 | head -1" % (val.lower(), dc))
+            prim_serv = output.read().strip("\n")
+            host = prim_serv.split('.')
+            mon_num = host[0].split('-')
+            if prim_serv:
+                if val.lower() == mon_num[0]:
+                    output_pri.write(host[0] + "\n")
+                match = hostnum.search(mon_num[1])
+                num = int(match.group(2))
+                if (num % 2) == 0:
+                    output_sec.write(val.lower() + "-" + match.group(1) + str(num - 1) + "-" + mon_num[2] + "-" + dc + "\n")
+                else:
+                    output_sec.write(val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc + "\n")
+
 if __name__ == '__main__':
     usage = """
     Code to get pods of cluster types from idb
@@ -380,6 +414,18 @@ if __name__ == '__main__':
                 logging.debug("primary %s %s" % (dc,pri_grps))
                 logging.debug("secondary %s %s" % (dc,sec_grps))
                 logging.debug("clusters %s %s" % (dc,cluster_grps))
+
+        elif re.match(r'(monitor)', cluster_type, re.IGNORECASE):
+            """
+            """
+            for files in ['pod.pri', 'pod.sec']:
+                f_data = read_file(files)
+                for line in f_data:
+                    if dc in line:
+                        listbuilder(line.split()[0], dc)
+            pod_list = ['ops', 'ops0', 'net', 'net0', 'sr1', 'sr2']
+            listbuilder(pod_list, dc)
+
         else:
             """
             Parses any sp level instances and writes them to the output files
