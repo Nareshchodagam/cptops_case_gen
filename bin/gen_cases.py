@@ -114,6 +114,11 @@ if __name__ == "__main__":
         site_flag = "DR"
     else:
         site_flag = "PROD"
+    # Code to update the HBASE DR status to false.
+    if re.match(r'mnds|dnds', options.role, re.IGNORECASE):
+        if re.match(r'True', options.dr, re.IGNORECASE):
+            options.dr = "false"
+
     if options.role:
         grouping = groupType(options.role)
         groupsize = groupSize(options.role)     
