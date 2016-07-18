@@ -1,3 +1,4 @@
+CS80 par
 EU11 par
 AP0,AP1,AP2 tyo
 AP3,AP4 tyo
@@ -18,8 +19,7 @@ NA6 chi
 CS13,CS30,CS50 dfw
 CS51 dfw
 NA32,NA7,NA8 dfw
-CS80,CS81,CS86 lon
-CS87 lon
+CS81,CS86,CS87 lon
 EU0,EU1,EU2 lon
 EU3,EU5 lon
 CS12,CS3,CS52 phx
