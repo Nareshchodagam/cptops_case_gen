@@ -30,20 +30,39 @@ def getImplPlanDetails(caseId,session):
             impl_plan_ids.append(r['Id'])
     return impl_plan_ids
 
-def closeImplPlan(impl_plan_ids,caseId,session):
+def case_status(status):
+    if re.match(r'success', status, re.IGNORECASE):
+        impl_status = "Implemented - per plan"
+        c_status = "Closed"
+        c_outcome = "Successful"
+    elif re.match(r'dup', status, re.IGNORECASE):
+        impl_status = "Pending Implementation"
+        c_status = "Closed - Duplicate"
+        c_outcome = "Cancelled"
+    elif re.match(r'no', status, re.IGNORECASE):
+        impl_status = "Not Implemented"
+        c_status = "Closed - Not Executed"
+        c_outcome = "Cancelled"
+    else:
+        print ("%s Not a valid Status. It should be Success|Dup|No " % status)
+        sys.exit(1)
+    return impl_status, c_status, c_outcome
+
+
+def closeImplPlan(impl_plan_ids,caseId,session, status):
     gusObj = Gus()
     now = datetime.now()
     end = now.isoformat()
     for id in impl_plan_ids:
-        dict = { 'Case__c': caseId, 'End_Time__c': end, 'Status__c': 'Implemented - per plan' }
+        dict = { 'Case__c': caseId, 'End_Time__c': end, 'Status__c': '%s' % status }
         details = gusObj.updateImplPlan(id,dict,session)
         logging.debug(details)
 
-def closeCase(caseId, session):
+def closeCase(caseId, session, c_status, c_outcome):
     gusObj = Gus()
     Dict = {    
-                'Status': 'Closed',
-                'SM_Change_Outcome__c': 'Successful',
+                'Status': '%s' % c_status,
+                'SM_Change_Outcome__c': '%s' % c_outcome,
             }
     details = gusObj.update_case_details(caseId, Dict, session)
     logging.debug(details)
@@ -63,21 +82,29 @@ if __name__ == '__main__':
     usage = """
     Code to send pm ends for all parts of the implementation plan and close the case
     
-    %prog -c 00000000 [-v]
+    %prog -c 00000000 [-v] -s <status>
     
     Example closing two cases:
-    %prog -c 00081381,00081382
-    
+    %prog -c 00081381,00081382 -s <success|dup|no>
+
+    success - Closed case successfully
+    dup - Close case as duplicate
+    no - Close case as Not-Executed
     """
     parser = OptionParser(usage)
     parser.add_option("-c", "--case", dest="caseNum",
                             help="The case number(s) of the case to attach the file ")
     parser.add_option("-y", "--confirm", action="store_true", dest="confirm", help="Answer yes to prompts.")
+    parser.add_option("-s", "--status",  dest="status", help="Status of the case")
     parser.add_option("-v", action="store_true", dest="verbose", default=False, help="verbosity") # will set to False later
     (options, args) = parser.parse_args()
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     # set username and details of case
+
+    if not options.status:
+        options.status = "Success"
+    (impl_status, c_status, c_outcome) = case_status(options.status)
 
     try:
         gpass = config.get('GUS', 'guspassword')
@@ -110,8 +137,9 @@ if __name__ == '__main__':
             if response.lower() != "y":
                 print "Exiting....."
                 sys.exit(1)
+
         for id in caseDetails.iterkeys():
             impl_plan_ids = getImplPlanDetails(id,session)
             logging.debug(impl_plan_ids)
-            closeImplPlan(impl_plan_ids,id,session)
-            closeCase(id, session)
+            closeImplPlan(impl_plan_ids,id,session, impl_status)
+            closeCase(id, session, c_status, c_outcome)
