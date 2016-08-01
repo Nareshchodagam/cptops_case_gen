@@ -13,8 +13,6 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c 
 - Stop the running application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "sudo su - traffic 'cd /var/traffic/diceJava/DiceBackend/build; ./ant stop'" -threads -auto2
 
-- Execute the update script
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
 
 v_INCLUDE
  
