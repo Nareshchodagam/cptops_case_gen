@@ -1,4 +1,3 @@
-CS80 par
 EU5 par
 CS81,CS86,CS87 frf
 EU0,EU1,EU11 frf
@@ -18,7 +17,8 @@ CS12,CS3,CS52 dfw
 CS59 dfw
 NA3,NA33,NA34 dfw
 NA44,NA45 dfw
-CS82,CS83 lon
+NA35 dfw
+CS80,CS82,CS83 lon
 EU4,EU6 lon
 AP3,AP4 phx
 CS13,CS30,CS50 phx
