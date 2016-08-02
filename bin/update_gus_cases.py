@@ -46,7 +46,7 @@ def case_status(status):
     else:
         print ("%s Not a valid Status. It should be Success|Dup|No " % status)
         sys.exit(1)
-    if status == "partial" or "Partial":
+    if status == "partial" or status == "Partial":
         return impl_status
     else:
         return impl_status, c_status, c_outcome
@@ -116,7 +116,7 @@ if __name__ == '__main__':
 
     if not options.status:
         options.status = "Success"
-    if options.status == "partial" or "Partial":
+    if options.status == "partial" or options.status == "Partial":
         impl_status = case_status(options.status)
     else:
         (impl_status, c_status, c_outcome) = case_status(options.status)
@@ -156,7 +156,7 @@ if __name__ == '__main__':
         for id in caseDetails.iterkeys():
             impl_plan_ids = getImplPlanDetails(id, session)
             logging.debug(impl_plan_ids)
-            if options.status == "partial" or "Partial":
+            if options.status == "partial" or options.status == "Partial":
                 closeImplPlan(impl_plan_ids, id, session, impl_status)
             else:
                 closeImplPlan(impl_plan_ids, id, session, impl_status)
