@@ -16,6 +16,9 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c 
 - Remove from pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,ajnada -host v_HOSTS -c remove_from_pool -threads -auto2
 
+- Sleep (Requested by Insights team)
+Exec: sleep 120
+
 - Stop the running application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,ajnada -host v_HOSTS -c stop_server -stopall -threads -auto2
 
