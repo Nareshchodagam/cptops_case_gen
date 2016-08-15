@@ -19,6 +19,7 @@ NA6 chi
 CS13,CS30,CS50 dfw
 CS51 dfw
 NA32,NA7,NA8 dfw
+CS63 dfw
 CS81,CS86,CS87 lon
 EU0,EU1,EU2 lon
 EU3,EU5 lon
@@ -26,6 +27,7 @@ CS12,CS3,CS52 phx
 CS59 phx
 NA3,NA33,NA34 phx
 NA44,NA45 phx
+CS60,CS61 phx
 NA35 phx
 NA0 asg
 CS10,CS11,CS9 was
