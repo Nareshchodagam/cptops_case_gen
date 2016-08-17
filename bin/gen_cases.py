@@ -114,6 +114,11 @@ if __name__ == "__main__":
         site_flag = "DR"
     else:
         site_flag = "PROD"
+    # Code to update the HBASE DR status to false.
+    if re.match(r'mnds|dnds', options.role, re.IGNORECASE):
+        if re.match(r'True', options.dr, re.IGNORECASE):
+            options.dr = "false"
+
     if options.role:
         grouping = groupType(options.role)
         groupsize = groupSize(options.role)     
@@ -140,7 +145,7 @@ if __name__ == "__main__":
         if not re.search(r"json", options.bundle):
             options.bundle = options.bundle + "-patch.json"
         subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
-        print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k %s -D '%s'""" % (options.bundle,options.infra,subject,implplansection,inst_data))
+        print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k ../templates/%s -D '%s'""" % (options.bundle,options.infra,subject,implplansection,inst_data))
     elif options.podgroups and not options.casetype:
         data = getData(options.podgroups)
         for l in data:

@@ -8,14 +8,13 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
--Update host to RHEL6u6
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
-
 -Run the backup
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/nagios_backup.sh" -threads -auto2
 
 -Copy the backup
 Exec: var=v_HOSTS ; for i in ${var//,/ }; do scp  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $i:/tmp/nagios-*.zip ~/; done
+
+v_INCLUDE
 
 -Disable monitoring on appropriate pod-monitor host
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py  -H v_HOSTS -c disable
@@ -25,8 +24,6 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py  -H v_HOSTS -c
 
 - Stop the application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n nagios -e '/usr/bin/nagios -d /etc/nagios/nagios.cfg' -c '/etc/init.d/nagios stop' -k" -threads -auto2
-
-v_INCLUDE
 
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2

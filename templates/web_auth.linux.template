@@ -28,9 +28,9 @@ release_runner.pl -invdb_mode -superpod NONE -cluster WEBAUTH-WAS -product sfdc-
 - stop DBs
 Manual: Engage DBEng to bring the databases down on public-webauthdb1-1-v_DATACENTER
 
-- Execute the update script
-release_runner.pl -forced_host v_HOSTS,public-webauth2-1-was -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
 
+v_INCLUDE
+ 
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS,public-webauth2-1-was -c sudo_cmd -m "reboot" -threads -auto2
 
