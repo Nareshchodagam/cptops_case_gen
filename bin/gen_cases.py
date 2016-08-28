@@ -1,15 +1,11 @@
 #!/usr/bin/python
- 
-import os
-import re
-import sys
-import socket
-import subprocess
-import logging
-from optparse import OptionParser
-import subprocess
+
 import json
- 
+import logging
+import re
+from optparse import OptionParser
+
+
 def groupType(role):
     # presets for certain roles for group type
     groupings = {'search': 'majorset',
@@ -146,6 +142,14 @@ if __name__ == "__main__":
             options.bundle = options.bundle + "-patch.json"
         subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
         print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k ../templates/%s -D '%s'""" % (options.bundle,options.infra,subject,implplansection,inst_data))
+
+    elif options.podgroups and options.casetype == "coreapp-canary":
+        data = getData(options.podgroups)
+        inst_data = genDCINST(data)
+        options.bundle = options.patchset + "-coreapp_canary.json"
+        subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
+        print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k ../templates/%s -D '%s'""" % (
+            options.bundle, options.infra, subject, implplansection, inst_data))
     elif options.podgroups and not options.casetype:
         data = getData(options.podgroups)
         for l in data:
