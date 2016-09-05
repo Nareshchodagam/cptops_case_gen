@@ -1,11 +1,12 @@
-import common
-from idbhost import Idbhost
-from optparse import OptionParser
-import socket
 import logging
-import re
-import subprocess
 import os
+import re
+import socket
+import subprocess
+from optparse import OptionParser
+
+from idbhost import Idbhost
+
 
 def where_am_i():
     """
@@ -398,15 +399,16 @@ if __name__ == '__main__':
                 sec_grps = groups[sp]['sec_grps']
                 cluster_grps = groups[sp]['cluster_grps']
                 logging.debug('%s %s %s' % (pri_grps,sec_grps,cluster_grps))
-                pri_sub_chunks=[pri_grps[x:x+groupsize] for x in xrange(0, len(pri_grps), groupsize)]
+                #pri_sub_chunks=[pri_grps[x:x+groupsize] for x in xrange(0, len(pri_grps), groupsize)]
                 #print(pri_sub_chunks)
-                for sub_lst in pri_sub_chunks:
-                    if sub_lst != []:
-                        w = ','.join(sub_lst) + " " + dc + "\n"
+                #for sub_lst in pri_sub_chunks:
+                for sp_lst in pri_grps:
+                    if sp_lst != 'None':
+                        w = sp_lst + " " + dc + "\n"
                         output_pri.write(w)
-                sec_sub_chunks=[sec_grps[x:x+groupsize] for x in xrange(0, len(sec_grps), groupsize)]
-                for sub_lst in sec_sub_chunks:
-                    w = ','.join(sub_lst) + " " + dc + "\n"
+                #sec_sub_chunks=[sec_grps[x:x+groupsize] for x in xrange(0, len(sec_grps), groupsize)]
+                for sp_lst in sec_grps:
+                    w = sp_lst + " " + dc + "\n"
                     output_sec.write(w)
                 for c in cluster_grps:
                     w = c + " " + dc + "\n"
