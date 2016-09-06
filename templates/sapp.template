@@ -37,6 +37,12 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 - Sleep for a while these apps take ages to come up
 Exec: sleep 360
 
+- PingCheck
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -c pingcheck -threads -auto2
+
+- Logincheck
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -c logincheck -threads -auto2
+
 - add to pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -device_role v_ROLE -host v_HOSTS -c add_to_pool -auto2 -cluster_status v_CL_OPSTAT
 
