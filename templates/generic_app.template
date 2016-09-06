@@ -34,6 +34,12 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 - Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product  sfdc-base,sfdc-splunk-forwarder  -device_role v_ROLE -host v_HOSTS -c start_server -auto2
 
+- PingCheck
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -c pingcheck_with_retries -threads -auto2
+
+- Logincheck
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -c logincheck -threads -auto2
+
 - add to pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -device_role v_ROLE -host v_HOSTS -c add_to_pool -auto2
 
