@@ -27,8 +27,8 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
 
 - Validate host
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./releaserunner/remote_transfer/inst_role_internal_validation.py" -threads -auto2
-Exec: ~/inst_role_external_validation.py
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/inst_role_internal_validation.py" -threads -auto2
+Exec: sudo ~/inst_role_external_validation.py -H v_HOSTS
 
 
 Exec: echo "Host v_HOSTS system patching completed"
