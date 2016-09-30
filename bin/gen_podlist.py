@@ -27,6 +27,7 @@ def where_am_i():
     logging.debug(short_site)
     return short_site
 
+
 def parseData(dc,spcl_grp):
     logging.debug(spcl_grp)
     pri_grps = []
@@ -49,12 +50,13 @@ def parseData(dc,spcl_grp):
                     sec_grps.append(sp_lst)
     return pri_grps,sec_grps
 
+
 def run_cmd(cmdlist):
     """
     Uses subprocess to run a command and return the output
-    
+
     Input : A list containing a command and args to execute
-    
+
     Returns : the output of the command execution
     """
     logging.debug(cmdlist)
@@ -62,25 +64,27 @@ def run_cmd(cmdlist):
     out, err = run_cmd.communicate()
     return out
 
+
 def get_inst_site(host):
     """
     Splits a host into a list splitting at - in the hostname
     The list contains inst,host function, group and 3 letter site code
-    Input : hostname 
-    
+    Input : hostname
+
     Returns : list containing inst,host function and 3 letter site code ignoring group.
     """
     inst,hfunc,g,site = host.split('-')
     short_site = site.replace(".ops.sfdc.net.", "")
     return inst,hfunc,short_site
 
+
 def isInstancePri(inst,dc):
     """
     Confirms if an instance is primary or secondary based on site code
     DNS is used to confirm as the source of truth
     Input : an instance and a 3 letter site code
-    
-    Returns either PROD or DR 
+
+    Returns either PROD or DR
     """
     inst = inst.replace('-HBASE', '')
     monhost = inst + '-monitor.ops.sfdc.net'
@@ -96,15 +100,16 @@ def isInstancePri(inst,dc):
                 return "DR"
             else:
                 return "PROD"
-    
+
+
 def parseHbaseData(dc,spcl_grp):
     """
-    Parses the list of hbase pods by super pod and 
+    Parses the list of hbase pods by super pod and
     converts them into a list of primary and secondary due to the fact
     that the normal primary secondary flags are not used correctly in iDB
-    
+
     Input : 3 letter site code and pod data at sp level
-    
+
     Returns : dict containing sp and pri,sec and cluster groups in that sp
     """
     logging.debug(spcl_grp)
@@ -130,15 +135,16 @@ def parseHbaseData(dc,spcl_grp):
                     pri_grps.append(inst)
                 elif loc == "DR":
                     sec_grps.append(inst)
-        
+
         logging.debug('%s %s %s' % (pri_grps,sec_grps,cluster_grps))
         groups[sp]['pri_grps'] = pri_grps
         groups[sp]['sec_grps'] = sec_grps
         groups[sp]['cluster_grps'] = cluster_grps
-        
+
         logging.debug("%s : %s" % (pri_grps,sec_grps))
     #return pri_grps,sec_grps,cluster_grps
-    return groups 
+    return groups
+
 
 def parseHammerData(dc,spcl_grp):
     logging.debug(spcl_grp)
@@ -156,6 +162,7 @@ def parseHammerData(dc,spcl_grp):
                 sec_grps.append(sec_lsts)
     return pri_grps,sec_grps
 
+
 def parseNonPodData(spcl_grp):
     logging.debug(spcl_grp)
     pri_grps = []
@@ -172,10 +179,29 @@ def parseNonPodData(spcl_grp):
                     sec_grps.append(i)
     return pri_grps,sec_grps
 
+
+def sp_lst_gen(sp_lst):
+    logging.debug(sp_lst)
+    if len(sp_lst) > 90:
+        tmp_lst = sp_lst.split(',')
+        size = len(tmp_lst)
+        w = ""
+        for tmp in range(size):
+            w += tmp_lst[tmp]
+            if (tmp == size / 2 - 1) or (tmp == size - 1):
+                output_pri.write(w + " " + dc + "\n")
+                w = ""
+            else:
+                w += ","
+    else:
+        w = sp_lst + " " + dc + "\n"
+        return w
+
+
 def splitSP(lst):
     """
     Splits the instances into related groups for grouping later
-    
+
     Returns a set of lists containing instances
     """
     ap_lst = []
@@ -199,6 +225,7 @@ def splitSP(lst):
         if re.match('sr', pod, re.IGNORECASE):
             sr_lst.append(pod)
     return ap_lst,cs_lst,na_lst,eu_lst
+
 
 def splitHbaseSP(lst):
     ap_lst = []
@@ -224,8 +251,9 @@ def splitHbaseSP(lst):
         else:
             if re.search(r'hbase', pod, re.IGNORECASE):
                 other_lst.append(pod)
-            
+
     return ap_lst,cs_lst,na_lst,eu_lst,other_lst
+
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
@@ -272,7 +300,7 @@ if __name__ == '__main__':
     Code to get pods of cluster types from idb
 
     %prog [-d comma seperated list of dc's short code] [-t cluster type of pod hbase etc] [-v]
-    %prog -d asg [-v]   
+    %prog -d asg [-v]
     %prog -d asg,sjl,chi,was -t hbase
     %prog -d all_prod -t mta
     %prog -d all_non_prod -t DUST_DELPHI
@@ -316,13 +344,13 @@ if __name__ == '__main__':
         status = options.status
     if options.type:
         cluster_type = options.type.lower()
-    
+
     # Create the filename variables
     fname_pri = cluster_type + ".pri"
     fname_sec = cluster_type + ".sec"
     fname_clusters = cluster_type + ".clusters"
     logging.debug("%s : %s : %s" % (fname_pri,fname_sec, fname_clusters))
-    
+
     dc_data ={}
     # Get the clusters for a given type based on status in a dc
     for dc in dcs:
@@ -335,12 +363,12 @@ if __name__ == '__main__':
         logging.debug(pdata)
         dc_data[dc] = idb.spcl_grp
         logging.debug(idb.spcl_grp)
-        
+
     #Set the output filename and open them for writing
     output_pri = open(fname_pri, 'w')
     output_sec = open(fname_sec, 'w')
     out_clusters = open(fname_clusters, 'w')
-    
+
     # Parse the returned cluster data
     for dc in dc_data:
         logging.debug(dc_data)
@@ -356,7 +384,7 @@ if __name__ == '__main__':
                     if dc_data[dc][sp]['Secondary'] != "None":
                         w = dc_data[dc][sp]['Secondary'] + " " + dc + "-" + sp + "\n"
                         output_sec.write(w)
-                    
+
         elif re.match(r'(pod)', cluster_type, re.IGNORECASE):
             # Parses the groups of pods into groups of 3 and writes the output to files
             pri_grps,sec_grps = parseData(dc,dc_data[dc])
@@ -375,16 +403,22 @@ if __name__ == '__main__':
             logging.debug("primary %s %s" % (dc,pri_grps))
             logging.debug("secondary %s %s" % (dc,sec_grps))
         elif re.match(r'(hammer)', cluster_type, re.IGNORECASE):
+            """
+            This code splits up hammer clusters into primary, secondary and sp cluster lists
+            writing the output to files
+            """
             pri_grps,sec_grps = parseHammerData(dc,dc_data[dc])
             logging.debug("%s %s" % (pri_grps,sec_grps))
             for sp_lst in pri_grps:
                 logging.debug("pri : %s" % sp_lst)
                 if sp_lst != "None":
+                    sp_lst_gen(sp_lst)
                     w = sp_lst + " " + dc + "\n"
                     output_pri.write(w)
             for sp_lst in sec_grps:
                 logging.debug("sec : %s" % sp_lst)
                 if sp_lst != "None":
+                    sp_lst_gen(sp_lst)
                     w = sp_lst + " " + dc + "\n"
                     output_sec.write(w)
         elif re.match(r'(hbase)', cluster_type, re.IGNORECASE):
@@ -403,13 +437,20 @@ if __name__ == '__main__':
                 #print(pri_sub_chunks)
                 #for sub_lst in pri_sub_chunks:
                 for sp_lst in pri_grps:
-                    if sp_lst != 'None':
+                    if sp_lst != "None":
+                        sp_lst_gen(sp_lst)
                         w = sp_lst + " " + dc + "\n"
                         output_pri.write(w)
+                     #w = sp_lst + " " + dc + "\n"
+                     #output_pri.write(w)
                 #sec_sub_chunks=[sec_grps[x:x+groupsize] for x in xrange(0, len(sec_grps), groupsize)]
                 for sp_lst in sec_grps:
-                    w = sp_lst + " " + dc + "\n"
-                    output_sec.write(w)
+                    if sp_lst != "None":
+                        sp_lst_gen(sp_lst)
+                        w = sp_lst + " " + dc + "\n"
+                        output_pri.write(w)
+                    #w = sp_lst + " " + dc + "\n"
+                    #output_sec.write(w)
                 for c in cluster_grps:
                     w = c + " " + dc + "\n"
                     out_clusters.write(w)
