@@ -46,3 +46,4 @@ Manual: Validate above is ok
 Exec: ~/genSummary.py -H v_LISTOFHOSTS -c netstat_nfs
 Manual: Validate above is ok
 
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/verify_hosts.py ~/verify_hosts.py
