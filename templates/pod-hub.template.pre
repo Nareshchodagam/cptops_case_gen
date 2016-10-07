@@ -16,3 +16,4 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/jumpstart/common/solaris-and-l
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/valid_versions.json ~/releaserunner/remote_transfer/valid_versions.json
 
 Exec: chmod +x ~/releaserunner/remote_transfer/*
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/verify_hosts.py ~/verify_hosts.py

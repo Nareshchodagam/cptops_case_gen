@@ -13,3 +13,4 @@ Exec: python get_exclude_hosts.py -f ~/v_CLUSTER.hosts.txt
 
 Exec: cat ~/exclude_hosts.txt
 
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/verify_hosts.py ~/verify_hosts.py
