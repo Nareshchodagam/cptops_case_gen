@@ -343,10 +343,10 @@ def checkEmptyFile(filename):
         sys.exit(1)
 
 
-def update_implplan(filename, case_no):
+def update_implplan(filename, case_num):
     with open(filename, 'r') as my_file:
         file_data = my_file.read()
-        file_data = file_data.replace('v_CASE', case_no['CaseNumber'])
+        file_data = file_data.replace('v_CASE', case_num['CaseNumber'])
     return file_data
 
 if __name__ == '__main__':
