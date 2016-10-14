@@ -342,6 +342,13 @@ def checkEmptyFile(filename):
         print('No file %s. Exiting.' % filename)
         sys.exit(1)
 
+
+def update_implplan(filename, case_num):
+    with open(filename, 'r') as my_file:
+        file_data = my_file.read()
+        file_data = file_data.replace('v_CASE', case_num['CaseNumber'])
+    return file_data
+
 if __name__ == '__main__':
     
     usage = """
@@ -494,12 +501,15 @@ if __name__ == '__main__':
         if options.vplan:
             vplan = options.vplan
             attach_file(vplan, 'verification_plan.txt', caseId, session)
+        caseNum = getCaseNum(caseId, session)
         if options.iplan:
             iplan = options.iplan
+            output = update_implplan(iplan, caseNum)
+            with open(iplan, 'w') as f:
+                f.write(output)
             attach_file(iplan, 'plan_implementation.txt', caseId, session)
         if options.submit:
             submitCase(caseId, session)
-        caseNum = getCaseNum(caseId, session)
         logging.debug('The case number is %s' % caseNum['CaseNumber'])
         print(caseNum['CaseNumber'])
         if options.logicalHost:
