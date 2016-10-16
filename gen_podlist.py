@@ -263,7 +263,7 @@ def chunks(l, n):
 
 def read_file(file_name):
     try:
-        file_name = '../hostlists/' + file_name
+        file_name = file_name
         if os.path.exists(file_name):
             logging.debug("File %s exists " % file_name)
             with open(file_name) as f:
@@ -365,9 +365,9 @@ if __name__ == '__main__':
         logging.debug(idb.spcl_grp)
 
     #Set the output filename and open them for writing
-    output_pri = open(fname_pri, 'w')
-    output_sec = open(fname_sec, 'w')
-    out_clusters = open(fname_clusters, 'w')
+    output_pri = open("hostlists/" + fname_pri, 'w')
+    output_sec = open("hostlists/" + fname_sec, 'w')
+    out_clusters = open("hostlists/" + fname_clusters, 'w')
 
     # Parse the returned cluster data
     for dc in dc_data:
