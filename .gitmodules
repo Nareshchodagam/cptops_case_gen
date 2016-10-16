@@ -1,6 +1,3 @@
 [submodule "idbhost"]
 	path = idbhost
 	url = git@git.soma.salesforce.com:CPT/cptops_idbhost.git
-[submodule "https://git.soma.salesforce.com/ComputeDeploy/cptops_idbhost.git"]
-	path = https://git.soma.salesforce.com/ComputeDeploy/cptops_idbhost.git
-	url = https://git.soma.salesforce.com/mgaddy/cptops_nagios.git

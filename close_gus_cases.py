@@ -2,9 +2,8 @@
 '''
         Script for closing cases in Gus
 '''
-from base import Auth
-from base import Gus
-from common import Common 
+from modules.base import Auth
+from modules.base import Gus
 import pprint
 from optparse import OptionParser
 import base64
@@ -17,7 +16,7 @@ import sys
 from datetime import datetime, date, time, timedelta
 
 config = ConfigParser.ConfigParser()
-config.readfp(open('creds.config'))
+config.readfp(open('/Users/mgaddy/git/cptops_case_gen/config/creds.config'))
 
 
 def getImplPlanDetails(caseId,session):

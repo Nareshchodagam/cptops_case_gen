@@ -8,7 +8,7 @@ try:
     config.readfp(open('vaultcreds.config'))
 except:
     config = ConfigParser.ConfigParser()
-    config.readfp(open('creds.config'))
+    config.readfp(open('/Users/mgaddy/git/cptops_case_gen/config/creds.config'))
 
 
 class Cred(object):

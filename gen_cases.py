@@ -101,9 +101,9 @@ if __name__ == "__main__":
     casesubject = options.casesubject
     grouping = "majorset"
     groupsize = 1
-    implplansection = "../templates/6u6-plan.json"
+    implplansection = "templates/6u6-plan.json"
     if re.match(r'ffx', options.role, re.IGNORECASE) and not options.casetype and not options.exclude:
-        options.exclude = "../hostlists/ffxexclude"
+        options.exclude = "hostlists/ffxexclude"
     if options.implplansection:
         implplansection = options.implplansection
     if re.match(r'True', options.dr, re.IGNORECASE):
@@ -134,21 +134,21 @@ if __name__ == "__main__":
         if options.dowork:
             output_str = output_str + " --dowork " + options.dowork
         print("%s" % output_str)
-        print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k %s -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,options.infra,subject,implplansection,dcs_list))
+        print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (options.bundle,options.infra,subject,implplansection,dcs_list))
     elif options.podgroups and options.casetype == "coreappafw":
         data = getData(options.podgroups)
         inst_data = genDCINST(data)
         if not re.search(r"json", options.bundle):
             options.bundle = options.bundle + "-patch.json"
         subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
-        print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k ../templates/%s -D '%s'""" % (options.bundle,options.infra,subject,implplansection,inst_data))
+        print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k  templates/%s -D '%s'""" % (options.bundle,options.infra,subject,implplansection,inst_data))
 
     elif options.podgroups and options.casetype == "coreapp-canary":
         data = getData(options.podgroups)
         inst_data = genDCINST(data)
         options.bundle = options.patchset + "-coreapp_canary.json"
         subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
-        print("""python gus_cases_vault.py -T change  -f ../templates/%s --infra "%s" -s "%s" -k ../templates/%s -D '%s'""" % (
+        print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k templates/%s -D '%s'""" % (
             options.bundle, options.infra, subject, implplansection, inst_data))
     elif options.podgroups and not options.casetype:
         data = getData(options.podgroups)
@@ -192,4 +192,4 @@ if __name__ == "__main__":
                 subject = subject + " " + options.group
             #if not re.search(r"json", options.bundle):
             #    options.bundle = options.bundle + "-patch.json"
-            print("""python gus_cases_vault.py -T change  -f ../templates/%s  --inst %s --infra "%s" -s "%s" -k %s  -l ../output/summarylist.txt -D %s -i ../output/plan_implementation.txt""" % (options.bundle,pods,options.infra,subject,implplansection,dc))
+            print("""python gus_cases_vault.py -T change  -f templates/%s  --inst %s --infra "%s" -s "%s" -k %s  -l output/summarylist.txt -D %s -i  output/plan_implementation.txt""" % (options.bundle,pods,options.infra,subject,implplansection,dc))
