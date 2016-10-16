@@ -2,6 +2,7 @@
 cred -- GUS credentials file
 '''
 import ConfigParser
+import os
 
 try:    
     config = ConfigParser.ConfigParser()
