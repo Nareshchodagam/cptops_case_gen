@@ -26,7 +26,7 @@ except Exception as e:
     sys.exit(1)
 
 config = ConfigParser.ConfigParser()
-config.readfp(open('vaultcreds.config'))
+config.readfp(open(os.path.expanduser('~') + '/git/cptops_case_gen/config/vaultcreds.config'))
 
 os.environ['NO_PROXY'] = "ops-vaultczar1-1-crz.ops.sfdc.net,ops-vaultczar2-1-crz.ops.sfdc.net"
 

@@ -5,10 +5,10 @@ import ConfigParser
 
 try:    
     config = ConfigParser.ConfigParser()
-    config.readfp(open('vaultcreds.config'))
+    config.readfp(open(os.path.expanduser('~') + '/git/cptops_case_gen/config/vaultcreds.config'))
 except:
     config = ConfigParser.ConfigParser()
-    config.readfp(open('/Users/mgaddy/git/cptops_case_gen/config/creds.config'))
+    config.readfp(open(os.path.expanduser('~') + '/git/cptops_case_gen/config/creds.config'))
 
 
 class Cred(object):
