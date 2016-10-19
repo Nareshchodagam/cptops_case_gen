@@ -4,7 +4,6 @@
 '''
 from cptops_gus_base.base import Auth
 from cptops_gus_base.base import Gus
-from cptops_idbhost.includes.common import Common 
 from optparse import OptionParser
 import base64
 import logging
