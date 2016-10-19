@@ -1,6 +1,6 @@
 [submodule "cptops_gus_base"]
 	path = cptops_gus_base
-	url = git@git.soma.salesforce.com/CPT/cptops_gus_base.git
+	url = ssh://git@git.soma.salesforce.com/CPT/cptops_gus_base
 [submodule "cptops_idbhost"]
 	path = cptops_idbhost
-	url = git@git.soma.salesforce.com/CPT/cptops_gus_base.git
+	url = ssh://git@git.soma.salesforce.com/CPT/cptops_idbhost.git
