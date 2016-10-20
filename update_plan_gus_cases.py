@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-        Script for closing cases in Gus
+        Script for updating files attached to cases in Gus
 '''
 from cptops_gus_base.base import Auth
 from cptops_gus_base.base import Gus
