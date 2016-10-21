@@ -312,6 +312,17 @@ def checkEmptyFile(filename):
         print('No file %s. Exiting.' % filename)
         sys.exit(1)
 
+def attachFile(fname, caseId, session):
+    gusObj = Gus()
+    logging.debug(fname)
+    fObj = open(fname)
+    _,short_fname = os.path.split(fname)
+    attachRes = gusObj.attach(fObj, short_fname, caseId, session)
+    fObj.close()
+    logging.debug("%s %s %s" % (short_fname, caseId, session))
+    logging.debug(attachRes)
+    return attachRes
+
 if __name__ == '__main__':
     
     usage = """
@@ -358,7 +369,7 @@ if __name__ == '__main__':
                                     Category, SubCategory, Subject, Description, DC, Status and Prioriry.
                                     -n -C Systems -b SubCategory Hardware -s Subject 'DNS issue 3' -d 'Mail is foobar\'d, DSET Attached.' -D ASG -S New -P Sev3
                                     """)
-    parser.add_option("-a", "--attach", dest="attach", action="store_true", help="Attach a file to a case")
+    parser.add_option("-a", "--attach", dest="attach", help="Attach a file to a case")
     parser.add_option("-t", "--comment", dest="comment", help="text to add to a case comment")
     parser.add_option("-y", "--yaml", dest="yaml", action="store_true", help="patch details via yaml file")
     parser.add_option("-u", "--update", action="store_true", dest="update", help="Required if you want to update a case")
@@ -473,8 +484,18 @@ if __name__ == '__main__':
         #createImplamentationPlannerYAML(planner_data_dict, caseId, session, DCS=options.dc)
         caseNum = getCaseNum(caseId, session)
         logging.debug('The case number is %s' % caseNum['CaseNumber'])
-        print(caseNum['CaseNumber'])
         
+        if options.attach:
+            files = options.attach.split(',')
+            for f in files:
+                logging.debug(f)
+                try:
+                    os.path.isfile(f)
+                    print("Attaching file : %s" % f)
+                    attachFile(f, caseId, session)
+                except Exception as e:
+                    print('The File %s does not exist : %s' % (f,e))
+        print(caseNum['CaseNumber'])
     elif options.casetype == 'change':
         insts = ''
         if options.inst:
@@ -534,7 +555,7 @@ if __name__ == '__main__':
                 print('Creating logical host connector for %s' % host)
                 createLogicalConnector(dict, caseId, session)
         
-    elif options.attach:
+    elif options.attach and options.casetype != 'storage':
         if options.filepath:
             file = options.filepath
         else:
