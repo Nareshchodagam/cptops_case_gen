@@ -20,9 +20,13 @@ try:
 except:
     print('no yaml installed')
 
+configdir = os.environ['HOME'] + "/.cptops/config"
 config = ConfigParser.ConfigParser()
-config.readfp(open(os.path.expanduser('~') + '/git/cptops_case_gen/config/creds.config'))
-
+try:
+    config.readfp(open(configdir + '/creds.config'))
+except IOError:
+    logging.error("No creds.config file found in %s", configdir)
+    sys.exit(1)
 
 def create_incident(cat, subcat, subject, desc, dc, status, priority):
 

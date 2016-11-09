@@ -14,10 +14,16 @@ import getpass
 import re
 import json
 import sys
+import os
 from datetime import datetime, date, time, timedelta
 
+configdir = os.environ['HOME'] + "/.cptops/config"
 config = ConfigParser.ConfigParser()
-config.readfp(open('creds.config'))
+try:
+    config.readfp(open(configdir + '/creds.config'))
+except IOError:
+    logging.error("No creds.config file found in %s", configdir)
+    sys.exit(1)
 
 def attachWI(fileName, workItemId, sess):
     gusObj = Gus()

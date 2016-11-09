@@ -25,8 +25,13 @@ except Exception as e:
     print('no %s installed : %s' % ('pyczar',e))
     sys.exit(1)
 
+configdir = os.environ['HOME'] + "/.cptops/config"
 config = ConfigParser.ConfigParser()
-config.readfp(open(os.path.expanduser('~') + '/git/cptops_case_gen/config/vaultcreds.config'))
+try:
+    config.readfp(open(configdir + '/vaultcreds.config'))
+except IOError:
+    logging.error("No vaultcreds.config file found in %s", configdir)
+    sys.exit(1)
 
 os.environ['NO_PROXY'] = "ops-vaultczar1-1-crz.ops.sfdc.net,ops-vaultczar2-1-crz.ops.sfdc.net"
 
