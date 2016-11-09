@@ -2,8 +2,8 @@
 '''
         Script for interacting with work items in Gus
 '''
-from base import Auth
-from base import Gus
+from GUS.base import Auth
+from GUS.base import Gus
 from common import Common 
 import pprint
 from optparse import OptionParser
