@@ -2,8 +2,8 @@
 '''
         Script for updating files attached to cases in Gus
 '''
-from cptops_gus_base.base import Auth
-from cptops_gus_base.base import Gus
+from GUS.base import Auth
+from GUS.base import Gus
 import pprint
 from optparse import OptionParser
 import base64

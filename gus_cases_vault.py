@@ -3,8 +3,7 @@
     Script for creating cases in Gus
 '''
 from GUS.base import Auth
-from GUS.base import Gus
-from common import Common 
+from GUS.base import Gus 
 from optparse import OptionParser
 import base64
 import logging

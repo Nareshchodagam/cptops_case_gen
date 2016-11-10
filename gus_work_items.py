@@ -4,7 +4,6 @@
 '''
 from GUS.base import Auth
 from GUS.base import Gus
-from common import Common 
 import pprint
 from optparse import OptionParser
 import base64
