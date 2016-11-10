@@ -2,8 +2,8 @@
 '''
         Script for closing cases in Gus
 '''
-from modules.base import Auth
-from modules.base import Gus
+from GUS.base import Auth
+from GUS.base import Gus
 import pprint
 from optparse import OptionParser
 import base64
@@ -13,11 +13,17 @@ import getpass
 import re
 import json
 import sys
+import os
 from datetime import datetime, date, time, timedelta
 
-config = ConfigParser.ConfigParser()
-config.readfp(open('/Users/mgaddy/git/cptops_case_gen/config/creds.config'))
+configdir = os.environ['HOME'] + "/.cptops/config"
 
+config = ConfigParser.ConfigParser()
+try:
+    config.readfp(open(configdir + '/creds.config'))
+except IOError:
+    logging.error("No creds.config file found in %s", configdir)
+    sys.exit(1)
 
 def getImplPlanDetails(caseId,session):
     gusObj = Gus()
