@@ -6,7 +6,7 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
 -Check kernel updates are disabled on NSM hosts
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_nsm.sh" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_kernel_update.sh" -threads -auto2
 
 - Execute the update script
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/sec_system_update.sh" -threads -auto2
