@@ -20,10 +20,10 @@ configdir = os.environ['HOME'] + "/.cptops/config"
 
 try:
     config = ConfigParser.ConfigParser()
-    config.readfp(open(configdir + '/vaultcreds.config'))
+    config.readfp(open(configdir + '/creds.config'))
 except:
     config = ConfigParser.ConfigParser()
-    config.readfp(open(configdir + '/creds.config'))
+    config.readfp(open(configdir + '/vaultcreds.config'))
 
     
 def getCaseId(caseNum,session):

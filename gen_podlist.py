@@ -146,6 +146,33 @@ def parseHbaseData(dc,spcl_grp):
     return groups
 
 
+def parsegfdata(dc,spcl_grp):
+        """
+        Parses the list of gridforce pods by super pod and
+        converts them into a list of primary and Secondary.
+
+        Input : 3 letter site code and pod data at sp level
+
+        Returns : list containing cluster names
+        """
+        logging.debug(spcl_grp)
+        pri_grps = []
+        sec_grps = []
+        cluster_grps = []
+        for sp in spcl_grp:
+            logging.debug(sp)
+            if 'Primary' in spcl_grp[sp]:
+                logging.debug(spcl_grp[sp]['Primary'])
+                for inst in spcl_grp[sp]['Primary'].split(","):
+                    if re.match(r"GF", inst, re.IGNORECASE):
+                        pri_grps.append(inst)
+                    elif re.match(r"GS", inst, re.IGNORECASE):
+                        pass
+            logging.debug('%s %s %s' % (pri_grps, sec_grps, cluster_grps))
+        return pri_grps
+
+
+
 def parseHammerData(dc,spcl_grp):
     logging.debug(spcl_grp)
     pri_grps = []
@@ -351,18 +378,23 @@ if __name__ == '__main__':
     fname_clusters = cluster_type + ".clusters"
     logging.debug("%s : %s : %s" % (fname_pri,fname_sec, fname_clusters))
 
-    dc_data ={}
+    dc_data = {}
     # Get the clusters for a given type based on status in a dc
     for dc in dcs:
         print("Generating list for %s" % dc)
         if re.match(r'(afw)', cluster_type, re.IGNORECASE):
             cluster_type = 'pod'
+        elif re.match(r'(gforce)', cluster_type, re.IGNORECASE):
+            cluster_type = 'hbase'
         data = idb.sp_data(dc, status, cluster_type)
         logging.debug(data)
         pdata = idb.poddata(dc)
         logging.debug(pdata)
         dc_data[dc] = idb.spcl_grp
         logging.debug(idb.spcl_grp)
+
+    if options.type == 'gforce':
+        cluster_type = 'gforce'
 
     #Set the output filename and open them for writing
     output_pri = open("hostlists/" + fname_pri, 'w')
@@ -468,6 +500,24 @@ if __name__ == '__main__':
                         listbuilder(line.split()[0], dc)
             pod_list = ['ops', 'ops0', 'net', 'net0', 'sr1', 'sr2']
             listbuilder(pod_list, dc)
+
+        elif re.match(r'gforce', cluster_type, re.IGNORECASE):
+            """
+            This code splits up gforce clusters into primary, secondary
+            """
+            pri_grps = parsegfdata(dc, dc_data[dc])
+            logging.debug(pri_grps)
+            for sp_lst in pri_grps:
+                if sp_lst != "None":
+                    sp_lst_gen(sp_lst)
+                    print(sp_lst)
+                    w = sp_lst + " " + dc + "\n"
+                    output_pri.write(w)
+                    # w = sp_lst + " " + dc + "\n"
+                    # output_pri.write(w)
+
+            logging.debug("primary %s %s" % (dc, pri_grps))
+
 
         else:
             """
