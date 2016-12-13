@@ -11,11 +11,11 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 - Disable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
 
-- Stop Splunk Forwarder
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product sfdc-splunk-forwarder -device_role k2k -host v_HOSTS -c stop_server -auto2 -threads
-
 - Stop K2K
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product k2k -device_role k2k -host v_HOSTS -c stop_server -auto2 -threads
+
+- Stop Splunk Forwarder
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product sfdc-splunk-forwarder -device_role k2k -host v_HOSTS -c stop_server -auto2 -threads
 
 - Execute the update script
 #release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
@@ -33,11 +33,11 @@ Exec: ~/check_reconnect.py -H v_HOSTS
 - Verify Kernel Module 
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/fix_secanchor.sh" -threads -auto2
 
-- Start K2K
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product k2k -device_role k2k -host v_HOSTS -c start_server -auto2 -threads
-
 - Start Splunk Forwarder
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product sfdc-splunk-forwarder -device_role k2k -host v_HOSTS -c start_server -auto2 -threads
+
+- Start K2K
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product k2k -device_role k2k -host v_HOSTS -c start_server -auto2 -threads
 
 - Validate Secanchor host app is running
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_secanchor.sh" -threads -auto2
