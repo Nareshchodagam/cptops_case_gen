@@ -17,7 +17,7 @@ from datetime import datetime, date, time, timedelta
 try:
     import yaml
 except:
-    print('no yaml installed')
+    logging.debug('no yaml installed')
 
 configdir = os.environ['HOME'] + "/.cptops/config"
 config = ConfigParser.ConfigParser()
@@ -143,13 +143,13 @@ def create_implamentation_planner(data, caseId, session,role=None,insts=None,DCS
     for dc in DCS:
         print(dc)
         if 'dcs_data' in locals():
-            insts = dcs_data[dc]
+            d = dcs_data[dc]
         data['DCs'] = data['DCs'].replace('v_DATACENTER', dc.upper()) 
         data['Details']['Case__c'] = caseId
         data['Details']['Description__c'] = dc.upper()
         data['Details']['SM_Data_Center__c'] = dc
-        #data['Details']['SM_Instance_List__c'] = data['Details']['SM_Instance_List__c'].replace('v_INSTANCES', insts.upper())
-        data['Details']['SM_Instance_List__c'] = insts.upper()
+        data['Details']['SM_Instance_List__c'] = data['Details']['SM_Instance_List__c'].replace('v_INSTANCES', insts.upper())
+        #data['Details']['SM_Instance_List__c'] = insts.upper()
         details['SM_Estimated_End_Time__c'] = end_time
         details['SM_Estimated_Start_Time__c'] = start_time
         print(details)
@@ -241,7 +241,11 @@ def create_change_case(tmplDict, session):
 def attach_file(filename, name, cId, session):
     gusObj = Gus()
 
-    fObj = open(filename)
+    try:
+        fObj = open(filename)
+    except IOError:
+        logging.error("No such file or directory")
+        sys.exit(1)
     attachRes = gusObj.attach(fObj, name, cId, session)
     fObj.close()
     logging.debug("%s %s %s %s" % (filename, name, cId, session))
@@ -280,6 +284,30 @@ def checkEmptyFile(filename):
     except OSError:
         print('No file %s. Exiting.' % filename)
         sys.exit(1)
+
+def getCaseId(caseNum,session):
+    gusObj = Gus()
+    case_details = gusObj.get_case_details_caseNum(caseNum,session)
+    if case_details:
+        return case_details.rstrip()
+    else:
+        logging.error("Case %s not found.", caseNum)
+        sys.exit(1)
+
+def getExistingPlanId(caseId, session):
+    gusObj = Gus()
+    object = 'Attachment'
+    query = "Select Id, Name,OwnerId,ParentId from " + object + " \
+    where ParentId='" + caseId + "'" 
+    details = gusObj.run_query(query, session)
+    logging.debug(details['records'])
+    return details['records'][0]['Id']
+
+def moveExistingPlan(name, Id, session):
+    gusObj = Gus()
+    details = gusObj.renameAttach(name, Id, session)
+    logging.debug(details)
+    return details
 
 if __name__ == '__main__':
     
@@ -404,7 +432,7 @@ if __name__ == '__main__':
             submitCase(caseId, session)
         caseNum = getCaseNum(caseId, session)
         logging.debug('The case number is %s' % caseNum['CaseNumber'])
-        print(caseNum['CaseNumber'])
+        print('The case number is %s' % caseNum['CaseNumber'])
         if options.logicalHost:
             logical_hosts = getLogicalConnectors(hosts, session)
             for host in logical_hosts:
@@ -418,22 +446,27 @@ if __name__ == '__main__':
             file = options.filepath
         else:
             file = options.filename
+        if not options.caseId or not file:
+            logging.debug("Case ID or File not specified.")
+            sys.exit(1)
         caseId = options.caseId
         name = options.filename
-        attach_file(file, name, caseId, session)
-        print("File %s successfully attached to case %s")
+        caseNum = getCaseId(caseId, session)
+        attach_file(file, name, caseNum, session)
+        print("File %s successfully attached to case %s" % (file, options.caseId))
     elif options.newcase:
         logging.debug(options.category,options.subcategory,options.subject,options.desc,options.dc,options.status,options.priority)
         caseId = create_incident(options.category, options.subcategory, options.subject, options.desc, options.dc, options.status, options.priority)
-        logging.debug(caseId)
-        
+        logging.debug(caseId)   
         print("Case subject %s caseId %s was successfully created" % (options.subject, caseId))
     elif options.update:
         cId = options.caseId
         if options.comment:
             comment = options.comment
-            new_comment = add_case_comment(comment, cId, session)
+            caseNum = getCaseId(cId, session)
+            new_comment = add_case_comment(comment, caseNum, session)
         if options.status != 'New':
             print("updating %s %s %s" % (options.status, options.priority, cId))
-            case_details = update_case(options.status, options.priority, cId, session)
+            caseNum = getCaseId(cId, session)
+            case_details = update_case(options.status, options.priority, caseNum, session)
             print("updated %s" % (case_details))
