@@ -7,21 +7,20 @@ contains scripts to interact with GUS to create Changes, Incidents or User Stori
 
 # Summary of Code
 
-- build_plan.py - Creates implementation plans.
-- gus_cases.py - Creates GUS changes or incidents.
-- gus\_cases\_vault.py - Creates GUS changes or Incidents for those using the Secret Services keys.
-- gen\_podlist.py - Builds hostlists files used to use with gen_cases.py.
-- close\_gus\_cases.py - Interacts with GUS to change the status of GUS cases. 
-- gen\_cases.py - Outputs command strings for  build\_plan.py and gus\_cases.py. 
+- **build_plan.py** - Creates implementation plans.
+- **gus_cases.py** - Creates GUS changes or incidents.
+- **gus_cases_vault.py** - Creates GUS changes or Incidents for those using the Secret Services keys.
+- **gen_podlist.py** - Builds hostlists files used to use with gen_cases.py.
+- **close_gus_cases.py** - Interacts with GUS to change the status of GUS cases. 
+- **gen_cases.py** - Outputs command strings for  build\_plan.py and gus\_cases.py. 
 
 # Directory layout
 
-- docs - Contains additional documentation and sample commands for above code. 
-- hostlists - Contains hostlist files used by gen_cases.py.
-- templates - Contains all the templates used by build_plan.py. 
-- modules - Contains modules used by internal code. 
-- GUS - Submodule for cptops\_gus\_base libraries. 
-- idbhost - Submodule for cptops\_idbhost module. Used by build\_plan.py.
+- **docs** - Contains additional documentation and sample commands for above code. 
+- **hostlists** - Contains hostlist files used by gen_cases.py.
+- **templates** - Contains all the templates used by build_plan.py. 
+- **modules** - Contains modules used by internal code. 
+- **idbhost** - Submodule for [idbhost](https://git.soma.salesforce.com/CPT/cptops_idbhost) module. Used by build\_plan.py.
 
 # Installation
 # Setup (Long way)
