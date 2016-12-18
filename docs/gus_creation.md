@@ -76,7 +76,7 @@ _Example of two files used with gus_cases.py.
 
 [details.json](../Examples/details_example.json). Example file used to create the GUS case filling in necessary information.
 
-[plan.json](../Example/implementation_example.json). Example file used for comments when creating implementation steps. 
+[plan.json](../Examples/implementation_example.json). Example file used for comments when creating implementation steps. 
 
 # Command Examples
 
