@@ -40,7 +40,7 @@ contains scripts to interact with GUS to create Changes, Incidents or User Stori
 
 # Set (short way)
 
-Use the CPTIAB docker image [here](https://git.soma.salesforce.com/CPT/cptops_cptiab).
+Use the CPTIAB docker image [here](https://git.soma.salesforce.com/CPT/cptiab).
 
 
 # Docs and Examples. 
