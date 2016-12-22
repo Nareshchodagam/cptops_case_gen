@@ -8,6 +8,7 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opsen
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/validate_linux_patchset.py  ~/releaserunner/remote_transfer/validate_linux_patchset.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py  ~/releaserunner/remote_transfer/common.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/syssec/patch/start_cmgt.sh ~/releaserunner/remote_transfer/start_cmgt.sh
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/syssec/patch/stop_cmgt.sh ~/releaserunner/remote_transfer/stop_cmgt.sh
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/syssec/patch/validate_cmgt.sh ~/releaserunner/remote_transfer/validate_cmgt.sh
 
 -Get the local scripts:

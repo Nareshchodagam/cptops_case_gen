@@ -8,15 +8,6 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
-- Disable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
-
-- Stop K2K
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product k2k -device_role k2k -host v_HOSTS -c stop_server -auto2 -threads
-
-- Stop Splunk Forwarder
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product sfdc-splunk-forwarder -device_role k2k -host v_HOSTS -c stop_server -auto2 -threads
-
 - Execute the update script
 #release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/sec_system_update.sh" -threads -auto2
@@ -30,21 +21,7 @@ Exec: ~/check_reconnect.py -H v_HOSTS
 - Validate that the hosts have been patched and are running the correct version
 #release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
-- Verify Kernel Module 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/fix_secanchor.sh" -threads -auto2
-
-- Start Splunk Forwarder
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product sfdc-splunk-forwarder -device_role k2k -host v_HOSTS -c start_server -auto2 -threads
-
-- Start K2K
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product k2k -device_role k2k -host v_HOSTS -c start_server -auto2 -threads
-
-- Validate Secanchor host app is running
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_secanchor.sh" -threads -auto2
-
-- Enable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
+-Validate SRDAPP host app is running
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_srdapp.sh" -threads -auto2
 
 Exec: echo "Host v_HOSTS system patching completed"
-
-
