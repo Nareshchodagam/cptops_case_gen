@@ -4,7 +4,6 @@ import re
 import socket
 import subprocess
 from optparse import OptionParser
-
 from idbhost import Idbhost
 
 
@@ -28,7 +27,7 @@ def where_am_i():
     return short_site
 
 
-def parseData(dc,spcl_grp):
+def parseData(dc, spcl_grp):
     logging.debug(spcl_grp)
     pri_grps = []
     sec_grps = []
@@ -194,17 +193,19 @@ def parseNonPodData(spcl_grp):
     logging.debug(spcl_grp)
     pri_grps = []
     sec_grps = []
-    for sp in spcl_grp:
-        logging.debug(sp)
-        if 'Primary' in spcl_grp[sp]:
-            for i in spcl_grp[sp]['Primary'].split(','):
-                if not i in pri_grps:
-                    pri_grps.append(i)
-        if 'Secondary' in spcl_grp[sp]:
-            for i in spcl_grp[sp]['Secondary'].split(','):
-                if not i in sec_grps:
-                    sec_grps.append(i)
-    return pri_grps,sec_grps
+    for dc, sp in spcl_grp.items():
+        for superpod in sp.values():
+            print(superpod[0])
+            total_clusters = len(superpod)
+            for index in range(0, total_clusters-1):
+                index = int(index)
+                if 'Primary' in superpod[index]:
+                    for i in superpod[index]['Primary'].split(','):
+                        pri_grps.append(i)
+                if 'Secondary' in superpod[index]:
+                    for i in superpod[index]['Secondary'].split(','):
+                        sec_grps.append(i)
+    return pri_grps, sec_grps
 
 
 def sp_lst_gen(sp_lst):
@@ -356,9 +357,9 @@ if __name__ == '__main__':
 
     #Set the correct location for the Idbhost object
     if site == 'sfm':
-        idb=Idbhost()
+        idb = Idbhost()
     else:
-        idb=Idbhost(site)
+        idb = Idbhost(site)
 
     # Create a list from the supplied dcs
     if re.match(r'all_prod', options.dc, re.IGNORECASE):
@@ -380,18 +381,19 @@ if __name__ == '__main__':
 
     dc_data = {}
     # Get the clusters for a given type based on status in a dc
-    for dc in dcs:
-        print("Generating list for %s" % dc)
-        if re.match(r'(afw)', cluster_type, re.IGNORECASE):
-            cluster_type = 'pod'
-        elif re.match(r'(gforce)', cluster_type, re.IGNORECASE):
-            cluster_type = 'hbase'
-        data = idb.sp_data(dc, status, cluster_type)
-        logging.debug(data)
-        pdata = idb.poddata(dc)
-        logging.debug(pdata)
-        dc_data[dc] = idb.spcl_grp
-        logging.debug(idb.spcl_grp)
+    #for dc in dcs:
+    print("Generating list for %s" % dcs)
+    if re.match(r'(afw)', cluster_type, re.IGNORECASE):
+        cluster_type = 'pod'
+    elif re.match(r'(gforce)', cluster_type, re.IGNORECASE):
+        cluster_type = 'hbase'
+    data = idb.sp_data(dcs, status, cluster_type)
+    logging.debug(data)
+    #pdata = idb.poddata(dcs)
+    #logging.debug(pdata)
+    #dc_data[dc] = idb.spcl_grp
+    dc_data = idb.spcl_grp
+    logging.debug(idb.spcl_grp)
 
     if options.type == 'gforce':
         cluster_type = 'gforce'
@@ -402,93 +404,96 @@ if __name__ == '__main__':
     out_clusters = open("hostlists/" + fname_clusters, 'w')
 
     # Parse the returned cluster data
-    for dc in dc_data:
+    for dc in dc_data.keys():
         logging.debug(dc_data)
         if re.match(r'(afw)', options.type, re.IGNORECASE):
-            #print(dc_data[dc])
-            for sp in dc_data[dc]:
-                #print(dc_data[dc][sp])
-                if 'Primary' in dc_data[dc][sp]:
-                    if dc_data[dc][sp]['Primary'] != "None":
-                        w = dc_data[dc][sp]['Primary'] + " " + dc + "-" + sp + "\n"
-                        output_pri.write(w)
-                if 'Secondary' in dc_data[dc][sp]:
-                    if dc_data[dc][sp]['Secondary'] != "None":
-                        w = dc_data[dc][sp]['Secondary'] + " " + dc + "-" + sp + "\n"
-                        output_sec.write(w)
+            for sp, pods in dc_data[dc].items():
+                ttl_len = len(pods)
+                p = []
+                s = []
+                for index in range(0, ttl_len):
+                    if 'Primary' in pods[index]:
+                        if pods[index]['Primary'] != "None":
+                            p.append(pods[index]['Primary'])
+                    if 'Secondary' in pods[index]:
+                        if pods[index]['Secondary'] != "None":
+                            s.append(pods[index]['Secondary'])
+                if p:
+                    w = ",".join(p) + " " + dc + "-" + sp + "\n"
+                    output_pri.write(w)
+                if s:
+                    w = ",".join(s) + " " + dc + "-" + sp + "\n"
+                    output_sec.write(w)
 
         elif re.match(r'(pod)', cluster_type, re.IGNORECASE):
             # Parses the groups of pods into groups of 3 and writes the output to files
-            pri_grps,sec_grps = parseData(dc,dc_data[dc])
-            for grp in pri_grps:
-                chunked = list(chunks(grp, groupsize))
-                #print(chunked)
-                for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc + "\n"
-                    output_pri.write(w)
-            for grp in sec_grps:
-                chunked = list(chunks(grp, groupsize))
-                logging.debug(chunked)
-                for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc + "\n"
-                    output_sec.write(w)
-            logging.debug("primary %s %s" % (dc,pri_grps))
-            logging.debug("secondary %s %s" % (dc,sec_grps))
+            for dc, sp in dc_data.items():
+                for spod, pods in sp.items():
+                    p = []
+                    s = []
+                    ttl_len = len(pods)
+                    for index in range(0, ttl_len):
+                        if 'Primary' in pods[index]:
+                            if pods[index]['Primary'] != "None":
+                                p.append(pods[index]['Primary'])
+                        if 'Secondary' in pods[index]:
+                            if pods[index]['Secondary'] != "None":
+                                s.append(pods[index]['Secondary'])
+                    chunked = chunks(p, groupsize)
+                    for sub_lst in chunked:
+                        w = ','.join(sub_lst) + " " + dc + "\n"
+                        output_pri.write(w)
+
+                    chunked = chunks(s, groupsize)
+                    for sub_lst in chunked:
+                        w = ','.join(sub_lst) + " " + dc + "\n"
+                        output_sec.write(w)
+
         elif re.match(r'(hammer)', cluster_type, re.IGNORECASE):
             """
             This code splits up hammer clusters into primary, secondary and sp cluster lists
             writing the output to files
             """
-            pri_grps,sec_grps = parseHammerData(dc,dc_data[dc])
-            logging.debug("%s %s" % (pri_grps,sec_grps))
-            for sp_lst in pri_grps:
-                logging.debug("pri : %s" % sp_lst)
-                if sp_lst != "None":
-                    sp_lst_gen(sp_lst)
-                    w = sp_lst + " " + dc + "\n"
+            for sp, pods in dc_data[dc].items():
+                ttl_len = len(pods)
+                p = []
+                s = []
+                for index in range(0, ttl_len):
+                    if 'Primary' in pods[index]:
+                        if pods[index]['Primary'] != "None":
+                            p.append(pods[index]['Primary'])
+                    if 'Secondary' in pods[index]:
+                        if pods[index]['Secondary'] != "None":
+                            s.append(pods[index]['Secondary'])
+                if p:
+                    w = ",".join(p) + " " + dc + "-" + sp + "\n"
                     output_pri.write(w)
-            for sp_lst in sec_grps:
-                logging.debug("sec : %s" % sp_lst)
-                if sp_lst != "None":
-                    sp_lst_gen(sp_lst)
-                    w = sp_lst + " " + dc + "\n"
+                if s:
+                    w = ",".join(s) + " " + dc + "-" + sp + "\n"
                     output_sec.write(w)
+
         elif re.match(r'(hbase)', cluster_type, re.IGNORECASE):
             """
             This code splits up hbase clusters into primary, secondary and sp cluster lists
             writing the output to files
             """
-            groups = parseHbaseData(dc,dc_data[dc])
-            logging.debug(groups)
-            for sp in groups:
-                pri_grps = groups[sp]['pri_grps']
-                sec_grps = groups[sp]['sec_grps']
-                cluster_grps = groups[sp]['cluster_grps']
-                logging.debug('%s %s %s' % (pri_grps,sec_grps,cluster_grps))
-                #pri_sub_chunks=[pri_grps[x:x+groupsize] for x in xrange(0, len(pri_grps), groupsize)]
-                #print(pri_sub_chunks)
-                #for sub_lst in pri_sub_chunks:
-                for sp_lst in pri_grps:
-                    if sp_lst != "None":
-                        sp_lst_gen(sp_lst)
-                        w = sp_lst + " " + dc + "\n"
-                        output_pri.write(w)
-                     #w = sp_lst + " " + dc + "\n"
-                     #output_pri.write(w)
-                #sec_sub_chunks=[sec_grps[x:x+groupsize] for x in xrange(0, len(sec_grps), groupsize)]
-                for sp_lst in sec_grps:
-                    if sp_lst != "None":
-                        sp_lst_gen(sp_lst)
-                        w = sp_lst + " " + dc + "\n"
-                        output_pri.write(w)
-                    #w = sp_lst + " " + dc + "\n"
-                    #output_sec.write(w)
-                for c in cluster_grps:
-                    w = c + " " + dc + "\n"
-                    out_clusters.write(w)
-                logging.debug("primary %s %s" % (dc,pri_grps))
-                logging.debug("secondary %s %s" % (dc,sec_grps))
-                logging.debug("clusters %s %s" % (dc,cluster_grps))
+            cluster_grps = []
+            for sp, pods in dc_data[dc].items():
+                ttl_len = len(pods)
+                for index in range(0, ttl_len):
+                    if pods[index]['Primary'] != "None" and 'HBASE' in pods[index]['Primary']:
+                        if re.match(r"HBASE\d", pods[index]['Primary'], re.IGNORECASE):
+                            cluster_grps.append(pods[index]['Primary'])
+                        loc = isInstancePri(pods[index]['Primary'], dc)
+                        if loc == 'PROD':
+                            w = pods[index]['Primary'] + " " + dc.upper() + "\n"
+                            output_pri.write(w)
+                        elif loc == 'DR':
+                            w = pods[index]['Primary'] + " " + dc.upper() + "\n"
+                            output_sec.write(w)
+            for c in cluster_grps:
+                w = c + " " + dc + "\n"
+                out_clusters.write(w)
 
         elif re.match(r'(monitor)', cluster_type, re.IGNORECASE):
             """
@@ -510,14 +515,12 @@ if __name__ == '__main__':
             for sp_lst in pri_grps:
                 if sp_lst != "None":
                     sp_lst_gen(sp_lst)
-                    print(sp_lst)
                     w = sp_lst + " " + dc + "\n"
                     output_pri.write(w)
                     # w = sp_lst + " " + dc + "\n"
                     # output_pri.write(w)
 
             logging.debug("primary %s %s" % (dc, pri_grps))
-
 
         else:
             """
@@ -527,19 +530,18 @@ if __name__ == '__main__':
             MTA was
             MTA chi 
             """
-            logging.debug(cluster_type)
-            pri_grps,sec_grps = parseNonPodData(dc_data[dc])
-            for grp in pri_grps:
-                if grp != 'None':
-                    w = grp + " " + dc + "\n"
-                    output_pri.write(w)
-            for grp in sec_grps:
-                if grp != 'None':
-                    w = grp + " " + dc + "\n"
-                    output_sec.write(w)
-            logging.debug("primary %s %s" % (dc,pri_grps))
-            logging.debug("secondary %s %s" % (dc,sec_grps))
+            for sp, pods in dc_data[dc].items():
+                ttl_len = len(pods)
+                for index in range(0, ttl_len):
+                    if 'Primary' in pods[index]:
+                            w = pods[index]['Primary'] + " " + dc.upper() + "\n"
+                            output_pri.write(w)
+                    if 'Secondary' in pods[index]:
+                            w = pods[index]['Secondary'] + " " + dc.upper() + "\n"
+                            output_sec.write(w)
+
     # close writing the output files
     output_pri.close()
     output_sec.close()
     out_clusters.close()
+
