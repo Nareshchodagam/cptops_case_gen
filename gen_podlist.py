@@ -427,27 +427,26 @@ if __name__ == '__main__':
 
         elif re.match(r'(pod)', cluster_type, re.IGNORECASE):
             # Parses the groups of pods into groups of 3 and writes the output to files
-            for dc, sp in dc_data.items():
-                for spod, pods in sp.items():
-                    p = []
-                    s = []
-                    ttl_len = len(pods)
-                    for index in range(0, ttl_len):
-                        if 'Primary' in pods[index]:
-                            if pods[index]['Primary'] != "None":
-                                p.append(pods[index]['Primary'])
-                        if 'Secondary' in pods[index]:
-                            if pods[index]['Secondary'] != "None":
-                                s.append(pods[index]['Secondary'])
-                    chunked = chunks(p, groupsize)
-                    for sub_lst in chunked:
-                        w = ','.join(sub_lst) + " " + dc + "\n"
-                        output_pri.write(w)
+            for spod, pods in dc_data[dc].items():
+                p = []
+                s = []
+                ttl_len = len(pods)
+                for index in range(0, ttl_len):
+                    if 'Primary' in pods[index]:
+                        if pods[index]['Primary'] != "None":
+                            p.append(pods[index]['Primary'])
+                    if 'Secondary' in pods[index]:
+                        if pods[index]['Secondary'] != "None":
+                            s.append(pods[index]['Secondary'])
+                chunked = chunks(p, groupsize)
+                for sub_lst in chunked:
+                    w = ','.join(sub_lst) + " " + dc + "\n"
+                    output_pri.write(w)
 
-                    chunked = chunks(s, groupsize)
-                    for sub_lst in chunked:
-                        w = ','.join(sub_lst) + " " + dc + "\n"
-                        output_sec.write(w)
+                chunked = chunks(s, groupsize)
+                for sub_lst in chunked:
+                    w = ','.join(sub_lst) + " " + dc + "\n"
+                    output_sec.write(w)
 
         elif re.match(r'(hammer)', cluster_type, re.IGNORECASE):
             """
