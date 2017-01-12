@@ -18,7 +18,8 @@ def parseData(batch_data):
     for i in batch_data:
         i = i.rstrip()
         logging.debug(i)
-        batch_num,hostname,serial,dc_sp,inst_dc,rack = i.split(",")
+        #batch_num, hostname, serial, dc_sp, inst_dc, rack = i.split(",")
+        batch_num,hostname,dc_sp,inst_dc = i.split(",")
         batch = batch_num
         hosts.append(hostname)
         inst,dc = inst_dc.split('-')
@@ -119,10 +120,12 @@ def buildMain(dcs_insts,filename,batch):
     build_main.append("\n")
     return build_main
     
-def printOutput(dcs_insts,batch,output_file_plan,output_file_hostlist,create_case):
+def printOutput(dcs_insts,batch,output_file_hostlist,create_case):
+    #def printOutput(dcs_insts, batch, output_file_plan, output_file_hostlist, create_case):
     for dc in dcs_insts:
         insts = dcs_insts[dc]
-        str = """python gus_cases_vault.py -T change  -f ../templates/ffx-afw-case_details.json  --inst %s --infra "Primary and Secondary" -s "FFX AFW Conversions %s batch %s" -k ../templates/ffx-afw-plan.json -D %s -i %s -l %s""" % (insts,dc,batch,dc,output_file_plan,output_file_hostlist)      
+        #str = """python gus_cases_vault.py -T change  -f ../templates/ffx-afw-case_details.json  --inst %s --infra "Primary and Secondary" -s "FFX AFW Conversions %s batch %s" -k ../templates/ffx-afw-plan.json -D %s -i %s -l %s""" % (insts,dc,batch,dc,output_file_plan,output_file_hostlist)
+        str = """python gus_cases_vault.py -T change  -f ../templates/FFX-Conv-NonApproved.json  --inst %s --infra "Primary and Secondary" -s "FFX AFW Conversions %s batch %s" -k ../templates/ffx-afw-plan.json -D %s -l %s""" % (insts, dc, batch, dc, output_file_hostlist)
     logging.debug(str)
     cmd_list = shlex.split(str)
     logging.debug(cmd_list)
@@ -138,17 +141,18 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args()
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
-    output_file_plan = '../output/plan_implementation.txt'
+    #output_file_plan = '../output/plan_implementation.txt'
     output_file_hostlist = '../output/hostlist_file'
     pods_lists = common_methods.getData('pods_lists')
     if options.batch_file:
         _,fname = os.path.split(options.batch_file)
         batch_data = common_methods.getData(options.batch_file)
         dcs_insts,hosts,batch = parseData(batch_data)
-        build_pre = buildPre(dcs_insts,fname,pods_lists)
-        build_main = buildMain(dcs_insts,fname,batch)
-        build_post = buildPost(hosts)
-        plans = build_pre + build_main + build_post
-        output_plan = common_methods.writeOutPlan(plans,output_file_plan)
+        #build_pre = buildPre(dcs_insts,fname,pods_lists)
+        #build_main = buildMain(dcs_insts,fname,batch)
+        #build_post = buildPost(hosts)
+        #plans = build_pre + build_main + build_post
+        #output_plan = common_methods.writeOutPlan(plans,output_file_plan)
         common_methods.writeOut(hosts,output_file_hostlist)
-        printOutput(dcs_insts,batch,output_file_plan,output_file_hostlist,options.create_case)
+        #printOutput(dcs_insts,batch,output_file_plan,output_file_hostlist,options.create_case)
+        printOutput(dcs_insts, batch, output_file_hostlist, options.create_case)
