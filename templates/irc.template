@@ -9,14 +9,12 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
 - Disable monitoring on appropriate ops-monitor host
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
+Exec: /opt/rh/python27/root/usr/bin/python2.7 /opt/cpt/nagios_monitor.py -H v_HOSTS -c disable
 
 - Record the application's current running status
 release_runner.pl -forced_host v_HOSTS  -c sudo_cmd -m "./remote_transfer/manage_service.py -n ircd -r -i" -threads -auto2
 
-
 v_INCLUDE
-
 
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
@@ -30,13 +28,16 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 - Start the application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n ircd -i -s" -threads -auto2
 
+- Sleep (15 seconds for app to start)
+Exec: sleep 15
+
 - Check local application port
-release_runner.pl -forced_host v_HOSTS -c cmd -m "./remote_transfer/check_local_port 6697" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c cmd -m "./remote_transfer/check_local_port.py -p 6697" -threads -auto2
 
 -Verify that the application is running
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_ircd.py" -threads -auto2
 
 - Enable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
+Exec: /opt/rh/python27/root/usr/bin/python2.7 /opt/cpt/nagios_monitor.py -H v_HOSTS -c enable
 
 Exec: echo "Host v_HOSTS system patching completed"
