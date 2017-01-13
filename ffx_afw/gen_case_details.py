@@ -120,12 +120,17 @@ def buildMain(dcs_insts,filename,batch):
     build_main.append("\n")
     return build_main
     
-def printOutput(dcs_insts,batch,output_file_hostlist,create_case):
+def printOutput(dcs_insts,batch,output_file_hostlist,create_case,case_sub):
     #def printOutput(dcs_insts, batch, output_file_plan, output_file_hostlist, create_case):
     for dc in dcs_insts:
         insts = dcs_insts[dc]
-        #str = """python gus_cases_vault.py -T change  -f ../templates/ffx-afw-case_details.json  --inst %s --infra "Primary and Secondary" -s "FFX AFW Conversions %s batch %s" -k ../templates/ffx-afw-plan.json -D %s -i %s -l %s""" % (insts,dc,batch,dc,output_file_plan,output_file_hostlist)
-        str = """python gus_cases_vault.py -T change  -f ../templates/ffx-conv-nonaproved.json  --inst %s --infra "Primary and Secondary" -s "FFX AFW Conversions %s batch %s" -k ../templates/ffx-afw-plan.json -D %s -l %s""" % (insts, dc, batch, dc, output_file_hostlist)
+        if case_sub == True:
+            str = """python ../gus_cases_vault.py -T change  -f ../templates/ffx-conv-nonaproved.json  --infra "Primary and Secondary" -s "FFX AFW Conversions %s batch %s" -k ../templates/ffx-afw-plan.json -D %s -l %s -A""" % (
+            dc, batch, dc, output_file_hostlist)
+        else:
+            #str = """python gus_cases_vault.py -T change  -f ../templates/ffx-afw-case_details.json  --inst %s --infra "Primary and Secondary" -s "FFX AFW Conversions %s batch %s" -k ../templates/ffx-afw-plan.json -D %s -i %s -l %s""" % (insts,dc,batch,dc,output_file_plan,output_file_hostlist)
+            str = """python ../gus_cases_vault.py -T change  -f ../templates/ffx-conv-nonaproved.json  --infra "Primary and Secondary" -s "FFX AFW Conversions %s batch %s" -k ../templates/ffx-afw-plan.json -D %s -l %s""" % (dc,batch,dc,output_file_hostlist)
+
     logging.debug(str)
     cmd_list = shlex.split(str)
     logging.debug(cmd_list)
@@ -136,13 +141,14 @@ def printOutput(dcs_insts,batch,output_file_hostlist,create_case):
 if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-f", "--filename", dest="batch_file", help="Filename with batch details")
-    parser.add_option("-c", action="store_true", dest="create_case", default=False, help="verbosity")
+    parser.add_option("-c", action="store_true", dest="create_case", default=False, help="Case creation option")
     parser.add_option("-v", action="store_true", dest="verbose", default=False, help="verbosity")
+    parser.add_option("-A", action="store_true", dest="case_sub", default=False, help="Submit case for approval")
     (options, args) = parser.parse_args()
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     #output_file_plan = '../output/plan_implementation.txt'
-    output_file_hostlist = '../output/hostlist_file'
+    output_file_hostlist = 'output/hostlist_file'
     pods_lists = common_methods.getData('pods_lists')
     if options.batch_file:
         _,fname = os.path.split(options.batch_file)
@@ -155,4 +161,4 @@ if __name__ == "__main__":
         #output_plan = common_methods.writeOutPlan(plans,output_file_plan)
         common_methods.writeOut(hosts,output_file_hostlist)
         #printOutput(dcs_insts,batch,output_file_plan,output_file_hostlist,options.create_case)
-        printOutput(dcs_insts, batch, output_file_hostlist, options.create_case)
+        printOutput(dcs_insts, batch, output_file_hostlist, options.create_case, options.case_sub)
