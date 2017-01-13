@@ -493,7 +493,7 @@ if __name__ == '__main__':
         elif re.match(r'(monitor)', cluster_type, re.IGNORECASE):
             """
             """
-            for files in ['pod.pri', 'pod.sec']:
+            for files in ['hostlists/pod.pri', 'hostlists/pod.sec']:
                 f_data = read_file(files)
                 for line in f_data:
                     if dc in line:
