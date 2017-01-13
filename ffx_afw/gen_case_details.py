@@ -125,7 +125,7 @@ def printOutput(dcs_insts,batch,output_file_hostlist,create_case):
     for dc in dcs_insts:
         insts = dcs_insts[dc]
         #str = """python gus_cases_vault.py -T change  -f ../templates/ffx-afw-case_details.json  --inst %s --infra "Primary and Secondary" -s "FFX AFW Conversions %s batch %s" -k ../templates/ffx-afw-plan.json -D %s -i %s -l %s""" % (insts,dc,batch,dc,output_file_plan,output_file_hostlist)
-        str = """python gus_cases_vault.py -T change  -f ../templates/FFX-Conv-NonApproved.json  --inst %s --infra "Primary and Secondary" -s "FFX AFW Conversions %s batch %s" -k ../templates/ffx-afw-plan.json -D %s -l %s""" % (insts, dc, batch, dc, output_file_hostlist)
+        str = """python gus_cases_vault.py -T change  -f ../templates/ffx-conv-nonaproved.json  --inst %s --infra "Primary and Secondary" -s "FFX AFW Conversions %s batch %s" -k ../templates/ffx-afw-plan.json -D %s -l %s""" % (insts, dc, batch, dc, output_file_hostlist)
     logging.debug(str)
     cmd_list = shlex.split(str)
     logging.debug(cmd_list)
