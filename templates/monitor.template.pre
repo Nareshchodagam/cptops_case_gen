@@ -2,24 +2,12 @@
 
 Exec: mkdir -p ~/releaserunner/remote_transfer
 
-- the get the remote scripts:
-Exec: svn export svn://vc-v_DATACENTER/subversion/jumpstart/common/solaris-and-linux/sysfiles/system_update.sh ~/releaserunner/remote_transfer/system_update.sh
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/valid_versions.json ~/releaserunner/remote_transfer/valid_versions.json
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/validate_linux_patchset.py ~/releaserunner/remote_transfer/validate_linux_patchset.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py ~/releaserunner/remote_transfer/common.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_sbcheck.sh ~/releaserunner/remote_transfer/nagios_sbcheck.sh
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
+- Get the remote scripts:
+Exec: cp /opt/cpt/bin/system_update.sh ~/releaserunner/remote_transfer/system_update.sh
+Exec: cp /opt/cpt/includes/valid_versions.json ~/releaserunner/remote_transfer/valid_versions.json
+Exec: cp /opt/cpt/bin/validate_linux_patchset.py ~/releaserunner/remote_transfer/validate_linux_patchset.py
+Exec: cp /opt/cpt/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/COPS/migrate-to-centos.sh ~/releaserunner/remote_transfer/migrate-to-centos.sh
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_service.py ~/releaserunner/remote_transfer/manage_service.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_backup.sh ~/releaserunner/remote_transfer/nagios_backup.sh
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/system_vendortools_update.sh ~/releaserunner/remote_transfer/system_vendortools_update.sh
-
-
-
-- then get the local update scripts:
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/check_reconnect.py ~/check_reconnect.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_monitor.py ~/nagios_monitor.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/idbhost.py ~/idbhost.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py ~/common.py
-
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/verify_hosts.py ~/verify_hosts.py
+Exec: cp /opt/cpt/bin/system_vendortools_update.sh ~/releaserunner/remote_transfer/system_vendortools_update.sh
+Exec: cp /opt/cpt/bin/manage_service.py ~/releaserunner/remote_transfer/manage_service.py
+Exec: cp /opt/cpt/bin/nagios_backup.sh ~/releaserunner/remote_transfer/nagios_backup.sh

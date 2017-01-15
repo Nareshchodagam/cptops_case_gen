@@ -7,11 +7,11 @@
 
 import sys
 import os
-from os.path import expanduser
+#from os.path import expanduser
 
 # Set the default sys.path
-sys.path.append(os.getcwd() +'/../includes/')
-sys.path.append('/opt/compute_deploy/includes/')
+#sys.path.append(os.getcwd() +'/../includes/')
+#sys.path.append('/opt/compute_deploy/includes/')
 
 class Common:
     """Help on module common:
@@ -36,12 +36,13 @@ class Common:
     def __init__(self):
 
         # Filesystem paths.
-        self.home=expanduser("~")
-        self.logdir='../log'
-        self.outputdir= self.home + '/git/cptops_case_gen/output'
-        self.etcdir= self.home + '/git/cptops_case_gen/etc'
+        self.home = os.getcwd()
+        #self.home=expanduser("~")
+        self.logdir='log'
+        self.outputdir= self.home + '/output'
+        self.etcdir= self.home + '/etc'
         self.bindir='.'
-        self.includedir='../includes'
+        self.includedir='/includes'
         self.tmpdir='../tmp'
-        self.templatedir= self.home + '/git/cptops_case_gen/templates'
-        self.cidb_jar_path = self.home + '/git/cptops_case_gen/lib/auth'
+        self.templatedir= self.home + '/templates'
+        self.cidb_jar_path = self.home + '/lib/auth'
