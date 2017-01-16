@@ -5,7 +5,7 @@
 	"Change-Type": "Standard Pre Approved",
 	"Status": "Approved, Scheduled",
 	"SRO-Resource": "No",
-	"Patch-Vendor": "CentOS",
+	"Patch-Vendor": "Redhat",
 	"Patch-Desc": "FFX AFW Conversions",
 	"Subject": "v_SUBJECT",
 	"Description": "For SFDC Compliance and project illumio, we need to convert the below hosts",
