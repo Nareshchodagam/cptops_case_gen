@@ -2,10 +2,10 @@
 	"Details":
 	{
 	"RecordTypeId": "012B000000009fB",
-	"Change-Type": "Minor",
-	"Status": "New",
+	"Change-Type": "Standard Pre Approved",
+	"Status": "Approved, Scheduled",
 	"SRO-Resource": "No",
-	"Patch-Vendor": "Redhat",
+	"Patch-Vendor": "CentOS",
 	"Patch-Desc": "FFX AFW Conversions",
 	"Subject": "v_SUBJECT",
 	"Description": "For SFDC Compliance and project illumio, we need to convert the below hosts",
