@@ -86,7 +86,7 @@ else:
         if host not in primary and host not in secondary:
             primary.append(host)
             with open("batchfiles/"'batch' + batch + '-1.txt', 'a') as pri:
-                pri.write(batch + "-0," + host + "," + dc_name + "-" + sp + "," + clust_name + "-" + dc_name + "\n")
+                pri.write(batch + "-1," + host + "," + dc_name + "-" + sp + "," + clust_name + "-" + dc_name + "\n")
             secondary.append(buddy)
             with open("batchfiles/"'batch' + batch + '-2.txt', 'a') as sec:
                 sec.write(batch + "-2," + buddy + "," + dc_name + "-" + sp + "," + clust_name + "-" + dc_name + "\n")
