@@ -302,6 +302,9 @@ def read_file(file_name):
 
 def listbuilder(pod_list, dc):
     hostnum = re.compile(r"(^monitor)([1-6])")
+    hostcomp = re.compile(r'(\w*-\w*)(?<!\d)')
+    hostlist_pri = []
+    hostlist_sec =[]
     if isinstance(pod_list, list):
         pods = pod_list
     else:
@@ -311,16 +314,39 @@ def listbuilder(pod_list, dc):
             output = os.popen("dig %s-monitor-%s.ops.sfdc.net +short | tail -2 | head -1" % (val.lower(), dc))
             prim_serv = output.read().strip("\n")
             host = prim_serv.split('.')
+            logging.debug(host[0])
             mon_num = host[0].split('-')
             if prim_serv:
-                if val.lower() == mon_num[0]:
-                    output_pri.write(host[0] + "\n")
-                match = hostnum.search(mon_num[1])
-                num = int(match.group(2))
-                if (num % 2) == 0:
-                    output_sec.write(val.lower() + "-" + match.group(1) + str(num - 1) + "-" + mon_num[2] + "-" + dc + "\n")
+                hostval2 = hostcomp.search(prim_serv)
+                if  "%s-monitor" % (val.lower()) == hostval2.group():
+                    if val.lower() == mon_num[0]:
+                        if host[0] not in hostlist_pri:
+                            hostlist_pri.append(host[0])
+                    match = hostnum.search(mon_num[1])
+                    num = int(match.group(2))
+                    if (num % 2) == 0:
+                        stby_host = val.lower() + "-" + match.group(1) + str(num - 1) + "-" + mon_num[2] + "-" + dc
+                    else:
+                        stby_host = val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc
+                    if stby_host not in hostlist_sec:
+                        hostlist_sec.append(stby_host)
                 else:
-                    output_sec.write(val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc + "\n")
+                    val = prim_serv.split('-')[0]
+                    if host[0] not in hostlist_pri:
+                            hostlist_pri.append(host[0])
+                    match = hostnum.search(mon_num[1])
+                    num = int(match.group(2))
+                    if (num % 2) == 0:
+                        stby_host = val.lower() + "-" + match.group(1) + str(num - 1) + "-" + mon_num[2] + "-" + dc
+                    else:
+                        stby_host = val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc
+                    if stby_host not in hostlist_sec:
+                        hostlist_sec.append(stby_host)
+
+    for item in hostlist_pri:
+        output_pri.write("%s\n" % item)
+    for item in hostlist_sec:
+        output_sec.write("%s\n" % item)
 
 if __name__ == '__main__':
     usage = """
