@@ -10,7 +10,7 @@ from idbhost import Idbhost
 def where_am_i():
     """
     Figures out location based on hostname
-    
+
     Input : nothing
     Returns : 3 letter site code
     """
@@ -465,11 +465,34 @@ if __name__ == '__main__':
                         if pods[index]['Secondary'] != "None":
                             s.append(pods[index]['Secondary'])
                 if p:
-                    w = ",".join(p) + " " + dc + "-" + sp + "\n"
-                    output_pri.write(w)
+                    w = ""
+                    len_list = len(p)
+                    if len_list > 8:
+                        for cluster in range(len_list):
+                            w = w + p[cluster]
+                            if (cluster == len_list / 2 - 1) or (cluster == len_list - 1):
+                                output_pri.write(w + " " + dc + "\n")
+                                w = ""
+                            else:
+                                w += ","
+                    else:
+                        w = ",".join(p) + " " + dc + "-" + sp + "\n"
+                        output_pri.write(w)
+
                 if s:
-                    w = ",".join(s) + " " + dc + "-" + sp + "\n"
-                    output_sec.write(w)
+                    w = ""
+                    len_list = len(s)
+                    if len_list > 8:
+                        for cluster in range(len_list):
+                            w = w + s[cluster]
+                            if (cluster == len_list / 2 - 1) or (cluster == len_list - 1):
+                                output_sec.write(w + " " + dc + "\n")
+                                w = ""
+                            else:
+                                w += ","
+                    else:
+                        w = ",".join(s) + " " + dc + "-" + sp + "\n"
+                        output_sec.write(w)
 
         elif re.match(r'(hbase)', cluster_type, re.IGNORECASE):
             """
@@ -524,10 +547,10 @@ if __name__ == '__main__':
         else:
             """
             Parses any sp level instances and writes them to the output files
-            Generally of the type cluster DC on successive lines. 
-            Eg 
+            Generally of the type cluster DC on successive lines.
+            Eg
             MTA was
-            MTA chi 
+            MTA chi
             """
             for sp, pods in dc_data[dc].items():
                 ttl_len = len(pods)
