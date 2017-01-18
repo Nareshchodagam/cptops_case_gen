@@ -152,11 +152,11 @@ if __name__ == "__main__":
     elif options.podgroups and options.casetype == "hostlist" and options.hlgrp == True:
         data = getData(options.podgroups)
         hostlist = sortHost(data)
-        if options.group:
-            subject = casesubject + " " + options.group
-        else:
-            subject = casesubject + ": " + options.role.upper()
         for dc, hosts in hostlist.iteritems():
+            if options.group:
+                subject = casesubject + " " + options.group + " " + dc.upper()
+            else:
+                subject = casesubject + ": " + options.role.upper()
             output_str = """python build_plan.py -t %s --bundle %s -T -M %s""" % (options.template, options.patchset,grouping)
             if options.idb != True:
                 output_str = output_str + " -x"
@@ -166,7 +166,7 @@ if __name__ == "__main__":
                 output_str = output_str + " --dowork " + options.dowork
             output_str = output_str + '  -l "%s"' % ",".join(hosts)
             print("%s" % output_str)
-            print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (options.bundle,options.infra,subject,implplansection,dc))
+            print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s " -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (options.bundle,options.infra,subject,implplansection,dc))
     elif options.podgroups and options.casetype == "coreappafw":
         data = getData(options.podgroups)
         inst_data = genDCINST(data)
