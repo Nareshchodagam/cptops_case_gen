@@ -38,6 +38,10 @@
 
 	./build_plan.py -l ~/prd_mmxcvrlist  -t mmxcvr_standby -s NONE -c 00092225 -i NONE -r mmxcvr -d prd -a
 
+_Generating plans for a list of host (not a file)_
+	
+	./build_plan.py -l "ops-monitor1-1-sfm,ops-monitor2-1-sfm" -t monitor -r monitor --dowork system_update --bundle 2017.01
+
  _Other build_plan examples._
 
 	./build_plan.py -c 0000001 -C -G '{"clusters" : "cs32,cs33,na21" ,"datacenter": "wax" , "roles": "search,ffx", "grouping" : "majorset,minorset", "templateid" : "generic_test" }'
