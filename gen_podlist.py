@@ -465,31 +465,27 @@ if __name__ == '__main__':
                         if pods[index]['Secondary'] != "None":
                             s.append(pods[index]['Secondary'])
                 if p:
-                    w = ""
+                    write_list = []
                     len_list = len(p)
-                    if len_list > 8:
+                    if len_list > 7:
                         for cluster in range(len_list):
-                            w = w + p[cluster]
-                            if (cluster == len_list / 2 - 1) or (cluster == len_list - 1):
-                                output_pri.write(w + " " + dc + "\n")
-                                w = ""
-                            else:
-                                w += ","
+                            if cluster % 7 == 0 and cluster != 0:
+                                output_pri.write(",".join(write_list) + " " + dc + "-" + sp + "\n")
+                                write_list = []
+                            write_list.append(p[cluster])
                     else:
                         w = ",".join(p) + " " + dc + "-" + sp + "\n"
                         output_pri.write(w)
 
                 if s:
-                    w = ""
+                    write_list = []
                     len_list = len(s)
-                    if len_list > 8:
+                    if len_list > 7:
                         for cluster in range(len_list):
-                            w = w + s[cluster]
-                            if (cluster == len_list / 2 - 1) or (cluster == len_list - 1):
-                                output_sec.write(w + " " + dc + "\n")
-                                w = ""
-                            else:
-                                w += ","
+                            if cluster % 7 == 0 and cluster != 0:
+                                output_sec.write(",".join(write_list) + " " + dc + "-" + sp + "\n")
+                                write_list = []
+                            write_list.append(s[cluster])
                     else:
                         w = ",".join(s) + " " + dc + "-" + sp + "\n"
                         output_sec.write(w)
