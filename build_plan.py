@@ -529,15 +529,24 @@ def write_plan_dc(dc,template_id,writeplan):
 def get_clean_hostlist(hostlist):
     hostnames =[]
     dcs = []
-
-    file = open(hostlist).readlines()
-    for line in file:
-        print line
-
-        dc = line.split('-')[3].rstrip('\n')
-        if dc not in dcs:
-            dcs.append(dc)
-        hostnames.append(line.rstrip('\n').rstrip())
+    hostlist_chk = re.compile(r'\w*-\w*-\d-\w*[\S|,]*')
+    output_list = hostlist_chk.search(hostlist)
+    if output_list:
+        hostlist = output_list.group().split(',')
+        
+    if isinstance(hostlist, list):
+        for line in hostlist:
+            dc = line.split('-')[3]
+            if dc not in dcs:
+                dcs.append(dc)
+            hostnames.append(line)
+    else:
+        file = open(hostlist).readlines()
+        for line in file:
+            dc = line.split('-')[3].rstrip('\n')
+            if dc not in dcs:
+                dcs.append(dc)
+            hostnames.append(line.rstrip('\n').rstrip())
 
     return dcs,hostnames
 
@@ -800,11 +809,10 @@ if __name__ == "__main__":
           exit()
 
       if options.hostlist:
+          #hostlist_chk = re.compile(r'([a-z,0-9,-]*)')
           groups = options.grouping.split(',')
-
           if not options.template:
               options.template='AUTO'
-          print options.hostlist
           gen_plan_by_hostlist_idb(options.hostlist, options.template, options.gsize,groups)
           exit()
 
