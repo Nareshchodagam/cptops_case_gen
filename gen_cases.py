@@ -141,7 +141,10 @@ if __name__ == "__main__":
             subject = casesubject + ": " + options.role.upper()
         dcs_list = ",".join(dcs)
         #python build_plan.py -l ../hostlists/restoreffx -x -t straight-patch -T --bundle 2016.02
-        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s""" % (options.podgroups, options.template, options.patchset,grouping)
+        if options.host_validation:  # This change is generate plan based on remote host checking
+            output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s --host_validation %s""" % (options.podgroups, options.template, options.patchset,grouping, options.host_validation)
+        else:
+            output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s""" % (options.podgroups, options.template, options.patchset,grouping)
         if options.idb != True:
             output_str = output_str + " -x"
         if options.groupsize:
@@ -206,7 +209,7 @@ if __name__ == "__main__":
             opts_str = json.dumps(opt_bp)
             opts_str = re.sub('maxgroupsize": ("\d+")', inputDictStrtoInt, opts_str)
             logging.debug(opts_str)
-            if options.host_validation: # This chnage is generate plan based on remote host checking
+            if options.host_validation: # This change is generate plan based on remote host checking
                 output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s --host_validation %s -v""" % \
                                 (options.patchset,opts_str,options.taggroups, options.host_validation)
             else:
