@@ -2,9 +2,6 @@
 
 Exec: mkdir -p ~/releaserunner/remote_transfer
 
-- create a local remote_transfer directory
-Exec: mkdir -p ~/releaserunner/remote_transfer
-
 
 Exec: cp /opt/cpt/bin/system_update.sh ~/releaserunner/remote_transfer/system_update.sh
 Exec: cp /opt/cpt/includes/valid_versions.json ~/releaserunner/remote_transfer/valid_versions.json
