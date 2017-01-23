@@ -100,6 +100,7 @@ if __name__ == "__main__":
     parser.add_option("--taggroups", dest="taggroups", help="Size for blocked groups for large running cases like hbase")
     parser.add_option("--dowork", dest="dowork", help="Include template to use for v_INCLUDE replacement")
     parser.add_option("--HLGrp", dest="hlgrp", action="store_true", default="False", help="Groups hostlist by DC")
+    parser.add_option("--host_validation", dest="host_validation", action="store_true", default=False, help="Verify remote hosts")
     python = 'python'
     excludelist = ''
     (options, args) = parser.parse_args()
@@ -205,8 +206,12 @@ if __name__ == "__main__":
             opts_str = json.dumps(opt_bp)
             opts_str = re.sub('maxgroupsize": ("\d+")', inputDictStrtoInt, opts_str)
             logging.debug(opts_str)
-            output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s -v""" % \
-                            (options.patchset,opts_str,options.taggroups)
+            if options.host_validation: # This chnage is generate plan based on remote host checking
+                output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s --host_validation %s -v""" % \
+                                (options.patchset,opts_str,options.taggroups, options.host_validation)
+            else:
+                output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s -v""" % \
+                                (options.patchset, opts_str, options.taggroups)
             if options.exclude:
                 output_str = output_str + " --exclude " + options.exclude
             if options.casetype == "reimage":

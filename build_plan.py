@@ -138,6 +138,16 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     if options.dowork:
         output = getDoWork(output, options.dowork)
 
+    # Add verify_host to template in memory and replace v_HOSTS to v_CASE_include
+    if options.host_validation:
+        # I made this assumption as role templates shouldn't have 'mkdir' and 'cp' commands, only pre templates
+        if 'mkdir ' not in output and 'cp ' not in output:
+            output = output.replace('v_HOSTS', '$(cat ~/v_CASE_include)')
+            output_list = output.splitlines(True)
+            output_list.insert(1, '\n-Verify if hosts are patched or not up\nExec: echo " Verify hosts BLOCK v_NUM" && '
+                                  '~/verify_hosts.py -H v_HOSTS --bundle v_BUNDLE --case v_CASE\n\n')
+            output = "".join(output_list)
+
     if options.checkhosts:
         hosts = '`~/check_hosts.py -H ' + hosts  + '`'
     output = output.replace('v_HOSTS', hosts)
@@ -178,7 +188,6 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_CL_OPSTAT', cl_opstat)
     output = output.replace('v_HO_OPSTAT', ho_opstat)
     output = output.replace('v_COMMAND', build_command)
-
     return output
 
 def getDoWork(input, dowork):
@@ -678,6 +687,7 @@ parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False ,
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("--taggroups", dest="taggroups", type="int", default=0, help="number of sub-plans per group tag")
 parser.add_option("--dowork", dest="dowork", help="command to supply for dowork functionality")
+parser.add_option("--host_validation", dest="host_validation", action="store_true", default=False, help="Verify remote hosts")
 
 (options, args) = parser.parse_args()
 if __name__ == "__main__":
