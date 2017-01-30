@@ -711,7 +711,7 @@ parser.add_option("-T", "--tags", dest="tags", default=False , action="store_tru
 parser.add_option("--taggroups", dest="taggroups", type="int", default=0, help="number of sub-plans per group tag")
 parser.add_option("--dowork", dest="dowork", help="command to supply for dowork functionality")
 parser.add_option("--host_validation", dest="host_validation", action="store_true", default=False, help="Verify remote hosts")
-parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default=False, help="Auto close cases")
+parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default=True, help="Auto close cases")
 
 
 (options, args) = parser.parse_args()

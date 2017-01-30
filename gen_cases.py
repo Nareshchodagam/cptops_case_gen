@@ -101,7 +101,7 @@ if __name__ == "__main__":
     parser.add_option("--dowork", dest="dowork", help="Include template to use for v_INCLUDE replacement")
     parser.add_option("--HLGrp", dest="hlgrp", action="store_true", default="False", help="Groups hostlist by DC")
     parser.add_option("--host_validation", dest="host_validation", action="store_true", default=False, help="Verify remote hosts")
-    parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default=False, help="sAuto close case")
+    parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default=True, help="sAuto close case")
     python = 'python'
     excludelist = ''
     (options, args) = parser.parse_args()
