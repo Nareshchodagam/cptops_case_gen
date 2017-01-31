@@ -135,6 +135,13 @@ if __name__ == '__main__':
             #casenums = options.caseNum.split(',')
             caseId = getCaseId(options.caseNum, session)
             plan_id = getExistingPlanId(caseId, session)
+            # This code to replace v_CASE with case no.
+            with open(options.filename, 'r') as f_read:
+                lines = f_read.readlines()
+            if 'v_CASE' in lines:
+                with open(options.filename, 'w') as f_write:
+                    for line in lines:
+                        f_write.write(re.sub(r'v_CASE', options.caseNum, line))
             moveExistingPlan(name, plan_id, session)
             attach_file(options.filename, caseId, session)
         

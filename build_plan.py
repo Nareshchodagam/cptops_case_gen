@@ -138,10 +138,27 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     if options.dowork:
         output = getDoWork(output, options.dowork)
 
+    """This code is to add unique comment to each line in implementation plan.
+     e.g - release_runner.pl -forced_host $(cat ~/v_CASE_include) -force_update_bootstrap -c sudo_cmd -m "ls" -auto2 -threads
+     -comment 'BLOCK 1'"""
+    if 'v_COMMAND' not in output and 'mkdir ' not in output:
+        o_list = output.splitlines(True)
+        for i in range(len(o_list)):
+            if o_list[i].startswith('release_runner.pl') and 'BLOCK' not in o_list[i]:
+                cmd = o_list[i].strip() + ' -comment ' + "'BLOCK v_NUM'\n"
+                o_list.remove(o_list[i])
+                o_list.insert(i, cmd)
+            elif o_list[i].startswith('Exec') and 'BLOCK' not in o_list[i]:
+                j = o_list[i].split(':')[1]
+                cmd = "Exec: echo 'BLOCK v_NUM' && " + j
+                o_list.remove(o_list[i])
+                o_list.insert(i, cmd)
+        output = "".join(o_list)
+
     # Add verify_host to template in memory and replace v_HOSTS to v_CASE_include
     if options.host_validation:
         # I made this assumption as role templates shouldn't have 'mkdir' and 'cp' commands, only pre templates
-        if 'mkdir ' not in output and 'cp ' not in output:
+        if 'v_COMMAND' not in output and 'mkdir ' not in output:
             output = output.replace('v_HOSTS', '$(cat ~/v_CASE_include)')
             output_list = output.splitlines(True)
             output_list.insert(1, '\n- Verify if hosts are patched or not up\nExec: echo "Verify hosts BLOCK v_NUM" && '
@@ -364,6 +381,12 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
             with open(post_file, "r") as post:
                 post = post.read()
                 post = compile_template(post, hosts, cluster, datacenter, superpod, casenum, role)
+                # This code to add auto close case to post templates
+                if options.auto_close_case:
+                    post_list = post.splitlines(True)
+                    str_to_add = "- Auto close case \nExec_with_creds: /opt/cpt/close_gus_cases.py -c v_CASE -y\n\n"
+                    post_list.insert(2, str_to_add)
+                    post = "".join(post_list)
                 logging.debug('Writing out post file ' + post_file + ' to ' + consolidated_file)
                 final_file.write('BEGIN_GROUP: POST\n' + post + '\nEND_GROUP: POST\n\n')
         if options.tags:
@@ -688,6 +711,8 @@ parser.add_option("-T", "--tags", dest="tags", default=False , action="store_tru
 parser.add_option("--taggroups", dest="taggroups", type="int", default=0, help="number of sub-plans per group tag")
 parser.add_option("--dowork", dest="dowork", help="command to supply for dowork functionality")
 parser.add_option("--host_validation", dest="host_validation", action="store_true", default=False, help="Verify remote hosts")
+parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default=True, help="Auto close cases")
+
 
 (options, args) = parser.parse_args()
 if __name__ == "__main__":
