@@ -6,6 +6,7 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/sysse
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/valid_versions.json ~/releaserunner/remote_transfer/valid_versions.json
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/validate_linux_patchset.py  ~/releaserunner/remote_transfer/validate_linux_patchset.py
+Exec: cp /opt/cpt/bin/validate_firmware.py ~/releaserunner/remote_transfer/validate_firmware.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py  ~/releaserunner/remote_transfer/common.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/syssec/patch/start_cmgt.sh ~/releaserunner/remote_transfer/start_cmgt.sh
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/syssec/patch/stop_cmgt.sh ~/releaserunner/remote_transfer/stop_cmgt.sh
