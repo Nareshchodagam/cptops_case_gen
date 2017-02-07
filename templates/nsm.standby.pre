@@ -8,7 +8,9 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opsen
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/validate_linux_patchset.py  ~/releaserunner/remote_transfer/validate_linux_patchset.py
 Exec: cp /opt/cpt/bin/validate_firmware.py ~/releaserunner/remote_transfer/validate_firmware.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py  ~/releaserunner/remote_transfer/common.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/syssec/patch/validate_nsm.sh ~/releaserunner/remote_transfer/validate_nsm.sh
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/syssec/patch/validate_nsm.sh ~/releaserunner/remote_transfer/disable_kernel_update.sh
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/syssec/patch/validate_nsm.sh ~/releaserunner/remote_transfer/enable_kernel_update.sh
+Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/syssec/patch/validate_nsm.sh ~/releaserunner/remote_transfer/update_pf_ring.sh
 
 -Get the local scripts:
 
