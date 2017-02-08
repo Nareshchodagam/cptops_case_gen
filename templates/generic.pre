@@ -13,4 +13,11 @@ Exec: cp /opt/cpt/bin/system_vendortools_update.sh ~/releaserunner/remote_transf
 Exec: cp /opt/cpt/bin/chk_symlinks.py ~/releaserunner/remote_transfer/chk_symlinks.py
 Exec: cp /opt/cpt/bin/manage_service.py ~/releaserunner/remote_transfer/manage_service.py
 
+- PUBLIC-PROXY pre
+
+Exec: cp /opt/cpt/bin/check_maxfs_desc.py ~/releaserunner/remote_transfer/check_maxfs_desc.py
+Exec: cp /opt/cpt/bin/check_proxy_endpoints.py ~/releaserunner/remote_transfer/check_proxy_endpoints.py
+Exec: cp /opt/cpt/bin/check_static_routes.py ~/releaserunner/remote_transfer/check_static_routes.py
+
+
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/verify_hosts.py ~/verify_hosts.py
