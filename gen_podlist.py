@@ -303,6 +303,9 @@ def read_file(file_name):
 
 def listbuilder(pod_list, dc):
     hostnum = re.compile(r"(^monitor)([1-6])")
+    hostcomp = re.compile(r'(\w*-\w*)(?<!\d)')
+    hostlist_pri = []
+    hostlist_sec =[]
     if isinstance(pod_list, list):
         pods = pod_list
     else:
@@ -312,16 +315,39 @@ def listbuilder(pod_list, dc):
             output = os.popen("dig %s-monitor-%s.ops.sfdc.net +short | tail -2 | head -1" % (val.lower(), dc))
             prim_serv = output.read().strip("\n")
             host = prim_serv.split('.')
+            logging.debug(host[0])
             mon_num = host[0].split('-')
             if prim_serv:
-                if val.lower() == mon_num[0]:
-                    output_pri.write(host[0] + "\n")
-                match = hostnum.search(mon_num[1])
-                num = int(match.group(2))
-                if (num % 2) == 0:
-                    output_sec.write(val.lower() + "-" + match.group(1) + str(num - 1) + "-" + mon_num[2] + "-" + dc + "\n")
+                hostval2 = hostcomp.search(prim_serv)
+                if  "%s-monitor" % (val.lower()) == hostval2.group():
+                    if val.lower() == mon_num[0]:
+                        if host[0] not in hostlist_pri:
+                            hostlist_pri.append(host[0])
+                    match = hostnum.search(mon_num[1])
+                    num = int(match.group(2))
+                    if (num % 2) == 0:
+                        stby_host = val.lower() + "-" + match.group(1) + str(num - 1) + "-" + mon_num[2] + "-" + dc
+                    else:
+                        stby_host = val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc
+                    if stby_host not in hostlist_sec:
+                        hostlist_sec.append(stby_host)
                 else:
-                    output_sec.write(val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc + "\n")
+                    val = prim_serv.split('-')[0]
+                    if host[0] not in hostlist_pri:
+                            hostlist_pri.append(host[0])
+                    match = hostnum.search(mon_num[1])
+                    num = int(match.group(2))
+                    if (num % 2) == 0:
+                        stby_host = val.lower() + "-" + match.group(1) + str(num - 1) + "-" + mon_num[2] + "-" + dc
+                    else:
+                        stby_host = val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc
+                    if stby_host not in hostlist_sec:
+                        hostlist_sec.append(stby_host)
+
+    for item in hostlist_pri:
+        output_pri.write("%s\n" % item)
+    for item in hostlist_sec:
+        output_sec.write("%s\n" % item)
 
 if __name__ == '__main__':
     usage = """
@@ -465,31 +491,27 @@ if __name__ == '__main__':
                         if pods[index]['Secondary'] != "None":
                             s.append(pods[index]['Secondary'])
                 if p:
-                    w = ""
+                    write_list = []
                     len_list = len(p)
-                    if len_list > 8:
+                    if len_list > 7:
                         for cluster in range(len_list):
-                            w = w + p[cluster]
-                            if (cluster == len_list / 2 - 1) or (cluster == len_list - 1):
-                                output_pri.write(w + " " + dc + "\n")
-                                w = ""
-                            else:
-                                w += ","
+                            if cluster % 7 == 0 and cluster != 0:
+                                output_pri.write(",".join(write_list) + " " + dc + "-" + sp + "\n")
+                                write_list = []
+                            write_list.append(p[cluster])
                     else:
                         w = ",".join(p) + " " + dc + "-" + sp + "\n"
                         output_pri.write(w)
 
                 if s:
-                    w = ""
+                    write_list = []
                     len_list = len(s)
-                    if len_list > 8:
+                    if len_list > 7:
                         for cluster in range(len_list):
-                            w = w + s[cluster]
-                            if (cluster == len_list / 2 - 1) or (cluster == len_list - 1):
-                                output_sec.write(w + " " + dc + "\n")
-                                w = ""
-                            else:
-                                w += ","
+                            if cluster % 7 == 0 and cluster != 0:
+                                output_sec.write(",".join(write_list) + " " + dc + "-" + sp + "\n")
+                                write_list = []
+                            write_list.append(s[cluster])
                     else:
                         w = ",".join(s) + " " + dc + "-" + sp + "\n"
                         output_sec.write(w)

@@ -12,6 +12,7 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opsen
 '
 - Get the local update scripts:
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/validate_linux_patchset.py ~/release_runner/remote_transfer/validate_linux_patchset.py
+Exec: cp /opt/cpt/bin/validate_firmware.py ~/releaserunner/remote_transfer/validate_firmware.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/subversion/jumpstart/common/solaris-and-linux/sysfiles/system_update.sh ~/releaserunner/remote_transfer/system_update.sh
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py ~/releaserunner/remote_transfer/common.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/database/scripts/MajorRel/stopOracle.sh ~/releaserunner/remote_transfer/stopOracle.sh

@@ -44,6 +44,16 @@ def genDCINST(data):
     output = output + " }"
     return output
 
+def sortHost(data):
+    host_dict = {}
+    for host in data:
+        dc = host.split('-')[3]
+        dc = dc.rstrip('\n')
+        if host_dict.has_key(dc):
+            host_dict[dc].append(host.rstrip())
+        else:
+            host_dict[dc] = [host.rstrip()]
+    return host_dict
 
 def get_site(host):
     inst,hfuc,g,site = host.split('-')
@@ -89,6 +99,9 @@ if __name__ == "__main__":
     parser.add_option("--implplan", dest="implplansection", help="Template to use for implementation steps in planner")
     parser.add_option("--taggroups", dest="taggroups", help="Size for blocked groups for large running cases like hbase")
     parser.add_option("--dowork", dest="dowork", help="Include template to use for v_INCLUDE replacement")
+    parser.add_option("--HLGrp", dest="hlgrp", action="store_true", default="False", help="Groups hostlist by DC")
+    parser.add_option("--host_validation", dest="host_validation", action="store_true", default=False, help="Verify remote hosts")
+    parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default=True, help="sAuto close case")
     python = 'python'
     excludelist = ''
     (options, args) = parser.parse_args()
@@ -120,13 +133,25 @@ if __name__ == "__main__":
         groupsize = groupSize(options.role)     
     if options.groupsize:
         groupsize = options.groupsize
-    if options.podgroups and options.casetype == "hostlist":
+    if options.podgroups and options.casetype == "hostlist" and options.hlgrp == "False":
         data = getData(options.podgroups)
         dcs = getDCs(data)
-        subject = casesubject + ": " + options.role.upper()
+        if options.group:
+            subject = casesubject + " " + options.group
+        else:
+            subject = casesubject + ": " + options.role.upper()
         dcs_list = ",".join(dcs)
         #python build_plan.py -l ../hostlists/restoreffx -x -t straight-patch -T --bundle 2016.02
-        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s""" % (options.podgroups, options.template, options.patchset,grouping)
+        if options.host_validation and not options.auto_close_case: # This change is generate plan based on remote host checking
+            output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s --host_validation %s""" % (options.podgroups, options.template, options.patchset,grouping, options.host_validation)
+        elif options.host_validation and options.auto_close_case:
+            output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s --host_validation %s --auto_close_case %s""" % (
+            options.podgroups, options.template, options.patchset, grouping, options.host_validation, options.auto_close_case)
+        elif options.auto_close_case and not options.host_validation:
+            output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s --auto_close_case %s""" % (options.podgroups, options.template, options.patchset, grouping, options.auto_close_case)
+        else:
+            output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s""" % (options.podgroups, options.template, options.patchset,grouping)
+
         if options.idb != True:
             output_str = output_str + " -x"
         if options.groupsize:
@@ -135,6 +160,34 @@ if __name__ == "__main__":
             output_str = output_str + " --dowork " + options.dowork
         print("%s" % output_str)
         print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (options.bundle,options.infra,subject,implplansection,dcs_list))
+    elif options.podgroups and options.casetype == "hostlist" and options.hlgrp == True:
+        data = getData(options.podgroups)
+        hostlist = sortHost(data)
+        for dc, hosts in hostlist.iteritems():
+            if options.group:
+                subject = casesubject + " " + options.group + " " + dc.upper()
+            else:
+                subject = casesubject + ": " + options.role.upper()
+            if options.host_validation and not options.auto_close_case:  # This change is generate plan based on remote host checking
+                output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s --host_validation %s""" % (
+                options.podgroups, options.template, options.patchset, grouping, options.host_validation)
+            elif options.host_validation and options.auto_close_case:
+                output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s --host_validation %s --auto_close_case %s""" % (
+                    options.podgroups, options.template, options.patchset, grouping, options.host_validation, options.auto_close_case)
+            elif options.auto_close_case and not options.host_validation:
+                output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s --auto_close_case %s""" % (
+                options.podgroups, options.template, options.patchset, grouping, options.auto_close_case)
+            else:
+                output_str = """python build_plan.py -t %s --bundle %s -T -M %s""" % (options.template, options.patchset,grouping)
+            if options.idb != True:
+                output_str = output_str + " -x"
+            if options.groupsize:
+                output_str = output_str + " --gsize %s" % groupsize 
+            if options.dowork:
+                output_str = output_str + " --dowork " + options.dowork
+            output_str = output_str + '  -l "%s"' % ",".join(hosts)
+            print("%s" % output_str)
+            print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s " -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (options.bundle,options.infra,subject,implplansection,dc))
     elif options.podgroups and options.casetype == "coreappafw":
         data = getData(options.podgroups)
         inst_data = genDCINST(data)
@@ -142,7 +195,6 @@ if __name__ == "__main__":
             options.bundle = options.bundle + "-patch.json"
         subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
         print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k  templates/%s -D '%s'""" % (options.bundle,options.infra,subject,implplansection,inst_data))
-
     elif options.podgroups and options.casetype == "coreapp-canary":
         data = getData(options.podgroups)
         inst_data = genDCINST(data)
@@ -174,8 +226,18 @@ if __name__ == "__main__":
             opts_str = json.dumps(opt_bp)
             opts_str = re.sub('maxgroupsize": ("\d+")', inputDictStrtoInt, opts_str)
             logging.debug(opts_str)
-            output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s -v""" % \
-                            (options.patchset,opts_str,options.taggroups)
+            if options.host_validation and not options.auto_close_case : # This change is generate plan based on remote host checking
+                output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s --host_validation %s -v""" % \
+                                (options.patchset,opts_str,options.taggroups, options.host_validation)
+            elif options.host_validation and options.auto_close_case:
+                output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s --host_validation %s --auto_close_case %s"""\
+                                """ -v""" % (options.patchset, opts_str, options.taggroups, options.host_validation,
+                                             options.auto_close_case)
+            elif options.auto_close_case and not options.host_validation:
+                output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s --auto_close_case %s -v""" % (options.patchset,opts_str, options.taggroups, options.auto_close_case)
+            else:
+                output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s -v""" % \
+                                (options.patchset, opts_str, options.taggroups)
             if options.exclude:
                 output_str = output_str + " --exclude " + options.exclude
             if options.casetype == "reimage":

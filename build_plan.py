@@ -107,7 +107,7 @@ def build_dynamic_groups(hosts):
     return outmap
 
 
-def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat='',ho_opstat='',template_vars=None):
+def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role, num='', cl_opstat='',ho_opstat='',template_vars=None):
     # Replace variables in the templates
     logging.debug('Running compile_template')
 
@@ -138,6 +138,33 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     if options.dowork:
         output = getDoWork(output, options.dowork)
 
+    """This code is to add unique comment to each line in implementation plan.
+     e.g - release_runner.pl -forced_host $(cat ~/v_CASE_include) -force_update_bootstrap -c sudo_cmd -m "ls" -auto2 -threads
+     -comment 'BLOCK 1'"""
+    if 'v_COMMAND' not in output and 'mkdir ' not in output:
+        o_list = output.splitlines(True)
+        for i in range(len(o_list)):
+            if o_list[i].startswith('release_runner.pl') and 'BLOCK' not in o_list[i]:
+                cmd = o_list[i].strip() + ' -comment ' + "'BLOCK v_NUM'\n"
+                o_list.remove(o_list[i])
+                o_list.insert(i, cmd)
+            elif o_list[i].startswith('Exec') and 'BLOCK' not in o_list[i]:
+                j = o_list[i].split(':')[1]
+                cmd = "Exec: echo 'BLOCK v_NUM' && " + j
+                o_list.remove(o_list[i])
+                o_list.insert(i, cmd)
+        output = "".join(o_list)
+
+    # Add verify_host to template in memory and replace v_HOSTS to v_CASE_include
+    if options.host_validation:
+        # I made this assumption as role templates shouldn't have 'mkdir' and 'cp' commands, only pre templates
+        if 'v_COMMAND' not in output and 'mkdir ' not in output:
+            output = output.replace('v_HOSTS', '$(cat ~/v_CASE_include)')
+            output_list = output.splitlines(True)
+            output_list.insert(1, '\n- Verify if hosts are patched or not up\nExec: echo "Verify hosts BLOCK v_NUM" && '
+                                  '~/verify_hosts.py -H v_HOSTS --bundle v_BUNDLE --case v_CASE\n\n')
+            output = "".join(output_list)
+
     if options.checkhosts:
         hosts = '`~/check_hosts.py -H ' + hosts  + '`'
     output = output.replace('v_HOSTS', hosts)
@@ -147,6 +174,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_CASENUM', casenum)
     output = output.replace('v_ROLE', role)
     output = output.replace('v_BUNDLE', options.bundle)
+    output = output.replace('v_NUM', num)
     # Total hack to pass kp_client concurrency and threshold values. Include in refactoring
     if options.concur and options.failthresh:
         concur = options.concur
@@ -177,7 +205,6 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_CL_OPSTAT', cl_opstat)
     output = output.replace('v_HO_OPSTAT', ho_opstat)
     output = output.replace('v_COMMAND', build_command)
-
     return output
 
 def getDoWork(input, dowork):
@@ -251,12 +278,12 @@ def prep_template(template, outfile):
 
 
 
-def gen_plan(hosts, cluster, datacenter, superpod, casenum, role,groupcount=0,cl_opstat='',ho_opstat='',template_vars={}):
+def gen_plan(hosts, cluster, datacenter, superpod, casenum, role, num, groupcount=0,cl_opstat='',ho_opstat='',template_vars={}):
     # Generate the main body of the template (per host)
     logging.debug('Executing gen_plan()')
     print "Generating: " + out_file
     s = open(template_file).read()
-    s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, cl_opstat,ho_opstat,template_vars)
+    s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, num, cl_opstat,ho_opstat,template_vars)
 
 
     f = open(out_file, 'w')
@@ -354,6 +381,12 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
             with open(post_file, "r") as post:
                 post = post.read()
                 post = compile_template(post, hosts, cluster, datacenter, superpod, casenum, role)
+                # This code to add auto close case to post templates
+                if options.auto_close_case:
+                    post_list = post.splitlines(True)
+                    str_to_add = "- Auto close case \nExec_with_creds: /opt/cpt/close_gus_cases.py -c v_CASE -y\n\n"
+                    post_list.insert(2, str_to_add)
+                    post = "".join(post_list)
                 logging.debug('Writing out post file ' + post_file + ' to ' + consolidated_file)
                 final_file.write('BEGIN_GROUP: POST\n' + post + '\nEND_GROUP: POST\n\n')
         if options.tags:
@@ -518,8 +551,8 @@ def write_plan_dc(dc,template_id,writeplan):
             logging.debug(gblSplitHosts)
 
             prep_template(template_id, common.outputdir + '/' + fileprefix + "_plan_implementation.txt")
-            gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),i,','.join(cluster_operationalstatus),','.join(host_operationalstatus),\
-                template_vars)
+            gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),
+                     fileprefix,i,','.join(cluster_operationalstatus),','.join(host_operationalstatus), template_vars)
 
     consolidated_plan = consolidate_plan(','.join(set(allhosts)), ','.join(set(allclusters)), dc, ','.join(set(allsuperpods)), options.caseNum, ','.join(set(allroles)))
 
@@ -529,15 +562,24 @@ def write_plan_dc(dc,template_id,writeplan):
 def get_clean_hostlist(hostlist):
     hostnames =[]
     dcs = []
-
-    file = open(hostlist).readlines()
-    for line in file:
-        print line
-
-        dc = line.split('-')[3].rstrip('\n')
-        if dc not in dcs:
-            dcs.append(dc)
-        hostnames.append(line.rstrip('\n').rstrip())
+    hostlist_chk = re.compile(r'\w*-\w*-\d-\w*[\S|,]*')
+    output_list = hostlist_chk.search(hostlist)
+    if output_list:
+        hostlist = output_list.group().split(',')
+        
+    if isinstance(hostlist, list):
+        for line in hostlist:
+            dc = line.split('-')[3]
+            if dc not in dcs:
+                dcs.append(dc)
+            hostnames.append(line)
+    else:
+        file = open(hostlist).readlines()
+        for line in file:
+            dc = line.split('-')[3].rstrip('\n')
+            if dc not in dcs:
+                dcs.append(dc)
+            hostnames.append(line.rstrip('\n').rstrip())
 
     return dcs,hostnames
 
@@ -668,6 +710,9 @@ parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False ,
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("--taggroups", dest="taggroups", type="int", default=0, help="number of sub-plans per group tag")
 parser.add_option("--dowork", dest="dowork", help="command to supply for dowork functionality")
+parser.add_option("--host_validation", dest="host_validation", action="store_true", default=False, help="Verify remote hosts")
+parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default=True, help="Auto close cases")
+
 
 (options, args) = parser.parse_args()
 if __name__ == "__main__":
@@ -800,11 +845,10 @@ if __name__ == "__main__":
           exit()
 
       if options.hostlist:
+          #hostlist_chk = re.compile(r'([a-z,0-9,-]*)')
           groups = options.grouping.split(',')
-
           if not options.template:
               options.template='AUTO'
-          print options.hostlist
           gen_plan_by_hostlist_idb(options.hostlist, options.template, options.gsize,groups)
           exit()
 
