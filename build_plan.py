@@ -149,8 +149,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
                 o_list.remove(o_list[i])
                 o_list.insert(i, cmd)
             elif o_list[i].startswith('Exec') and 'BLOCK' not in o_list[i]:
-                j = o_list[i].split(':')[1]
-                cmd = "Exec: echo 'BLOCK v_NUM' && " + j
+                cmd = "Exec: echo 'BLOCK v_NUM' && " + o_list[i][o_list[i].index(':')+1:]
                 o_list.remove(o_list[i])
                 o_list.insert(i, cmd)
         output = "".join(o_list)
