@@ -1,3 +1,5 @@
+EU5,CS89,EU11 par
+CS88 par
 AP0,CS31,SR3 tyo
 AP2,CS6,AP4 tyo
 AP3,AP1,CS5 tyo
