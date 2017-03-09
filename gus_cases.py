@@ -14,6 +14,8 @@ import json
 import sys
 import os
 from datetime import datetime, date, time, timedelta
+
+
 try:
     import yaml
 except:
@@ -224,6 +226,16 @@ def get_verification(filename):
         data = f.readlines()
     return data
 
+def genChangeDetails(subject, case_data, desc_data, inst):
+    if inst != None:
+        subject = inst + " " + subject
+        desc_data['Description'] = inst + " " + desc_data['Description']
+    case_data['Subject'] = subject
+    case_data['Description'] = desc_data['Description']
+    if options.owner:
+        case_data['Case-Owner'] = options.owner
+    return case_data
+
 def get_hosts(hostlist):
     hlist = []
     with open(hostlist) as f:
@@ -251,6 +263,20 @@ def attach_file(filename, name, cId, session):
     logging.debug("%s %s %s %s" % (filename, name, cId, session))
     logging.debug(attachRes)
     return attachRes
+
+def combineInstanceValues(data):
+    """
+    Takes a dict containing a set of instances and combines them into a list
+    Input : dict with dc and instance in comma separated list
+    Output : comma separated str of instances
+    """
+    logging.debug(data)
+    insts = []
+    for d in data:
+        insts.append(data[d])
+    print(insts)
+    output = ",".join(insts)
+    return output
 
 def submitCase(caseId, session):
     gusObj = Gus()
@@ -359,6 +385,7 @@ if __name__ == '__main__':
     parser.add_option("-t", "--comment", dest="comment", help="text to add to a case comment")
     parser.add_option("-y", "--yaml", dest="yaml", action="store_true", help="patch details via yaml file")
     parser.add_option("-u", "--update", action="store_true", dest="update", help="Required if you want to update a case")
+    parser.add_option("-o", "--owner", dest="owner", help="Sets the owner of the case")
     parser.add_option("-v", action="store_true", dest="verbose", default=False, help="verbosity") # will set to False later
     (options, args) = parser.parse_args()
     if options.verbose:
@@ -385,8 +412,105 @@ if __name__ == '__main__':
     infratype="Supporting Infrastructure"
     if options.infra:
         infratype = options.infra    
-
-    if options.casetype == 'change':
+    
+    if options.casetype == 'storage':
+        logging.debug('casetype of %s' % options.casetype)
+        planner_data = ''
+        case_data = ''
+        if options.dc:
+            # Code added to get the instance list from the cmd
+            DCS = options.dc
+            if DCS != None:
+                try:
+                    dcs_data = json.loads(DCS)
+                    print('DC variable contains instance keys')
+                    full_instances = combineInstanceValues(dcs_data)
+                    logging.debug(full_instances)
+                except Exception as e:
+                    if options.inst:
+                        full_instances = options.inst
+                    print('DC variable does not contain instance keys : %s' % e)
+        #come back and refactor this
+        if options.implanner:
+            _,file_extension = os.path.splitext(options.implanner)
+            if file_extension == ".yaml":
+                planner_data = getYamlData(options.implanner)
+            else:
+                print("Case type storage uses yaml files")
+                sys.exit()
+        if options.filename:
+            _,file_extension = os.path.splitext(options.filename)
+            if file_extension == ".yaml":
+                case_data = getYamlData(options.filename)
+            else:
+                print("Case type storage uses yaml files")
+                sys.exit()
+        if options.desc:
+            _,file_extension = os.path.splitext(options.desc)
+            if file_extension == ".yaml":
+                desc_data = getYamlData(options.desc)
+            else:
+                print("Case type storage uses yaml files")
+                sys.exit()
+        if planner_data != '':
+             print(planner_data)
+        if case_data != '':
+            print(case_data)
+        if options.inst:
+            inst = options.inst
+        else:
+            inst = None
+        str = "/".join(dcs_data.keys())
+        subject = options.subject + " " + str.upper()
+        #subject = options.subject
+        change_details = genChangeDetails(subject, case_data, desc_data, inst)
+        #caseId='500B0000002HBcEIAW'
+        logging.debug(change_details)
+        try:
+            caseId = create_change_case(change_details, session)
+        except Exception as e:
+            print("Failed to create case : %s" % e)
+        planner_data_dict = {}
+        try:
+            for k,v in dcs_data.items():
+                for s,t in planner_data.items():
+                    header_str = k + " - " + v + " " + s
+                    planner_data_dict[header_str] = t
+        except Exception as e:
+            print("Problem with dc data : %s" % e)
+        print(planner_data_dict)
+        for e in planner_data_dict:
+            start_time,end_time = gen_time()
+            impl_details = {}
+            impl_details['Case__c'] = caseId
+            impl_details['Description__c'] = e.upper()
+            impl_details['SM_Data_Center__c'] = e.split('-')[0].upper()
+            impl_details['SM_Estimated_End_Time__c'] = end_time
+            impl_details['SM_Estimated_Start_Time__c'] = start_time
+            impl_details['SM_Implementation_Steps__c'] = planner_data_dict[e]
+            impl_details['SM_Infrastructure_Type__c'] = infratype
+            print(impl_details)
+            try:
+                create_implementation_plan(impl_details, caseId, session)
+                #createImplamentationPlannerYAML(planner_data_dict, caseId, session, DCS=options.dc)
+            except Exception as e:
+                print("Problem creating implementation plan section : %s" % (e))
+        #createImplamentationPlannerYAML(planner_data_dict, caseId, session, DCS=options.dc)
+        caseNum = getCaseNum(caseId, session)
+        logging.debug('The case number is %s' % caseNum['CaseNumber'])
+    
+        if options.attach:
+            files = options.attach.split(',')
+            for f in files:
+                logging.debug(f)
+                try:
+                    os.path.isfile(f)
+                    print("Attaching file : %s" % f)
+                    attachFile(f, caseId, session)
+                except Exception as e:
+                    print('The File %s does not exist : %s' % (f,e))
+        print(caseNum['CaseNumber'])
+    elif options.casetype == 'change':
         insts = ''
         hosts = get_hosts(options.hostlist)
 
