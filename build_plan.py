@@ -90,7 +90,6 @@ def build_dynamic_groups(hosts):
 
     # Cut up the hostlist by the values stored in ../etc/host_regex.json
     # to generate more complex plans.
-
     outmap = {}
     with open(common.etcdir + '/host_regex.json') as data_file:
         hostmap = json.load(data_file)
@@ -105,7 +104,6 @@ def build_dynamic_groups(hosts):
                     outmap[v] = []
                     outmap[v].append(host)
     return outmap
-
 
 def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role, num='', cl_opstat='',ho_opstat='',template_vars=None):
     # Replace variables in the templates
@@ -133,6 +131,13 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
                 except:
                     break
     hosts=",".join(hlist )
+
+    #Added (By Amardeep)for Argus WriteD and Metrics role, It will replace the "argustsdbw" with "argusmetrics" as both has be done togeter in a serial manner.
+    if "argustsdbw" in hosts:
+        argusmetrics = hosts.replace('argustsdbw', 'argusmetrics')
+        argustsdbw = hosts
+        hosts = ','.join([argustsdbw, argusmetrics])
+    #End
 
     #Ability to reuse templates and include sections. Include in refactoring
     if options.dowork:
@@ -163,10 +168,18 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
             output_list.insert(1, '\n- Verify if hosts are patched or not up\nExec: echo "Verify hosts BLOCK v_NUM" && '
                                   '~/verify_hosts.py -H v_HOSTS --bundle v_BUNDLE --case v_CASE\n\n')
             output = "".join(output_list)
+#
 
     if options.checkhosts:
         hosts = '`~/check_hosts.py -H ' + hosts  + '`'
     output = output.replace('v_HOSTS', hosts)
+    #Added (Amardeep) only to facilitate ARGUS_WRITED and ARGUS_METRICS roles to work together
+    try:
+        output = output.replace('v_HOSTD', argustsdbw)
+        output = output.replace('v_HOSTM', argusmetrics)
+    except UnboundLocalError:
+        pass
+    #End
     output = output.replace('v_CLUSTER', cluster)
     output = output.replace('v_DATACENTER', datacenter)
     output = output.replace('v_SUPERPOD', superpod)
@@ -505,6 +518,13 @@ def consolidate_idb_query_plans(writeplan,dcs):
                     fullhostlist.remove(str(excluded_host))
                 except:
                     break
+    #Added (By Amardeep)for Argus WriteD and Metrics role, It will replace the "argustsdbw" with "argusmetrics" as both has be done togeter in a serial manner.
+    fullhostlist1 = []
+    for host in fullhostlist:
+        if "argustsdbw" in host:
+            fullhostlist1.append(host.replace('argustsdbw', 'argusmetrics'))
+    fullhostlist = fullhostlist + fullhostlist1
+    #End
     write_list_to_file(common.outputdir + '/summarylist.txt', fullhostlist)
 
 def write_plan_dc(dc,template_id,writeplan):
@@ -554,7 +574,6 @@ def write_plan_dc(dc,template_id,writeplan):
                      fileprefix,i,','.join(cluster_operationalstatus),','.join(host_operationalstatus), template_vars)
 
     consolidated_plan = consolidate_plan(','.join(set(allhosts)), ','.join(set(allclusters)), dc, ','.join(set(allsuperpods)), options.caseNum, ','.join(set(allroles)))
-
     print 'Template: '+ template_id
     return consolidated_plan, sorted(allhosts)
 
@@ -866,3 +885,4 @@ else:
     #default options for build_plan unit test
     options.idbgen=True
     gblExcludeList=False
+
