@@ -39,7 +39,7 @@
     " ",
     "Validate kernel version:",
     " ",
-    "$ uname -a | grep 2.6.32-642.14.1.el6.x86_64",
+    "$ uname -a | grep 2.6.32-642.15.1.el6.x86_64",
     " ",
     "All checks will be included in the validation code ",
     "validate_linux_patchset.py"
