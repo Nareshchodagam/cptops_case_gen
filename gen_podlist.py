@@ -493,14 +493,14 @@ if __name__ == '__main__':
                 if p:
                     write_list = []
                     len_list = len(p)
-                    if len_list > 7:
+                    if len_list > 5:
                         for cluster in range(len_list):
-                            if cluster % 7 == 0 and cluster != 0:
-                                output_pri.write(",".join(write_list) + " " + dc + "-" + sp + "\n")
+                            if cluster % 5 == 0 and cluster != 0:
+                                output_pri.write(",".join(write_list) + " " + dc + "\n")
                                 write_list = []
                             write_list.append(p[cluster])
                     else:
-                        w = ",".join(p) + " " + dc + "-" + sp + "\n"
+                        w = ",".join(p) + " " + dc + "\n"
                         output_pri.write(w)
 
                 if s:
@@ -508,12 +508,12 @@ if __name__ == '__main__':
                     len_list = len(s)
                     if len_list > 7:
                         for cluster in range(len_list):
-                            if cluster % 7 == 0 and cluster != 0:
-                                output_sec.write(",".join(write_list) + " " + dc + "-" + sp + "\n")
+                            if cluster % 5 == 0 and cluster != 0:
+                                output_sec.write(",".join(write_list) + "\n")
                                 write_list = []
                             write_list.append(s[cluster])
                     else:
-                        w = ",".join(s) + " " + dc + "-" + sp + "\n"
+                        w = ",".join(s) + " " + dc + "\n"
                         output_sec.write(w)
 
         elif re.match(r'(hbase)', cluster_type, re.IGNORECASE):
