@@ -10,7 +10,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -comment 'BLOCK v_NUM'
 
 - Disable the Monitroing
-Exec: echo 'BLOCK v_NUM' &&  /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
+Exec: echo 'BLOCK v_NUM' &&  /opt/rh/python27/root/usr/bin/python2.7 /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 
 - Stop the running application
@@ -23,7 +23,7 @@ v_INCLUDE
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2 -comment 'BLOCK v_NUM'
 
 - Wait for the hosts to boot up
-Exec: echo 'BLOCK v_NUM' &&  ~/check_reconnect.py -H v_HOSTS
+Exec: echo 'BLOCK v_NUM' &&  /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
 
 - Validate that the hosts have been patched and are running the correct version
@@ -34,7 +34,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - logsearch_1 -c './se
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - logsearch_2 -c './service start'" -threads -auto2 -comment 'BLOCK v_NUM'
 
 - Enable nagios monitoring
-Exec: echo 'BLOCK v_NUM' &&  /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
+Exec: echo 'BLOCK v_NUM' &&  /opt/rh/python27/root/usr/bin/python2.7 /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
 
 
 Exec: echo 'BLOCK v_NUM' &&  echo "Host v_HOSTS system patching completed"
