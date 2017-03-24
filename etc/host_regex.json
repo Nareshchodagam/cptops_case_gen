@@ -3,7 +3,7 @@
     "mmcnsmr": "v_HOSTNAME_MMCNSMR",
     "mmcnsmr1-1|mmcnsmr1-2": "v_MMCNSMR_METRICS",
     "mmcnsmr6-2|mmcnsmr8-2": "v_MMCNSMR_LATENCY",
-    "prsn|chan|sshare": "v_HOSTNAME_CPS",
+    "prsn|chan": "v_HOSTNAME_CPS",
     "msg": "v_HOSTNAME_MSG",
     "dstore": "v_HOSTNAME_DSTORE"
  }

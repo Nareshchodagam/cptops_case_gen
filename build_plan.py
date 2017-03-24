@@ -15,6 +15,7 @@ import glob
 import os.path
 import logging
 from modules.buildplan_helper import *
+from idbhost import Idbhost
 import sys
 reload(sys)
 
@@ -105,6 +106,80 @@ def build_dynamic_groups(hosts):
                     outmap[v].append(host)
     return outmap
 
+#Functions For UMPS W-3773536 | T-1747266
+
+# Intiliazie the lists
+HOSTS_CPS = []
+HOSTS_DSTORE = []
+HOSTS_MSG = []
+HOSTS = []
+
+
+def clearUmpsList():
+    del HOSTS_CPS[:]
+    del HOSTS_DSTORE[:]
+    del HOSTS_MSG[:]
+    del HOSTS[:]
+
+
+def build_Umps_Hostlist(hostname):
+    global v_CPS1
+    global v_DSTORE1
+    global v_MSG1
+    global v_HOSTS
+    if re.search(r'prsn|chan', hostname):
+        HOSTS_CPS.append(hostname)
+    elif re.search(r'dstore', hostname):
+        HOSTS_DSTORE.append(hostname)
+    elif re.search(r'msg', hostname):
+        HOSTS_MSG.append(hostname)
+    HOSTS = HOSTS_CPS + HOSTS_DSTORE + HOSTS_MSG
+
+    v_CPS1 = ",".join(HOSTS_CPS)
+    v_DSTORE1 = ",".join(HOSTS_DSTORE)
+    v_MSG1 = ",".join(HOSTS_MSG)
+    v_HOSTS = ",".join(HOSTS)
+
+
+def get_umps_hosts(cluster, hosts):
+    hlist = {}
+    hlist['g1'] = []
+    hlist['g2'] = []
+    # for hosts in hostsdict.values():
+    for host in hosts:
+        if host.split(".")[0].split("-")[-1] == "phx" or host.split(".")[0].split("-")[-1] == "dfw" or \
+                        host.split(".")[0].split("-")[-1] == "frf" or host.split(".")[0].split("-")[-1] == "par" or host.split(".")[0].split("-")[-1] == "ukb" or \
+                        host.split(".")[0].split("-")[-1] == "iad" or host.split(".")[0].split("-")[-1] == "ord" or host.split(".")[0].split("-")[-1] == "hnd":
+            # if host.split("-")[1].strip("1234") == "sshare":
+            #    if host.split("-")[2] == "1" or host.split("-")[2] == "2":
+            #        hlist['g1'].append(host.rstrip())
+            #    elif host.split("-")[2] == "3" or host.split("-")[2] == "4":
+            #        hlist['g2'].append(host.rstrip())
+            if host.split("-")[2] == "1":
+                hlist['g1'].append(host.rstrip())
+            elif host.split("-")[2] == "2":
+                hlist['g2'].append(host.rstrip())
+        elif host.split(".")[0].split("-")[-1] == "lon":
+            if host.split("-")[1].strip("1234") == "msg" or host.split("-")[1].strip("1234") == "dstore":
+                if host.split("-")[2] == "1":
+                    hlist['g1'].append(host.rstrip())
+                elif host.split("-")[2] == "2":
+                    hlist['g2'].append(host.rstrip())
+            else:
+                if host.split("-")[2] == "1" or host.split("-")[2] == "2":
+                    hlist['g1'].append(host.rstrip())
+                elif host.split("-")[2] == "3" or host.split("-")[2] == "4":
+                    hlist['g2'].append(host.rstrip())
+        else:
+            if host.split("-")[1][-1] == "1":
+                hlist['g1'].append(host.rstrip())
+            elif host.split("-")[1][-1] == '2':
+                hlist['g2'].append(host.rstrip())
+    return hlist
+
+
+#End
+
 def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role, num='', cl_opstat='',ho_opstat='',template_vars=None):
     # Replace variables in the templates
     logging.debug('Running compile_template')
@@ -172,21 +247,69 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
     if options.checkhosts:
         hosts = '`~/check_hosts.py -H ' + hosts  + '`'
-    output = output.replace('v_HOSTS', hosts)
-    #Added (Amardeep) only to facilitate ARGUS_WRITED and ARGUS_METRICS roles to work together
-    try:
-        output = output.replace('v_HOSTD', argustsdbw)
-        output = output.replace('v_HOSTM', argusmetrics)
-    except UnboundLocalError:
-        pass
-    #End
-    output = output.replace('v_CLUSTER', cluster)
-    output = output.replace('v_DATACENTER', datacenter)
-    output = output.replace('v_SUPERPOD', superpod)
-    output = output.replace('v_CASENUM', casenum)
-    output = output.replace('v_ROLE', role)
-    output = output.replace('v_BUNDLE', options.bundle)
-    output = output.replace('v_NUM', num)
+
+# UMPS Build Plan Generation Block W-3773536 | T-1747266
+    umpshost = hosts
+    umpshostlst = umpshost.split(',')
+    if re.search(r"prsn|chan|msg|dstore", umpshost):
+        idb = Idbhost()
+        idb.vip_info(datacenter, 'chatter')
+        v_VIP = idb.vip_dict[cluster]
+        open("out.txt", 'w').close()
+        print("UMPS PLAN GENRATION....")
+        hlist = get_umps_hosts(cluster, umpshostlst)
+        hlistkeys = sorted(hlist.keys())
+        count = 0
+        for group in hlistkeys:
+            count += 1
+            umpsout = output
+            if not template_vars:
+                if count == 2:
+                    open("out.txt", 'w').close()
+            for host in hlist[group]:
+                build_Umps_Hostlist(host)
+            # print(v_CPS1, v_DSTORE1, v_MSG1)
+            umpsout = umpsout.replace('v_HOSTS', hosts)
+            # umpsout = umpsout.replace('v_HOSTNAME_DSTORE', v_HOSTNAME_DSTORE)
+            # umpsout = umpsout.replace('v_HOSTNAME_MSG', v_HOSTNAME_MSG)
+            umpsout = umpsout.replace('v_VIP', v_VIP)
+            umpsout = umpsout.replace('v_CPS1', v_CPS1)
+            umpsout = umpsout.replace('v_DSTORE1', v_DSTORE1)
+            umpsout = umpsout.replace('v_MSG1', v_MSG1)
+            umpsout = umpsout.replace('v_CLUSTER', cluster)
+            umpsout = umpsout.replace('v_DATACENTER', datacenter)
+            umpsout = umpsout.replace('v_SUPERPOD', superpod)
+            umpsout = umpsout.replace('v_CASENUM', casenum)
+            umpsout = umpsout.replace('v_ROLE', role)
+            umpsout = umpsout.replace('v_BUNDLE', options.bundle)
+            umpsout = umpsout.replace('v_NUM', num)
+            with open("out.txt", "a") as ou:
+                ou.write(umpsout)
+            clearUmpsList()
+            try:
+                num = str(int(num) + 1)
+            except ValueError:
+                pass
+
+        with open("out.txt", "r") as out:
+            output = out.read()
+# UMPS Build Plan Generation Block END
+    else:
+        output = output.replace('v_HOSTS', hosts)
+# Added only to facilitate ARGUS_WRITED and ARGUS_METRICS roles to work together
+        try:
+            output = output.replace('v_HOSTD', argustsdbw)
+            output = output.replace('v_HOSTM', argusmetrics)
+        except UnboundLocalError:
+            pass
+# End
+        output = output.replace('v_CLUSTER', cluster)
+        output = output.replace('v_DATACENTER', datacenter)
+        output = output.replace('v_SUPERPOD', superpod)
+        output = output.replace('v_CASENUM', casenum)
+        output = output.replace('v_ROLE', role)
+        output = output.replace('v_BUNDLE', options.bundle)
+        output = output.replace('v_NUM', num)
     # Total hack to pass kp_client concurrency and threshold values. Include in refactoring
     if options.concur and options.failthresh:
         concur = options.concur
@@ -584,7 +707,7 @@ def get_clean_hostlist(hostlist):
     output_list = hostlist_chk.search(hostlist)
     if output_list:
         hostlist = output_list.group().split(',')
-        
+
     if isinstance(hostlist, list):
         for line in hostlist:
             dc = line.split('-')[3]
@@ -885,4 +1008,3 @@ else:
     #default options for build_plan unit test
     options.idbgen=True
     gblExcludeList=False
-
