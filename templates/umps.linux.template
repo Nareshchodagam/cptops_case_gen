@@ -19,7 +19,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HO
 release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
 - disable monitor
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
+Exec: /opt/rh/python27/root/usr/bin/python2.7 /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 - remove from pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -host v_CPS1 -c remove_from_pool -threads -auto2
@@ -83,6 +83,6 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product c
 Exec: /opt/cpt/bin/synthetic_check.py -V v_VIP -H v_CPS1
 
 - Enable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
+Exec: /opt/rh/python27/root/usr/bin/python2.7 /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
 
 Exec: echo "Host v_CPS1,v_MSG1,v_DSTORE1 system patching completed"

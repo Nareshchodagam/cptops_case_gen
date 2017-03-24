@@ -8,7 +8,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
 - Disable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H public-webdb1-1-v_DATACENTER,public-webdb2-1-v_DATACENTER,v_HOSTS -c disable
+Exec: /opt/rh/python27/root/usr/bin/python2.7 /opt/cpt/bin/nagios_monitor.py -H public-webdb1-1-v_DATACENTER,public-webdb2-1-v_DATACENTER,v_HOSTS -c disable
 
 -Validate web hosts are in pool and no issues with the pool
 release_runner.pl -invdb_mode -superpod NONE -cluster WEBX -product web-sfdc -property "domain_override=ops.sfdc.net" -c bigipcheck -host v_HOSTS -auto2 -threads -d -cluster_status v_CL_OPSTAT
@@ -32,7 +32,7 @@ v_INCLUDE
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
 
 - Wait for the hosts to boot up
-Exec: ~/check_reconnect.py -H v_HOSTS
+Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
@@ -53,4 +53,4 @@ release_runner.pl -invdb_mode -superpod NONE -cluster WEBX -product web-sfdc -pr
 release_runner.pl -invdb_mode -superpod NONE -cluster WEBX -product web-sfdc -property "domain_override=ops.sfdc.net" -c bigipcheck -host v_HOSTS -auto2 -threads -d -cluster_status v_CL_OPSTAT
 
 -enable monitoring on appropriate monitor host for web hosts
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H public-webdb1-1-v_DATACENTER,public-webdb2-1-v_DATACENTER,v_HOSTS -c enable
+Exec: /opt/rh/python27/root/usr/bin/python2.7 /opt/cpt/bin/nagios_monitor.py -H public-webdb1-1-v_DATACENTER,public-webdb2-1-v_DATACENTER,v_HOSTS -c enable
