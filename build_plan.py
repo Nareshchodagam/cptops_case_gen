@@ -224,6 +224,11 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     if 'v_COMMAND' not in output and 'mkdir ' not in output:
         o_list = output.splitlines(True)
         for i in range(len(o_list)):
+            # Added to skip linebacker -  W-3779869
+            if 'None' not in options.nolinebacker:
+                regex_compile = re.compile('bigipcheck|remove_from_pool|add_to_pool', re.IGNORECASE)
+                if regex_compile.search(o_list[i]):
+                    o_list[i] = o_list[i].strip() + ' -nolinebacker' + "\n"
             if o_list[i].startswith('release_runner.pl') and 'BLOCK' not in o_list[i]:
                 cmd = o_list[i].strip() + ' -comment ' + "'BLOCK v_NUM'\n"
                 o_list.remove(o_list[i])
@@ -234,8 +239,11 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
                 o_list.insert(i, cmd)
         output = "".join(o_list)
 
+
+
+
     # Add verify_host to template in memory and replace v_HOSTS to v_CASE_include
-    if options.host_validation:
+    if 'None' not in options.host_validation:
         # I made this assumption as role templates shouldn't have 'mkdir' and 'cp' commands, only pre templates
         if 'v_COMMAND' not in output and 'mkdir ' not in output:
             output = output.replace('v_HOSTS', '$(cat ~/v_CASE_include)')
@@ -851,9 +859,9 @@ parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False ,
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("--taggroups", dest="taggroups", type="int", default=0, help="number of sub-plans per group tag")
 parser.add_option("--dowork", dest="dowork", help="command to supply for dowork functionality")
-parser.add_option("--host_validation", dest="host_validation", action="store_true", default=False, help="Verify remote hosts")
-parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default=True, help="Auto close cases")
-
+parser.add_option("--host_validation", dest="host_validation", help="Verify remote hosts")
+parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default="True", help="Auto close cases")
+parser.add_option("--nolinebacker", dest="nolinebacker", help="Don't use linebacker")
 
 (options, args) = parser.parse_args()
 if __name__ == "__main__":
