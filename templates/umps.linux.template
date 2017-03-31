@@ -1,10 +1,11 @@
-- RR based commands
+-Copy remote scripts to the target hosts
+release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
 - validate if host require update
 release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2
 
 - Verify Cluster and Host Status
-Exec: /opt/cpt/bin/synthetic_check.py -V v_VIP -H v_HOSTS
+Exec: /opt/cpt/bin/synthetic_check.py -V v_VIP -H v_HOSTNAME_CPS
 
 - Checking Weather Both Dstore are in Healthy State
 release_runner.pl -forced_host v_HOSTNAME_DSTORE -c sudo_cmd -m "./remote_transfer/check_local_port.py -p 8087" -threads -auto2
