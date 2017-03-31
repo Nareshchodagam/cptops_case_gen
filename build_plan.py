@@ -356,6 +356,14 @@ def getDoWork(input, dowork):
         with open(template_file, 'r') as f:
             data = f.readlines()
     v_include = "".join(data)
+    try:
+        if re.search(r"prsn|chan", ','.join(gblSplitHosts['v_HOSTNAME_CPS'])):
+            u_include = v_include
+            u_include = u_include.replace('v_HOSTS', 'v_CPS1,v_MSG1,v_DSTORE1')
+            v_include = u_include
+    except:
+        pass
+    
     input = input.replace('v_INCLUDE', v_include)
     return input
 
