@@ -13,6 +13,3 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/ssa/inst_role_internal_v
 
 - ns
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/ssa/ns_role_external_validation.py ~/ns_role_external_validation.py
-
-- Chatter
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/check_local_port.py ~/releaserunner/remote_transfer/check_local_port.py
