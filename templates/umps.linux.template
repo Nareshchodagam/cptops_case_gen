@@ -14,7 +14,7 @@ release_runner.pl -forced_host v_HOSTNAME_DSTORE -c sudo_cmd -m "./remote_transf
 release_runner.pl -forced_host v_HOSTNAME_MSG -c sudo_cmd -m "./remote_transfer/check_local_port.py -p 8086" -threads -auto2
 
 - Validate hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -product chatternow,chatterbox -c bigipcheck -d -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTNAME_CPS -product chatternow,chatterbox -c bigipcheck -d -threads -auto2
 
 - Set the boot device to HDD
 release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
@@ -48,7 +48,7 @@ release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "reboot" -
 Exec: /opt/cpt/bin/check_reconnect.py -H v_CPS1,v_MSG1,v_DSTORE1
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2 -comment "POST"
+release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
 - Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow -host v_DSTORE1 -c start_server -threads -auto2
@@ -65,7 +65,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -host v_CPS1 -c add_to_pool -threads -auto2
 
 - Validate hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -host v_CPS1 -c bigipcheck -d -threads -bigipstatus AVAILABILITY_STATUS_GREEN -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product chatternow,chatterbox -host v_HOSTNAME_CPS -c bigipcheck -d -threads -bigipstatus AVAILABILITY_STATUS_GREEN -auto2
 
 - Verify Cluster and Host Status
 Exec: /opt/cpt/bin/synthetic_check.py -V v_VIP -H v_CPS1
