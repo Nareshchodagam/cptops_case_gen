@@ -10,7 +10,7 @@ def groupType(role):
     # presets for certain roles for group type
     groupings = {'search': 'majorset',
                  'mnds,dnds': 'majorset,minorset',
-                 'insights_iworker,insights_redis': 'majorset' 
+                 'insights_iworker,insights_redis': 'majorset'
                  }
     if role in groupings:
         return groupings[role]
@@ -132,7 +132,7 @@ if __name__ == "__main__":
 
     if options.role:
         grouping = groupType(options.role)
-        groupsize = groupSize(options.role)     
+        groupsize = groupSize(options.role)
     if options.groupsize:
         groupsize = options.groupsize
     if options.podgroups and options.casetype == "hostlist" and options.hlgrp == "False":
@@ -193,9 +193,13 @@ if __name__ == "__main__":
         for l in data:
             pods,dc = l.split()
             # Create a dict containing the options used for input to build_plan
-            opt_bp = {"clusters" : pods ,"datacenter": dc.lower() , "roles": options.role, 
-                      "grouping" : grouping, "maxgroupsize": groupsize,
-                      "templateid" : options.template, "dr": options.dr}
+            if options.role or options.role.upper() == "prsn,chan,msg,dstore":
+                opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
+                          "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
+            else:
+                opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
+                          "grouping": grouping, "maxgroupsize": groupsize,
+                          "templateid": options.template, "dr": options.dr}
             opt_gc = {}
             if options.filter:
                 filter = options.filter
