@@ -34,6 +34,9 @@ Exec: sleep 15
 - Check local application port
 release_runner.pl -forced_host v_HOSTS -c cmd -m "./remote_transfer/check_local_port.py -p 6697" -threads -auto2
 
+- Sleep (120 seconds for server linking to occur)
+Exec: sleep 120
+
 -Verify that the application is running
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_ircd.py" -threads -auto2
 
