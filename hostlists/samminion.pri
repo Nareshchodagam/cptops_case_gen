@@ -1,0 +1,14 @@
+par-sp1-sam_caas PAR
+par-sam_gater PAR
+par-sam_report_collector PAR
+phx-sp1-sam_caas PHX
+phx-sp2-sam_caas PHX
+phx-sp3-sam_caas PHX
+phx-sam_gater PHX
+phx-sam_report_collector PHX
+dfw-sp1-sam_caas DFW
+dfw-sp2-sam_caas DFW
+dfw-sam_report_collector DFW
+dfw-sam_gater DFW
+frf-sam_gater FRF
+frf-sam_report_collector FRF
