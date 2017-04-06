@@ -1,56 +1,10 @@
-restore-ffx1-1-chi
-restore-ffx2-1-chi
-restore0-ffx1-1-chi
-restore0-ffx1-2-chi
-restore0-ffx1-3-chi
-restore0-ffx1-4-chi
-restore0-ffx1-5-chi
-restore0-ffx1-6-chi
-restore0-ffx1-7-chi
-restore0-ffx1-8-chi
-restore-ffx1-1-was
-restore-ffx2-1-was
-restore0-ffx1-1-was
-restore0-ffx1-2-was
-restore0-ffx1-3-was
-restore0-ffx1-4-was
-restore0-ffx1-5-was
-restore0-ffx1-6-was
-restore0-ffx1-7-was
-restore0-ffx1-8-was
-restore-ffx1-1-tyo
-restore-ffx1-2-tyo
-restore-ffx1-1-asg
-restore-ffx2-1-asg
-restore0-ffx1-1-dfw
-restore0-ffx1-2-dfw
-restore0-ffx1-3-dfw
-restore0-ffx1-4-dfw
-restore0-ffx2-1-dfw
-restore0-ffx2-2-dfw
-restore0-ffx2-3-dfw
-restore0-ffx2-4-dfw
-restore0-ffx1-1-phx
-restore0-ffx1-2-phx
-restore0-ffx1-3-phx
-restore0-ffx1-4-phx
-restore0-ffx2-1-phx
-restore0-ffx2-2-phx
-restore0-ffx2-3-phx
-restore0-ffx2-4-phx
-restore0-ffx1-1-lon
-restore0-ffx1-2-lon
-restore0-ffx1-3-lon
-restore0-ffx1-4-lon
-restore0-ffx1-5-lon
-restore0-ffx1-6-lon
-restore0-ffx1-7-lon
-restore0-ffx1-8-lon
-restore0-ffx1-1-frf
-restore0-ffx1-2-frf
-restore0-ffx1-3-frf
-restore0-ffx1-4-frf
-restore0-ffx2-1-frf
-restore0-ffx2-2-frf
-restore0-ffx2-3-frf
-restore0-ffx2-4-frf
+DATA_RESTORE TYO
+DATA_RESTORE FRF
+DATA_RESTORE CHI
+DATA_RESTORE DFW
+DATA_RESTORE LON
+DATA_RESTORE PHX
+DATA_RESTORE ASG
+DATA_RESTORE WAX
+DATA_RESTORE CHX
+DATA_RESTORE WAS
