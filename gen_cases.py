@@ -193,7 +193,7 @@ if __name__ == "__main__":
         for l in data:
             pods,dc = l.split()
             # Create a dict containing the options used for input to build_plan
-            if options.role or options.role.upper() == "prsn,chan,msg,dstore":
+            if (options.role or options.role.upper()) == "prsn,chan,msg,dstore":
                 opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                           "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
             else:
