@@ -1,4 +1,4 @@
--Copy remote scripts to the target hosts
+- Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
 - Validate the host needs to be patched
@@ -22,7 +22,7 @@ Exec: ~/check_reconnect.py -H v_HOSTS
 - Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto
 
--Validate APPAUTH host app is running
+- Validate APPAUTH host app is running
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_appauth.sh" -threads -auto2
 
 - Enable nagios monitoring
