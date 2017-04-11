@@ -531,11 +531,20 @@ if __name__ == '__main__':
                             cluster_grps.append(pods[index]['Primary'])
                         loc = isInstancePri(pods[index]['Primary'], dc)
                         if loc == 'PROD':
-                            w = pods[index]['Primary'] + " " + dc.upper() + "\n"
-                            output_pri.write(w)
+                            p.append(pods[index]['Primary'])
                         elif loc == 'DR':
-                            w = pods[index]['Primary'] + " " + dc.upper() + "\n"
-                            output_sec.write(w)
+                            s.append(pods[index]['Primary'])
+
+                chunked = chunks(p, groupsize)
+                for sub_lst in chunked:
+                    w = ','.join(sub_lst) + " " + dc + "\n"
+                    output_pri.write(w)
+
+                chunked = chunks(s, groupsize)
+                for sub_lst in chunked:
+                    w = ','.join(sub_lst) + " " + dc + "\n"
+                    output_sec.write(w)
+
             for c in cluster_grps:
                 w = c + " " + dc + "\n"
                 out_clusters.write(w)
