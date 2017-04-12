@@ -23,6 +23,12 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7 /opt/cpt/bin/check_reconnect.py -H
 - Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
+- Remove Rancid Lock File (W-3795434)
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m ";if [ -f '/tmp/.`hostname| awk -F . '{print $1}' | awk -F - '{print $4}'`-mds.run.lock' ]; then rm -rf /tmp/.`hostname| awk -F . '{print $1}' | awk -F - '{print $4}'`-mds.run.lock ; else echo '/tmp/.`hostname| awk -F . '{print $1}' | awk -F - '{print $4}'`-mds.run.lock does not exist'; fi" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m ";if [ -f '/tmp/.`hostname| awk -F . '{print $1}' | awk -F - '{print $4}'`-f5.run.lock' ]; then rm -rf /tmp/.`hostname| awk -F . '{print $1}' | awk -F - '{print $4}'`-f5.run.lock ; else echo '/tmp/.`hostname| awk -F . '{print $1}' | awk -F - '{print $4}'`-f5.run.lock does not exist'; fi" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m ";if [ -f '/tmp/.`hostname| awk -F . '{print $1}' | awk -F - '{print $4}'`.run.lock' ]; then rm -rf /tmp/.`hostname| awk -F . '{print $1}' | awk -F - '{print $4}'`.run.lock ; else echo '/tmp/.`hostname| awk -F . '{print $1}' | awk -F - '{print $4}'`.run.lock does not exist'; fi" -threads -auto2
+
+
 - Enable nagios monitoring
 Exec: /opt/rh/python27/root/usr/bin/python2.7 /opt/cpt/bin//nagios_monitor.py -H v_HOSTS -c enable
 
