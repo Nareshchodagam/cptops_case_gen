@@ -1,4 +1,4 @@
-Exec: ~/check_prod.py -i v_CLUSTER -l primary
+Exec_with_creds: /opt/cpt/bin/check_prod.py -i v_CLUSTER -l primary
 
 RR based commands
 -Copy remote scripts to the target hosts

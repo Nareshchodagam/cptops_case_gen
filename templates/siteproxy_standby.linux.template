@@ -1,4 +1,4 @@
-Exec: /opt/rh/python27/root/usr/bin/python2.7 /opt/cpt/bin/check_prod.py -i v_CLUSTER -l secondary
+Exec_with_creds: /opt/cpt/bin/check_prod.py -i v_CLUSTER -l secondary
 
  RR based commands
 -Copy remote scripts to the target hosts
