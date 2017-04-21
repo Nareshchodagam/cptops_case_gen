@@ -23,7 +23,7 @@ release_runner.pl -forced_host "v_HOSTS" -force_update_bootstrap -c sudo_cmd -m 
 Exec: ~/genSummary.py -H v_HOSTS -c NETSTAT_NFS -i | tee ~/kt_remountcheck
 
 - Disable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable 
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable 
  
 -disable nfs on server  then check to see that the host is no longer sharing
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/sbin/svcadm disable 'nfs/server'" -threads -auto2
@@ -120,7 +120,7 @@ Exec: ~/genSummary.py -H v_HOSTS -c netstat_nfs
 
 
 - Enable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable 
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable 
 
 - Patchset completed comment
 Exec: echo "host v_HOSTS solaris patching completed"
