@@ -8,7 +8,7 @@ Exec: for i in $(echo v_HOSTS | sed 's/,/ /g'); do ssh -o StrictHostKeyChecking=
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
 - Disable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 -Validate web hosts are in pool and no issues with the pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -product web-sfdc -property "domain_override=ops.sfdc.net" -c bigipcheck -auto2 -threads -d
@@ -47,4 +47,4 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HO
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -product web-sfdc -property "domain_override=ops.sfdc.net" -c bigipcheck -auto2 -threads -d
 
 -enable monitoring on appropriate monitor host for web hosts
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable

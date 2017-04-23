@@ -8,7 +8,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
 - Disable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 -TODO:  
 - Stop the running application
@@ -30,6 +30,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/sbin/service Racktasticd start" -threads -auto2
 -TODO: Ensure system can still create livecd iso images. 
 - Enable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
 
 Exec: echo "Host v_HOSTS system patching completed"

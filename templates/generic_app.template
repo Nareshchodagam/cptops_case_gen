@@ -11,7 +11,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -threads -auto2 -d
 
 - Disable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 -remove from pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -device_role v_ROLE -host v_HOSTS -c remove_from_pool -auto2
@@ -50,6 +50,6 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -threads -auto2 -d
 
 - Enable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
 
 Exec: echo "Host v_HOSTS system patching completed"

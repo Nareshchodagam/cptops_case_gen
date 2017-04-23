@@ -16,7 +16,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 Manual: check the above output to make sure the service is available before proceeding
 
 -disable monitor once you have manually checked current state 
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable -m ops-monitor-v_DATACENTER
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable -m ops-monitor-v_DATACENTER
 
 -check external vip before remove
 Exec: curl http://spell-v_DCSP.salesforce.com/ping.html
@@ -55,7 +55,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 Exec: curl http://spell-v_DCSP.salesforce.com/ping.html
 
 -once you have checked monitoring enable monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable -m ops-monitor-v_DATACENTER
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable -m ops-monitor-v_DATACENTER
 
 - Patchset completed comment
 Exec: echo "host v_HOSTS ghost patching completed"

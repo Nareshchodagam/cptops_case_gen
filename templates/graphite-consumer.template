@@ -10,7 +10,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
 - Disable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 - stop consumer
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-graphite-kafka-consumer -host v_HOSTNAME_MMCNSMR -c stop_server -threads -auto2
@@ -40,4 +40,4 @@ release_runner.pl -forced_host ajna-mmcnsmr1-1-sfz,ajna-mmcnsmr2-1-sfz -c sudo_c
 release_runner.pl -forced_host ajna-mmcnsmr6-2-sfz,ajna-mmcnsmr8-2-sfz -c sudo_cmd -m "./remote_transfer/graphite.py --start-reporter" -threads -auto2
 
 - Enable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable

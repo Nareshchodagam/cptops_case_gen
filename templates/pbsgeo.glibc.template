@@ -9,7 +9,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbsgeo -c bigipcheck -threads -auto2
 
 - Disable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable -m ops-monitor-v_DATACENTER
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable -m ops-monitor-v_DATACENTER
 
 - remove from pool
 - If RR command fails, to remove from pool manually, login into the big ip and disable form within the pool
@@ -47,7 +47,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - appmon -c 'source .p
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbsgeo -device_role v_ROLE -host v_HOSTS -c add_to_pool -auto2
 
 - Enable nagios monitoring
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c enable -m ops-monitor-v_DATACENTER
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable -m ops-monitor-v_DATACENTER
 
 -Validate hosts are in pool and no issues with the pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbsgeo -c bigipcheck -d -threads -auto2
