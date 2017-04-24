@@ -186,15 +186,29 @@ if __name__ == "__main__":
     elif options.podgroups and not options.casetype:
         data = getData(options.podgroups)
         for l in data:
-            pods,dc = l.split()
-            # Create a dict containing the options used for input to build_plan
-            if (options.role or options.role.upper()) == "prsn,chan,msg,dstore":
-                opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                          "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
-            else:
-                opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                          "grouping": grouping, "maxgroupsize": groupsize,
-                          "templateid": options.template, "dr": options.dr}
+            try:
+                pods, dc, sp = l.split()
+                if sp:
+                    if (options.role or options.role.upper()) == "prsn,chan,msg,dstore":
+                        # Create a dict containing the options used for input to build_plan for Chatter with SP option passed
+                        opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
+                                  "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
+                    else:
+                        # Create a dict containing the options used for input to build_plan with SP option passed
+                        opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
+                                  "grouping": grouping, "maxgroupsize": groupsize,
+                                  "templateid": options.template, "dr": options.dr}
+            except:
+                pods, dc = l.split()
+                # Create a dict containing the options used for input to build_plan for Chatter
+                if (options.role or options.role.upper()) == "prsn,chan,msg,dstore":
+                    opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
+                              "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
+                else:
+                    # Create a dict containing the options used for input to build_plan
+                    opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
+                              "grouping": grouping, "maxgroupsize": groupsize,
+                              "templateid": options.template, "dr": options.dr}
             opt_gc = {}
             if options.filter:
                 filter = options.filter
