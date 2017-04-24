@@ -467,12 +467,12 @@ if __name__ == '__main__':
                             s.append(pods[index]['Secondary'])
                 chunked = chunks(p, groupsize)
                 for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc + "\n"
+                    w = ','.join(sub_lst) + " " + dc  + " " + spod.upper() + "\n"
                     output_pri.write(w)
 
                 chunked = chunks(s, groupsize)
                 for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc + "\n"
+                    w = ','.join(sub_lst) + " " + dc + " " + spod.upper() + "\n"
                     output_sec.write(w)
 
         elif re.match(r'(hammer)', cluster_type, re.IGNORECASE):
@@ -497,11 +497,11 @@ if __name__ == '__main__':
                     if len_list > 5:
                         for cluster in range(len_list):
                             if cluster % 5 == 0 and cluster != 0:
-                                output_pri.write(",".join(write_list) + " " + dc + "\n")
+                                output_pri.write(",".join(write_list) + " " + dc + " " + sp.upper() + "\n")
                                 write_list = []
                             write_list.append(p[cluster])
                     else:
-                        w = ",".join(p) + " " + dc + "\n"
+                        w = ",".join(p) + " " + dc + " " + sp.upper() + "\n"
                         output_pri.write(w)
 
                 if s:
@@ -510,11 +510,11 @@ if __name__ == '__main__':
                     if len_list > 7:
                         for cluster in range(len_list):
                             if cluster % 5 == 0 and cluster != 0:
-                                output_sec.write(",".join(write_list) + "\n")
+                                output_sec.write(",".join(write_list) + " " + sp.upper() + "\n")
                                 write_list = []
                             write_list.append(s[cluster])
                     else:
-                        w = ",".join(s) + " " + dc + "\n"
+                        w = ",".join(s) + " " + dc + " " + sp.upper() + "\n"
                         output_sec.write(w)
 
         elif re.match(r'(hbase)', cluster_type, re.IGNORECASE):
@@ -523,6 +523,8 @@ if __name__ == '__main__':
             writing the output to files
             """
             cluster_grps = []
+            p = []
+            s = []
             for sp, pods in dc_data[dc].items():
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
@@ -537,16 +539,16 @@ if __name__ == '__main__':
 
                 chunked = chunks(p, groupsize)
                 for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc + "\n"
+                    w = ','.join(sub_lst) + " " + dc + " " + sp.upper() + "\n"
                     output_pri.write(w)
 
                 chunked = chunks(s, groupsize)
                 for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc + "\n"
+                    w = ','.join(sub_lst) + " " + dc + " " + sp.upper() + "\n"
                     output_sec.write(w)
 
             for c in cluster_grps:
-                w = c + " " + dc + "\n"
+                w = c + " " + dc + " " + sp.upper() + "\n"
                 out_clusters.write(w)
 
         elif re.match(r'(monitor)', cluster_type, re.IGNORECASE):
@@ -588,10 +590,10 @@ if __name__ == '__main__':
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
                     if 'Primary' in pods[index]:
-                            w = pods[index]['Primary'] + " " + dc.upper() + "\n"
+                            w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + "\n"
                             output_pri.write(w)
                     if 'Secondary' in pods[index]:
-                            w = pods[index]['Secondary'] + " " + dc.upper() + "\n"
+                            w = pods[index]['Secondary'] + " " + dc.upper() + " " + sp.upper() + "\n"
                             output_sec.write(w)
 
     # close writing the output files
