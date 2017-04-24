@@ -11,9 +11,6 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 -stop kafka
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-kafka -host v_HOSTS -device_role v_ROLE -c stop_server -auto2 -threads
 
-- Sleep for 300 sec [ W-3894157 ]
-Exec: sleep 300
-
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
