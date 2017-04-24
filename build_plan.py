@@ -191,6 +191,14 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
     global gblSplitHosts
     global gblExcludeList
+
+    pdict = json.loads(options.idbgen)
+    try:
+        if pdict['superpod']:
+            superpod = pdict['superpod']
+    except:
+        pass
+
     #before default ids in case of subsets
     for key, hostlist in gblSplitHosts.iteritems():
         output = output.replace(key, ",".join(hostlist))
