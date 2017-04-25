@@ -1,6 +1,6 @@
-- Cooling period (2-3 days)
+- Cooling period (5 days)
+
+- Reset host from iDB
+Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/decomm_idb.py -H v_HOSTS -o r
 
 - More changes pending here, check status, reset, verify reset
-
-- Reset host back to neutral state/disk wipe
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/hostreset_mcnc.py -H v_HOSTS
