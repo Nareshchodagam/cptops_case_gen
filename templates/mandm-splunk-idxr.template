@@ -16,7 +16,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/chk_symlinks.py" -threads -auto2
 
 - Disable the Monitoring
-Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable ops-monitor-crz
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 - Stop the running application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - logsearch_1 -c './service stop'" -threads -auto2
@@ -36,6 +36,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - logsearch_1 -c './service start'" -threads -auto2
 
 - Enable nagios monitoring
-Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable ops-monitor-crz
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
 
 Exec: echo "Host v_HOSTS system patching completed"
