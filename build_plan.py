@@ -191,7 +191,6 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
     global gblSplitHosts
     global gblExcludeList
-    print(options.idbgen)
 
     try:
         pdict = json.loads(options.idbgen)
