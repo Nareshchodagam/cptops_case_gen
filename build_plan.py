@@ -192,11 +192,12 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     global gblSplitHosts
     global gblExcludeList
 
-    pdict = json.loads(options.idbgen)
     try:
+        pdict = json.loads(options.idbgen)
         if pdict['superpod']:
-            superpod = pdict['superpod']
+           superpod = pdict['superpod']
     except:
+        logging.debug('No idbgen passed')
         pass
 
     #before default ids in case of subsets
@@ -638,7 +639,6 @@ def consolidate_idb_query_plans(writeplan,dcs):
     fullhostlist=[]
     writelist=[]
     ok_dclist=[]
-
     for template in writeplan:
         allplans[template] = {}
         for dc in dcs:
@@ -787,7 +787,6 @@ def gen_nested_plan_idb(hostlist, templates, regex_dict,group_dict,gsize):
     write_list_to_file(common.outputdir + '/summarylist.txt', hostnames , newline=True)
 
 def gen_plan_by_hostlist_idb(hostlist, templateid, gsize, grouping):
-
     dcs, hostnames = get_clean_hostlist(hostlist)
     idbfilters = { 'name': hostnames }
 
@@ -796,7 +795,6 @@ def gen_plan_by_hostlist_idb(hostlist, templateid, gsize, grouping):
     consolidate_idb_query_plans(writeplan, dcs)
 
 def gen_plan_by_hostlist(hostlist, templateid, gsize, groups):
-
 
     dcs, hostnames = get_clean_hostlist(hostlist)
 
