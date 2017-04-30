@@ -13,8 +13,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 #- Stop Splunk Forwarder
 #release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster ILLUMIO -product sfdc-splunk-forwarder -device_role polcore -host v_HOSTS -c stop_server -auto2 -threads
 
-- Execute the update script
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
+v_INCLUDE
 
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
