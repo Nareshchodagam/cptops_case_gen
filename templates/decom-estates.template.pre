@@ -3,21 +3,10 @@ Exec: mkdir -p ~/releaserunner/remote_transfer
 
 - Get the remote scripts:
 - Make sure to copy serial_check.txt into ~/releaserunner/remote_transfer
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_ib.py ~/releaserunner/remote_transfer/manage_ib.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_ilom.py ~/releaserunner/remote_transfer/manage_ilom.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/pexpect.py ~/releaserunner/remote_transfer/pexpect.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/host_shutdown.py ~/releaserunner/remote_transfer/host_shutdown.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/serial_check.py ~/releaserunner/remote_transfer/serial_check.py
-
-- Get the local update scripts:
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/nagios_monitor.py ~/nagios_monitor.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/idbhost.py ~/idbhost.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/decomm_idb.py ~/decomm_idb.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/get_RR_logs.py ~/get_RR_logs.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py ~/common.py
+Exec: cp -R /opt/cpt/remote/* ~/releaserunner/remote_transfer/
 
 - Start release_runner logs for case v_CASENUM
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/get_RR_logs.py -s
+Exec: /opt/rh/python27/root/usr/bin/python2.7 /opt/cpt/bin/get_RR_logs.py -s
 
 - Disable nagios
-Exec: /opt/rh/python27/root/usr/bin/python2.7 ~/nagios_monitor.py -H v_HOSTS -c disable -a
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable -a
