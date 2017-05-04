@@ -1,14 +1,16 @@
-par-sp1-sam_caas PAR
-par-sam_gater PAR
-par-sam_report_collector PAR
-phx-sp1-sam_caas PHX
-phx-sp2-sam_caas PHX
-phx-sp3-sam_caas PHX
-phx-sam_gater PHX
-phx-sam_report_collector PHX
-dfw-sp1-sam_caas DFW
-dfw-sp2-sam_caas DFW
-dfw-sam_report_collector DFW
-dfw-sam_gater DFW
-frf-sam_gater FRF
-frf-sam_report_collector FRF
+par-sp1-sam_caas PAR SP1
+par-sam_gater PAR NONE
+par-sam_report_collector PAR NONE
+dfw-sp1-sam_caas DFW SP1
+dfw-sam_report_collector DFW NONE
+dfw-sam_gater DFW NONE
+dfw-sp2-sam_caas DFW SP2
+phx-sp1-sam_caas PHX SP1
+phx-sam_gater PHX NONE
+phx-sam_report_collector PHX NONE
+phx-sp3-sam_caas PHX SP3
+phx-sp2-sam_caas PHX SP2
+ukb-sam_gater UKB NONE
+ukb-sam_report_collector UKB NONE
+frf-sam_gater FRF NONE
+frf-sam_report_collector FRF NONE

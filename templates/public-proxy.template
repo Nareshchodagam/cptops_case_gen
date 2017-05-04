@@ -1,4 +1,3 @@
-
 -RR based commands
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
@@ -10,7 +9,18 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
 -Validate hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -c bigipcheck -threads -auto2 -d -cluster_status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -c bigipcheck -threads -auto2 -d
+
+- Verify outbound connection
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl https://na44.salesforce.com/smth.jsp" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl http://www.amazon.com" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl https://ultra-api.ultradns.com" -threads -auto2
+
+- Verify internet over http
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "wget -e use_proxy=yes -e http_proxy=v_HOSTS:8080 -O - http://www.google.com" -threads -auto2
+
+- Verify internet over https
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "wget -e use_proxy=yes -e https_proxy=v_HOSTS:8080 -O - https://www.google.com" -threads -auto2
 
 - Get initial static routes
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_static_routes.py -f static_route.orig" -auto2
@@ -19,20 +29,20 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_s
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 -Remove from pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -host v_HOSTS -c remove_from_pool -threads -auto2 -cluster_status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -host v_HOSTS -c remove_from_pool -threads -auto2
 
 - Stop the running application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/squid stop" -threads -auto2
 
 - Stop Splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2 -cluster_status v_CL_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2
 
 
 v_INCLUDE
- 
+
 - Reboot the host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
-    
+
 - Check the host is online
 Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
@@ -53,15 +63,9 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/squid status"
 
 - validate the max file descriptors as squid startup can be problematic target is 65k if it fails do a stop and start to restart it.
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_maxfs_desc.py" -auto2
-   
-- Start Splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -threads -auto2 -cluster_status v_CL_OPSTAT
-  
-- add to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -host v_HOSTS -c add_to_pool -threads -auto2 -cluster_status v_CL_OPSTAT
 
-- Enable nagios monitoring
-Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
+- Start Splunk
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -threads -auto2
 
 - Verify default gateway
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_static_routes.py -g" -threads -auto2
@@ -76,6 +80,12 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "wget -e use_proxy=yes -e 
 
 - Verify internet over https
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "wget -e use_proxy=yes -e https_proxy=v_HOSTS:8080 -O - https://www.google.com" -threads -auto2
+
+- add to pool
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -host v_HOSTS -c add_to_pool -threads -auto2
+
+- Enable nagios monitoring
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
 
 - Patchset completed comment
 Exec: echo "host v_HOSTS 6u6 patching completed"
