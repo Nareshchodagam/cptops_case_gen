@@ -1,5 +1,8 @@
 -Copy remote scripts to the target hosts
-release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+
+- Check for RPMDB and YUM Lock
+release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "./remote_transfer/rpmdb_check.sh" -threads -auto2
 
 - validate if host require update
 release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2
@@ -32,9 +35,6 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product c
 
 - Stop Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_CPS1,v_MSG1,v_DSTORE1 -c stop_server -threads -auto2
-
-- Check for RPMDB and YUM Lock
-release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "./remote_transfer/rpmdb_check.sh" -threads -auto2
 
 v_INCLUDE
 
