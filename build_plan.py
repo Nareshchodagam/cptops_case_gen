@@ -589,8 +589,8 @@ def gen_plan_by_idbquery(inputdict):
         idbfilters["cluster.clusterType"] = inputdict['clusterTypes'].split(',')
     if 'superpods' in inputdict:
         idbfilters["cluster.superpod.name"] = inputdict['superpods'].split(',')
-
-
+    if 'superpod' in inputdict:
+        idbfilters["cluster.superpod.name"] = inputdict['superpod'].split(',')
 
     # optional paramters
     # defaults
