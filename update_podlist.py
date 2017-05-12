@@ -255,7 +255,10 @@ def isInstancePri(inst, dc):
     inst = inst.replace('-HBASE', '')
     monhost = inst + '-monitor.ops.sfdc.net'
     cmdlist = ['dig', monhost, '+short']
-    output = run_cmd(cmdlist)
+    try:
+        output = run_cmd(cmdlist)
+    except IOError as e:
+        logger.error("update_python.py: Please check if you have dig command installed")
     logger.debug(output)
     for o in output.split('\n'):
         logger.debug(o)
@@ -335,8 +338,6 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
 
         elif 'pod' in file_name or 'acs' in file_name:
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
-            # if 'acs' in file_name:
-            #     logger.info("Setting groupsize of PODs to 1 for acs, default is 3")
             groupsize = 3
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
@@ -374,17 +375,31 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
 
         elif re.search(r'(hbase_prod)', preset_name, re.IGNORECASE):
             logger.info("Writing data on podlist file - , '{0}'".format(file_name))
+            """
+            This code splits up hbase clusters into primary, secondary lists
+            writing the output to files
+            """
+            p = []
+            s = []
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
                     if pods[index]['Primary'] != "None" and 'HBASE' in pods[index]['Primary']:
                         loc = isInstancePri(pods[index]['Primary'], dc)
                         if loc == 'PROD':
-                            w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + "\n"
-                            pri.write(w)
+                            p.append(pods[index]['Primary'])
                         elif loc == 'DR':
-                            w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + "\n"
-                            sec.write(w)
+                            s.append(pods[index]['Primary'])
+
+                chunked = chunks(p, groupsize)
+                for sub_lst in chunked:
+                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
+                    pri.write(w)
+
+                chunked = chunks(s, groupsize)
+                for sub_lst in chunked:
+                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
+                    sec.write(w)
             logger.info("Successfully written data to -  '{0}, {1}.sec' for dc '{2}'".format(file_name, file_name.split('.')[0], dc))
 
         elif re.search(r'lapp', preset_name, re.IGNORECASE):
@@ -454,11 +469,11 @@ if __name__ == "__main__":
     logger.addHandler(handler)
 
     groupsize = args.groupsize  # NOTE This is specific to group the PODS
-
+    groupsize = int(groupsize)
     if args.update:
         site = where_am_i()
         idb = idb_connect(site)
-        file_content = read_file('/{0}/git/cptops_jenkins/scripts/'.format(environ['HOME']), 'case_presets.json')
+        file_content = read_file('/{0}/git/cptops_jenkins/scripts/'.format(environ['HOME']), 'case_presets1.json')
         preset_data = parse_json_data(file_content)
         logger.debug(pprint.pformat(preset_data))
 
