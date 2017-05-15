@@ -1,6 +1,9 @@
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
+- Check for RPMDB and YUM Lock
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/rpmdb_check.sh" -threads -auto2
+
 - Validate the host needs to be patched
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2
 
@@ -10,8 +13,8 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 - Disable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
-- Remove from RPS pool
-release_runner.pl -invdb_mode -threads -cluster v_CLUSTER -superpod v_SUPERPOD -product releasestore -c remove_from_pool -host v_HOSTS -threads -auto2
+- Verify RPS pool
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product releasestore -host v_HOSTS -c ensure_availability -min_host_percent 70 -threads -d -ensure_availability_lb_only -auto2
 
 - Stop the running application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product ttorrent -host v_HOSTS -c stop_server -threads -auto2
@@ -40,8 +43,8 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product t
 - Sleep (120 seconds)
 Exec: sleep 120
 
-- Add to RPS pool
-release_runner.pl -invdb_mode -threads -cluster v_CLUSTER -superpod v_SUPERPOD -product releasestore -c add_to_pool -host v_HOSTS -threads -auto2
+- Verify RPS pool
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product releasestore -host v_HOSTS -c ensure_availability -min_host_percent 70 -threads -d -ensure_availability_lb_only -auto2
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
