@@ -9,6 +9,7 @@ python update_podlist.py -u -d chi,was -p <preset_name>
 import logging
 import json
 import re
+import os
 import subprocess
 from os import environ
 import sys
@@ -277,6 +278,57 @@ def chunks(l, n):
         yield l[i:i+n]
 
 
+# TODO - Still need to work on it.
+def listbuilder(pod_list, dc):
+    hostnum = re.compile(r"(^monitor)([1-6])")
+    hostcomp = re.compile(r'(\w*-\w*)(?<!\d)')
+    hostlist_pri = []
+    hostlist_sec = []
+    if isinstance(pod_list, list):
+        pods = pod_list
+    else:
+        pods = pod_list.split(',')
+    for val in pods:
+        if val != "None":
+            output = os.popen("dig %s-monitor-%s.ops.sfdc.net +short | tail -2 | head -1" % (val.lower(), dc))
+            prim_serv = output.read().strip("\n")
+            host = prim_serv.split('.')
+            logging.debug(host[0])
+            mon_num = host[0].split('-')
+            if prim_serv:
+                hostval2 = hostcomp.search(prim_serv)
+                if "%s-monitor" % (val.lower()) == hostval2.group():
+                    if val.lower() == mon_num[0]:
+                        if host[0] not in hostlist_pri:
+                            hostlist_pri.append(host[0])
+                    match = hostnum.search(mon_num[1])
+                    num = int(match.group(2))
+                    if (num % 2) == 0:
+                        stby_host = val.lower() + "-" + match.group(1) + str(num - 1) + "-" + mon_num[2] + "-" + dc
+                    else:
+                        stby_host = val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc
+                    if stby_host not in hostlist_sec:
+                        hostlist_sec.append(stby_host)
+                else:
+                    val = prim_serv.split('-')[0]
+                    if host[0] not in hostlist_pri:
+                        hostlist_pri.append(host[0])
+                    match = hostnum.search(mon_num[1])
+                    num = int(match.group(2))
+                    if (num % 2) == 0:
+                        stby_host = val.lower() + "-" + match.group(1) + str(num - 1) + "-" + mon_num[2] + "-" + dc
+                    else:
+                        stby_host = val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc
+                    if stby_host not in hostlist_sec:
+                        hostlist_sec.append(stby_host)
+        return hostlist_pri, hostlist_sec
+
+    # for item in hostlist_pri:
+    #     pri.write("%s\n" % item)
+    # for item in hostlist_sec:
+    #     sec.write("%s\n" % item)
+
+
 def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
     """
     This function decides formatting of data to be writtenin  podlist file and it is responsible to restructure incoming data.
@@ -379,9 +431,9 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
             This code splits up hbase clusters into primary, secondary lists
             writing the output to files
             """
-            p = []
-            s = []
             for sp, pods in idb_data[dc].items():
+                p = []
+                s = []
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
                     if pods[index]['Primary'] != "None" and 'HBASE' in pods[index]['Primary']:
@@ -422,6 +474,23 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                             elif 'GLA' not in pods[index]['Primary']:
                                 w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + "\n"
                                 sec.write(w)
+
+        elif re.match(r'(monitor)', preset_name, re.IGNORECASE):  # TODO Work is in-progress
+            """
+            """
+            for files in ['pod.pri', 'pod.sec']:
+                f_data = read_file('hostlists/', files, json_fmt=False)
+                for line in f_data:
+                    if dc in line:
+                        listbuilder(line.split()[0], dc)
+            pod_list = ['ops', 'ops0', 'net', 'net0', 'sr1', 'sr2']
+            hostlist_pri, hostlist_sec = listbuilder(pod_list, dc)
+            print(hostlist_pri)
+            for item in hostlist_pri:
+                pri.write("%s\n" % item)
+            for item in hostlist_sec:
+                sec.write("%s\n" % item)
+
         else:
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
             for sp, pods in idb_data[dc].items():
