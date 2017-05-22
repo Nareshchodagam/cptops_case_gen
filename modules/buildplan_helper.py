@@ -158,13 +158,17 @@ class LookupFields(list):
           {  'role' :
             {
                    'chatterbox' : ['sshare','prsn'],
-                       'chatternow' : ['chan','dstore','msg','prsn'],
-                    'mandm-hub' : ['mgmt_hub'],
-                       'mq-broker' : ['mq'],
-                        'onboarding' : [ 'app' ],
-                        'acs' : [ 'acs' ],
-                        'searchserver' : [ 'search' ],
-                       'sfdc-base' : ['ffx','cbatch','app','dapp']
+                   'chatternow' : ['chan','dstore','msg','prsn'],
+                   'mandm-hub' : ['mgmt_hub'],
+                   'caas' : ['app'],
+                   'lightcycle-snapshot' : ['app'],
+                   'mandm-agent' : ['app'],
+                   'sfdc-splunk-forwarder' : ['app'],
+                   'mq-broker' : ['mq'],
+                   'onboarding' : [ 'app' ],
+                   'acs' : [ 'acs' ],
+                   'searchserver' : [ 'search' ],
+                   'sfdc-base' : ['ffx','cbatch','app','dapp']
             }
           },
               'ignored_process_names_' : 
