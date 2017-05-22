@@ -15,6 +15,9 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 - Disable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
+- Stop the running application
+release_runner.pl -invdb_mode superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -host v_HOSTS -c stop_server -auto2
+
 -remove host from idb pre rebuild
 Exec: /home/sfdc/current/dca-inventory-action/dca-inventory-action/inventory-action.pl -action delete -resource host -name v_HOSTS
 
