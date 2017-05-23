@@ -1,0 +1,28 @@
+- Set the iDB password to the latest otherwise we might get some errors
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/ib-passwd-rotation.sh" -threads -auto2
+
+- get version numbers for apps
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host v_HOSTS > ~/version_output.txt
+
+- Extract app versions from output data. 
+Exec: /opt/cpt/bin/get_versions.py -f ~/version_output.txt -o ~/manifests.txt --versions
+
+Exec: cat ~/manifests.txt
+
+-bigipcheck cluster
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -threads -auto2
+
+- Disable nagios monitoring
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
+
+-remove host from idb pre rebuild
+Exec: /home/sfdc/current/dca-inventory-action/dca-inventory-action/inventory-action.pl -action delete -resource host -name v_HOSTS
+
+- Exec gigantor workflow
+Exec: /usr/lib/gigantor/bin/kp_client start --url="https://gig-kingpin1-0-v_DATACENTER.data.sfdc.net" --name AFW_Razor_Basic_HostBuild --release_host=ops-orch1-1-v_DATACENTER.ops.sfdc.net --arguments CLUSTER=v_CLUSTER DATACENTER=v_DATACENTER HOSTSTRING=v_HOSTS MONITORHOST=v_MONITOR OS_TYPE=CentOS OS_VERSION_MAJOR=7 OS_VERSION_MINOR=2 POST_HOSTBUILD_COMMAND="/usr/local/libexec/system_update.sh -a v_BUNDLE -p" SUPERPOD=v_SUPERPOD SERIAL_NUMBER=v_SERIAL DEVICEROLE=v_ROLE FINAL_HOST_STATE_IDB=ACTIVE PRESERVE=true IB_USER=admin IB_PASSWORD=`python /opt/cpt/bin/get_ib_passwd.py` INVENTORY_ACTION_SCRIPT_PATH="/home/sfdc/current/dca-inventory-action/dca-inventory-action/inventory-action.pl" RELEASEHOST=ops-orch1-1-v_DATACENTER.ops.sfdc.net
+
+- Deploy apps
+release_runner.pl --pkging -auto -no_prompt -verbose_installer -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -status ACTIVE,PROVISIONING,HW_PROVISIONING,PRE_PRODUCTION,REIMAGE,IN_MAINTENANCE -drnostart -c deploy -stopall -no_lb -u happy -versions `cat ~/manifest.txt`
+
+- Enable nagios monitoring
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable

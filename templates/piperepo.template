@@ -14,17 +14,12 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 - Disable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
-- Record httpd status.
-release_runner.pl --forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n httpd -r -i " -threads -auto2
+- Record httpd,nginx,stunnel,go-agent status.
+release_runner.pl --forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n httpd,nginx,stunnel,go-agent -r -i" -threads -auto2
 
-- Record nginx status. 
-release_runner.pl --forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n nginx -r -i" -threads -auto2
+- Stop go-agent service to ensure lock file removal.  
+release_runner.pl --forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n go-agent -k -i" -threads -auto2
 
-- Record stunnel status. 
-release_runner.pl --forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n stunnel -r -i" -threads -auto2
-
-- Record go-agent status. 
-release_runner.pl --forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n go-agent -r -i" -threads -auto2
 
 v_INCLUDE
 
@@ -37,17 +32,8 @@ Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 - Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
-- Validate httpd is started. 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n httpd -i -s" -threads -auto2
-
-- Validate nginx is started. 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n nginx -i -s" -threads -auto2
-
-- Validate stunnel is started. 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n stunnel -i -s" -threads -auto2
-
-- Validate go-agent is started. 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n go-agent -i -s" -threads -auto2
+- Validate httpd,nginx,stunnel,go-agent is started. 
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n httpd,nginx,stunnel,go-agent -i -s" -threads -auto
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
