@@ -31,8 +31,11 @@ Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 -Remove from pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product bigip -host v_HOSTS -c remove_from_pool -threads -auto2
 
-- Stop the running application
+- Stop the running (SQUID) application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/squid stop" -threads -auto2
+
+- Stop the running (NAMED/BIND) application
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/named stop" -threads -auto2
 
 - Stop Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2
@@ -55,7 +58,16 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_s
 - Do a diff and things should match
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "diff -s static_route.post static_route.orig" -auto2
 
--Start app
+-Start NAMED app
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/named restart" -threads -auto2
+
+- Wait for NAMED to start succesfully.
+Exec: sleep 30
+
+-check NAMED status
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/named status" -threads -auto2
+
+-Start SQUID app
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/squid restart" -threads -auto2
 
 -check app status
