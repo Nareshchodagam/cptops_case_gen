@@ -43,6 +43,8 @@ def dcs(rolename, podtype, prod=True):
             prod_dc = 'sfz'
         elif re.search(r'cfgapp', rolename, re.IGNORECASE):
             prod_dc.extend(['crd'])
+        elif re.search(r'cmgt', rolename, re.IGNORECASE):
+            prod_dc = 'was'
         elif re.search(r'irc', rolename, re.IGNORECASE):
             prod_dc = (['sfm', 'crd'])
         return prod_dc
@@ -125,7 +127,7 @@ def read_file(loc, filename, json_fmt=True):
                     retval = f_data
             else:
                 logger.info("Reading file content")
-                f_data = f_content.readline()
+                f_data = f_content.readlines()
                 retval = f_data
     except IOError as e:
         logger.error("Can't open the file {0}{1} '{2}'".format(loc, filename, e))
@@ -190,7 +192,7 @@ def file_handles(file_name):
     :param file_name:
     :return: None
     """
-    if re.search(r'acs|trust|afw|hammer|hbase.pri|pod|public-trust', file_name, re.IGNORECASE):
+    if re.search(r'acs|trust|afw|hammer|hbase.pri|pod|public-trust|monitor', file_name, re.IGNORECASE):
         file_handle_pri = open('hostlists/' + file_name, 'w')
         file_handle_sec = open('hostlists/' + file_name.split('.')[0] + '.sec', 'w')
         logger.info("Opened file handles on podlist file - '{0}, {1}.sec'".format(file_name, file_name.split('.')[0]))
@@ -278,8 +280,15 @@ def chunks(l, n):
         yield l[i:i+n]
 
 
-# TODO - Still need to work on it.
-def listbuilder(pod_list, dc):
+def listbuilder(pod_list, dc):  # This was added as part of - 'T-1810443'
+    """
+    This function is to generate hostlist files for monitor hosts.
+    :param pod_list: podlist from pod.sec and pod.pri
+    :type pod_list: str
+    :param dc: datacenter name
+    :return: A tuple containing two lists with primary and secondary monitor host.
+
+    """
     hostnum = re.compile(r"(^monitor)([1-6])")
     hostcomp = re.compile(r'(\w*-\w*)(?<!\d)')
     hostlist_pri = []
@@ -293,7 +302,7 @@ def listbuilder(pod_list, dc):
             output = os.popen("dig %s-monitor-%s.ops.sfdc.net +short | tail -2 | head -1" % (val.lower(), dc))
             prim_serv = output.read().strip("\n")
             host = prim_serv.split('.')
-            logging.debug(host[0])
+            logger.debug(host[0])
             mon_num = host[0].split('-')
             if prim_serv:
                 hostval2 = hostcomp.search(prim_serv)
@@ -323,11 +332,6 @@ def listbuilder(pod_list, dc):
                         hostlist_sec.append(stby_host)
         return hostlist_pri, hostlist_sec
 
-    # for item in hostlist_pri:
-    #     pri.write("%s\n" % item)
-    # for item in hostlist_sec:
-    #     sec.write("%s\n" % item)
-
 
 def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
     """
@@ -349,7 +353,30 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
     """
     pri, sec = file_handles(file_name)
     for dc in idb_data.keys():
-        if re.search(r'afw|hammer', file_name, re.IGNORECASE):
+        if re.search(r'afw', file_name, re.IGNORECASE):
+            for sp, pods in idb_data[dc].items():
+                ttl_len = len(pods)
+                p = []
+                s = []
+                for index in range(0, ttl_len):
+                    if 'Primary' in pods[index]:
+                        if pods[index]['Primary'] != "None":
+                            p.append(pods[index]['Primary'])
+                    if 'Secondary' in pods[index]:
+                        if pods[index]['Secondary'] != "None":
+                            s.append(pods[index]['Secondary'])
+                chunked = chunks(p, groupsize)
+                for sub_lst in chunked:
+                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
+                    pri.write(w)
+
+                chunked = chunks(s, groupsize)
+                for sub_lst in chunked:
+                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
+                    sec.write(w)
+            logger.info("Successfully written data to podlist files - '{0}, {1}.sec' for dc '{2}'".format(file_name, file_name.split('.')[0], dc))
+
+        elif re.search(r'hammer', file_name, re.IGNORECASE):
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 p = []
@@ -426,11 +453,11 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
             logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
 
         elif re.search(r'(hbase_prod)', preset_name, re.IGNORECASE):
-            logger.info("Writing data on podlist file - , '{0}'".format(file_name))
             """
             This code splits up hbase clusters into primary, secondary lists
             writing the output to files
             """
+            logger.info("Writing data on podlist file - , '{0}'".format(file_name))
             for sp, pods in idb_data[dc].items():
                 p = []
                 s = []
@@ -455,6 +482,9 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
             logger.info("Successfully written data to -  '{0}, {1}.sec' for dc '{2}'".format(file_name, file_name.split('.')[0], dc))
 
         elif re.search(r'lapp', preset_name, re.IGNORECASE):
+            """
+            This code generate podlist files for lapp hosts [CS and PROD]. 
+            """
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
@@ -475,20 +505,27 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                                 w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + "\n"
                                 sec.write(w)
 
-        elif re.match(r'(monitor)', preset_name, re.IGNORECASE):  # TODO Work is in-progress
+        elif re.match(r'(monitor)', preset_name, re.IGNORECASE):  # This was added as part of - 'T-1810443'
             """
+            This code reads podlist from pod.pri and pod.sec file and generate the monitor hostlist.
             """
+            p = []
+            s = []
+
             for files in ['pod.pri', 'pod.sec']:
                 f_data = read_file('hostlists/', files, json_fmt=False)
                 for line in f_data:
-                    if dc in line:
-                        listbuilder(line.split()[0], dc)
+                    if dc in line.lower():
+                        hostlist_pri, hostlist_sec = listbuilder(line.split()[0], dc)
+                        p.extend(hostlist_pri)
+                        s.extend(hostlist_sec)
             pod_list = ['ops', 'ops0', 'net', 'net0', 'sr1', 'sr2']
             hostlist_pri, hostlist_sec = listbuilder(pod_list, dc)
-            print(hostlist_pri)
-            for item in hostlist_pri:
+            p.extend(hostlist_pri)
+            s.extend(hostlist_sec)
+            for item in p:
                 pri.write("%s\n" % item)
-            for item in hostlist_sec:
+            for item in s:
                 sec.write("%s\n" % item)
 
         else:
@@ -514,7 +551,10 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="""This code to update existing podlist files""",
-                            usage='%(prog)s --update -r <role>', formatter_class=RawTextHelpFormatter)
+                            usage=''
+                                '%(prog)s -u -r <role>\n'
+                                  '%(prog)s -u \n'
+                                  '%(prog)s -u -p <role|roles> -d <dc|dcs> \n',formatter_class=RawTextHelpFormatter)
     parser.add_argument("-u", dest='update', action='store_true', required=True, help="To update all files in a single run")
     parser.add_argument("-p", dest='preset_name', help='To query the specfic role')
     parser.add_argument("-v", dest="verbose", help="For debugging purpose", action="store_true")
@@ -548,6 +588,8 @@ if __name__ == "__main__":
 
         if args.preset_name:  # This loop will be called when user is trying to extract information for a specific role
             cstm_preset_data = {}
+            if 'monitor' in args.preset_name:
+                args.preset_name = 'search_prod,' + args.preset_name
             for preset in args.preset_name.split(','):
                 try:
                     cstm_preset_data[preset] = preset_data[preset]
@@ -562,6 +604,7 @@ if __name__ == "__main__":
                 logger.info("\n************************* Starting on role '{0}'*************************".format(k))
                 if v[1] not in role_details or re.search(r'afw|acs|hbase|lhub|log_hub', v[0], re.IGNORECASE):
                     role_details.append(v[1])
+                    total_idb_data['monitor'] = {dc:'' for dc in dcs(k, v[1])}
                     if v[1] not in total_idb_data.keys():
                         if args.datacenter:
                             dcs = args.datacenter.split(',')
@@ -581,3 +624,4 @@ if __name__ == "__main__":
                     logger.info("\n************************* Done with Role '{0}' *************************\n".format(k))
             else:
                 continue
+
