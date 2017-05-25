@@ -1,0 +1,34 @@
+{
+	"DCs": "v_DATACENTER",
+	"Details":
+	{
+		"SM_Instance_List__c": "v_CLUSTER",
+		"SM_Infrastructure_Type__c": "Primary"
+	},
+	"Implementation_Steps": [	
+							    "Centos 7 Migration Instructions",
+								"",
+								 "* If  Non-Jackson datacenter, Razor/CASPR is used to provision host. Switch server to use CASPR by modifying the DHCP entry in the dhchpd3-clients-<DC>.conf file, add it to CASPR group and remove from RAZOR group. ",
+								 "",
+								    "* Download dhcp3 file.", 
+								    "* svn co https://vc-commit/subversion/jumpstart/dhcp3 dhcp3",
+								    "* Modify dhcpd3-clients-<dc>.conf file.  Remove servers from Razor group and insert in CASPR group.", 
+								    "* Confirm change",
+								    "* svn diff dhcpd3-clients-<dc>.conf",
+								    "* Commit change ",
+								    "* svn ci -m “Update <POD> app servers in CASPR group” dhcpd3-clients-<dc>.conf",
+								"",
+								"* Execute Centos7-migration template.",
+								"",
+								    "* Validate BigIP pool.",
+								    "* Disable nagios monitoring",
+								    "* Remove server from BigIP pool",
+								    "* Stop running applications. ",
+								    "* Use AFW_Razor_Basic_HostBuild WF to rebuild the server.",
+								    "* Deploy applications.", 
+								    "* Start applications. ",
+								    "* Add server back to BigIP pool",
+								    "* Validate BigIP pool",
+								    "* Enable nagios Monitoring. "
+							]
+ }
