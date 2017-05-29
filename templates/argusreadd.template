@@ -24,7 +24,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product a
  - Stop the running application
  release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_readd -host v_HOSTS -c  cmd -m "/home/sfdc/start-stop.sh stop" -threads -auto2
 
- - Stop the Splunk
+ #- Stop the Splunk
  #release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -auto2
 
  v_INCLUDE
@@ -41,7 +41,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product a
  - Start the application
  release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_readd -host v_HOSTS -c  cmd -m "/home/sfdc/start-stop.sh start" -threads -auto2
 
- - Start Splunk
+ #- Start Splunk
  #release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -auto2
 
  - Verify app
