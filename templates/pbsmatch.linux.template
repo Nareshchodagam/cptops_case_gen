@@ -19,12 +19,8 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product p
 - Disable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
-- remove from pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbspectrum -host v_HOSTS -c remove_from_pool -auto2
-
 - Stop the running application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbspectrum,sfdc-splunk-forwarder -host v_HOSTS -c stop_server -auto2
-
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbspectrum,sfdc-splunk-forwarder -host v_HOSTS -c stop_server -ping_validation -min_host_percent=34 -auto2
 
 v_INCLUDE
  
@@ -38,10 +34,7 @@ Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
 - Start the application (pbspectrum takes several minutes to start up)
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbspectrum,sfdc-splunk-forwarder -host v_HOSTS -c start_server -auto2
-
-- add to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbspectrum -host v_HOSTS -c add_to_pool -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbspectrum,sfdc-splunk-forwarder -host v_HOSTS -c start_server -ping_validation -min_host_percent=34 -auto2
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
@@ -51,6 +44,5 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product p
 
 - test endpoint connectivity.
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m 'curl localhost:8080/validateDeployment.jsp' -auto2
-
 
 Exec: echo "Host v_HOSTS patching completed"

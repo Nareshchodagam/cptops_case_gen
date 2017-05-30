@@ -8,4 +8,4 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_firmware.py -u -t" -host_status any -cluster_status any -threads -auto2
 
 -Update host to latest bundle
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE" -threads -auto2
