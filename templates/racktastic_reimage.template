@@ -1,0 +1,5 @@
+- Exec gigantor workflow
+Exec: /usr/lib/gigantor/bin/kp_client start --url="https://gig-kingpin1-0-phx.data.sfdc.net" --name AFW_Racktastic_Basic_Reimage_SSH --release_host=${HOSTNAME} --arguments CLUS
+TER=v_CLUSTER DATACENTER=v_DATACENTER HOST=v_HOSTS MONITORHOST=v_MONITOR SUPERPOD=v_SUPERPOD DEVICEROLE=v_ROLE SERIAL_NUMBER=v_SERIAL OS_NAME=centos7u2 POST_REIMAGE_COMMAND="/u
+sr/local/libexec/system_update.sh -a v_BUNDLE -p" FINAL_HOST_STATE_IDB=ACTIVE PRESERVE=true INVENTORY_ACTION_SCRIPT_PATH="/home/sfdc/current/dca-inventory-action/dca-inventory-
+action/inventory-action.pl" RELEASEHOST=${HOSTNAME} RR_OVERRIDE_OPTIONS="-invdb_version=1.03"
