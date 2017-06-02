@@ -379,7 +379,7 @@ if __name__ == '__main__':
     # Figure out where code is running
     site=where_am_i()
     #print(site)
-    all_prod_dcs = ['asg', 'chi', 'was', 'tyo', 'lon', 'phx', 'dfw', 'frf', 'par', 'chx', 'wax', 'ukb', 'iad', 'ord']
+    all_prod_dcs = ['asg', 'chi', 'was', 'tyo', 'lon', 'phx', 'dfw', 'frf', 'par', 'chx', 'wax', 'ukb', 'iad', 'ord', 'yul', 'yhu']
     all_non_prod_dcs = ['sfm', 'crz', 'prd', 'crd', 'sfz']
 
     #Set the correct location for the Idbhost object
