@@ -22,7 +22,7 @@ import pprint
 
 
 def dcs(rolename, podtype, prod=True):
-    prod_dc = ['chi', 'was', 'tyo', 'lon', 'ukb', 'phx', 'frf', 'dfw', 'par', 'iad', 'ord', 'chx', 'wax']
+    prod_dc = ['chi', 'was', 'tyo', 'lon', 'ukb', 'phx', 'frf', 'dfw', 'par', 'iad', 'yul', 'yhu', 'ord', 'chx', 'wax']
     non_prod_dc = ['sfz', 'crd', 'sfm', 'prd', 'crz']
     if prod:
         if re.search(r'crz', rolename, re.IGNORECASE):
