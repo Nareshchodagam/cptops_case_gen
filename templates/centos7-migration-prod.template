@@ -27,8 +27,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v
 v_INCLUDE
 
 - Deploy apps
-release_runner.pl --pkging -auto -no_prompt -verbose_installer -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -status ACTIVE,PROVISIONING,HW
-_PROVISIONING,PRE_PRODUCTION,REIMAGE,IN_MAINTENANCE -c deploy -stopall -u happy -versions `cat ~/manifests.txt`
+release_runner.pl --pkging -auto -no_prompt -verbose_installer -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -status ACTIVE,PROVISIONING,HW_PROVISIONING,PRE_PRODUCTION,REIMAGE,IN_MAINTENANCE -c deploy -stopall -u happy -versions `cat ~/manifests.txt`
 
 - Start application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -host v_HOSTS -c start_server -auto2
