@@ -4,16 +4,6 @@ Exec: mkdir -p ~/releaserunner/remote_transfer
 - get the remote scripts:
 Exec: cp -R /opt/cpt/remote/* ~/releaserunner/remote_transfer/
 
-- edns
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/ssa/edns_role_internal_validation.py ~/releaserunner/remote_transfer/edns_role_internal_validation.py
-
-- inst
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/ssa/inst_role_external_validation.py ~/inst_role_external_validation.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/ssa/inst_role_internal_validation.py ~/releaserunner/remote_transfer/inst_role_internal_validation.py
-
-- ns
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/ssa/ns_role_external_validation.py ~/ns_role_external_validation.py
-
 - smarts
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_smarts.py ~/releaserunner/remote_transfer/manage_smarts.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/oneoffs/verify_if-eth.sh ~/releaserunner/remote_transfer/verify_if-eth.sh
@@ -23,4 +13,3 @@ Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opsen
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/restore_storage_config.sh ~/releaserunner/remote_transfer/restore_storage_config.sh
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/save_storage_config.sh ~/releaserunner/remote_transfer/save_storage_config.sh
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/umountall.sh ~/releaserunner/remote_transfer/umountall.sh
-
