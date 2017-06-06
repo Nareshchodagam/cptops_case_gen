@@ -8,8 +8,3 @@ Exec: cp -R /opt/cpt/remote/* ~/releaserunner/remote_transfer/
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_smarts.py ~/releaserunner/remote_transfer/manage_smarts.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/oneoffs/verify_if-eth.sh ~/releaserunner/remote_transfer/verify_if-eth.sh
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/oneoffs/ifdown-eth ~/releaserunner/remote_transfer/ifdown-eth
-
--lhub
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/restore_storage_config.sh ~/releaserunner/remote_transfer/restore_storage_config.sh
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/save_storage_config.sh ~/releaserunner/remote_transfer/save_storage_config.sh
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/umountall.sh ~/releaserunner/remote_transfer/umountall.sh
