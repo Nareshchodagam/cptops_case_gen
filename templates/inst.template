@@ -27,7 +27,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/inst_role_internal_validation.py" -threads -auto2
 
 - External validate host
-Exec: ~/inst_role_external_validation.py -H v_HOSTS
+Exec: /opt/cpt/bin/inst_role_external_validation.py -H v_HOSTS
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
