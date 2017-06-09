@@ -442,7 +442,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
             logger.info("Successfully written data to -  '{0}, {1}.sec' for dc {2}".format(file_name, file_name.split('.')[0], dc))
 
         elif re.match(r'hbase_sp_prod', preset_name, re.IGNORECASE):
-            logger.info("Writing data on podlist file - , '{0}'".format(file_name))
+            logger.info("Writing data on podlist file - '{0}'".format(file_name))
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
@@ -457,7 +457,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
             This code splits up hbase clusters into primary, secondary lists
             writing the output to files
             """
-            logger.info("Writing data on podlist file - , '{0}'".format(file_name))
+            logger.info("Writing data on podlist file -  '{0}', '{1}.sec' ".format(file_name, file_name.split('.')[0]))
             for sp, pods in idb_data[dc].items():
                 p = []
                 s = []
