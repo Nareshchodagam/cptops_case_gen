@@ -582,7 +582,7 @@ if __name__ == "__main__":
     if args.update:
         site = where_am_i()
         idb = idb_connect(site)
-        file_content = read_file('/{0}/git/cptops_jenkins/scripts/'.format(environ['HOME']), 'case_presets1.json')
+        file_content = read_file('/{0}/git/cptops_jenkins/scripts/'.format(environ['HOME']), 'case_presets.json')
         preset_data = parse_json_data(file_content)
         logger.debug(pprint.pformat(preset_data))
 
