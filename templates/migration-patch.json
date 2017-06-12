@@ -1,8 +1,8 @@
 {
   "Details": {
     "RecordTypeId": "012B000000009fB",
-    "Change-Type": "Significant",
-    "Status": "New/Unassigned",
+    "Change-Type": "Standard Pre Approved",
+    "Status": "Approved, Scheduled",
     "SRO-Resource": "No",
     "Patch-Vendor": "Redhat",
     "Patch-Desc": "Upgrade servers from CentOS6 to CentOS7",
