@@ -3,8 +3,3 @@ Exec: mkdir -p ~/releaserunner/remote_transfer
 
 - get the remote scripts:
 Exec: cp -R /opt/cpt/remote/* ~/releaserunner/remote_transfer/
-
-- smarts
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_smarts.py ~/releaserunner/remote_transfer/manage_smarts.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/oneoffs/verify_if-eth.sh ~/releaserunner/remote_transfer/verify_if-eth.sh
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/oneoffs/ifdown-eth ~/releaserunner/remote_transfer/ifdown-eth
