@@ -43,7 +43,7 @@ def dcs(rolename, podtype, prod=True):
             prod_dc = 'sfz'
         elif re.search(r'cfgapp', rolename, re.IGNORECASE):
             prod_dc.extend(['crd'])
-        elif re.search(r'cmgt', rolename, re.IGNORECASE):
+        elif re.search(r'^cmgt', rolename, re.IGNORECASE):
             prod_dc = 'was'
         elif re.search(r'irc', rolename, re.IGNORECASE):
             prod_dc = (['sfm', 'crd'])
@@ -168,7 +168,7 @@ def parse_json_data(data):
         return role_details
 
 
-def query_to_idb(dc, rolename, idb_object):
+def query_to_idb(dc, rolename, idb_object, cl_status):
     """
     This function is used to query iDB with DC name and roles
     :param dc: DC's to query
@@ -178,7 +178,7 @@ def query_to_idb(dc, rolename, idb_object):
     :rtype: dict
     """
     logger.info("Extracting data from iDB")
-    idb.sp_data(dc, 'active', rolename)
+    idb.sp_data(dc, cl_status.upper(), rolename)
     logger.info("Successfully extracted data from iDB")
     if not idb.spcl_grp:
         logger.error("Data not returned from iDB for - '{0}' from dc '{1}'".format(rolename, dc))
@@ -549,33 +549,46 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                             sec.write(w)
             logger.info("Successfully written data to podlist file -  '{0}' for dc '{1}'".format(file_name, dc))
 
+
+def custom_logger():
+    """
+    This function is used to set custom logger.
+    :return:
+    """
+    # Setting up custom logging
+    logger = logging.getLogger('update_podlist.py')
+    logger.setLevel(logging.DEBUG if args.verbose is True else logging.INFO)
+
+    # create a Stream handler
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG if args.verbose is True else logging.INFO)
+
+    # create a logging format
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+
+    # add the handlers to the logger
+    logger.addHandler(ch)
+    logger.propagate = False
+    return logger
+
+
 if __name__ == "__main__":
     parser = ArgumentParser(description="""This code to update existing podlist files""",
                             usage=''
                                 '%(prog)s -u -r <role>\n'
                                   '%(prog)s -u \n'
-                                  '%(prog)s -u -p <role|roles> -d <dc|dcs> \n',formatter_class=RawTextHelpFormatter)
+                                  '%(prog)s -u -p <role|roles> -d <dc|dcs> \n'
+                                    '%(prog)s -u -s pre_production <default="active">', formatter_class=RawTextHelpFormatter)
     parser.add_argument("-u", dest='update', action='store_true', required=True, help="To update all files in a single run")
     parser.add_argument("-p", dest='preset_name', help='To query the specfic role')
     parser.add_argument("-v", dest="verbose", help="For debugging purpose", action="store_true")
     parser.add_argument("-g", "--groupsize", dest="groupsize", default=3, help="Groupsize of pods or clusters for build file")
+    parser.add_argument("-s", "--cluster_status", dest="cluster_status", default='active', help="Cluster Status to Query")
     parser.add_argument("-d", dest='datacenter', help="Datacenters to query")
     args = parser.parse_args()
 
-    # Setting up custom logging
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG if args.verbose == True else logging.INFO)
-
-    # create a Stream handler
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.DEBUG if args.verbose == True else logging.INFO)
-
-    # create a logging format
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-
-    # add the handlers to the logger
-    logger.addHandler(handler)
+    logger = custom_logger()
 
     groupsize = args.groupsize  # NOTE This is specific to group the PODS
     groupsize = int(groupsize)
@@ -608,12 +621,13 @@ if __name__ == "__main__":
                     if v[1] not in total_idb_data.keys():
                         if args.datacenter:
                             dcs = args.datacenter.split(',')
-                            idb_ret = query_to_idb(dcs, v[1],  idb)
+                            idb_ret = query_to_idb(dcs, v[1],  idb, args.cluster_status)
                         else:
-                            idb_ret = query_to_idb(dcs(k, v[1]), v[1], idb)
+                            idb_ret = query_to_idb(dcs(k, v[1]), v[1], idb, args.cluster_status)
                         total_idb_data[v[1]] = idb_ret
                         if not idb_ret:
-                            break
+                            continue
+
                     else:
                         logger.info("Skipping iDB query, using data from cache")
 
