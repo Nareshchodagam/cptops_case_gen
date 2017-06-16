@@ -1,60 +1,6 @@
-ops-appauth1-1-asg
-ops-appauth2-1-asg
-ops1-appauth1-1-chi
-ops1-appauth2-1-chi
-ops2-appauth1-1-chi
-ops2-appauth2-1-chi
-ops3-appauth1-1-chi
-ops3-appauth2-1-chi
-ops4-appauth1-1-chi
-ops4-appauth2-1-chi
-ops-appauth1-2-chx
-ops-appauth1-1-chx
-ops1-appauth1-1-dfw
-ops1-appauth2-1-dfw
-ops2-appauth2-1-dfw
-ops2-appauth1-1-dfw
-ops3-appauth2-1-dfw
-ops3-appauth1-1-dfw
-ops4-appauth2-1-dfw
-ops4-appauth1-1-dfw
-ops1-appauth1-1-frf
-ops1-appauth2-1-frf
-ops1-appauth2-1-iad
-ops2-appauth1-1-iad
-ops1-appauth1-1-iad
-ops2-appauth2-1-iad
-ops1-appauth1-1-lon
-ops1-appauth2-1-lon
-ops2-appauth1-1-ord
-ops2-appauth2-1-ord
-ops1-appauth1-1-ord
-ops1-appauth2-1-ord
-ops1-appauth2-1-par
-ops1-appauth1-1-par
-ops1-appauth1-1-phx
-ops1-appauth2-1-phx
-ops2-appauth1-1-phx
-ops2-appauth2-1-phx
-ops3-appauth1-1-phx
-ops3-appauth2-1-phx
-ops4-appauth2-1-phx
-ops4-appauth1-1-phx
-ops-appauth1-1-tyo
-ops-appauth2-1-tyo
-ops1-appauth2-1-ukb
-ops1-appauth1-1-ukb
-ops1-appauth1-1-was
-ops1-appauth2-1-was
-ops2-appauth1-1-was
-ops2-appauth2-1-was
-ops3-appauth1-1-was
-ops3-appauth2-1-was
-ops4-appauth2-1-was
-ops4-appauth1-1-was
-ops-appauth1-1-wax
-ops-appauth1-2-wax
-ops1-appauth1-1-yhu
-ops1-appauth2-1-yhu
-ops1-appauth1-1-yul
-ops1-appauth2-1-yul
+APPAUTH-SP1 IAD SP1
+APPAUTH-SP1 PAR SP1
+APPAUTH-SP2 PHX SP2
+APPAUTH-SP3 PHX SP3
+APPAUTH-SP1 ORD SP1
+APPAUTH-SP1 UKB SP1

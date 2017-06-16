@@ -188,6 +188,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     build_command = " ".join(sys.argv)
     build_command = build_command.replace("{","'{")
     build_command = build_command.replace("}","}'")
+    host_list = hosts.split(',')
 
     global gblSplitHosts
     global gblExcludeList
@@ -317,6 +318,8 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 # UMPS Build Plan Generation Block END
     else:
         output = output.replace('v_HOSTS', hosts)
+        
+        output = output.replace('v_HOST', host_list[0])
 # Added only to facilitate ARGUS_WRITED and ARGUS_METRICS roles to work together
         try:
             output = output.replace('v_HOSTD', argustsdbw)
@@ -331,6 +334,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
         output = output.replace('v_ROLE', role)
         output = output.replace('v_BUNDLE', options.bundle)
         output = output.replace('v_NUM', num)
+        output = output.replace('v_GSIZE', str(options.gsize))
     # Total hack to pass kp_client concurrency and threshold values. Include in refactoring
     if options.concur and options.failthresh:
         concur = options.concur
