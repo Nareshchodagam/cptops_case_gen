@@ -193,6 +193,11 @@ if __name__ == "__main__":
                         # Create a dict containing the options used for input to build_plan for Chatter with SP option passed
                         opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                                   "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
+                    elif (options.role or options.role.upper()) == "lapp" and re.search(r"cs", pods, re.IGNORECASE):
+                        # This section is to remove grouping tag for LA CS Clusters
+                        # Should be remove once CS moves out of DownTime patching
+                        opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
+                                  "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
                     else:
                         # Create a dict containing the options used for input to build_plan with SP option passed
                         opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
