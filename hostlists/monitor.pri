@@ -3,10 +3,10 @@ eu11-monitor1-1-par
 cs84-monitor1-1-par
 eu7-monitor1-1-par
 ops0-monitor1-1-par
-cs31-monitor1-1-tyo
-ap4-monitor2-1-tyo
-cs5-monitor2-1-tyo
+sr3-monitor1-1-tyo
 ap0-monitor1-1-tyo
+cs6-monitor2-1-tyo
+ap1-monitor1-1-tyo
 ops-monitor1-1-tyo
 cs84-monitor1-1-frf
 eu7-monitor1-1-frf
@@ -115,10 +115,10 @@ cs40-monitor2-1-was
 na6-monitor2-1-was
 na28-monitor2-1-was
 ops-monitor2-1-was
-ap5-monitor1-1-ukb
-ap2-monitor1-1-ukb
 cs31-monitor1-1-ukb
+ap5-monitor1-1-ukb
 cs6-monitor1-1-ukb
+ap2-monitor1-1-ukb
 ops0-monitor1-1-ukb
 na99-monitor1-1-yhu
 ops0-monitor1-1-yhu
