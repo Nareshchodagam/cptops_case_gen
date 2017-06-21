@@ -6,17 +6,19 @@ python update_podlist.py -u -p <preset_name>
 python update_podlist.py -u -d chi,was -p <preset_name>
 """
 # imports
-import logging
 import json
-import re
+import logging
 import os
-import subprocess
-from os import environ
-import sys
-from socket import gethostname
-from argparse import ArgumentParser, RawTextHelpFormatter
-from idbhost import Idbhost
 import pprint
+import re
+import subprocess
+import sys
+
+from argparse import ArgumentParser
+from argparse import RawTextHelpFormatter
+from idbhost import Idbhost
+from os import environ
+from socket import gethostname
 
 # Functions definition
 
@@ -45,6 +47,10 @@ def dcs(rolename, podtype, prod=True):
             prod_dc.extend(['crd'])
         elif re.search(r'^cmgt', rolename, re.IGNORECASE):
             prod_dc = 'was'
+        elif re.search(r'^polcore', rolename, re.IGNORECASE):
+            prod_dc.extend(['prd'])
+        elif re.search(r'^pkica', rolename, re.IGNORECASE):
+            prod_dc.extend(['prd'])
         elif re.search(r'irc', rolename, re.IGNORECASE):
             prod_dc = (['sfm', 'crd'])
         return prod_dc
