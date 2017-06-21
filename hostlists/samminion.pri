@@ -17,12 +17,12 @@ dfw-sp3-sam_caas DFW SP3
 dfw-sp4-sam_caas DFW SP4
 dfw-sp2-sam_caas DFW SP2
 phx-sp1-sam_caas PHX SP1
+phx-sp2-sam_caas PHX SP2
+phx-sp3-sam_caas PHX SP3
+phx-sp4-sam_caas PHX SP4
 phx-sam_gater PHX NONE
 phx-sam_report_collector PHX NONE
 phx-sam_warden PHX NONE
-phx-sp3-sam_caas PHX SP3
-phx-sp4-sam_caas PHX SP4
-phx-sp2-sam_caas PHX SP2
 SAM_GATER YUL NONE
 ord-sp1-sam_caas ORD SP1
 ord-sam_warden ORD NONE
