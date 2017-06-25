@@ -10,14 +10,14 @@ iad-sp1-sam_caas IAD SP1
 iad-sam_warden IAD NONE
 iad-sam_gater IAD NONE
 dfw-sp1-sam_caas DFW SP1
+dfw-sp2-sam_caas DFW SP2
+dfw-sp3-sam_caas DFW SP3
+dfw-sp4-sam_caas DFW SP4
 dfw-sam_cloudatlas_dir DFW NONE
 dfw-sam_report_collector DFW NONE
 dfw-sam_cloudatlas DFW NONE
 dfw-sam_warden DFW NONE
 dfw-sam_gater DFW NONE
-dfw-sp3-sam_caas DFW SP3
-dfw-sp4-sam_caas DFW SP4
-dfw-sp2-sam_caas DFW SP2
 phx-sp1-sam_caas PHX SP1
 phx-sam_gater PHX NONE
 phx-sam_report_collector PHX NONE
