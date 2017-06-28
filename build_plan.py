@@ -571,6 +571,21 @@ def cleanup_out():
     for junk in cleanup:
        os.remove(junk)
 
+def find_concurrency(inputdict):
+    """
+    This function calculates the host count per block #W-3758985
+    :param inputdict: takes inputdict
+    :return: maxgroupsize
+    """
+    idb = Idbhost()
+    pod = inputdict['clusters']
+    dc = inputdict['datacenter']
+    idb.clustinfo(dc, pod)
+    role = inputdict['roles']
+    idb.deviceRoles(role)
+    c = idb.roles_all
+    inputdict['maxgroupsize'] = inputdict['maxgroupsize']*(len(c.values()[0].values()[0]))/100
+
 def gen_plan_by_idbquery(inputdict):
 
     #set defaults values
@@ -601,6 +616,9 @@ def gen_plan_by_idbquery(inputdict):
 
     regexfilters = {}
 
+    # calculate host count for app role
+    if inputdict['roles'] == 'app':
+        find_concurrency(inputdict)
 
     gsize = inputdict['maxgroupsize'] if 'maxgroupsize' in inputdict else 1
 
