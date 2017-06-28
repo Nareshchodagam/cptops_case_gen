@@ -10,10 +10,11 @@ ap1-monitor1-1-tyo
 ops-monitor1-1-tyo
 cs84-monitor1-1-frf
 eu7-monitor1-1-frf
-eu9-monitor1-1-frf
+cs83-monitor1-1-frf
 cs81-monitor1-1-frf
 cs86-monitor1-1-frf
 eu1-monitor1-1-frf
+eu11-monitor1-1-frf
 ops0-monitor1-1-frf
 sr1-monitor1-1-chi
 na2-monitor1-1-chi
@@ -56,7 +57,7 @@ cs81-monitor1-1-lon
 cs87-monitor2-1-lon
 sr4-monitor1-1-lon
 eu5-monitor1-1-lon
-eu6-monitor1-1-lon
+cs83-monitor1-1-lon
 ops0-monitor2-1-lon
 na7-monitor1-1-phx
 cs52-monitor1-1-phx
