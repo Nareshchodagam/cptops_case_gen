@@ -198,7 +198,7 @@ if __name__ == "__main__":
                         # Should be remove once CS moves out of DownTime patching
                         opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                                   "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
-		    elif (options.role or options.role.upper()) == "app":
+		    elif (options.role.lower()) == "app":
                         # This section is to remove grouping tag for core app #W-3758985
                         opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                                   "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
