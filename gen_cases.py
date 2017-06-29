@@ -98,6 +98,7 @@ if __name__ == "__main__":
     parser.add_option("--implplan", dest="implplansection", help="Template to use for implementation steps in planner")
     parser.add_option("--taggroups", dest="taggroups", help="Size for blocked groups for large running cases like hbase")
     parser.add_option("--dowork", dest="dowork", help="Include template to use for v_INCLUDE replacement")
+    parser.add_option("--hostpercent", dest="hostpercent", default=None, help=" Host min percentage to calculate concurrency eg 33")
     parser.add_option("--HLGrp", dest="hlgrp", action="store_true", default="False", help="Groups hostlist by DC")
     parser.add_option("--host_validation", dest="host_validation", help="Verify remote hosts")
     parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default="True", help="Auto close case")
@@ -133,6 +134,8 @@ if __name__ == "__main__":
         groupsize = groupSize(options.role)
     if options.groupsize:
         groupsize = options.groupsize
+    if options.hostpercent:
+        hostpercent = options.hostpercent
     if options.podgroups and options.casetype == "hostlist" and options.hlgrp == "False":
         data = getData(options.podgroups)
         dcs = getDCs(data)
@@ -141,8 +144,8 @@ if __name__ == "__main__":
         else:
             subject = casesubject + ": " + options.role.upper()
         dcs_list = ",".join(dcs)
-        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s --host_validation %s --auto_close_case %s --nolinebacker %s
-        """ % (options.podgroups, options.template, options.patchset, grouping, options.host_validation, options.auto_close_case,
+        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s --host_validation %s --hostpercent %s --auto_close_case %s --nolinebacker %s
+        """ % (options.podgroups, options.template, options.patchset, grouping, options.host_validation, options.hostpercent, options.auto_close_case,
                options.nolinebacker)
         if options.idb != True:
             output_str = output_str + " -x"
@@ -160,9 +163,9 @@ if __name__ == "__main__":
                 subject = casesubject + " " + options.group + " " + dc.upper()
             else:
                 subject = casesubject + ": " + options.role.upper()
-            output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s --host_validation %s --auto_close_case %s """\
+            output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s --host_validation %s --hostpercent %s --auto_close_case %s """\
                          """--nolinebacker %s""" % (options.podgroups, options.template, options.patchset, grouping,
-                                                    options.host_validation, options.auto_close_case, options.nolinebacker)
+                                                    options.host_validation, options.hostpercent, options.auto_close_case, options.nolinebacker)
             if options.idb != True:
                 output_str = output_str + " -x"
             if options.groupsize:
@@ -235,14 +238,16 @@ if __name__ == "__main__":
             opts_str = re.sub('maxgroupsize": ("\d+")', inputDictStrtoInt, opts_str)
             logging.debug(opts_str)
             # Added linebacker -  W-3779869
-            output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s --host_validation %s  --auto_close_case %s -v"""\
-                         """ --nolinebacker %s""" % (options.patchset,opts_str,options.taggroups, options.host_validation, options.auto_close_case,  options.nolinebacker)
+            output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s --host_validation %s --hostpercent %s --auto_close_case %s -v"""\
+                         """ --nolinebacker %s""" % (options.patchset,opts_str,options.taggroups, options.host_validation,options.hostpercent, options.auto_close_case,  options.nolinebacker)
             if options.exclude:
                 output_str = output_str + " --exclude " + options.exclude
             if options.casetype == "reimage":
                 output_str = output_str + " --serial --monitor"
             if options.dowork:
                 output_str = output_str + " --dowork " + options.dowork
+            # if options.hostpercent:
+            #     output_str = output_str + " --hostpercent " + options.hostpercent
             print(output_str)
             if options.regexfilter:
                 subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec
