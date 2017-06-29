@@ -246,8 +246,6 @@ if __name__ == "__main__":
                 output_str = output_str + " --serial --monitor"
             if options.dowork:
                 output_str = output_str + " --dowork " + options.dowork
-            # if options.hostpercent:
-            #     output_str = output_str + " --hostpercent " + options.hostpercent
             print(output_str)
             if options.regexfilter:
                 subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec
