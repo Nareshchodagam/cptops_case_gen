@@ -571,7 +571,7 @@ def cleanup_out():
     for junk in cleanup:
        os.remove(junk)
 
-def find_concurrency(inputdict):
+def find_concurrency(hostpercent):
     """
     This function calculates the host count per block #W-3758985
     :param inputdict: takes inputdict
@@ -584,7 +584,7 @@ def find_concurrency(inputdict):
     role = inputdict['roles']
     idb.deviceRoles(role)
     c = idb.roles_all
-    inputdict['maxgroupsize'] = inputdict['maxgroupsize']*(len(c.values()[0].values()[0]))/100
+    inputdict['maxgroupsize'] = int(hostpercent)*(len(c.values()[0].values()[0]))/100
 
 def gen_plan_by_idbquery(inputdict):
 
@@ -617,8 +617,8 @@ def gen_plan_by_idbquery(inputdict):
     regexfilters = {}
 
     # calculate host count for app role
-    if inputdict['roles'] == 'app':
-        find_concurrency(inputdict)
+    if options.hostpercent != 'None':
+        find_concurrency(options.hostpercent)
 
     gsize = inputdict['maxgroupsize'] if 'maxgroupsize' in inputdict else 1
 
@@ -890,6 +890,7 @@ parser.add_option("--gsize", dest="gsize", type="int", default=1, help="Group Si
 parser.add_option("--bundle", dest="bundle", default="current", help="Patchset version")
 parser.add_option("--monitor", dest="monitor", action="store_true", default=False, help="Monitor host")
 parser.add_option("--serial", dest="serial", action="store_true", default=False, help="Monitor host")
+parser.add_option("--hostpercent", dest="hostpercent", default="None", help="Host percentage for core app")
 parser.add_option("--concurr", dest="concur", type="int", help="Concurrency for kp_client batch")
 parser.add_option("--failthresh", dest="failthresh", type="int", help="Failure threshold for kp_client batch")
 parser.add_option("--nested_template", dest="nested", default=False, help="pass a list of templates, for use with hostlists only")
