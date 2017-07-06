@@ -362,6 +362,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
     pri, sec = file_handles(file_name)
     for dc in idb_data.keys():
         if re.search(r'afw', file_name, re.IGNORECASE):
+	    groupsize = 1
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 p = []
