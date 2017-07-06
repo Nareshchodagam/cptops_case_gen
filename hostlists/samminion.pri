@@ -11,6 +11,7 @@ iad-sam_warden IAD NONE
 iad-sam_cloudatlas IAD NONE
 iad-sam_cloudatlas_dir IAD NONE
 iad-sam_gater IAD NONE
+iad-sam_report_collector IAD NONE
 dfw-sp1-sam_caas DFW SP1
 dfw-sam_cloudatlas_dir DFW NONE
 dfw-sam_report_collector DFW NONE
@@ -29,6 +30,7 @@ phx-sam_report_collector PHX NONE
 phx-sam_warden PHX NONE
 SAM_GATER YUL NONE
 ord-sp1-sam_caas ORD SP1
+ord-sam_report_collector ORD NONE
 ord-sam_warden ORD NONE
 ord-sam_gater ORD NONE
 ukb-sp1-sam_caas UKB SP1
