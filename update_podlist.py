@@ -426,7 +426,10 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
 
         elif 'pod' in file_name or 'acs' in file_name:
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
-            groupsize = 3
+            if 'acs' in file_name:
+                groupsize = 1
+            else:
+                groupsize = 3
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 p = []
