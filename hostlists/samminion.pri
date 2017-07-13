@@ -37,12 +37,12 @@ phx-sp4-sam_caas PHX SP4
 phx-sp2-sam_caas PHX SP2
 SAM_GATER YUL NONE
 ord-sp1-sam_caas ORD SP1
-ord-sp2-sam_caas ORD SP2
 ord-sam_report_collector ORD NONE
 ord-sam_cloudatlas_dir ORD NONE
 ord-sam_warden ORD NONE
 ord-sam_gater ORD NONE
 ord-sam_cloudatlas ORD NONE
+ord-sp2-sam_caas ORD SP2
 ukb-sp1-sam_caas UKB SP1
 ukb-sam_cloudatlas UKB NONE
 ukb-sam_gater UKB NONE
