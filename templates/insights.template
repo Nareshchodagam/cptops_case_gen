@@ -8,19 +8,19 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
 
 -Validate hosts are in pool and no issues with the pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,ajnada,wave-connector-agent,wave-cassandra -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -host v_HOSTS -threads -auto2 -d
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,wave-connector-agent,wave-cassandra -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -host v_HOSTS -threads -auto2 -d
 
 - Disable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable -d 4
 
 - Remove from pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,ajnada,wave-connector-agent,wave-cassandra -host v_HOSTS -c remove_from_pool -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,wave-connector-agent,wave-cassandra -host v_HOSTS -c remove_from_pool -threads -auto2
 
 - Sleep (Requested by Insights team)
 Exec: sleep 120
 
 - Stop the running application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,ajnada,wave-connector-agent,wave-cassandra -host v_HOSTS -c stop_server -stopall -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,wave-connector-agent,wave-cassandra -host v_HOSTS -c stop_server -stopall -threads -auto2
 
 - Stop Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2
@@ -40,10 +40,10 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -threads -auto2
 
 - Start the application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,ajnada,wave-connector-agent,wave-cassandra -host v_HOSTS -c start_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,wave-connector-agent,wave-cassandra -host v_HOSTS -c start_server -threads -auto2
 
 -Add to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,ajnada,wave-connector-agent,wave-cassandra -host v_HOSTS -c add_to_pool -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,wave-connector-agent,wave-cassandra -host v_HOSTS -c add_to_pool -threads -auto2
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
