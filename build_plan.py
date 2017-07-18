@@ -225,7 +225,10 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     #End
 
     #Ability to reuse templates and include sections. Include in refactoring
-    if options.dowork:
+    if options.dowork and (datacenter in ("yhu","yul","syd","cdu")):
+        options.dowork = "system_update"
+        output = getDoWork(output, options.dowork)
+    else:
         output = getDoWork(output, options.dowork)
 
     """This code is to add unique comment to each line in implementation plan.
