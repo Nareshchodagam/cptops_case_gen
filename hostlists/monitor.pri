@@ -1,7 +1,6 @@
 eu5-monitor1-1-par
-eu11-monitor1-1-par
 cs84-monitor1-1-par
-eu7-monitor1-1-par
+eu11-monitor1-1-par
 ops0-monitor1-1-par
 sr3-monitor1-1-tyo
 ap0-monitor1-1-tyo
@@ -10,11 +9,10 @@ ap1-monitor1-1-tyo
 ops-monitor1-1-tyo
 cs84-monitor1-1-frf
 eu7-monitor1-1-frf
-cs83-monitor1-1-frf
+eu11-monitor1-1-frf
 cs81-monitor1-1-frf
 cs86-monitor1-1-frf
 eu1-monitor1-1-frf
-eu11-monitor1-1-frf
 ops0-monitor1-1-frf
 sr1-monitor1-1-chi
 na2-monitor1-1-chi
