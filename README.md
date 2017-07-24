@@ -9,7 +9,7 @@ contains scripts to interact with GUS to create Changes, Incidents or User Stori
 
 - **build_plan.py** - Creates implementation plans.
 - **gus_cases.py** - Creates GUS changes or incidents.
-- **gus_cases_vault.py** - Creates GUS changes or Incidents for those using the Secret Services keys.
+- **gus_cases_vault.py** - Creates GUS changes or incidents, using certs with Secret Service to obtain credentials.
 - **gen_podlist.py** - Builds hostlists files used to use with gen_cases.py.
 - **close_gus_cases.py** - Interacts with GUS to change the status of GUS cases. 
 - **gen_cases.py** - Outputs command strings for  build\_plan.py and gus\_cases.py. 
