@@ -32,7 +32,7 @@ except IOError:
     logging.error("No vaultcreds.config file found in %s", configdir)
     sys.exit(1)
 
-os.environ['NO_PROXY'] = "ops-vaultczar1-1-crz.ops.sfdc.net,ops-vaultczar2-1-crz.ops.sfdc.net"
+os.environ['NO_PROXY'] = "secretservice.dmz.salesforce.com"
 
 def saveSession(savedsession,session):
     with open(savedsession, 'w') as f:
@@ -59,16 +59,17 @@ def validLogin(session):
         return False
 
 def getCreds():
-    pc = pyczar.Pyczar()
-    keyDir = config.get('VAULT', 'keydir')
-    valut = config.get('VAULT', 'vault')
-    server = config.get('VAULT', 'servera')
-    port = config.get('VAULT', 'port')
-    new_server = pc.change_server(server,port)
-    client_id = pc.get_secret(valut, 'client_id', keyDir)
-    client_secret = pc.get_secret(valut, 'client_secret', keyDir)
-    username = pc.get_secret(valut, 'username', keyDir)
-    passwd = pc.get_secret(valut, 'passwd', keyDir)
+    server = config.get('VAULT', 'server')
+    port   = config.get('VAULT', 'port')
+    vault  = config.get('VAULT', 'vault')
+    cert   = config.get('VAULT', 'cert')
+    key    = config.get('VAULT', 'key')
+    
+    pc = pyczar.Pyczar(server, port)
+    client_id     = pc.get_secret_by_subscriber(vault, 'client_id', cert, key)
+    client_secret = pc.get_secret_by_subscriber(vault, 'client_secret', cert, key)
+    username      = pc.get_secret_by_subscriber(vault, 'username', cert, key)
+    passwd        = pc.get_secret_by_subscriber(vault, 'passwd', cert, key)
     return client_id,client_secret,username,passwd
 
 def create_incident(cat, subcat, subject, desc, dc, status, priority):
@@ -408,7 +409,7 @@ if __name__ == '__main__':
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     # set username and details of case
-    savedsession = config.get('Session', 'savedsession')
+    savedsession = config.get('SESSION', 'savedsession')
     # check for existing session
     session = ''
     valid_login = ''
