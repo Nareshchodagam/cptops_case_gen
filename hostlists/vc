@@ -21,8 +21,6 @@ ops0-vc1-1-dfw
 ops0-vc2-1-dfw
 ops0-vc1-1-frf
 ops0-vc2-1-frf
-ops0-vc1-1-hnd
-ops0-vc2-1-hnd
 ops0-vc1-1-iad
 ops0-vc2-1-iad
 ops0-vc1-1-lon
@@ -39,8 +37,6 @@ ops-vc2-1-sfm
 ops-vc2-2-sfm
 ops-vc1-1-sfz
 ops-vc2-1-sfz
-ops0-vc1-1-syd
-ops0-vc2-1-syd
 ops-vc1-1-tyo
 ops-vc1-2-tyo
 ops-vc2-1-tyo

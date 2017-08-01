@@ -6,8 +6,6 @@ ops3-appauth1-1-chi
 ops3-appauth2-1-chi
 ops4-appauth1-1-chi
 ops4-appauth2-1-chi
-ops1-appauth1-1-cdu
-ops1-appauth2-1-cdu
 ops-appauth1-2-chx
 ops-appauth1-1-chx
 ops-appauth2-1-crz
@@ -22,8 +20,6 @@ ops4-appauth2-1-dfw
 ops4-appauth1-1-dfw
 ops1-appauth1-1-frf
 ops1-appauth2-1-frf
-ops1-appauth1-1-hnd
-ops1-appauth2-1-hnd
 ops1-appauth2-1-iad
 ops2-appauth1-1-iad
 ops1-appauth1-1-iad
@@ -44,8 +40,6 @@ ops3-appauth1-1-phx
 ops3-appauth2-1-phx
 ops4-appauth2-1-phx
 ops4-appauth1-1-phx
-ops1-appauth1-1-syd
-ops1-appauth2-1-syd
 ops-appauth2-1-sfz
 ops-appauth1-1-sfz
 ops-appauth1-1-tyo
