@@ -15,6 +15,7 @@ frf-sam_moderation_einstein FRF NONE
 frf-sam_cloudatlas FRF NONE
 frf-sam_chatbot FRF NONE
 iad-sp1-sam_caas IAD SP1
+iad-sp2-sam_caas IAD SP2
 iad-sam_warden IAD NONE
 iad-sam_cloudatlas IAD NONE
 iad-sam_cloudatlas_dir IAD NONE
@@ -22,7 +23,6 @@ iad-sam_gater IAD NONE
 iad-sam_report_collector IAD NONE
 iad-sam_moderation_einstein IAD NONE
 iad-sam_chatbot IAD NONE
-iad-sp2-sam_caas IAD SP2
 dfw-sp1-sam_caas DFW SP1
 dfw-sp2-sam_caas DFW SP2
 dfw-sp3-sam_caas DFW SP3
