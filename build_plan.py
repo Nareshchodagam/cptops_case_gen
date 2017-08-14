@@ -260,7 +260,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
 
     # Add verify_host to template in memory and replace v_HOSTS to v_CASE_include
-    if 'None' not in options.host_validation:
+    if not options.no_host_v:
         # I made this assumption as role templates shouldn't have 'mkdir' and 'cp' commands, only pre templates
         if 'v_COMMAND' not in output and 'mkdir ' not in output:
             output = output.replace('v_HOSTS', '$(cat ~/v_CASE_include)')
@@ -321,7 +321,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 # UMPS Build Plan Generation Block END
     else:
         output = output.replace('v_HOSTS', hosts)
-        
+
         output = output.replace('v_HOST', host_list[0])
 # Added only to facilitate ARGUS_WRITED and ARGUS_METRICS roles to work together
         try:
@@ -383,7 +383,7 @@ def getDoWork(input, dowork):
             v_include = u_include
     except:
         pass
-    
+
     input = input.replace('v_INCLUDE', v_include)
     return input
 
@@ -903,7 +903,7 @@ parser.add_option("-L", "--legacyversion", dest="legacyversion", default=False ,
 parser.add_option("-T", "--tags", dest="tags", default=False , action="store_true", help="flag to run new version of -G option")
 parser.add_option("--taggroups", dest="taggroups", type="int", default=0, help="number of sub-plans per group tag")
 parser.add_option("--dowork", dest="dowork", help="command to supply for dowork functionality")
-parser.add_option("--host_validation", dest="host_validation", help="Verify remote hosts")
+parser.add_option("--no_host_validation", dest="no_host_v", action="store_true", help="Skip verify remote hosts")
 parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default="True", help="Auto close cases")
 parser.add_option("--nolinebacker", dest="nolinebacker", help="Don't use linebacker")
 
