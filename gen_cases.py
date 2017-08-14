@@ -27,7 +27,7 @@ def groupSize(role):
         return groupsizes[role]
     else:
         return 1
-    
+
 def getData(filename):
     # Read in data from a file and return it
     with open(filename) as data_file:
@@ -38,8 +38,8 @@ def genDCINST(data):
     clusters_dc = {}
     for l in data:
         clusters,dc = l.split()
-        clusters_dc[clusters] = dc.rstrip()  
-    output = "{ " 
+        clusters_dc[clusters] = dc.rstrip()
+    output = "{ "
     output = output + ', '.join(['"%s": "%s"' % (value,key) for (key,value) in clusters_dc.items()])
     output = output + " }"
     return output
@@ -73,7 +73,7 @@ def inputDictStrtoInt(m):
     # do a replace on the matching in m to remove quotes on ints
     str = 'maxgroupsize": ' + m.group(1).replace('"','')
     logging.debug(str)
-    return str 
+    return str
 
 if __name__ == "__main__":
     parser = OptionParser()
@@ -100,13 +100,19 @@ if __name__ == "__main__":
     parser.add_option("--dowork", dest="dowork", help="Include template to use for v_INCLUDE replacement")
     parser.add_option("--hostpercent", dest="hostpercent", default=None, help=" Host min percentage to calculate concurrency eg 33")
     parser.add_option("--HLGrp", dest="hlgrp", action="store_true", default="False", help="Groups hostlist by DC")
-    parser.add_option("--host_validation", dest="host_validation", help="Verify remote hosts")
+    parser.add_option("--no_host_validation", dest="no_host_v", action="store_true",  help="Skip verify remote hosts")
     parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default="True", help="Auto close case")
     parser.add_option("--nolinebacker", dest="nolinebacker", help="Don't use linebacker")
 
     python = 'python'
     excludelist = ''
     (options, args) = parser.parse_args()
+
+    if options.no_host_v:
+        hostv = "--no_host_validation"
+    else:
+        hostv = ""
+
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     if not options.casesubject:
@@ -144,13 +150,14 @@ if __name__ == "__main__":
         else:
             subject = casesubject + ": " + options.role.upper()
         dcs_list = ",".join(dcs)
-        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s --host_validation %s --hostpercent %s --auto_close_case %s --nolinebacker %s
-        """ % (options.podgroups, options.template, options.patchset, grouping, options.host_validation, options.hostpercent, options.auto_close_case,
+
+        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s %s --hostpercent %s --auto_close_case %s --nolinebacker %s
+        """ % (options.podgroups, options.template, options.patchset, grouping, hostv, options.hostpercent, options.auto_close_case,
                options.nolinebacker)
         if options.idb != True:
             output_str = output_str + " -x"
         if options.groupsize:
-            output_str = output_str + " --gsize %s" % groupsize 
+            output_str = output_str + " --gsize %s" % groupsize
         if options.dowork:
             output_str = output_str + " --dowork " + options.dowork
         print("%s" % output_str)
@@ -163,13 +170,13 @@ if __name__ == "__main__":
                 subject = casesubject + " " + options.group + " " + dc.upper()
             else:
                 subject = casesubject + ": " + options.role.upper()
-            output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s --host_validation %s --hostpercent %s --auto_close_case %s """\
+            output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s  %s --hostpercent %s --auto_close_case %s """\
                          """--nolinebacker %s""" % (options.podgroups, options.template, options.patchset, grouping,
-                                                    options.host_validation, options.hostpercent, options.auto_close_case, options.nolinebacker)
+                                                    hostv, options.hostpercent, options.auto_close_case, options.nolinebacker)
             if options.idb != True:
                 output_str = output_str + " -x"
             if options.groupsize:
-                output_str = output_str + " --gsize %s" % groupsize 
+                output_str = output_str + " --gsize %s" % groupsize
             if options.dowork:
                 output_str = output_str + " --dowork " + options.dowork
             output_str = output_str + '  -l "%s"' % ",".join(hosts)
@@ -232,14 +239,14 @@ if __name__ == "__main__":
                 opt_bp["cl_opstat"] = options.clusteropstat
             if options.hostopstat:
                 opt_bp["ho_opstat"] = options.hostopstat
-            # Bug in build_plan.py that does not handle quoted ints. 
+            # Bug in build_plan.py that does not handle quoted ints.
             # This regex sub converts "1" into 1 and returns it
             opts_str = json.dumps(opt_bp)
             opts_str = re.sub('maxgroupsize": ("\d+")', inputDictStrtoInt, opts_str)
             logging.debug(opts_str)
             # Added linebacker -  W-3779869
-            output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s --host_validation %s --hostpercent %s --auto_close_case %s -v"""\
-                         """ --nolinebacker %s""" % (options.patchset,opts_str,options.taggroups, options.host_validation,options.hostpercent, options.auto_close_case,  options.nolinebacker)
+            output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s %s --hostpercent %s --auto_close_case %s -v"""\
+                         """ --nolinebacker %s""" % (options.patchset,opts_str,options.taggroups, hostv ,options.hostpercent, options.auto_close_case,  options.nolinebacker)
             if options.exclude:
                 output_str = output_str + " --exclude " + options.exclude
             if options.casetype == "reimage":
