@@ -15,6 +15,7 @@ frf-sam_moderation_einstein FRF NONE
 frf-sam_cloudatlas FRF NONE
 frf-sam_chatbot FRF NONE
 iad-sp1-sam_caas IAD SP1
+iad-sp2-sam_caas IAD SP2
 iad-sam_warden IAD NONE
 iad-sam_cloudatlas IAD NONE
 iad-sam_cloudatlas_dir IAD NONE
@@ -22,11 +23,7 @@ iad-sam_gater IAD NONE
 iad-sam_report_collector IAD NONE
 iad-sam_moderation_einstein IAD NONE
 iad-sam_chatbot IAD NONE
-iad-sp2-sam_caas IAD SP2
 dfw-sp1-sam_caas DFW SP1
-dfw-sp2-sam_caas DFW SP2
-dfw-sp3-sam_caas DFW SP3
-dfw-sp4-sam_caas DFW SP4
 dfw-sam_cloudatlas_dir DFW NONE
 dfw-sam_moderation_einstein DFW NONE
 dfw-sam_report_collector DFW NONE
@@ -34,6 +31,9 @@ dfw-sam_cloudatlas DFW NONE
 dfw-sam_warden DFW NONE
 dfw-sam_chatbot DFW NONE
 dfw-sam_gater DFW NONE
+dfw-sp3-sam_caas DFW SP3
+dfw-sp4-sam_caas DFW SP4
+dfw-sp2-sam_caas DFW SP2
 phx-sp1-sam_caas PHX SP1
 phx-sam_gater PHX NONE
 phx-sam_cloudatlas PHX NONE
