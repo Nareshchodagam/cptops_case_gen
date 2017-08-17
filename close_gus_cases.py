@@ -40,20 +40,24 @@ def case_status(status):
         impl_status = "Implemented - per plan"
         c_status = "Closed"
         c_outcome = "Successful"
+        print ("Closing the case as Successful")
     elif re.match(r'dup', status, re.IGNORECASE):
         impl_status = "Pending Implementation"
         c_status = "Closed - Duplicate"
         c_outcome = "Cancelled"
+        print ("Closing the case as Duplicate")
     elif re.match(r'no', status, re.IGNORECASE):
         impl_status = "Not Implemented"
         c_status = "Closed - Not Executed"
         c_outcome = "Cancelled"
+        print ("Closing the case as Not Executed")
     elif re.match(r'partial', status, re.IGNORECASE):
         impl_status = "Partially Implemented"
         c_status = ""
         c_outcome = ""
+        print ("Changing the Implementation planner to Partially Implemented")
     else:
-        print ("%s Not a valid Status. It should be Success|Dup|No " % status)
+        print ("%s Not a valid Status. It should be Success|Dup|No|partial " % status)
         sys.exit(1)
     return impl_status, c_status, c_outcome
 
@@ -99,7 +103,7 @@ if __name__ == '__main__':
     success - Closed case successfully
     dup - Close case as duplicate
     no - Close case as Not-Executed
-    partial - Change Implementatio Planner to Partially
+    partial - Change Implementation Planner to Partially
     implemented without changing cases status
     """
     parser = OptionParser(usage)
@@ -135,7 +139,6 @@ if __name__ == '__main__':
     if options.caseNum:
         caseDetails = { }
         casenums = options.caseNum.split(',')
-        print "Closing the following below cases..\n"
         for case in casenums:
             caseId = getCaseId(case, session)
             logging.debug(caseId)
