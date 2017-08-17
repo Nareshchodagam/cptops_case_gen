@@ -94,11 +94,13 @@ if __name__ == '__main__':
     %prog -c 00000000 [-v] -s <status>
     
     Example closing two cases:
-    %prog -c 00081381,00081382 -s <success|dup|no>
+    %prog -c 00081381,00081382 -s <success|dup|no|partial>
 
     success - Closed case successfully
     dup - Close case as duplicate
     no - Close case as Not-Executed
+    partial - Change Implementatio Planner to Partially
+    implemented without changing cases status
     """
     parser = OptionParser(usage)
     parser.add_option("-c", "--case", dest="caseNum",
