@@ -48,6 +48,10 @@ def case_status(status):
         impl_status = "Not Implemented"
         c_status = "Closed - Not Executed"
         c_outcome = "Cancelled"
+    elif re.match(r'partial', status, re.IGNORECASE):
+        impl_status = "Partially Implemented"
+        c_status = ""
+        c_outcome = ""
     else:
         print ("%s Not a valid Status. It should be Success|Dup|No " % status)
         sys.exit(1)
