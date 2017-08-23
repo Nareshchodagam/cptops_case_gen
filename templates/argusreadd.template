@@ -15,45 +15,45 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 - bigipcheck for host
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_readd -host v_HOSTS -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -threads -auto2
  
- - Disable nagios monitoring
- Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
+- Disable nagios monitoring
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
- -remove from pool
- release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_readd -host v_HOSTS -c remove_from_pool -auto2
+-remove from pool
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_readd -host v_HOSTS -c remove_from_pool -auto2
 
- - Stop the running application
- release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_readd -host v_HOSTS -c  cmd -m "/home/sfdc/start-stop.sh stop" -threads -auto2
+- Stop the running application
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_readd -host v_HOSTS -c  cmd -m "/home/sfdc/start-stop.sh stop" -threads -auto2
 
- - Stop the Splunk
- - release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -auto2
+- Stop the Splunk
+- release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -auto2
 
- v_INCLUDE
+v_INCLUDE
 
- - Reboot the host
- release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
+- Reboot the host
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
 
- - Wait for the hosts to boot up
- Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
+- Wait for the hosts to boot up
+Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
- -Validate that the hosts have been patched and are running the correct version
- release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
+-Validate that the hosts have been patched and are running the correct version
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
- - Start the application
- release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_readd -host v_HOSTS -c  cmd -m "/home/sfdc/start-stop.sh start" -threads -auto2
+- Start the application
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_readd -host v_HOSTS -c  cmd -m "/home/sfdc/start-stop.sh start" -threads -auto2
 
- - Start Splunk
- - release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -auto2
+- Start Splunk
+- release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -auto2
 
- - Verify app
- Exec: python ~/check_http_code.py -H v_HOSTS -P 4466
+- Verify app
+Exec: python /opt/cpt/bin/check_http_code.py -H v_HOSTS -P 4466
 
- - add to pool
- release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_readd -host v_HOSTS -c add_to_pool -auto2
+- add to pool
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_readd -host v_HOSTS -c add_to_pool -auto2
 
- -bigipcheck for host
- release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_readd -host v_HOSTS -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -threads -auto2 -d
+-bigipcheck for host
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_readd -host v_HOSTS -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -threads -auto2 -d
 
- - Enable nagios monitoring
- Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
+- Enable nagios monitoring
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
 
- Exec: echo "Host v_HOSTS system patching completed"
+Exec: echo "Host v_HOSTS system patching completed"
