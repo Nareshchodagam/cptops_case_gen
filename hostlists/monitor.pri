@@ -29,9 +29,9 @@ na3-monitor1-1-dfw
 cs10-monitor1-1-dfw
 na52-monitor1-1-dfw
 cs71-monitor1-1-dfw
-cs90-monitor1-1-dfw
-cs26-monitor1-1-dfw
-na61-monitor1-1-dfw
+cs23-monitor1-1-dfw
+na68-monitor1-1-dfw
+na53-monitor1-1-dfw
 na62-monitor1-1-dfw
 cs52-monitor1-1-dfw
 na34-monitor1-1-dfw
@@ -44,9 +44,9 @@ na42-monitor1-1-dfw
 na55-monitor1-1-dfw
 cs53-monitor1-1-dfw
 na63-monitor1-1-dfw
-cs20-monitor1-1-dfw
 cs19-monitor1-1-dfw
-na79-monitor1-1-dfw
+na60-monitor1-1-dfw
+cs21-monitor1-1-dfw
 ops0-monitor1-1-dfw
 cs32-monitor1-1-wax
 ops-monitor2-1-wax
