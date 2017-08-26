@@ -1,5 +1,5 @@
 par-sam PAR NONE
-hnd-sam HND NONE
+frf-sam FRF NONE
 SAM SYD NONE
 iad-sam IAD NONE
 dfw-sam DFW NONE
@@ -9,4 +9,4 @@ SAM YUL NONE
 ord-sam ORD NONE
 SAM YHU NONE
 ukb-sam UKB NONE
-frf-sam FRF NONE
+hnd-sam HND NONE
