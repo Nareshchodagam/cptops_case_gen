@@ -7,6 +7,6 @@ SAM CDU NONE
 phx-sam PHX NONE
 SAM YUL NONE
 ord-sam ORD NONE
-SAM YHU NONE
-ukb-sam UKB NONE
 hnd-sam HND NONE
+ukb-sam UKB NONE
+SAM YHU NONE
