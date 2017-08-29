@@ -599,7 +599,7 @@ def gen_plan_by_idbquery(inputdict):
     dcs = tuple(inputdict['datacenter'].split(','))
     idbfilters["cluster.dr"] = inputdict['dr'].split(',') if 'dr' in inputdict else 'False'
     idbfilters["cluster.operationalStatus"] = inputdict['cl_opstat'].split(',') if 'cl_opstat' in inputdict else 'ACTIVE'
-    idbfilters["operationalStatus"] = inputdict['host_opstat'].split(',') if 'host_opstat' in inputdict else 'ACTIVE'
+    idbfilters["operationalStatus"] = inputdict['ho_opstat'].split(',') if 'ho_opstat' in inputdict else 'ACTIVE'
 
     #for key in ('datacenters','clusters','superpods','roles','clusterTypes','opstat','dr' ):
 
