@@ -415,7 +415,8 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                     if len_list > 5:
                         for cluster in range(len_list):
                             if cluster % 5 == 0 and cluster != 0:
-                                sec.write(",".join(write_list) + "\n")
+                                #sec.write(",".join(write_list) + "\n")
+				sec.write(",".join(write_list) + " " + dc + " " + sp.upper() + "\n")
                                 write_list = []
                             write_list.append(s[cluster])
                     else:
