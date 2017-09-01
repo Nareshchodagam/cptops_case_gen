@@ -25,6 +25,9 @@ iad-sam_moderation_einstein IAD NONE
 iad-sam_chatbot_kingdom IAD NONE
 iad-sp2-sam_caas IAD SP2
 dfw-sp1-sam_caas DFW SP1
+dfw-sp2-sam_caas DFW SP2
+dfw-sp3-sam_caas DFW SP3
+dfw-sp4-sam_caas DFW SP4
 dfw-sam_cloudatlas_dir DFW NONE
 dfw-sam_moderation_einstein DFW NONE
 dfw-sam_report_collector DFW NONE
@@ -32,9 +35,6 @@ dfw-sam_cloudatlas DFW NONE
 dfw-sam_warden DFW NONE
 dfw-sam_chatbot_kingdom DFW NONE
 dfw-sam_gater DFW NONE
-dfw-sp3-sam_caas DFW SP3
-dfw-sp4-sam_caas DFW SP4
-dfw-sp2-sam_caas DFW SP2
 SAM_GATER CDU NONE
 phx-sp1-sam_caas PHX SP1
 phx-sam_gater PHX NONE
