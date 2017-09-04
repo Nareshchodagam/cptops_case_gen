@@ -37,6 +37,9 @@ dfw-sam_chatbot_kingdom DFW NONE
 dfw-sam_gater DFW NONE
 SAM_GATER CDU NONE
 phx-sp1-sam_caas PHX SP1
+phx-sp2-sam_caas PHX SP2
+phx-sp3-sam_caas PHX SP3
+phx-sp4-sam_caas PHX SP4
 phx-sam_gater PHX NONE
 phx-sam_cloudatlas PHX NONE
 phx-sam_cloudatlas_dir PHX NONE
@@ -44,12 +47,8 @@ phx-sam_report_collector PHX NONE
 phx-sam_warden PHX NONE
 phx-sam_moderation_einstein PHX NONE
 phx-sam_chatbot_kingdom PHX NONE
-phx-sp3-sam_caas PHX SP3
-phx-sp4-sam_caas PHX SP4
-phx-sp2-sam_caas PHX SP2
 SAM_GATER YUL NONE
 ord-sp1-sam_caas ORD SP1
-ord-sp2-sam_caas ORD SP2
 ord-sam_report_collector ORD NONE
 ord-sam_cloudatlas_dir ORD NONE
 ord-sam_warden ORD NONE
@@ -57,6 +56,7 @@ ord-sam_gater ORD NONE
 ord-sam_cloudatlas ORD NONE
 ord-sam_moderation_einstein ORD NONE
 ord-sam_chatbot_kingdom ORD NONE
+ord-sp2-sam_caas ORD SP2
 frf-sp1-sam_caas FRF SP1
 frf-sam_gater FRF NONE
 frf-sam_report_collector FRF NONE
