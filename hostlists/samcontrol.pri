@@ -1,11 +1,11 @@
 par-sam PAR NONE
 frf-sam FRF NONE
 SAM SYD NONE
-iad-sam IAD NONE
 dfw-sam DFW NONE
 SAM CDU NONE
 phx-sam PHX NONE
 SAM YUL NONE
+iad-sam IAD NONE
 ord-sam ORD NONE
 SAM YHU NONE
 ukb-sam UKB NONE
