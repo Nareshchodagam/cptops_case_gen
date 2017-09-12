@@ -49,7 +49,6 @@ phx-sam_moderation_einstein PHX NONE
 phx-sam_chatbot_kingdom PHX NONE
 SAM_GATER YUL NONE
 ord-sp1-sam_caas ORD SP1
-ord-sp2-sam_caas ORD SP2
 ord-sam_report_collector ORD NONE
 ord-sam_cloudatlas_dir ORD NONE
 ord-sam_warden ORD NONE
@@ -57,6 +56,7 @@ ord-sam_gater ORD NONE
 ord-sam_cloudatlas ORD NONE
 ord-sam_moderation_einstein ORD NONE
 ord-sam_chatbot_kingdom ORD NONE
+ord-sp2-sam_caas ORD SP2
 frf-sp1-sam_caas FRF SP1
 frf-sam_gater FRF NONE
 frf-sam_report_collector FRF NONE
