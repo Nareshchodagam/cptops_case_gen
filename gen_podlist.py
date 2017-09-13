@@ -4,8 +4,9 @@ import os
 import re
 import socket
 import subprocess
-from optparse import OptionParser
+
 from idbhost import Idbhost
+from optparse import OptionParser
 
 
 def where_am_i():
@@ -379,7 +380,7 @@ if __name__ == '__main__':
     # Figure out where code is running
     site=where_am_i()
     #print(site)
-    all_prod_dcs = ['asg', 'chi', 'was', 'tyo', 'lon', 'phx', 'dfw', 'frf', 'par', 'chx', 'wax', 'ukb', 'iad', 'ord', 'yul', 'yhu']
+    all_prod_dcs = ['asg', 'chi', 'was', 'tyo', 'lon', 'phx', 'dfw', 'frf', 'par', 'chx', 'wax', 'ukb', 'iad', 'ord', 'yul', 'yhu', 'hnd']
     all_non_prod_dcs = ['sfm', 'crz', 'prd', 'crd', 'sfz']
 
     #Set the correct location for the Idbhost object
