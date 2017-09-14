@@ -53,6 +53,8 @@ def dcs(rolename, podtype, prod=True):
             prod_dc.extend(['prd'])
         elif re.search(r'^grok', rolename, re.IGNORECASE):
             prod_dc.extend(['prd'])
+        elif re.search(r'hbase', rolename, re.IGNORECASE):
+            prod_dc.extend(['prd'])
         elif re.search(r'irc', rolename, re.IGNORECASE):
             prod_dc = (['sfm', 'crd'])
         return prod_dc
@@ -362,7 +364,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
     pri, sec = file_handles(file_name)
     for dc in idb_data.keys():
         if re.search(r'afw', file_name, re.IGNORECASE):
-	    groupsize = 1
+            groupsize = 1
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 p = []
@@ -415,7 +417,8 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                     if len_list > 5:
                         for cluster in range(len_list):
                             if cluster % 5 == 0 and cluster != 0:
-                                sec.write(",".join(write_list) + "\n")
+                                #sec.write(",".join(write_list) + "\n")
+                                sec.write(",".join(write_list) + " " + dc + " " + sp.upper() + "\n")
                                 write_list = []
                             write_list.append(s[cluster])
                     else:
@@ -458,7 +461,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
-                    if pods[index]['Primary'] != "None" and re.match(r"HBASE\d", pods[index]['Primary'], re.IGNORECASE):
+                    if pods[index]['Primary'] != "None" and re.match(r"HBASE\d|HDAAS|ARG1HBSVC", pods[index]['Primary'], re.IGNORECASE):
                         if pods[index]['Primary'] != "None":
                             w = pods[index]['Primary'] + " " + dc + " " + sp.upper() + "\n"
                             pri.write(w)
