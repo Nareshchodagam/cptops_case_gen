@@ -5,5 +5,5 @@ grok DFW NONE
 grok IAD NONE
 grok PHX NONE
 grok ORD NONE
-grok HND NONE
 grok UKB NONE
+grok HND NONE
