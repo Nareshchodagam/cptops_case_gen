@@ -151,9 +151,9 @@ if __name__ == "__main__":
             subject = casesubject + ": " + options.role.upper()
         dcs_list = ",".join(dcs)
 
-        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s %s --hostpercent %s --auto_close_case %s --nolinebacker %s
-        """ % (options.podgroups, options.template, options.patchset, grouping, hostv, options.hostpercent, options.auto_close_case,
-               options.nolinebacker)
+        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s %s --hostpercent %s --auto_close_case %s """\
+		     """--nolinebacker %s""" % (options.podgroups, options.template, options.patchset, grouping, hostv, options.hostpercent, options.auto_close_case,
+               					options.nolinebacker)
         if options.idb != True:
             output_str = output_str + " -x"
         if options.groupsize:
