@@ -1,27 +1,34 @@
--Copy remote scripts to the target hosts
-
-release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+- Disable nagios monitoring
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable && echo 'BLOCK 1'
 
 - Validate the host needs to be patched
-#release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2
+Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python /opt/cpt/remote/validate_linux_patchset.py -c v_BUNDLE -f /opt/cpt/remote/valid_versions.json"
 
 - Set the boot device to HDD
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
+Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/bin/python /opt/cpt/remote/manage_bootdevice.py -s -d HDD"
 
-- Execute the update script
-#release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/sec_system_update.sh" -threads -auto2
+- Update vendortools
+Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/local/libexec/system_vendortools_update.sh -a v_BUNDLE"
+
+- Validate firmware and update if required
+Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/bin/python /usr/local/libexec/validate_firmware.py -u -t"
+
+- Update host to latest bundle
+Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/local/libexec/system_update.sh -a v_BUNDLE"
 
 - Reboot the host
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
+Exec: echo 'BLOCK 1' &&  echo "Now reboot the host v_HOSTS: sudo shutdown -r now"
 
 - Wait for the hosts to boot up
-Exec: ~/check_reconnect.py -H v_HOSTS
+Exec: echo 'BLOCK 1' &&  /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
-#release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
+Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python /opt/cpt/remote/validate_linux_patchset.py -c v_BUNDLE -f /opt/cpt/remote/valid_versions.json"
 
 -Validate Secportal host app is running
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_secportal.sh" -threads -auto2
+Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /opt/cpt/remote/validate_secportal.sh"
 
-Exec: echo "Host v_HOSTS system patching completed"
+- Enable nagios monitoring
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable && echo 'BLOCK 1'
+
+Exec: echo 'BLOCK 1' &&  echo "Host v_HOSTS system patching completed"
