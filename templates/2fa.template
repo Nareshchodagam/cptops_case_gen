@@ -10,13 +10,13 @@ Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /u
 Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/bin/python /opt/cpt/remote/manage_bootdevice.py -s -d HDD"
 
 - Update vendortools
-Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/local/libexec/system_vendortools_update.sh -a v_BUNDLE"
+Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /opt/cpt/remote/system_vendortools_update.sh -a v_BUNDLE"
 
 - Validate firmware and update if required
-Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/bin/python /usr/local/libexec/validate_firmware.py -u -t"
+Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/bin/python /opt/cpt/remote/validate_firmware.py -u -t"
 
 - Update host to latest bundle
-Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/local/libexec/system_update.sh -a v_BUNDLE"
+Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /opt/cpt/remote/system_update.sh -a v_BUNDLE"
 
 - Reboot the host
 Exec: echo 'BLOCK 1' &&  echo "Now reboot the host v_HOSTS: sudo shutdown -r now"
