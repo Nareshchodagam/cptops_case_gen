@@ -165,7 +165,6 @@ class LookupFields(list):
                    'mandm-agent' : ['app'],
                    'sfdc-splunk-forwarder' : ['app'],
                    'mq-broker' : ['mq'],
-                   'onboarding' : [ 'app' ],
                    'acs' : [ 'acs' ],
                    'searchserver' : [ 'search' ],
                    'sfdc-base' : ['ffx','cbatch','app','dapp']
