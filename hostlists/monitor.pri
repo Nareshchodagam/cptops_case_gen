@@ -10,11 +10,11 @@ cs6-monitor1-1-hnd
 ops0-monitor1-1-hnd
 ap9-monitor1-1-syd
 ops0-monitor1-1-syd
-sr1-monitor1-1-chi
 cs24-monitor1-1-chi
 na6-monitor2-1-chi
 cs40-monitor2-1-chi
 na31-monitor2-1-chi
+sr1-monitor1-1-chi
 cs22-monitor1-1-chi
 na24-monitor1-1-chi
 na30-monitor2-1-chi
