@@ -33,7 +33,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 
 - Start the applications
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-kerberos -threads  -auto2 -c cmd -m "~/current/bigdata-kerberos/kerberos/build/ant -w krb startLocal" -host v_HOSTS
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant -- cluster startLocalNode  -s enable" -host v_HOSTS
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant -- cluster startLocalNode  -s enable -c disable" -host v_HOSTS
 
 - Start Splunk
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product sfdc-splunk-forwarder  -auto2 -c start_server -host v_HOSTS
