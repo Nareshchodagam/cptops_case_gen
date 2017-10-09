@@ -44,7 +44,7 @@ def dcs(rolename, podtype, prod=True):
         elif re.search(r'lhub', rolename, re.IGNORECASE):
             prod_dc = 'sfz'
         elif re.search(r'cfgapp', rolename, re.IGNORECASE):
-            prod_dc.extend(['crd'])
+            prod_dc.extend(['crd', 'crz'])
         elif re.search(r'^cmgt', rolename, re.IGNORECASE):
             prod_dc = 'was'
         elif re.search(r'^polcore', rolename, re.IGNORECASE):
