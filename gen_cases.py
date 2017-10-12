@@ -151,9 +151,9 @@ if __name__ == "__main__":
             subject = casesubject + ": " + options.role.upper()
         dcs_list = ",".join(dcs)
 
-        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s %s --hostpercent %s --auto_close_case %s --nolinebacker %s
-        """ % (options.podgroups, options.template, options.patchset, grouping, hostv, options.hostpercent, options.auto_close_case,
-               options.nolinebacker)
+        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s %s --hostpercent %s --auto_close_case %s """\
+		     """--nolinebacker %s""" % (options.podgroups, options.template, options.patchset, grouping, hostv, options.hostpercent, options.auto_close_case,
+               					options.nolinebacker)
         if options.idb != True:
             output_str = output_str + " -x"
         if options.groupsize:
@@ -182,17 +182,18 @@ if __name__ == "__main__":
             output_str = output_str + '  -l "%s"' % ",".join(hosts)
             print("%s" % output_str)
             print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s " -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (patch_json,options.infra,subject,implplansection,dc))
-    elif options.podgroups and options.casetype == "coreappafw":
-        data = getData(options.podgroups)
-        inst_data = genDCINST(data)
-        subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
-        print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k  templates/%s -D '%s'""" % (patch_json,options.infra,subject,implplansection,inst_data))
-    elif options.podgroups and options.casetype == "coreapp-canary":
-        data = getData(options.podgroups)
-        inst_data = genDCINST(data)
-        subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
-        print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k templates/%s -D '%s'""" % (
-            patch_json, options.infra, subject, implplansection, inst_data))
+    # This code was used to create core app cases via Gigantor (Currently not used)
+    #elif options.podgroups and options.casetype == "coreappafw":
+    #    data = getData(options.podgroups)
+    #    inst_data = genDCINST(data)
+    #    subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
+    #    print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k  templates/%s -D '%s'""" % (patch_json,options.infra,subject,implplansection,inst_data))
+    #elif options.podgroups and options.casetype == "coreapp-canary":
+    #    data = getData(options.podgroups)
+    #    inst_data = genDCINST(data)
+    #    subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
+    #    print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k templates/%s -D '%s'""" % (
+    #        patch_json, options.infra, subject, implplansection, inst_data))
     elif options.podgroups and not options.casetype:
         data = getData(options.podgroups)
         for l in data:
@@ -208,7 +209,7 @@ if __name__ == "__main__":
                         # Should be remove once CS moves out of DownTime patching
                         opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                                   "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
-		    elif (options.role.lower()) == "app":
+                    elif (options.role.lower()) == "app":
                         # This section is to remove grouping tag for core app #W-3758985
                         opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                                   "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
