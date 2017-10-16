@@ -19,7 +19,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 - Stop the running application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base,sfdc-splunk-forwarder -host v_HOSTS -c stop_server -stopall  -property pingcheck_max_tries=600,pingcheck_poll_interval_secs=3,uptime_limit=30 -ping_validation -min_host_percent 33 -threads -auto2 -host_status v_HO_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base,sfdc-splunk-forwarder -host v_HOSTS -c stop_server -stopall -property pingcheck_max_tries=600,pingcheck_poll_interval_secs=3,uptime_limit=30 -ping_validation -min_host_percent 33 -threads -auto2 -host_status v_HO_OPSTAT
 
 v_INCLUDE
 

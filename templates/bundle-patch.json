@@ -2,7 +2,7 @@
   "Details": {
     "RecordTypeId": "012B000000009fB",
     "Change-Type": "Standard Pre Approved",
-    "Status": "Approved, Scheduled",
+    "Status": "New/Unassigned",
     "SRO-Resource": "No",
     "Patch-Vendor": "Redhat",
     "Patch-Desc": "Upgrades OS to Latest Patch Bundle",

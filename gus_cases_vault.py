@@ -354,6 +354,14 @@ def update_implplan(filename, case_num):
         file_data = file_data.replace('v_CASE', case_num['CaseNumber'])
     return file_data
 
+def PreApproveCase(caseId, session):
+    gusObj = Gus()
+    Dict = {
+                'Status': "Approved, Scheduled",
+            }
+    details = gusObj.update_case_details(caseId, Dict, session)
+    logging.debug(details)
+
 if __name__ == '__main__':
     
     usage = """
@@ -524,6 +532,9 @@ if __name__ == '__main__':
                 logging.debug(dict)
                 print('Creating logical host connector for %s' % host)
                 createLogicalConnector(dict, caseId, session)
+
+        #Change cases status to pre-approved.
+        PreApproveCase(CaseId, session)
         
     elif options.attach:
         if options.filepath:
