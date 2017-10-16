@@ -42,7 +42,6 @@ frf-sam_chatbot_kingdom FRF NONE
 SAM_GATER SYD NONE
 SAM_REPORT_COLLECTOR SYD NONE
 iad-sp1-sam_caas IAD SP1
-iad-sp2-sam_caas IAD SP2
 iad-sam_warden IAD NONE
 iad-sam_cloudatlas IAD NONE
 iad-sam_cloudatlas_dir IAD NONE
@@ -50,6 +49,7 @@ iad-sam_gater IAD NONE
 iad-sam_report_collector IAD NONE
 iad-sam_moderation_einstein IAD NONE
 iad-sam_chatbot_kingdom IAD NONE
+iad-sp2-sam_caas IAD SP2
 dfw-sp1-sam_caas DFW SP1
 dfw-sp2-sam_caas DFW SP2
 dfw-sp3-sam_caas DFW SP3
@@ -93,8 +93,6 @@ ord-sam_gater ORD NONE
 ord-sam_cloudatlas ORD NONE
 ord-sam_moderation_einstein ORD NONE
 ord-sam_chatbot_kingdom ORD NONE
-SAM_GATER YHU NONE
-SAM_REPORT_COLLECTOR YHU NONE
 hnd-sp1-sam_caas HND SP1
 hnd-sam_gater HND NONE
 hnd-sam_warden HND NONE
@@ -103,3 +101,5 @@ hnd-sam_chatbot_kingdom HND NONE
 hnd-sam_cloudatlas HND NONE
 hnd-sam_report_collector HND NONE
 hnd-sam_moderation_einstein HND NONE
+SAM_GATER YHU NONE
+SAM_REPORT_COLLECTOR YHU NONE
