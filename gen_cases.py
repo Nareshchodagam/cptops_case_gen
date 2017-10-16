@@ -161,7 +161,7 @@ if __name__ == "__main__":
         if options.dowork:
             output_str = output_str + " --dowork " + options.dowork
         print("%s" % output_str)
-        print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (patch_json,options.infra,subject,implplansection,dcs_list))
+        print("""python gus_cases_vault.py -T change --approved -f templates/%s --infra "%s" -s "%s" -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (patch_json,options.infra,subject,implplansection,dcs_list))
     elif options.podgroups and options.casetype == "hostlist" and options.hlgrp == True:
         data = getData(options.podgroups)
         hostlist = sortHost(data)
@@ -181,17 +181,17 @@ if __name__ == "__main__":
                 output_str = output_str + " --dowork " + options.dowork
             output_str = output_str + '  -l "%s"' % ",".join(hosts)
             print("%s" % output_str)
-            print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s " -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (patch_json,options.infra,subject,implplansection,dc))
+            print("""python gus_cases_vault.py -T change --approved -f templates/%s --infra "%s" -s "%s " -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (patch_json,options.infra,subject,implplansection,dc))
     elif options.podgroups and options.casetype == "coreappafw":
         data = getData(options.podgroups)
         inst_data = genDCINST(data)
         subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
-        print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k  templates/%s -D '%s'""" % (patch_json,options.infra,subject,implplansection,inst_data))
+        print("""python gus_cases_vault.py -T change --approved -f templates/%s --infra "%s" -s "%s" -k  templates/%s -D '%s'""" % (patch_json,options.infra,subject,implplansection,inst_data))
     elif options.podgroups and options.casetype == "coreapp-canary":
         data = getData(options.podgroups)
         inst_data = genDCINST(data)
         subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
-        print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k templates/%s -D '%s'""" % (
+        print("""python gus_cases_vault.py -T change --approved -f templates/%s --infra "%s" -s "%s" -k templates/%s -D '%s'""" % (
             patch_json, options.infra, subject, implplansection, inst_data))
     elif options.podgroups and not options.casetype:
         data = getData(options.podgroups)
@@ -263,4 +263,4 @@ if __name__ == "__main__":
                 subject = subject + " " + options.group
             #if not re.search(r"json", options.bundle):
             #    options.bundle = options.bundle + "-patch.json"
-            print("""python gus_cases_vault.py -T change  -f templates/%s  --inst %s --infra "%s" -s "%s" -k %s  -l output/summarylist.txt -D %s -i  output/plan_implementation.txt""" % (patch_json,pods,options.infra,subject,implplansection,dc))
+            print("""python gus_cases_vault.py -T change --approved -f templates/%s  --inst %s --infra "%s" -s "%s" -k %s  -l output/summarylist.txt -D %s -i  output/plan_implementation.txt""" % (patch_json,pods,options.infra,subject,implplansection,dc))

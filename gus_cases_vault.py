@@ -357,7 +357,7 @@ def update_implplan(filename, case_num):
 def PreApproveCase(caseId, session):
     gusObj = Gus()
     Dict = {
-                'Status': "Approved, Scheduled",
+                'Status': 'Approved, Scheduled',
             }
     details = gusObj.update_case_details(caseId, Dict, session)
     logging.debug(details)
@@ -402,6 +402,7 @@ if __name__ == '__main__':
     parser.add_option("-A", "--submit", action="store_true", dest="submit", help="Submit the case for approval")
     parser.add_option("--inst", dest="inst", help="List of comma separated instances")
     parser.add_option("--infra", dest="infra", help="Infrastructure type")
+    parser.add_option("--approved", action="store_true", dest="pre_appr", help="Change cases status to Approved")
     parser.add_option("-n", "--new", action="store_true", dest="newcase",
                                     help=
                                     """Create a new case. Required args :
@@ -532,10 +533,9 @@ if __name__ == '__main__':
                 logging.debug(dict)
                 print('Creating logical host connector for %s' % host)
                 createLogicalConnector(dict, caseId, session)
+        if options.pre_appr:
+            PreApproveCase(caseId, session)
 
-        #Change cases status to pre-approved.
-        PreApproveCase(CaseId, session)
-        
     elif options.attach:
         if options.filepath:
             file = options.filepath
