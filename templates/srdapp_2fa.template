@@ -1,0 +1,39 @@
+- Template for 2FA hosts
+
+- Disable nagios monitoring
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable && echo 'BLOCK 1'
+
+- Validate the host needs to be patched
+Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python /opt/cpt/remote/validate_linux_patchset.py -c v_BUNDLE -f /opt/cpt/remote/valid_versions.json"
+
+- Update CPT Tools on the host
+Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo yum --disablerepo=* --enablerepo=pipeline-cptops update -y cpt-tools"
+
+- Set the boot device to HDD
+Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/bin/python /opt/cpt/remote/manage_bootdevice.py -s -d HDD"
+
+- Update vendortools
+Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /opt/cpt/remote/system_vendortools_update.sh -a v_BUNDLE"
+
+- Validate firmware and update if required
+Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/bin/python /opt/cpt/remote/validate_firmware.py -u -t"
+
+- Update host to latest bundle
+Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /opt/cpt/remote/system_update.sh -a v_BUNDLE"
+
+- Reboot the host
+Exec: echo 'BLOCK 1' &&  echo "Now reboot the host v_HOSTS: sudo shutdown -r now"
+
+- Wait for the hosts to boot up
+Exec: echo 'BLOCK 1' &&  /opt/cpt/bin/check_reconnect.py -H v_HOSTS
+
+- Validate SRDAPP host app is running
+Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /opt/cpt/remote/validate_srdapp.sh"
+
+- Validate that the hosts have been patched and are running the correct version
+Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python /opt/cpt/remote/validate_linux_patchset.py -c v_BUNDLE -f /opt/cpt/remote/valid_versions.json"
+
+- Enable nagios monitoring
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable && echo 'BLOCK 1'
+
+Exec: echo 'BLOCK 1' &&  echo "Host v_HOSTS system patching completed"
