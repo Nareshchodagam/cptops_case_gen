@@ -222,7 +222,15 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
         argusmetrics = hosts.replace('argustsdbw', 'argusmetrics')
         argustsdbw = hosts
         hosts = ','.join([argustsdbw, argusmetrics])
+        if 'v_HOSTM' in output or 'v_HOSTD' in output:
+            try:
+                output = output.replace('v_HOSTD', argustsdbw)
+                output = output.replace('v_HOSTM', argusmetrics)
+            except UnboundLocalError:
+                pass
+
     #End
+
 
     #Ability to reuse templates and include sections. Include in refactoring
     if options.dowork and (datacenter in ("yhu","yul","syd","cdu")):
@@ -324,11 +332,6 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
         output = output.replace('v_HOST', host_list[0])
 # Added only to facilitate ARGUS_WRITED and ARGUS_METRICS roles to work together
-        try:
-            output = output.replace('v_HOSTD', argustsdbw)
-            output = output.replace('v_HOSTM', argusmetrics)
-        except UnboundLocalError:
-            pass
 # End
         output = output.replace('v_CLUSTER', cluster)
         output = output.replace('v_DATACENTER', datacenter)
@@ -368,6 +371,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_CL_OPSTAT', cl_opstat)
     output = output.replace('v_HO_OPSTAT', ho_opstat)
     output = output.replace('v_COMMAND', build_command)
+    print(output)
     return output
 
 def getDoWork(input, dowork):
