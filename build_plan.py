@@ -371,7 +371,6 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
     output = output.replace('v_CL_OPSTAT', cl_opstat)
     output = output.replace('v_HO_OPSTAT', ho_opstat)
     output = output.replace('v_COMMAND', build_command)
-    print(output)
     return output
 
 def getDoWork(input, dowork):
