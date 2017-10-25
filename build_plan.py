@@ -685,7 +685,12 @@ def consolidate_idb_query_plans(writeplan,dcs):
             writelist.extend(content)
             fullhostlist.extend(hostlist)
 
+    # Hack to get list of all hosts for scrtkafka validation W-4415118
+    # NOTE - Keyword any return True if any element of the iterable is true. If the iterable is empty, return False.
 
+    if any(i for i in writelist if 'v_ALLHOSTS' in i):
+        final_write = [i.replace('v_ALLHOSTS', ",".join(fullhostlist)) for i in writelist]
+        writelist = final_write
     write_list_to_file(common.outputdir + '/plan_implementation.txt', writelist, newline=False)
 
     global gblExcludeList
