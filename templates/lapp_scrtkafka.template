@@ -14,10 +14,10 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 - Check Cluster Health
-Exec: /opt/cpt/bin/scrtkafka -H v_HOSTS
+Exec: /opt/cpt/bin/scrtkafka -H v_ALLHOSTS
 
 - Stop the running application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product scrtkafka -c cmd -m "/home/sfdc/current/scrt/kafka/scripts/utils/stop-node" -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product scrtkafka -host v_HOSTS -c cmd -m "/home/sfdc/current/scrt/kafka/scripts/utils/stop-node" -threads -auto2
 
 
 v_INCLUDE
@@ -32,10 +32,10 @@ Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
 - Start the application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product scrtkafka -c cmd -m "/home/sfdc/current/scrt/kafka/scripts/utils/start-node" -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product scrtkafka -host v_HOSTS -c cmd -m "/home/sfdc/current/scrt/kafka/scripts/utils/start-node" -threads -auto2
 
 - Check Cluster Health
-Exec: /opt/cpt/bin/scrtkafka -H v_HOSTS
+Exec: /opt/cpt/bin/scrtkafka -H v_ALLHOSTS
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
