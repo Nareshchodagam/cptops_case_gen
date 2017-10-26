@@ -358,7 +358,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
         3.acs
         4.LiveAgent
         5.hbase
-        6. Any other cluster type
+        6.Any other cluster type
 
     :param file_name: podlist file to write
     :type: str
@@ -394,6 +394,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
             logger.info("Successfully written data to podlist files - '{0}, {1}.sec' for dc '{2}'".format(file_name, file_name.split('.')[0], dc))
 
         elif re.search(r'hammer', file_name, re.IGNORECASE):
+            groupsize = 5
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 p = []
@@ -405,7 +406,20 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                     if 'Secondary' in pods[index]:
                         if pods[index]['Secondary'] != "None":
                             s.append(pods[index]['Secondary'])
-                if p:
+                chunked = chunks(p, groupsize)
+                for sub_lst in chunked:
+                    print len(p)
+                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
+                    pri.write(w)
+
+                chunked = chunks(s, groupsize)
+                for sub_lst in chunked:
+                    print len(s)
+                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
+                    sec.write(w)
+            logger.info("Successfully written data to podlist files - '{0}, {1}.sec' for dc '{2}'".format(file_name, file_name.split('.')[0], dc))
+
+            '''if p:
                     write_list = []
                     len_list = len(p)
                     if len_list > 5:
@@ -430,8 +444,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                     else:
                         w = ",".join(s) + " " + dc + " " + sp.upper() + "\n"
                         sec.write(w)
-                logger.info("Successfully written data to podlist files - '{0}, {1}.sec' for dc '{2}'".format(file_name,
-                                                                                                              file_name.split('.')[0], dc))
+                logger.info("Successfully written data to podlist files - '{0}, {1}.sec' for dc '{2}'".format(file_name, file_name.split('.')[0], dc))'''
 
         elif 'pod' in file_name or 'acs' in file_name:
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
