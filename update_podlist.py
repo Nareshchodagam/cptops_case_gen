@@ -408,13 +408,11 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                             s.append(pods[index]['Secondary'])
                 chunked = chunks(p, groupsize)
                 for sub_lst in chunked:
-                    print len(p)
                     w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
                     pri.write(w)
 
                 chunked = chunks(s, groupsize)
                 for sub_lst in chunked:
-                    print len(s)
                     w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
                     sec.write(w)
             logger.info("Successfully written data to podlist files - '{0}, {1}.sec' for dc '{2}'".format(file_name, file_name.split('.')[0], dc))
