@@ -14,7 +14,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 - Check Cluster Health
-Exec: /opt/cpt/bin/scrtkafka -H v_ALLHOSTS
+Exec: /opt/cpt/bin/scrtkafka -hosts v_ALLHOSTS
 
 - Stop the running application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product scrtkafka -host v_HOSTS -c cmd -m "/home/sfdc/current/scrt/kafka/scripts/utils/stop-node" -threads -auto2 -cluster_status v_CL_OPSTAT -host_status v_HO_OPSTAT
@@ -35,7 +35,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product scrtkafka -host v_HOSTS -c cmd -m "/home/sfdc/current/scrt/kafka/scripts/utils/start-node" -threads -auto2 -cluster_status v_CL_OPSTAT -host_status v_HO_OPSTAT
 
 - Check Cluster Health
-Exec: /opt/cpt/bin/scrtkafka -H v_ALLHOSTS
+Exec: /opt/cpt/bin/scrtkafka -hosts v_ALLHOSTS
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
