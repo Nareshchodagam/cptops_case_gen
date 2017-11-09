@@ -1,9 +1,9 @@
 GROK PRD NONE
 grok PAR NONE
-grok FRF NONE
-grok DFW NONE
+grok HND NONE
 grok IAD NONE
+grok DFW NONE
+grok UKB NONE
 grok PHX NONE
 grok ORD NONE
-grok UKB NONE
-grok HND NONE
+grok FRF NONE

@@ -1,4 +1,5 @@
 prd-sam_moderation_einstein PRD NONE
+prd-sam_sfstore PRD NONE
 prd-sam_chatbot_kingdom PRD NONE
 prd-sam_gater PRD NONE
 prd-sam_cloudatlas PRD NONE
@@ -13,7 +14,6 @@ prd-search_model_executor PRD NONE
 prd-sam_ceph PRD NONE
 prd-sam_tnrp_merger PRD NONE
 prd-sam_tnrp_promoter PRD NONE
-prd-sam_sfstore PRD NONE
 prd-sp1-sdb_kube PRD SP1
 prd-sp1-sam_caas PRD SP1
 prd-sp2-sam_caas PRD SP2
@@ -58,9 +58,6 @@ wax-sam_gater WAX NONE
 SAM_GATER CDU NONE
 SAM_REPORT_COLLECTOR CDU NONE
 phx-sp1-sam_caas PHX SP1
-phx-sp2-sam_caas PHX SP2
-phx-sp3-sam_caas PHX SP3
-phx-sp4-sam_caas PHX SP4
 phx-sam_gater PHX NONE
 phx-sam_cloudatlas PHX NONE
 phx-sam_cloudatlas_dir PHX NONE
@@ -70,10 +67,12 @@ phx-search_model_executor PHX NONE
 phx-sam_warden PHX NONE
 phx-sam_moderation_einstein PHX NONE
 phx-sam_chatbot_kingdom PHX NONE
+phx-sp3-sam_caas PHX SP3
+phx-sp4-sam_caas PHX SP4
+phx-sp2-sam_caas PHX SP2
 SAM_REPORT_COLLECTOR YUL NONE
 SAM_GATER YUL NONE
 iad-sp1-sam_caas IAD SP1
-iad-sp2-sam_caas IAD SP2
 iad-sam_warden IAD NONE
 iad-sam_cloudatlas IAD NONE
 iad-sam_cloudatlas_dir IAD NONE
@@ -81,6 +80,7 @@ iad-sam_gater IAD NONE
 iad-sam_report_collector IAD NONE
 iad-sam_moderation_einstein IAD NONE
 iad-sam_chatbot_kingdom IAD NONE
+iad-sp2-sam_caas IAD SP2
 chx-sam_gater CHX NONE
 ord-sp1-sam_caas ORD SP1
 ord-sam_report_collector ORD NONE
@@ -91,14 +91,8 @@ ord-sam_cloudatlas ORD NONE
 ord-sam_moderation_einstein ORD NONE
 ord-sam_chatbot_kingdom ORD NONE
 ord-sp2-sam_caas ORD SP2
-frf-sp1-sam_caas FRF SP1
-frf-sam_gater FRF NONE
-frf-sam_report_collector FRF NONE
-frf-sam_cloudatlas_dir FRF NONE
-frf-sam_warden FRF NONE
-frf-sam_moderation_einstein FRF NONE
-frf-sam_cloudatlas FRF NONE
-frf-sam_chatbot_kingdom FRF NONE
+SAM_GATER YHU NONE
+SAM_REPORT_COLLECTOR YHU NONE
 ukb-sp1-sam_caas UKB SP1
 ukb-sam_cloudatlas UKB NONE
 ukb-sam_gater UKB NONE
@@ -107,5 +101,11 @@ ukb-sam_report_collector UKB NONE
 ukb-sam_cloudatlas_dir UKB NONE
 ukb-sam_moderation_einstein UKB NONE
 ukb-sam_chatbot_kingdom UKB NONE
-SAM_GATER YHU NONE
-SAM_REPORT_COLLECTOR YHU NONE
+frf-sp1-sam_caas FRF SP1
+frf-sam_gater FRF NONE
+frf-sam_report_collector FRF NONE
+frf-sam_cloudatlas_dir FRF NONE
+frf-sam_warden FRF NONE
+frf-sam_moderation_einstein FRF NONE
+frf-sam_cloudatlas FRF NONE
+frf-sam_chatbot_kingdom FRF NONE
