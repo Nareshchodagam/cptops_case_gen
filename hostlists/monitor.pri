@@ -1,5 +1,5 @@
 eu5-monitor1-1-par
-cs84-monitor1-1-par
+cs84-monitor2-1-par
 eu11-monitor1-1-par
 ops0-monitor1-1-par
 sr3-monitor1-1-tyo
@@ -10,15 +10,15 @@ ap0-monitor1-1-hnd
 ops0-monitor1-1-hnd
 ap9-monitor1-1-syd
 ops0-monitor1-1-syd
-sr1-monitor1-1-chi
-cs24-monitor1-1-chi
 cs40-monitor2-1-chi
 cs42-monitor1-1-chi
 cs46-monitor1-1-chi
-cs22-monitor1-1-chi
+cs24-monitor1-1-chi
+sr1-monitor1-1-chi
 cs41-monitor2-1-chi
 na30-monitor2-1-chi
 cs2-monitor2-1-chi
+cs22-monitor1-1-chi
 ops-monitor2-1-chi
 cs52-monitor1-1-dfw
 na34-monitor1-1-dfw
