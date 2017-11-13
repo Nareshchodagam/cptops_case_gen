@@ -59,9 +59,6 @@ wax-sam_gater WAX NONE
 SAM_GATER CDU NONE
 SAM_REPORT_COLLECTOR CDU NONE
 phx-sp1-sam_caas PHX SP1
-phx-sp2-sam_caas PHX SP2
-phx-sp3-sam_caas PHX SP3
-phx-sp4-sam_caas PHX SP4
 phx-sam_gater PHX NONE
 phx-sam_cloudatlas PHX NONE
 phx-sam_cloudatlas_dir PHX NONE
@@ -71,6 +68,9 @@ phx-search_model_executor PHX NONE
 phx-sam_warden PHX NONE
 phx-sam_moderation_einstein PHX NONE
 phx-sam_chatbot_kingdom PHX NONE
+phx-sp3-sam_caas PHX SP3
+phx-sp4-sam_caas PHX SP4
+phx-sp2-sam_caas PHX SP2
 SAM_REPORT_COLLECTOR YUL NONE
 SAM_GATER YUL NONE
 iad-sp1-sam_caas IAD SP1
