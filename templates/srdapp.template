@@ -4,6 +4,9 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 - Validate the host needs to be patched
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2
 
+- Notify people logged in about the patching and the coming reboot
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/bin/wall \"Hi $USER, This host will be restarted within the next 30 mins as part of the monthly patch maintenance to keep our environment secure and up-to-date. Please save your session and move to another host if needed. Thanks.\""
+
 - Disable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
