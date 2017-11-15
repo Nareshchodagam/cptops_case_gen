@@ -39,7 +39,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 Exec: sleep 120
 
 - validate MTA is working as expected
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/mtavalidation.py" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/local/bin/testallbindings.py" -threads -auto2
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
