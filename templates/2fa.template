@@ -6,6 +6,9 @@ Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable && echo 'B
 - Validate the host needs to be patched
 Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python /opt/cpt/remote/validate_linux_patchset.py -c v_BUNDLE -f /opt/cpt/remote/valid_versions.json"
 
+- Notify people logged in about the patching and the coming reboot
+Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/bin/wall \"Hi $USER, This host will be restarted within the next 30 mins as part of the monthly patch maintenance to keep our environment secure and up-to-date. Please save your session and move to another host if needed. Thanks.\""
+
 - Set the boot device to HDD
 Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/bin/python /opt/cpt/remote/manage_bootdevice.py -s -d HDD"
 
