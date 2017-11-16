@@ -11,6 +11,6 @@ SAM YUL NONE
 iad-sam IAD NONE
 chx-sam CHX NONE
 ord-sam ORD NONE
-hnd-sam HND NONE
-ukb-sam UKB NONE
 SAM YHU NONE
+ukb-sam UKB NONE
+hnd-sam HND NONE
