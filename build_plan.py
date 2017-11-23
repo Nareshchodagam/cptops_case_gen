@@ -180,6 +180,27 @@ def get_umps_hosts(cluster, hosts):
 
 #End
 
+#Added For CMGTAPI ROLE to find other host as this service does not support HA.
+#W-4171797
+
+def FindOtherHost(Hostlist, HostToRemoveList):
+    OHOSTS = Hostlist.split(",")
+    HostToRemove = HostToRemoveList[0]
+    try:
+        OHOSTS.remove(HostToRemove)
+    except ValueError:
+        print("{0} Host does not exists or it has a invalid value".format(HostToRemove))
+        sys.exit(1)
+
+    if len(OHOSTS) != 1:
+        print("List of Other Host Contains More then One Host, Use with Caution!")
+
+    return ",".join(OHOSTS)
+
+
+#END
+
+
 def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role, num='', cl_opstat='',ho_opstat='',template_vars=None):
     # Replace variables in the templates
     logging.debug('Running compile_template')
@@ -333,6 +354,15 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
         output = output.replace('v_HOST', host_list[0])
 # Added only to facilitate ARGUS_WRITED and ARGUS_METRICS roles to work together
 # End
+
+# W-4171797
+        try:
+            output = output.replace('v_OHOSTS', FindOtherHost(options.hostlist, host_list))
+        except:
+            pass
+
+ # End
+
         output = output.replace('v_CLUSTER', cluster)
         output = output.replace('v_DATACENTER', datacenter)
         output = output.replace('v_SUPERPOD', superpod)
