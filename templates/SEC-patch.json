@@ -2,7 +2,7 @@
   "Details": {
     "RecordTypeId": "012B000000009fB",
     "Change-Type": "Standard Pre Approved",
-    "Status": "Approved, Scheduled",
+    "Status": "New/Unassigned",
     "SRO-Resource": "No",
     "Patch-Vendor": "Redhat",
     "Patch-Desc": "Upgrades OS to Latest Patch Bundle",
@@ -12,7 +12,7 @@
     "Verification": "",
     "Priority": "Sev3",
     "Change-Area": "Systems - Patch/Upgrade Redundant Systems",
-    "Business-Justification": "Hosts need to updated to the latest revision for compliance and security reasons",
+    "Business-Justification": "Hosts need to be updated to the latest revision for compliance and security reasons",
     "Business-Reason": "Routine Maintenance",
     "Team": "a00B0000001eKpH",
     "Backout": "This is a fix forward rollback",
@@ -29,7 +29,7 @@
     "Vendor-Case-Number": ""
   },
   "Verif": [
-    "Ensure Host has been rebooted and its uptime is less then 300: ",
+    "Ensure Host has been rebooted and its uptime is less than 300: ",
     " ",
     "$ cat /proc/uptime | awk '{print $1}'",
     " ",
