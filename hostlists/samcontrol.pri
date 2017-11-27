@@ -12,5 +12,5 @@ SAM YUL NONE
 wax-sam WAX NONE
 chx-sam CHX NONE
 ord-sam ORD NONE
-SAM YHU NONE
 frf-sam FRF NONE
+SAM YHU NONE
