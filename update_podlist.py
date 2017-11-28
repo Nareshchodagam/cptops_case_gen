@@ -305,7 +305,10 @@ def listbuilder(pod_list, dc):  # This was added as part of - 'T-1810443'
     :return: A tuple containing two lists with primary and secondary monitor host.
 
     """
-    hostnum = re.compile(r"(^monitor)([1-6])")
+    # searching for just monitor as below commented line shows, errs with NoneType on run
+    # hostnum = re.compile(r"(^monitor)([1-6])")
+    
+    hostnum = re.compile(r"(^monitor|^netmonitor)([1-6])")
     hostcomp = re.compile(r'(\w*-\w*)(?<!\d)')
     hostlist_pri = []
     hostlist_sec = []
@@ -319,6 +322,10 @@ def listbuilder(pod_list, dc):  # This was added as part of - 'T-1810443'
             prim_serv = output.read().strip("\n")
             host = prim_serv.split('.')
             logger.debug(host[0])
+	    #skipping hosts with net in them (such as net-monitor and netmonitor)
+            if 'net' in host[0]:
+                logger.debug('Skipping net host ' + str(host[0]) + ', they break our nagios monitor execution')
+                continue
             mon_num = host[0].split('-')
             if prim_serv:
                 hostval2 = hostcomp.search(prim_serv)
@@ -346,7 +353,7 @@ def listbuilder(pod_list, dc):  # This was added as part of - 'T-1810443'
                         stby_host = val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc
                     if stby_host not in hostlist_sec:
                         hostlist_sec.append(stby_host)
-        return hostlist_pri, hostlist_sec
+    return hostlist_pri, hostlist_sec
 
 
 def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
