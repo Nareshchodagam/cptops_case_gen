@@ -16,10 +16,10 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 ##Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 - Stop Tomcat APP Server
-release_runner.pl -forced_host ops4-stgpm1-1-chi -c sudo_cmd -m "su - root -c 'cp /opt/EMC/ESRS/PolicyManager/Tomcat7/bin/startaps /tmp/stopaps;sed -i "'"s/catalina.sh\"\ run/catalina.sh\"\ stop/g"'" /tmp/stopaps;/tmp/stopaps'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - root -c 'cp /opt/EMC/ESRS/PolicyManager/Tomcat7/bin/startaps /tmp/stopaps;sed -i "'"s/catalina.sh\"\ run/catalina.sh\"\ stop/g"'" /tmp/stopaps;/tmp/stopaps'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Stop Tomcat HSQL-DB Server
-release_runner.pl -forced_host ops4-stgpm1-1-chi -c sudo_cmd -m "su - root -c 'cp /opt/EMC/ESRS/PolicyManager/Tomcat7/bin/starthsqldb /tmp/stophsqldb;sed -i "'"s/catalina.sh\"\ run/catalina.sh\"\ stop/g"'" /tmp/stophsqldb;/tmp/stophsqldb'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - root -c 'cp /opt/EMC/ESRS/PolicyManager/Tomcat7/bin/starthsqldb /tmp/stophsqldb;sed -i "'"s/catalina.sh\"\ run/catalina.sh\"\ stop/g"'" /tmp/stophsqldb;/tmp/stophsqldb'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Stop EMC DB Server
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/emcpm stop" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
@@ -47,10 +47,10 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/emcpmdb start
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/emcpm start" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Start Tomcat HSQL-DB Server
-release_runner.pl -forced_host ops4-stgpm1-1-chi -c sudo_cmd -m "su - root -c '/opt/EMC/ESRS/PolicyManager/Tomcat7/bin/starthsqldb'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - root -c '/opt/EMC/ESRS/PolicyManager/Tomcat7/bin/starthsqldb'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Start Tomcat APP Server
-release_runner.pl -forced_host ops4-stgpm1-1-chi -c sudo_cmd -m "su - root -c '/opt/EMC/ESRS/PolicyManager/Tomcat7/bin/startaps'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - root -c '/opt/EMC/ESRS/PolicyManager/Tomcat7/bin/startaps'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Wait for service to come up
 Exec: sleep 15
