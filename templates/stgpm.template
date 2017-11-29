@@ -1,0 +1,71 @@
+-RR Commands
+
+-Copy remote scripts to the target hosts
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Check for RPMDB and YUM Lock
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/rpmdb_check.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+-Validate the host needs to be patched
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Set the boot device to HDD
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+##- Disable nagios monitoring - No Monitoring setup for these hosts
+##Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
+
+- Stop Tomcat APP Server
+release_runner.pl -forced_host ops4-stgpm1-1-chi -c sudo_cmd -m "su - root -c 'cp /opt/EMC/ESRS/PolicyManager/Tomcat7/bin/startaps /tmp/stopaps;sed -i "'"s/catalina.sh\"\ run/catalina.sh\"\ stop/g"'" /tmp/stopaps;/tmp/stopaps'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Stop Tomcat HSQL-DB Server
+release_runner.pl -forced_host ops4-stgpm1-1-chi -c sudo_cmd -m "su - root -c 'cp /opt/EMC/ESRS/PolicyManager/Tomcat7/bin/starthsqldb /tmp/stophsqldb;sed -i "'"s/catalina.sh\"\ run/catalina.sh\"\ stop/g"'" /tmp/stophsqldb;/tmp/stopaps'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Stop EMC DB Server
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/emcpm stop" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/emcpmdb stop" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Stop the Sun DS (opends RBAC)
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/opends stop" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+v_INCLUDE
+
+- Reboot the host
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Wait for the hosts to boot up
+Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
+
+- Validate that the hosts have been patched and are running the correct version
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Start the Sun DS (opends RBAC)
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/opends start" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Start EMC DB Server
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/emcpmdb start" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/emcpm start" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Start Tomcat HSQL-DB Server
+release_runner.pl -forced_host ops4-stgpm1-1-chi -c sudo_cmd -m "su - root -c '/opt/EMC/ESRS/PolicyManager/Tomcat7/bin/starthsqldb'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Start Tomcat APP Server
+release_runner.pl -forced_host ops4-stgpm1-1-chi -c sudo_cmd -m "su - root -c '/opt/EMC/ESRS/PolicyManager/Tomcat7/bin/startaps'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Wait for service to come up
+Exec: sleep 15
+
+- Check the Status of Sun DS (opends RBAC)
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/opends status" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Check the Status of EMC DB Server
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/emcpmdb status" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/emcpm status" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Check the Port Stgpm: 8090, 8443
+Exec: python /opt/cpt/bin/check_http_code.py -H v_HOSTS -P 8090,8443
+
+##- Enable nagios monitoring - No Monitoring setup for these hosts
+##Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
+
+Exec: echo "Host v_HOSTS system patching completed"
