@@ -1,29 +1,29 @@
-- RR based commands
--Copy remote scripts to the target hosts
-release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+-RR Commands
 
--Validate the host needs to be patched 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2
+-Copy remote scripts to the target hosts
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Check the other host in pair is UP, If other host is not ACTIVE in iDB then it will check the host is being patched.
+Exec: python /opt/cpt/bin/check_http_code.py -H v_OHOSTS -P 22
+
+- Check for RPMDB and YUM Lock
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/rpmdb_check.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+-Validate the host needs to be patched
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Set the boot device to HDD
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
--Disable monitoring on appropriate ops-monitor host
-Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable -m ops-monitor-v_DATACENTER
-
--Update host to RHEL6u6
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/system_update.sh -a v_BUNDLE -p" -threads -auto2
+v_INCLUDE
 
 - Reboot the host
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
--Check the host is online
+- Wait for the hosts to boot up
 Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
--Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
+- Validate that the hosts have been patched and are running the correct version
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Enable nagios monitoring
-Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable -m ops-monitor-v_DATACENTER
-
-Exec: echo "Host v_HOSTS RHEL6u6 patching completed"
+Exec: echo "Host v_HOSTS system patching completed"
