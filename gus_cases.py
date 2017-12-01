@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-        Script for working incident cases in Gus
+   Script for creating cases in Gus authenticating via Kerberos
 '''
 from GUS.base import Auth
 from GUS.base import Gus
@@ -51,11 +51,11 @@ def create_implementation_plan(implanDict, caseId, session):
     gusObj = Gus()
     case = gusObj.add_implementation_row(caseId, implanDict, session)
     logging.debug(case)
-    
+
 def createLogicalConnector(Dict, caseId, session):
     logging.debug(Dict)
     gusObj = Gus()
-    logical_connector = gusObj.addLogicalConnectorRow(caseId, Dict, session) 
+    logical_connector = gusObj.addLogicalConnectorRow(caseId, Dict, session)
     logging.debug(logical_connector)
     return logical_connector
 
@@ -67,22 +67,22 @@ def createLogicalHostsDict(Id,caseId):
             'Exit_Message__c': 'Not Started'
             }
     return data
-    
+
 def getLogicalConnectors(hosts, session):
     gusObj = Gus()
     object = 'Tech_Asset_Discovery__c'
     objecta = 'SM_Logical_Host__c'
-    os_details = {} 
-    for h in hosts:   
+    os_details = {}
+    for h in hosts:
         logging.debug(h)
         if h != None:
             query = "Select Id, Host_Name__c from " + objecta + " \
-            where Host_Name__c='" + h + "'" 
+            where Host_Name__c='" + h + "'"
             details = gusObj.run_query(query, session)
             if 'records' in details and details['totalSize'] != 0:
                 os_details[h] = details['records'][0]['Id']
     return os_details
-    
+
 def get_change_details(filename, subject, hosts):
     d = {}
     with open(filename) as f:
@@ -90,7 +90,7 @@ def get_change_details(filename, subject, hosts):
             if re.match(r'#',line):
                 continue
             if re.match(r'Subject', line):
-                line = line.replace('v_SUBJECT', subject)                
+                line = line.replace('v_SUBJECT', subject)
             if re.match(r'Case-Owner', line):
                 #line = line.replace('v_USERNAME', '005c0000001RDS7')
                 line = line.replace('v_USERNAME', '005B0000000GyQ')
@@ -146,7 +146,7 @@ def create_implamentation_planner(data, caseId, session,role=None,insts=None,DCS
         print(dc)
         if 'dcs_data' in locals():
             d = dcs_data[dc]
-        data['DCs'] = data['DCs'].replace('v_DATACENTER', dc.upper()) 
+        data['DCs'] = data['DCs'].replace('v_DATACENTER', dc.upper())
         data['Details']['Case__c'] = caseId
         data['Details']['Description__c'] = dc.upper()
         data['Details']['SM_Data_Center__c'] = dc
@@ -200,7 +200,7 @@ def getYamlChangeDetails(filename, subject, hosts):
     logging.debug(output['Subject'])
     logging.debug(output['Verification'])
     return output
-    
+
 def get_json_change_details(filename, subject, hosts, infratype):
     hl_len = str(len(hosts))
     msg = "\n\nHostlist:\n" + "\n".join(hosts)
@@ -324,7 +324,7 @@ def getExistingPlanId(caseId, session):
     gusObj = Gus()
     object = 'Attachment'
     query = "Select Id, Name,OwnerId,ParentId from " + object + " \
-    where ParentId='" + caseId + "'" 
+    where ParentId='" + caseId + "'"
     details = gusObj.run_query(query, session)
     logging.debug(details['records'])
     return details['records'][0]['Id']
@@ -335,22 +335,31 @@ def moveExistingPlan(name, Id, session):
     logging.debug(details)
     return details
 
+def PreApproveCase(caseId, session):
+    gusObj = Gus()
+    Dict = {
+                'Status': 'Approved, Scheduled',
+            }
+    details = gusObj.update_case_details(caseId, Dict, session)
+    logging.debug(details)
+
+
 if __name__ == '__main__':
-    
+
     usage = """
-    
-    This script provides a few different functions: 
+
+    This script provides a few different functions:
     - create a new change case
     - attach a file to a case
     - update case comments
     - create a new incident record
-    
+
     Creating a new change case:
-    %prog -T change -f file with change details -i implan -s "subject to add" -k json for the change 
-    
+    %prog -T change -f file with change details -i implan -s "subject to add" -k json for the change
+
     Example:
-    %prog -T change -f templates/oracle-patch.json -i output/plan_implementation.txt 
-            -s "CHI Oracle : shared-nfs SP3 shared-nfs3{2|3}-{1|2}" 
+    %prog -T change -f templates/oracle-patch.json -i output/plan_implementation.txt
+            -s "CHI Oracle : shared-nfs SP3 shared-nfs3{2|3}-{1|2}"
             -k templates/shared-nfs-planer.json -l shared-nfs-sp3.txt
     """
     parser = OptionParser(usage)
@@ -375,6 +384,7 @@ if __name__ == '__main__':
     parser.add_option("-A", "--submit", action="store_true", dest="submit", help="Submit the case for approval")
     parser.add_option("--inst", dest="inst", help="List of comma separated instances")
     parser.add_option("--infra", dest="infra", help="Infrastructure type")
+    parser.add_option("--approved", action="store_true", dest="pre_appr", help="Change cases status to Approved")
     parser.add_option("-n", "--new", action="store_true", dest="newcase",
                                     help=
                                     """Create a new case. Required args :
@@ -408,11 +418,11 @@ if __name__ == '__main__':
     session = authObj.login()
     if options.iplan:
         checkEmptyFile(options.iplan)
-        
+
     infratype="Supporting Infrastructure"
     if options.infra:
-        infratype = options.infra    
-    
+        infratype = options.infra
+
     if options.casetype == 'storage':
         logging.debug('casetype of %s' % options.casetype)
         planner_data = ''
@@ -498,7 +508,7 @@ if __name__ == '__main__':
         #createImplamentationPlannerYAML(planner_data_dict, caseId, session, DCS=options.dc)
         caseNum = getCaseNum(caseId, session)
         logging.debug('The case number is %s' % caseNum['CaseNumber'])
-    
+
         if options.attach:
             files = options.attach.split(',')
             for f in files:
@@ -524,7 +534,7 @@ if __name__ == '__main__':
         else:
             jsoncase = get_json_change_details(options.filename, options.subject, hosts,infratype)
         logging.debug(jsoncase)
-        
+
         logging.debug(hosts)
         caseId = create_change_case(jsoncase, session)
         #create_implementation_plan(caseId, session)
@@ -564,7 +574,9 @@ if __name__ == '__main__':
                 logging.debug(dict)
                 print('Creating logical host connector for %s' % host)
                 createLogicalConnector(dict, caseId, session)
-        
+        if options.pre_appr:
+            PreApproveCase(caseId, session)
+
     elif options.attach:
         if options.filepath:
             file = options.filepath
@@ -581,7 +593,7 @@ if __name__ == '__main__':
     elif options.newcase:
         logging.debug(options.category,options.subcategory,options.subject,options.desc,options.dc,options.status,options.priority)
         caseId = create_incident(options.category, options.subcategory, options.subject, options.desc, options.dc, options.status, options.priority)
-        logging.debug(caseId)   
+        logging.debug(caseId)
         print("Case subject %s caseId %s was successfully created" % (options.subject, caseId))
     elif options.update:
         cId = options.caseId
