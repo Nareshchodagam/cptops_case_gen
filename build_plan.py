@@ -200,6 +200,22 @@ def FindOtherHost(Hostlist, HostToRemoveList):
 
 #END
 
+# Added for STMGT Role to find all hosts expect the host is being patched.
+# W-4506396
+def FindOtherHostIfIdbQuery(dc, cluster, role, HostToRemoveList):
+    idb = Idbhost()
+    idb.clustinfo(dc, cluster)
+    idb.deviceRoles(role)
+    allhosts = idb.roles_all[cluster][role]
+    allhosts.remove(HostToRemoveList)
+    filtered_host = ",".join(allhosts)
+    if not filtered_host:
+        return HostToRemoveList
+    else:
+        return filtered_host
+
+# End
+
 
 def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role, num='', cl_opstat='',ho_opstat='',template_vars=None):
     # Replace variables in the templates
@@ -357,12 +373,19 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
 # W-4171797
         try:
-            output = output.replace('v_OHOSTS', FindOtherHost(options.hostlist, host_list))
+            if re.search(r"cmgtapi", role):
+                output = output.replace('v_OHOSTS', FindOtherHost(options.hostlist, host_list))
         except:
             pass
-
  # End
 
+# W-4506396
+        try:
+            if re.search(r"stgmgt|stgpm", role):
+                output = output.replace('v_OHOSTS', FindOtherHostIfIdbQuery(datacenter, cluster, role, hosts))
+        except:
+            pass
+#End
         output = output.replace('v_CLUSTER', cluster)
         output = output.replace('v_DATACENTER', datacenter)
         output = output.replace('v_SUPERPOD', superpod)
@@ -732,6 +755,7 @@ def consolidate_idb_query_plans(writeplan,dcs):
                     fullhostlist.remove(str(excluded_host))
                 except:
                     break
+    print(fullhostlist)
     #Added (By Amardeep)for Argus WriteD and Metrics role, It will replace the "argustsdbw" with "argusmetrics" as both has be done togeter in a serial manner.
     fullhostlist1 = []
     for host in fullhostlist:
