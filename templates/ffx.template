@@ -16,6 +16,9 @@ Exec: /opt/rh/python27/root/usr/bin/python2.7  /opt/cpt/bin/verify_ffx_buddy.py 
 - Disable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
+- Disable GOC++ alerts ("enable" alert suppression)
+Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a enable -H v_HOSTS
+
 - Stop the running application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base,sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2 -host_status v_HO_OPSTAT -cluster_status v_CL_OPSTAT
 
@@ -38,5 +41,8 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
+
+- Enable GOC++ alerts ("disable" alert suppression)
+Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a disable -H v_HOSTS
 
 Exec: echo "Host v_HOSTS system patching completed"
