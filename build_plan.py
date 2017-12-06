@@ -31,6 +31,7 @@ pre_file = ''
 post_file = ''
 hosts = []
 hostlist = []
+not_patched_hosts = []
 
 new_supportedfields = {'superpod' : 'host.cluster.superpod.name',
                    'role' : 'host.deviceRole',
@@ -569,11 +570,13 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role, num, groupcoun
     s = open(template_file).read()
     org_host = hosts
     # W-4531197 Adding logic to remove already patched host for Case.
+    global not_patched_hosts
     if options.delpatched:
         hosts = return_not_patched_hosts(hosts, options.bundle)
         if hosts == None:
             s = "- Skipped Already Patched host {0} for bundle {1}".format(org_host, options.bundle)
         else:
+            not_patched_hosts.append(hosts)
             s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, num, cl_opstat, ho_opstat,
                                  template_vars)
     else:
@@ -822,7 +825,6 @@ def consolidate_idb_query_plans(writeplan,dcs):
                     fullhostlist.remove(str(excluded_host))
                 except:
                     break
-    print(fullhostlist)
     #Added (By Amardeep)for Argus WriteD and Metrics role, It will replace the "argustsdbw" with "argusmetrics" as both has be done togeter in a serial manner.
     fullhostlist1 = []
     for host in fullhostlist:
@@ -830,7 +832,26 @@ def consolidate_idb_query_plans(writeplan,dcs):
             fullhostlist1.append(host.replace('argustsdbw', 'argusmetrics'))
     fullhostlist = fullhostlist + fullhostlist1
     #End
-    write_list_to_file(common.outputdir + '/summarylist.txt', fullhostlist)
+
+    # Added to remove already pacthed host.
+    if options.delpatched:
+        write_list_to_file(common.outputdir + '/summarylist.txt', not_patched_hosts)
+
+        if os.stat(common.outputdir + '/summarylist.txt').st_size == 0:
+            os.remove(common.outputdir + '/plan_implementation.txt')
+
+        # Test to track hosts
+        with open("/tmp" + '/not_patched_hosts.txt', 'a') as output, open(
+                        common.outputdir + '/summarylist.txt', 'r') as input:
+            while True:
+                data = input.read()
+                if data == '':  # end of file reached
+                    break
+                output.write(data)
+        # End
+    else:
+        write_list_to_file(common.outputdir + '/summarylist.txt', fullhostlist)
+
 
 def write_plan_dc(dc,template_id,writeplan):
 
