@@ -246,7 +246,7 @@ def return_not_patched_hosts(hosts, bundle):
     url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?name="
     response = requests.get(url+hosts, verify=False)
     host_dict = {}
-    not_patched_hosts = []
+    not_patched_hosts_all = []
     all_hosts = hosts.split(",")
 
     try:
@@ -260,15 +260,15 @@ def return_not_patched_hosts(hosts, bundle):
 
             for host in all_hosts:
                 if host not in host_dict.keys():
-                    not_patched_hosts.append(host)
+                    not_patched_hosts_all.append(host)
                 else:
                     ddict_host = host_dict.get(host)
                     jkernel = json_data.get(ddict_host.get('hostOs')).get(bundle).get('kernel')
                     if (bundle not in ddict_host.get('hostRelease')) and (jkernel not in ddict_host.get('hostKernel')):
-                        not_patched_hosts.append(host)
+                        not_patched_hosts_all.append(host)
 
-            if len(not_patched_hosts) != 0:
-                return ",".join(not_patched_hosts)
+            if len(not_patched_hosts_all) != 0:
+                return ",".join(not_patched_hosts_all)
 
     except Exception as e:
         print('Unable to get machine details: ', e)
@@ -576,7 +576,8 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role, num, groupcoun
         if hosts == None:
             s = "- Skipped Already Patched host {0} for bundle {1}".format(org_host, options.bundle)
         else:
-            not_patched_hosts.append(hosts)
+            for h in hosts.split(","):
+                not_patched_hosts.append(h)
             s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, num, cl_opstat, ho_opstat,
                                  template_vars)
     else:
@@ -841,13 +842,13 @@ def consolidate_idb_query_plans(writeplan,dcs):
             os.remove(common.outputdir + '/plan_implementation.txt')
 
         # Test to track hosts
-        with open("/tmp" + '/not_patched_hosts.txt', 'a') as output, open(
-                        common.outputdir + '/summarylist.txt', 'r') as input:
-            while True:
-                data = input.read()
-                if data == '':  # end of file reached
-                    break
-                output.write(data)
+        # with open("/tmp" + '/not_patched_hosts.txt', 'a') as output, open(
+        #                 common.outputdir + '/summarylist.txt', 'r') as input:
+        #     while True:
+        #         data = input.read()
+        #         if data == '':  # end of file reached
+        #             break
+        #         output.write(data)
         # End
     else:
         write_list_to_file(common.outputdir + '/summarylist.txt', fullhostlist)
