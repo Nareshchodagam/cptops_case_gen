@@ -255,8 +255,8 @@ def return_not_patched_hosts(hosts, bundle):
             data = json.loads(str_data)
             json_data = get_version_json().get('CENTOS')
 
-            for dict in data:
-                host_dict[dict.get('hostName')] = dict
+            for ddict in data:
+                host_dict[ddict.get('hostName')] = ddict
 
             for host in all_hosts:
                 if host not in host_dict.keys():
