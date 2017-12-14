@@ -5,13 +5,15 @@ import logging
 import re
 from optparse import OptionParser
 
-
 def groupType(role):
     # presets for certain roles for group type
     groupings = {'search': 'majorset',
                  'mnds,dnds': 'majorset,minorset',
                  'insights_iworker,insights_redis': 'majorset'
                  }
+    if re.search(r'decom|hw_provisioning|pre_production|provisioning', options.hostopstat) and not re.search(r'ffx', options.role):
+        return 'all'
+
     if role in groupings:
         return groupings[role]
     else:
