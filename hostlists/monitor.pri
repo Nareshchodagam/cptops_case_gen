@@ -28,6 +28,7 @@ cs115-monitor1-1-syd
 ap9-monitor1-1-syd
 cs116-monitor1-1-syd
 ops0-monitor1-1-syd
+sr1-monitor1-1-chi
 cs24-monitor1-1-chi
 cs28-monitor2-1-chi
 cs27-monitor2-1-chi
@@ -39,7 +40,6 @@ cs1-monitor1-1-chi
 na30-monitor2-1-chi
 cs46-monitor1-1-chi
 na29-monitor2-1-chi
-sr1-monitor1-1-chi
 cs22-monitor1-1-chi
 cs41-monitor2-1-chi
 cs43-monitor2-1-chi
@@ -143,14 +143,6 @@ gs1-monitor1-1-phx
 na32-monitor2-1-phx
 cs13-monitor1-1-phx
 cs30-monitor1-1-phx
-na35-monitor1-1-phx
-na43-monitor1-1-phx
-na42-monitor1-1-phx
-cs63-monitor1-1-phx
-na37-monitor1-1-phx
-na48-monitor1-1-phx
-cs62-monitor1-1-phx
-na38-monitor1-1-phx
 cs70-monitor1-1-phx
 gs0-monitor1-1-phx
 cs71-monitor1-1-phx
@@ -170,6 +162,14 @@ cs19-monitor1-1-phx
 na59-monitor1-1-phx
 na64-monitor1-1-phx
 na60-monitor1-1-phx
+na35-monitor1-1-phx
+na43-monitor1-1-phx
+na42-monitor1-1-phx
+cs63-monitor1-1-phx
+na37-monitor1-1-phx
+na48-monitor1-1-phx
+cs62-monitor1-1-phx
+na38-monitor1-1-phx
 na34-monitor1-1-phx
 na3-monitor1-1-phx
 cs52-monitor1-1-phx
@@ -182,8 +182,6 @@ cs59-monitor2-1-phx
 na39-monitor1-1-phx
 ap4-monitor1-1-phx
 ap3-monitor1-1-phx
-cs60-monitor1-1-phx
-cs61-monitor2-1-phx
 ap5-monitor1-1-phx
 cs58-monitor1-1-phx
 na47-monitor1-1-phx
@@ -204,6 +202,8 @@ na62-monitor1-1-phx
 cs69-monitor1-1-phx
 cs90-monitor1-1-phx
 na67-monitor1-1-phx
+cs60-monitor1-1-phx
+cs61-monitor2-1-phx
 ops0-monitor1-1-phx
 cs98-monitor1-1-yul
 cs99-monitor1-1-yul
