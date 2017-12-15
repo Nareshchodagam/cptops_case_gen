@@ -16,6 +16,8 @@ import os.path
 import logging
 from modules.buildplan_helper import *
 from idbhost import Idbhost
+import requests
+import json
 import sys
 reload(sys)
 
@@ -29,6 +31,7 @@ pre_file = ''
 post_file = ''
 hosts = []
 hostlist = []
+not_patched_hosts = []
 
 new_supportedfields = {'superpod' : 'host.cluster.superpod.name',
                    'role' : 'host.deviceRole',
@@ -214,6 +217,61 @@ def FindOtherHostIfIdbQuery(dc, cluster, role, HostToRemoveList):
     else:
         return filtered_host
 
+# End
+
+# W-4531197 Adding logic to remove already patched host for Case.
+
+def get_version_json():
+    """
+    :return:
+    """
+    home = os.path.expanduser("~")
+    filepath = "/git/cptops_validation_tools/includes/valid_versions.json"
+    path = home + filepath
+    try:
+        with open(path) as data_file:
+            data = json.load(data_file)
+    except Exception as e:
+        print("Ensure presence of path " + path)
+        sys.exit(1)
+    return data
+
+
+def return_not_patched_hosts(hosts, bundle):
+    """
+    :param hosts:
+    :param bundle:
+    :return:
+    """
+    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?name="
+    response = requests.get(url+hosts, verify=False)
+    host_dict = {}
+    not_patched_hosts_all = []
+    all_hosts = hosts.split(",")
+
+    try:
+        if response.status_code == 200:
+            str_data = response.content.split('(', 1)[1].split(')')[0]
+            data = json.loads(str_data)
+            json_data = get_version_json().get('CENTOS')
+
+            for ddict in data:
+                host_dict[ddict.get('hostName')] = ddict
+
+            for host in all_hosts:
+                if host not in host_dict.keys():
+                    not_patched_hosts_all.append(host)
+                else:
+                    ddict_host = host_dict.get(host)
+                    jkernel = json_data.get(ddict_host.get('hostOs')).get(bundle).get('kernel')
+                    if (bundle not in ddict_host.get('hostRelease')) and (jkernel not in ddict_host.get('hostKernel')):
+                        not_patched_hosts_all.append(host)
+
+            if len(not_patched_hosts_all) != 0:
+                return ",".join(not_patched_hosts_all)
+
+    except Exception as e:
+        print('Unable to get machine details: ', e)
 # End
 
 
@@ -510,8 +568,21 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role, num, groupcoun
     logging.debug('Executing gen_plan()')
     print "Generating: " + out_file
     s = open(template_file).read()
-    s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, num, cl_opstat,ho_opstat,template_vars)
-
+    org_host = hosts
+    # W-4531197 Adding logic to remove already patched host for Case.
+    global not_patched_hosts
+    if options.delpatched:
+        hosts = return_not_patched_hosts(hosts, options.bundle)
+        if hosts == None:
+            s = "- Skipped Already Patched host {0} for bundle {1}".format(org_host, options.bundle)
+        else:
+            for h in hosts.split(","):
+                not_patched_hosts.append(h)
+            s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, num, cl_opstat, ho_opstat,
+                                 template_vars)
+    else:
+        s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, num, cl_opstat,ho_opstat,template_vars)
+    #End
 
     f = open(out_file, 'w')
     f.write(s)
@@ -755,7 +826,6 @@ def consolidate_idb_query_plans(writeplan,dcs):
                     fullhostlist.remove(str(excluded_host))
                 except:
                     break
-    print(fullhostlist)
     #Added (By Amardeep)for Argus WriteD and Metrics role, It will replace the "argustsdbw" with "argusmetrics" as both has be done togeter in a serial manner.
     fullhostlist1 = []
     for host in fullhostlist:
@@ -763,7 +833,26 @@ def consolidate_idb_query_plans(writeplan,dcs):
             fullhostlist1.append(host.replace('argustsdbw', 'argusmetrics'))
     fullhostlist = fullhostlist + fullhostlist1
     #End
-    write_list_to_file(common.outputdir + '/summarylist.txt', fullhostlist)
+
+    # Added to remove already pacthed host.
+    if options.delpatched:
+        write_list_to_file(common.outputdir + '/summarylist.txt', not_patched_hosts)
+
+        if os.stat(common.outputdir + '/summarylist.txt').st_size == 0:
+            os.remove(common.outputdir + '/plan_implementation.txt')
+
+        # Test to track hosts
+        # with open("/tmp" + '/not_patched_hosts.txt', 'a') as output, open(
+        #                 common.outputdir + '/summarylist.txt', 'r') as input:
+        #     while True:
+        #         data = input.read()
+        #         if data == '':  # end of file reached
+        #             break
+        #         output.write(data)
+        # End
+    else:
+        write_list_to_file(common.outputdir + '/summarylist.txt', fullhostlist)
+
 
 def write_plan_dc(dc,template_id,writeplan):
 
@@ -968,6 +1057,10 @@ parser.add_option("--dowork", dest="dowork", help="command to supply for dowork 
 parser.add_option("--no_host_validation", dest="no_host_v", action="store_true", help="Skip verify remote hosts")
 parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default="True", help="Auto close cases")
 parser.add_option("--nolinebacker", dest="nolinebacker", help="Don't use linebacker")
+
+# W-4531197 Adding logic to remove already patched host for Case.
+parser.add_option("--delpatched", dest="delpatched", action='store_true', help="command to remove patched host.")
+#End
 
 (options, args) = parser.parse_args()
 if __name__ == "__main__":

@@ -251,7 +251,7 @@ class Buildplan_helper:
         hostlist: only to be used if there is no interaction with idb (dcs=[], idbresource='', idbfilters={}, still need supportedfields as we use the hostname field)
         """
         self.fields = supportedfields
-        self.fieldcheck = self.fields.keys() + ['majorset','minorset','datacenter']
+        self.fieldcheck = self.fields.keys() + ['majorset','minorset','all','datacenter']
         self.usehostlist=usehostlist
         if idbresource != None:
             self.cidblocal = True 
@@ -419,7 +419,7 @@ class Buildplan_helper:
             # minorset never present so put it i
             row['minorset'] = row['hostname'].split('-')[2]
             row['majorset'] = ''.join([s for s in row['hostname'].split('-')[1] if s.isdigit()])
-        
+            row['all'] = '100'
         
             if 'superpod' not in row.keys():
                 row['superpod'] = 'none'

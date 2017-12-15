@@ -5,13 +5,15 @@ import logging
 import re
 from optparse import OptionParser
 
-
 def groupType(role):
     # presets for certain roles for group type
     groupings = {'search': 'majorset',
                  'mnds,dnds': 'majorset,minorset',
                  'insights_iworker,insights_redis': 'majorset'
                  }
+    if re.search(r'decom|hw_provisioning|pre_production|provisioning', options.hostopstat) and not re.search(r'ffx', options.role):
+        return 'all'
+
     if role in groupings:
         return groupings[role]
     else:
@@ -103,6 +105,9 @@ if __name__ == "__main__":
     parser.add_option("--no_host_validation", dest="no_host_v", action="store_true",  help="Skip verify remote hosts")
     parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default="True", help="Auto close case")
     parser.add_option("--nolinebacker", dest="nolinebacker", help="Don't use linebacker")
+    # W-4531197 Adding logic to remove already patched host for Case.
+    parser.add_option("--delpatched", dest="delpatched", action='store_true', help="command to remove patched host.")
+    # End
 
     python = 'python'
     excludelist = ''
@@ -142,6 +147,10 @@ if __name__ == "__main__":
         groupsize = options.groupsize
     if options.hostpercent:
         hostpercent = options.hostpercent
+    # W-4531197 Adding logic to remove already patched host for Case.
+    if options.delpatched:
+        delpatched = options.delpatched
+    # End
     if options.podgroups and options.casetype == "hostlist" and options.hlgrp == "False":
         data = getData(options.podgroups)
         dcs = getDCs(data)
@@ -160,6 +169,8 @@ if __name__ == "__main__":
             output_str = output_str + " --gsize %s" % groupsize
         if options.dowork:
             output_str = output_str + " --dowork " + options.dowork
+        if options.delpatched:
+            output_str = output_str + " --delpatched "
         print("%s" % output_str)
         print("""python gus_cases_vault.py -T change --approved -f templates/%s --infra "%s" -s "%s" -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (patch_json,options.infra,subject,implplansection,dcs_list))
     elif options.podgroups and options.casetype == "hostlist" and options.hlgrp == True:
@@ -179,6 +190,8 @@ if __name__ == "__main__":
                 output_str = output_str + " --gsize %s" % groupsize
             if options.dowork:
                 output_str = output_str + " --dowork " + options.dowork
+            if options.delpatched:
+                output_str = output_str + " --delpatched "
             output_str = output_str + '  -l "%s"' % ",".join(hosts)
             print("%s" % output_str)
             print("""python gus_cases_vault.py -T change --approved -f templates/%s --infra "%s" -s "%s " -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (patch_json,options.infra,subject,implplansection,dc))
@@ -255,6 +268,8 @@ if __name__ == "__main__":
                 output_str = output_str + " --serial --monitor"
             if options.dowork:
                 output_str = output_str + " --dowork " + options.dowork
+            if options.delpatched:
+                output_str = output_str + " --delpatched "
             print(output_str)
             if options.regexfilter:
                 subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec
