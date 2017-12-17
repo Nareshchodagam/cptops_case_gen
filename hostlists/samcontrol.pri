@@ -1,7 +1,7 @@
 prd-sam PRD NONE
 prd-samdev PRD NONE
 par-sam PAR NONE
-hnd-sam HND NONE
+frf-sam FRF NONE
 SAM SYD NONE
 dfw-sam DFW NONE
 wax-sam WAX NONE
@@ -11,6 +11,6 @@ SAM YUL NONE
 iad-sam IAD NONE
 chx-sam CHX NONE
 ord-sam ORD NONE
-frf-sam FRF NONE
-ukb-sam UKB NONE
 SAM YHU NONE
+ukb-sam UKB NONE
+hnd-sam HND NONE
