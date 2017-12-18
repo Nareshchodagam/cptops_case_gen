@@ -383,21 +383,28 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                 p = []
                 s = []
                 for index in range(0, ttl_len):
-                    if 'Primary' in pods[index]:
-                        if pods[index]['Primary'] != "None":
-                            p.append(pods[index]['Primary'])
-                    if 'Secondary' in pods[index]:
-                        if pods[index]['Secondary'] != "None":
-                            s.append(pods[index]['Secondary'])
+                    if 'Primary' in pods[index] and pods[index]['Primary'] != "None":
+                        p.append([pods[index]['Primary'], pods[index]['Operational Status']])
+                    if 'Secondary' in pods[index] and pods[index]['Secondary'] != "None":
+                        s.append([pods[index]['Secondary'], pods[index]['Operational Status']])
+
                 chunked = chunks(p, groupsize)
                 for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
-                    pri.write(w)
+                    if 'DECOM' in [i[1] for i in sub_lst]:
+                        w_decom = ','.join([i[0] for i in sub_lst if 'DECOM' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "DECOM" + "\n"
+                        pri.write(w_decom)
+                    if 'ACTIVE' in [i[1] for i in sub_lst]:
+                        w_active = ','.join([i[0] for i in sub_lst if 'ACTIVE' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "ACTIVE" + "\n"
+                        pri.write(w_active)
 
                 chunked = chunks(s, groupsize)
                 for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
-                    sec.write(w)
+                    if 'DECOM' in [i[1] for i in sub_lst]:
+                        w_decom = ','.join([i[0] for i in sub_lst if 'DECOM' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "DECOM" + "\n"
+                        sec.write(w_decom)
+                    if 'ACTIVE' in [i[1] for i in sub_lst]:
+                        w_active = ','.join([i[0] for i in sub_lst if 'ACTIVE' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "ACTIVE" + "\n"
+                        sec.write(w_active)
             logger.info("Successfully written data to podlist files - '{0}, {1}.sec' for dc '{2}'".format(file_name, file_name.split('.')[0], dc))
 
         elif re.search(r'hammer', file_name, re.IGNORECASE):
@@ -407,49 +414,29 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                 p = []
                 s = []
                 for index in range(0, ttl_len):
-                    if 'Primary' in pods[index]:
-                        if pods[index]['Primary'] != "None":
-                            p.append(pods[index]['Primary'])
-                    if 'Secondary' in pods[index]:
-                        if pods[index]['Secondary'] != "None":
-                            s.append(pods[index]['Secondary'])
+                    if 'Primary' in pods[index] and pods[index]['Primary'] != "None":
+                        p.append([pods[index]['Primary'], pods[index]['Operational Status']])
+                    if 'Secondary' in pods[index] and pods[index]['Secondary'] != "None":
+                        s.append([pods[index]['Secondary'], pods[index]['Operational Status']])
+
                 chunked = chunks(p, groupsize)
                 for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
-                    pri.write(w)
+                    if 'DECOM' in [i[1] for i in sub_lst]:
+                        w_decom = ','.join([i[0] for i in sub_lst if 'DECOM' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "DECOM" + "\n"
+                        pri.write(w_decom)
+                    if 'ACTIVE' in [i[1] for i in sub_lst]:
+                        w_active = ','.join([i[0] for i in sub_lst if 'ACTIVE' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "ACTIVE" + "\n"
+                        pri.write(w_active)
 
                 chunked = chunks(s, groupsize)
                 for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
-                    sec.write(w)
+                    if 'DECOM' in [i[1] for i in sub_lst]:
+                        w_decom = ','.join([i[0] for i in sub_lst if 'DECOM' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "DECOM" + "\n"
+                        sec.write(w_decom)
+                    if 'ACTIVE' in [i[1] for i in sub_lst]:
+                        w_active = ','.join([i[0] for i in sub_lst if 'ACTIVE' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "ACTIVE" + "\n"
+                        sec.write(w_active)
             logger.info("Successfully written data to podlist files - '{0}, {1}.sec' for dc '{2}'".format(file_name, file_name.split('.')[0], dc))
-
-            '''if p:
-                    write_list = []
-                    len_list = len(p)
-                    if len_list > 5:
-                        for cluster in range(len_list):
-                            if cluster % 5 == 0 and cluster != 0:
-                                pri.write(",".join(write_list) + " " + dc + " " + sp.upper() + "\n")
-                                write_list = []
-                            write_list.append(p[cluster])
-                    else:
-                        w = ",".join(p) + " " + dc + " " + sp.upper() + "\n"
-                        pri.write(w)
-                if s:
-                    write_list = []
-                    len_list = len(s)
-                    if len_list > 5:
-                        for cluster in range(len_list):
-                            if cluster % 5 == 0 and cluster != 0:
-                                #sec.write(",".join(write_list) + "\n")
-                                sec.write(",".join(write_list) + " " + dc + " " + sp.upper() + "\n")
-                                write_list = []
-                            write_list.append(s[cluster])
-                    else:
-                        w = ",".join(s) + " " + dc + " " + sp.upper() + "\n"
-                        sec.write(w)
-                logger.info("Successfully written data to podlist files - '{0}, {1}.sec' for dc '{2}'".format(file_name, file_name.split('.')[0], dc))'''
 
         elif 'pod' in file_name or 'acs' in file_name:
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
@@ -462,22 +449,28 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                 p = []
                 s = []
                 for index in range(0, ttl_len):
-                    if 'Primary' in pods[index]:
-                        if pods[index]['Primary'] != "None":
-                            p.append(pods[index]['Primary'])
-                    if 'Secondary' in pods[index]:
-                        if pods[index]['Secondary'] != "None":
-                            s.append(pods[index]['Secondary'])
+                    if 'Primary' in pods[index] and pods[index]['Primary'] != "None":
+                        p.append([pods[index]['Primary'], pods[index]['Operational Status']])
+                    if 'Secondary' in pods[index] and pods[index]['Secondary'] != "None":
+                        s.append([pods[index]['Secondary'], pods[index]['Operational Status']])
 
                 chunked = chunks(p, groupsize)
                 for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
-                    pri.write(w)
+                    if 'DECOM' in [i[1] for i in sub_lst]:
+                        w_decom = ','.join([i[0] for i in sub_lst if 'DECOM' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "DECOM" + "\n"
+                        pri.write(w_decom)
+                    if 'ACTIVE' in [i[1] for i in sub_lst]:
+                        w_active = ','.join([i[0] for i in sub_lst if 'ACTIVE' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "ACTIVE" + "\n"
+                        pri.write(w_active)
 
                 chunked = chunks(s, groupsize)
                 for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
-                    sec.write(w)
+                    if 'DECOM' in [i[1] for i in sub_lst]:
+                        w_decom = ','.join([i[0] for i in sub_lst if 'DECOM' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "DECOM" + "\n"
+                        sec.write(w_decom)
+                    if 'ACTIVE' in [i[1] for i in sub_lst]:
+                        w_active = ','.join([i[0] for i in sub_lst if 'ACTIVE' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "ACTIVE" + "\n"
+                        sec.write(w_active)
             logger.info("Successfully written data to -  '{0}, {1}.sec' for dc {2}".format(file_name, file_name.split('.')[0], dc))
 
         elif re.match(r'hbase_sp_prod', preset_name, re.IGNORECASE):
@@ -486,9 +479,8 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
                     if pods[index]['Primary'] != "None" and re.match(r"HBASE\d|HDAAS|ARG1HBSVC", pods[index]['Primary'], re.IGNORECASE):
-                        if pods[index]['Primary'] != "None":
-                            w = pods[index]['Primary'] + " " + dc + " " + sp.upper() + "\n"
-                            pri.write(w)
+                        w = pods[index]['Primary'] + " " + dc + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
+                        pri.write(w)
             logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
 
         elif re.search(r'(hbase_prod)', preset_name, re.IGNORECASE):
@@ -505,19 +497,27 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                     if pods[index]['Primary'] != "None" and 'HBASE' in pods[index]['Primary']:
                         loc = isInstancePri(pods[index]['Primary'], dc)
                         if loc == 'PROD':
-                            p.append(pods[index]['Primary'])
+                            p.append([pods[index]['Primary'], pods[index]['Operational Status']])
                         elif loc == 'DR':
-                            s.append(pods[index]['Primary'])
+                            s.append([pods[index]['Primary'], pods[index]['Operational Status']])
 
                 chunked = chunks(p, groupsize)
                 for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
-                    pri.write(w)
+                    if 'DECOM' in [i[1] for i in sub_lst]:
+                        w_decom = ','.join([i[0] for i in sub_lst if 'DECOM' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "DECOM" + "\n"
+                        pri.write(w_decom)
+                    if 'ACTIVE' in [i[1] for i in sub_lst]:
+                        w_active = ','.join([i[0] for i in sub_lst if 'ACTIVE' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "ACTIVE" + "\n"
+                        pri.write(w_active)
 
                 chunked = chunks(s, groupsize)
                 for sub_lst in chunked:
-                    w = ','.join(sub_lst) + " " + dc.upper() + " " + sp.upper() + "\n"
-                    sec.write(w)
+                    if 'DECOM' in [i[1] for i in sub_lst]:
+                        w_decom = ','.join([i[0] for i in sub_lst if 'DECOM' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "DECOM" + "\n"
+                    if 'ACTIVE' in [i[1] for i in sub_lst]:
+                        sec.write(w_decom)
+                        w_active = ','.join([i[0] for i in sub_lst if 'ACTIVE' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "ACTIVE" + "\n"
+                        sec.write(w_active)
             logger.info("Successfully written data to -  '{0}, {1}.sec' for dc '{2}'".format(file_name, file_name.split('.')[0], dc))
 
         elif re.search(r'lapp', preset_name, re.IGNORECASE):
@@ -531,17 +531,17 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                     if pods[index]['Primary'] != "None":
                         if 'cs' in file_name:
                             if 'CS' in pods[index]['Primary'] and 'GLA' not in pods[index]['Primary']:
-                                w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + "\n"
+                                w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                                 pri.write(w)
                             elif 'CS' not in pods[index]['Primary'] and 'GLA' not in pods[index]['Primary']:
-                                w = pods[index]['Primary'] + " " + dc.upper() +  " " + sp.upper() + "\n"
+                                w = pods[index]['Primary'] + " " + dc.upper() +  " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                                 sec.write(w)
                         else:
                             if 'CS' not in pods[index]['Primary'] and 'GLA' not in pods[index]['Primary']:
-                                w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + "\n"
+                                w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                                 pri.write(w)
                             elif 'GLA' not in pods[index]['Primary']:
-                                w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + "\n"
+                                w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                                 sec.write(w)
 
         elif re.match(r'(monitor)', preset_name, re.IGNORECASE):  # This was added as part of - 'T-1810443'
@@ -579,12 +579,12 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                             continue
                         elif 'piperepo' in file_name and 'OPS_PIPELINE' not in pods[index]['Primary']:
                             continue
-                        w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + "\n"
+                        w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                         pri.write(w)
 
                     if 'Secondary' in pods[index]:
                         if 'HUB' not in pods[index]['Secondary']:
-                            w = pods[index]['Secondary'] + " " + dc.upper() + " " + sp.upper() + "\n"
+                            w = pods[index]['Secondary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                             sec.write(w)
             logger.info("Successfully written data to podlist file -  '{0}' for dc '{1}'".format(file_name, dc))
 
@@ -623,7 +623,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", dest='preset_name', help='To query the specfic role')
     parser.add_argument("-v", dest="verbose", help="For debugging purpose", action="store_true")
     parser.add_argument("-g", "--groupsize", dest="groupsize", default=3, help="Groupsize of pods or clusters for build file")
-    parser.add_argument("-s", "--cluster_status", dest="cluster_status", default='active', help="Cluster Status to Query")
+    parser.add_argument("-s", "--cluster_status", dest="cluster_status", default='active,decom,provisioning', help="Cluster Status to Query")
     parser.add_argument("-d", dest='datacenter', help="Datacenters to query")
     args = parser.parse_args()
 
