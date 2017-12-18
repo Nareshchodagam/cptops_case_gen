@@ -11,8 +11,10 @@ def groupType(role):
                  'mnds,dnds': 'majorset,minorset',
                  'insights_iworker,insights_redis': 'majorset'
                  }
-    if re.search(r'decom|hw_provisioning|pre_production|provisioning', options.hostopstat) and not re.search(r'ffx', options.role):
-        return 'all'
+
+    if options.hostopstat and options.csv:
+        if re.search(r'decom|hw_provisioning|pre_production|provisioning', options.hostopstat, re.IGNORECASE) and not re.search(r'ffx', options.role, re.IGNORECASE):
+            return 'all'
 
     if role in groupings:
         return groupings[role]
@@ -108,6 +110,7 @@ if __name__ == "__main__":
     # W-4531197 Adding logic to remove already patched host for Case.
     parser.add_option("--delpatched", dest="delpatched", action='store_true', help="command to remove patched host.")
     # End
+    parser.add_option("--csv", dest="csv", help="Read given CSV file and create cases as per the status.")
 
     python = 'python'
     excludelist = ''
