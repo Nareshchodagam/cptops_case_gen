@@ -514,8 +514,8 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                 for sub_lst in chunked:
                     if 'DECOM' in [i[1] for i in sub_lst]:
                         w_decom = ','.join([i[0] for i in sub_lst if 'DECOM' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "DECOM" + "\n"
-                    if 'ACTIVE' in [i[1] for i in sub_lst]:
                         sec.write(w_decom)
+                    if 'ACTIVE' in [i[1] for i in sub_lst]:
                         w_active = ','.join([i[0] for i in sub_lst if 'ACTIVE' in i[1]]) + " " + dc.upper() + " " + sp.upper() + " " + "ACTIVE" + "\n"
                         sec.write(w_active)
             logger.info("Successfully written data to -  '{0}, {1}.sec' for dc '{2}'".format(file_name, file_name.split('.')[0], dc))
