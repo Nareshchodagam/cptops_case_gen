@@ -1,133 +1,133 @@
-prd-sam_moderation_einstein PRD NONE
-prd-sam_sfstore PRD NONE
-prd-sampool PRD NONE
-prd-sam_customerresolutionengine PRD NONE
-prd-slb PRD NONE
-prd-sam_chatbot_kingdom PRD NONE
-prd-sam_gater PRD NONE
-prd-sam_cloudatlas PRD NONE
-prd-sam_warden PRD NONE
-prd-sam_report_collector PRD NONE
-prd-sam_cloudatlas_dir PRD NONE
-prd-samtest PRD NONE
-prd-sam_crosscloudplatform PRD NONE
-prd-sam_cephdev PRD NONE
-prd-sam_storage PRD NONE
-prd-sam_crosscloudsetup PRD NONE
-prd-sam_tnrp_signer PRD NONE
-prd-search_model_executor PRD NONE
-prd-sam_ceph PRD NONE
-prd-sam_sfstoredev PRD NONE
-prd-sam_tnrp_merger PRD NONE
-prd-samtwo PRD NONE
-prd-sam_tnrp_promoter PRD NONE
-prd-sp1-sdb_kube PRD SP1
-prd-sp1-sam_caas PRD SP1
-prd-sp2-sam_caas PRD SP2
-prd-sp2-sam_retail_mds PRD SP2
-prd-sp2-sam_retail_cre PRD SP2
-prd-sp2-sam_chatbot PRD SP2
-prd-sp2-sam_eaas_sp PRD SP2
-prd-sp2-sam_iot_test PRD SP2
-prd-sp2-sam_retail_dss PRD SP2
-prd-sp2-sam_retail_rsui PRD SP2
-prd-sp2-sam_retail_eventlistener PRD SP2
-prd-sp2-sam_retail_credata PRD SP2
-par-sp1-sam_caas PAR SP1
-par-sam_gater PAR NONE
-par-sam_cloudatlas PAR NONE
-par-sam_warden PAR NONE
-par-sam_report_collector PAR NONE
-par-sam_cloudatlas_dir PAR NONE
-par-sam_ceph PAR NONE
-par-sam_moderation_einstein PAR NONE
-par-sam_chatbot_kingdom PAR NONE
-frf-sp1-sam_caas FRF SP1
-frf-sam_gater FRF NONE
-frf-sam_report_collector FRF NONE
-frf-sam_ceph FRF NONE
-frf-sam_cloudatlas_dir FRF NONE
-frf-sam_warden FRF NONE
-frf-sam_moderation_einstein FRF NONE
-frf-sam_cloudatlas FRF NONE
-frf-sam_chatbot_kingdom FRF NONE
-SAM_GATER SYD NONE
-SAM_REPORT_COLLECTOR SYD NONE
-dfw-sp1-sam_caas DFW SP1
-dfw-sam_cloudatlas_dir DFW NONE
-dfw-sam_moderation_einstein DFW NONE
-dfw-sam_ceph DFW NONE
-dfw-sam_report_collector DFW NONE
-dfw-sam_cloudatlas DFW NONE
-dfw-sam_warden DFW NONE
-dfw-sam_chatbot_kingdom DFW NONE
-dfw-sam_gater DFW NONE
-dfw-sp3-sam_caas DFW SP3
-dfw-sp4-sam_caas DFW SP4
-dfw-sp2-sam_caas DFW SP2
-iad-sp1-sam_caas IAD SP1
-iad-sam_crosscloudplatform IAD NONE
-iad-sam_warden IAD NONE
-iad-sam_cloudatlas IAD NONE
-iad-sam_ceph IAD NONE
-iad-sam_crosscloudsetup IAD NONE
-iad-sam_sfstore IAD NONE
-iad-sam_cloudatlas_dir IAD NONE
-iad-sam_gater IAD NONE
-iad-sam_customerresolutionengine IAD NONE
-iad-sam_report_collector IAD NONE
-iad-sam_moderation_einstein IAD NONE
-iad-sam_chatbot_kingdom IAD NONE
-iad-sp2-sam_caas IAD SP2
-SAM_GATER CDU NONE
-SAM_REPORT_COLLECTOR CDU NONE
-phx-sp1-sam_caas PHX SP1
-phx-sp2-sam_caas PHX SP2
-phx-sp3-sam_caas PHX SP3
-phx-sp4-sam_caas PHX SP4
-phx-sam_gater PHX NONE
-phx-sam_cloudatlas PHX NONE
-phx-sam_cloudatlas_dir PHX NONE
-phx-sam_ceph PHX NONE
-phx-sam_report_collector PHX NONE
-phx-search_model_executor PHX NONE
-phx-sam_warden PHX NONE
-phx-sam_moderation_einstein PHX NONE
-phx-sam_chatbot_kingdom PHX NONE
-SAM_REPORT_COLLECTOR YUL NONE
-SAM_GATER YUL NONE
-wax-sam_gater WAX NONE
-chx-sam_gater CHX NONE
-ord-sp1-sam_caas ORD SP1
-ord-sp2-sam_caas ORD SP2
-ord-sam_report_collector ORD NONE
-ord-sam_cloudatlas_dir ORD NONE
-ord-sam_warden ORD NONE
-ord-sam_gater ORD NONE
-ord-sam_cloudatlas ORD NONE
-ord-sam_moderation_einstein ORD NONE
-ord-sam_ceph ORD NONE
-ord-sam_crosscloudsetup ORD NONE
-ord-sam_customerresolutionengine ORD NONE
-ord-sam_sfstore ORD NONE
-ord-sam_crosscloudplatform ORD NONE
-ord-sam_chatbot_kingdom ORD NONE
-SAM_GATER YHU NONE
-SAM_REPORT_COLLECTOR YHU NONE
-ukb-sp1-sam_caas UKB SP1
-ukb-sam_cloudatlas UKB NONE
-ukb-sam_gater UKB NONE
-ukb-sam_warden UKB NONE
-ukb-sam_ceph UKB NONE
-ukb-sam_report_collector UKB NONE
-ukb-sam_cloudatlas_dir UKB NONE
-ukb-sam_moderation_einstein UKB NONE
-ukb-sam_chatbot_kingdom UKB NONE
-hnd-sp1-sam_caas HND SP1
-hnd-sam_gater HND NONE
-hnd-sam_warden HND NONE
-hnd-sam_chatbot_kingdom HND NONE
-hnd-sam_report_collector HND NONE
-hnd-sam_moderation_einstein HND NONE
-hnd-sam_cloudatlas HND NONE
-hnd-sam_cloudatlas_dir HND NONE
+prd-sam_moderation_einstein PRD NONE ACTIVE
+prd-sam_sfstore PRD NONE ACTIVE
+prd-sampool PRD NONE ACTIVE
+prd-sam_customerresolutionengine PRD NONE ACTIVE
+prd-slb PRD NONE ACTIVE
+prd-sam_chatbot_kingdom PRD NONE ACTIVE
+prd-sam_gater PRD NONE ACTIVE
+prd-sam_cloudatlas PRD NONE ACTIVE
+prd-sam_warden PRD NONE ACTIVE
+prd-sam_report_collector PRD NONE ACTIVE
+prd-sam_cloudatlas_dir PRD NONE ACTIVE
+prd-samtest PRD NONE ACTIVE
+prd-sam_crosscloudplatform PRD NONE ACTIVE
+prd-sam_cephdev PRD NONE ACTIVE
+prd-sam_storage PRD NONE ACTIVE
+prd-sam_crosscloudsetup PRD NONE ACTIVE
+prd-sam_tnrp_signer PRD NONE ACTIVE
+prd-search_model_executor PRD NONE ACTIVE
+prd-sam_ceph PRD NONE ACTIVE
+prd-sam_sfstoredev PRD NONE ACTIVE
+prd-sam_tnrp_merger PRD NONE ACTIVE
+prd-samtwo PRD NONE ACTIVE
+prd-sam_tnrp_promoter PRD NONE ACTIVE
+prd-sp1-sdb_kube PRD SP1 ACTIVE
+prd-sp1-sam_caas PRD SP1 ACTIVE
+prd-sp2-sam_caas PRD SP2 ACTIVE
+prd-sp2-sam_retail_mds PRD SP2 ACTIVE
+prd-sp2-sam_retail_cre PRD SP2 ACTIVE
+prd-sp2-sam_chatbot PRD SP2 ACTIVE
+prd-sp2-sam_eaas_sp PRD SP2 ACTIVE
+prd-sp2-sam_iot_test PRD SP2 ACTIVE
+prd-sp2-sam_retail_dss PRD SP2 ACTIVE
+prd-sp2-sam_retail_rsui PRD SP2 ACTIVE
+prd-sp2-sam_retail_eventlistener PRD SP2 ACTIVE
+prd-sp2-sam_retail_credata PRD SP2 ACTIVE
+par-sp1-sam_caas PAR SP1 ACTIVE
+par-sam_gater PAR NONE ACTIVE
+par-sam_cloudatlas PAR NONE ACTIVE
+par-sam_warden PAR NONE ACTIVE
+par-sam_report_collector PAR NONE ACTIVE
+par-sam_cloudatlas_dir PAR NONE ACTIVE
+par-sam_ceph PAR NONE ACTIVE
+par-sam_moderation_einstein PAR NONE ACTIVE
+par-sam_chatbot_kingdom PAR NONE ACTIVE
+hnd-sp1-sam_caas HND SP1 ACTIVE
+hnd-sam_gater HND NONE ACTIVE
+hnd-sam_warden HND NONE ACTIVE
+hnd-sam_chatbot_kingdom HND NONE ACTIVE
+hnd-sam_report_collector HND NONE ACTIVE
+hnd-sam_moderation_einstein HND NONE ACTIVE
+hnd-sam_cloudatlas HND NONE ACTIVE
+hnd-sam_cloudatlas_dir HND NONE ACTIVE
+SAM_GATER SYD NONE ACTIVE
+SAM_REPORT_COLLECTOR SYD NONE ACTIVE
+dfw-sp1-sam_caas DFW SP1 ACTIVE
+dfw-sam_cloudatlas_dir DFW NONE ACTIVE
+dfw-sam_moderation_einstein DFW NONE ACTIVE
+dfw-sam_ceph DFW NONE ACTIVE
+dfw-sam_report_collector DFW NONE ACTIVE
+dfw-sam_cloudatlas DFW NONE ACTIVE
+dfw-sam_warden DFW NONE ACTIVE
+dfw-sam_chatbot_kingdom DFW NONE ACTIVE
+dfw-sam_gater DFW NONE ACTIVE
+dfw-sp3-sam_caas DFW SP3 ACTIVE
+dfw-sp4-sam_caas DFW SP4 ACTIVE
+dfw-sp2-sam_caas DFW SP2 ACTIVE
+iad-sp1-sam_caas IAD SP1 ACTIVE
+iad-sam_crosscloudplatform IAD NONE ACTIVE
+iad-sam_warden IAD NONE ACTIVE
+iad-sam_cloudatlas IAD NONE ACTIVE
+iad-sam_ceph IAD NONE ACTIVE
+iad-sam_crosscloudsetup IAD NONE ACTIVE
+iad-sam_sfstore IAD NONE ACTIVE
+iad-sam_cloudatlas_dir IAD NONE ACTIVE
+iad-sam_gater IAD NONE ACTIVE
+iad-sam_customerresolutionengine IAD NONE ACTIVE
+iad-sam_report_collector IAD NONE ACTIVE
+iad-sam_moderation_einstein IAD NONE ACTIVE
+iad-sam_chatbot_kingdom IAD NONE ACTIVE
+iad-sp2-sam_caas IAD SP2 ACTIVE
+SAM_GATER CDU NONE ACTIVE
+SAM_REPORT_COLLECTOR CDU NONE ACTIVE
+phx-sp1-sam_caas PHX SP1 ACTIVE
+phx-sp2-sam_caas PHX SP2 ACTIVE
+phx-sp3-sam_caas PHX SP3 ACTIVE
+phx-sp4-sam_caas PHX SP4 ACTIVE
+phx-sam_gater PHX NONE ACTIVE
+phx-sam_cloudatlas PHX NONE ACTIVE
+phx-sam_cloudatlas_dir PHX NONE ACTIVE
+phx-sam_ceph PHX NONE ACTIVE
+phx-sam_report_collector PHX NONE ACTIVE
+phx-search_model_executor PHX NONE ACTIVE
+phx-sam_warden PHX NONE ACTIVE
+phx-sam_moderation_einstein PHX NONE ACTIVE
+phx-sam_chatbot_kingdom PHX NONE ACTIVE
+SAM_REPORT_COLLECTOR YUL NONE ACTIVE
+SAM_GATER YUL NONE ACTIVE
+wax-sam_gater WAX NONE ACTIVE
+chx-sam_gater CHX NONE ACTIVE
+ord-sp1-sam_caas ORD SP1 ACTIVE
+ord-sam_report_collector ORD NONE ACTIVE
+ord-sam_cloudatlas_dir ORD NONE ACTIVE
+ord-sam_warden ORD NONE ACTIVE
+ord-sam_gater ORD NONE ACTIVE
+ord-sam_cloudatlas ORD NONE ACTIVE
+ord-sam_moderation_einstein ORD NONE ACTIVE
+ord-sam_ceph ORD NONE ACTIVE
+ord-sam_crosscloudsetup ORD NONE ACTIVE
+ord-sam_customerresolutionengine ORD NONE ACTIVE
+ord-sam_sfstore ORD NONE ACTIVE
+ord-sam_crosscloudplatform ORD NONE ACTIVE
+ord-sam_chatbot_kingdom ORD NONE ACTIVE
+ord-sp2-sam_caas ORD SP2 ACTIVE
+SAM_GATER YHU NONE ACTIVE
+SAM_REPORT_COLLECTOR YHU NONE ACTIVE
+ukb-sp1-sam_caas UKB SP1 ACTIVE
+ukb-sam_cloudatlas UKB NONE ACTIVE
+ukb-sam_gater UKB NONE ACTIVE
+ukb-sam_warden UKB NONE ACTIVE
+ukb-sam_ceph UKB NONE ACTIVE
+ukb-sam_report_collector UKB NONE ACTIVE
+ukb-sam_cloudatlas_dir UKB NONE ACTIVE
+ukb-sam_moderation_einstein UKB NONE ACTIVE
+ukb-sam_chatbot_kingdom UKB NONE ACTIVE
+frf-sp1-sam_caas FRF SP1 ACTIVE
+frf-sam_gater FRF NONE ACTIVE
+frf-sam_report_collector FRF NONE ACTIVE
+frf-sam_ceph FRF NONE ACTIVE
+frf-sam_cloudatlas_dir FRF NONE ACTIVE
+frf-sam_warden FRF NONE ACTIVE
+frf-sam_moderation_einstein FRF NONE ACTIVE
+frf-sam_cloudatlas FRF NONE ACTIVE
+frf-sam_chatbot_kingdom FRF NONE ACTIVE
