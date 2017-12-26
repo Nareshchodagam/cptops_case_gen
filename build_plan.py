@@ -251,8 +251,9 @@ def return_not_patched_hosts(hosts, bundle):
 
     try:
         if response.status_code == 200:
-            str_data = response.content.split('(', 1)[1].split(')')[0]
-            data = json.loads(str_data)
+            #str_data = response.content.split('(', 1)[1].split(')')[0] # Jarek changes his DB response from PJSON to JSON, This block of code works with PJSON
+            #data = json.loads(str_data)
+            data = json.loads(response.content)
             json_data = get_version_json().get('CENTOS')
 
             for ddict in data:
