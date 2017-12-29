@@ -54,6 +54,9 @@ frf-sam_chatbot_kingdom FRF NONE ACTIVE
 SAM_GATER SYD NONE ACTIVE
 SAM_REPORT_COLLECTOR SYD NONE ACTIVE
 dfw-sp1-sam_caas DFW SP1 ACTIVE
+dfw-sp2-sam_caas DFW SP2 ACTIVE
+dfw-sp3-sam_caas DFW SP3 ACTIVE
+dfw-sp4-sam_caas DFW SP4 ACTIVE
 dfw-sam_cloudatlas_dir DFW NONE ACTIVE
 dfw-sam_moderation_einstein DFW NONE ACTIVE
 dfw-sam_ceph DFW NONE ACTIVE
@@ -62,9 +65,6 @@ dfw-sam_cloudatlas DFW NONE ACTIVE
 dfw-sam_warden DFW NONE ACTIVE
 dfw-sam_chatbot_kingdom DFW NONE ACTIVE
 dfw-sam_gater DFW NONE ACTIVE
-dfw-sp3-sam_caas DFW SP3 ACTIVE
-dfw-sp4-sam_caas DFW SP4 ACTIVE
-dfw-sp2-sam_caas DFW SP2 ACTIVE
 iad-sp1-sam_caas IAD SP1 ACTIVE
 iad-sam_crosscloudplatform IAD NONE ACTIVE
 iad-sam_warden IAD NONE ACTIVE
@@ -82,6 +82,9 @@ iad-sp2-sam_caas IAD SP2 ACTIVE
 SAM_GATER CDU NONE ACTIVE
 SAM_REPORT_COLLECTOR CDU NONE ACTIVE
 phx-sp1-sam_caas PHX SP1 ACTIVE
+phx-sp2-sam_caas PHX SP2 ACTIVE
+phx-sp3-sam_caas PHX SP3 ACTIVE
+phx-sp4-sam_caas PHX SP4 ACTIVE
 phx-sam_gater PHX NONE ACTIVE
 phx-sam_cloudatlas PHX NONE ACTIVE
 phx-sam_cloudatlas_dir PHX NONE ACTIVE
@@ -91,9 +94,6 @@ phx-search_model_executor PHX NONE ACTIVE
 phx-sam_warden PHX NONE ACTIVE
 phx-sam_moderation_einstein PHX NONE ACTIVE
 phx-sam_chatbot_kingdom PHX NONE ACTIVE
-phx-sp3-sam_caas PHX SP3 ACTIVE
-phx-sp4-sam_caas PHX SP4 ACTIVE
-phx-sp2-sam_caas PHX SP2 ACTIVE
 SAM_REPORT_COLLECTOR YUL NONE ACTIVE
 SAM_GATER YUL NONE ACTIVE
 wax-sam_gater WAX NONE ACTIVE
