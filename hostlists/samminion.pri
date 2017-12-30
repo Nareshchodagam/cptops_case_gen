@@ -82,9 +82,6 @@ iad-sp2-sam_caas IAD SP2 ACTIVE
 SAM_GATER CDU NONE ACTIVE
 SAM_REPORT_COLLECTOR CDU NONE ACTIVE
 phx-sp1-sam_caas PHX SP1 ACTIVE
-phx-sp2-sam_caas PHX SP2 ACTIVE
-phx-sp3-sam_caas PHX SP3 ACTIVE
-phx-sp4-sam_caas PHX SP4 ACTIVE
 phx-sam_gater PHX NONE ACTIVE
 phx-sam_cloudatlas PHX NONE ACTIVE
 phx-sam_cloudatlas_dir PHX NONE ACTIVE
@@ -94,12 +91,14 @@ phx-search_model_executor PHX NONE ACTIVE
 phx-sam_warden PHX NONE ACTIVE
 phx-sam_moderation_einstein PHX NONE ACTIVE
 phx-sam_chatbot_kingdom PHX NONE ACTIVE
+phx-sp3-sam_caas PHX SP3 ACTIVE
+phx-sp4-sam_caas PHX SP4 ACTIVE
+phx-sp2-sam_caas PHX SP2 ACTIVE
 SAM_REPORT_COLLECTOR YUL NONE ACTIVE
 SAM_GATER YUL NONE ACTIVE
 wax-sam_gater WAX NONE ACTIVE
 chx-sam_gater CHX NONE ACTIVE
 ord-sp1-sam_caas ORD SP1 ACTIVE
-ord-sp2-sam_caas ORD SP2 ACTIVE
 ord-sam_report_collector ORD NONE ACTIVE
 ord-sam_cloudatlas_dir ORD NONE ACTIVE
 ord-sam_warden ORD NONE ACTIVE
@@ -112,6 +111,7 @@ ord-sam_customerresolutionengine ORD NONE ACTIVE
 ord-sam_sfstore ORD NONE ACTIVE
 ord-sam_crosscloudplatform ORD NONE ACTIVE
 ord-sam_chatbot_kingdom ORD NONE ACTIVE
+ord-sp2-sam_caas ORD SP2 ACTIVE
 hnd-sp1-sam_caas HND SP1 ACTIVE
 hnd-sam_gater HND NONE ACTIVE
 hnd-sam_warden HND NONE ACTIVE
