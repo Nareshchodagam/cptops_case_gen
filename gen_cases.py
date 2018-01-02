@@ -215,37 +215,37 @@ if __name__ == "__main__":
         data = getData(options.podgroups)
         for l in data:
             try:
-                pods, dc, sp = l.split()
+                pods, dc, sp, cl_status = l.split()
                 if sp:
                     if (options.role or options.role.upper()) == "prsn,chan,msg,dstore":
                         # Create a dict containing the options used for input to build_plan for Chatter with SP option passed
                         opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                                  "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
+                                  "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
                     elif (options.role or options.role.upper()) == "lapp" and re.search(r"cs", pods, re.IGNORECASE):
                         # This section is to remove grouping tag for LA CS Clusters
                         # Should be remove once CS moves out of DownTime patching
                         opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                                  "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
+                                  "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
                     elif (options.role.lower()) == "app":
                         # This section is to remove grouping tag for core app #W-3758985
                         opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                                  "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
+                                  "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
                     else:
                         # Create a dict containing the options used for input to build_plan with SP option passed
                         opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                                   "grouping": grouping, "maxgroupsize": groupsize,
-                                  "templateid": options.template, "dr": options.dr}
+                                  "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
             except:
-                pods, dc = l.split()
+                pods, dc, cl_status = l.split()
                 # Create a dict containing the options used for input to build_plan for Chatter
                 if (options.role or options.role.upper()) == "prsn,chan,msg,dstore":
                     opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                              "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr}
+                              "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
                 else:
                     # Create a dict containing the options used for input to build_plan
                     opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                               "grouping": grouping, "maxgroupsize": groupsize,
-                              "templateid": options.template, "dr": options.dr}
+                              "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
             opt_gc = {}
             if options.filter:
                 filter = options.filter
@@ -253,8 +253,17 @@ if __name__ == "__main__":
             if options.regexfilter:
                 opt_bp["regexfilter"] = options.regexfilter
                 host_pri_sec = opt_bp.get("regexfilter").split('=')[1]
+                cluster_status = opt_bp["cl_opstat"]
+#This section will allow to control the cases creation template to be used once cluster status is passed in preset. Refactoring needed
             if options.clusteropstat:
-                opt_bp["cl_opstat"] = options.clusteropstat
+                for cl_status in options.clusteropstat.split(','):
+                    if opt_bp["cl_opstat"] == cl_status:
+                        opt_bp["cl_opstat"] = cl_status
+                        opt_bp["templateid"] = 'straight-patch'
+            else:
+                pass
+            cluster_status = opt_bp["cl_opstat"]
+
             if options.hostopstat:
                 opt_bp["ho_opstat"] = options.hostopstat
             # Bug in build_plan.py that does not handle quoted ints.
@@ -275,9 +284,9 @@ if __name__ == "__main__":
                 output_str = output_str + " --delpatched "
             print(output_str)
             if options.regexfilter:
-                subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec
+                subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec + "[" + cluster_status + "]"
             else:
-                subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag
+                subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + "[" + cluster_status + "]"
             logging.debug(subject)
             if options.group:
                 subject = subject + " " + options.group
