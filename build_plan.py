@@ -683,7 +683,7 @@ def consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role):
                 # This code to add auto close case to post templates
                 if options.auto_close_case:
                     post_list = post.splitlines(True)
-                    str_to_add = "- Auto close case \nExec_with_creds: /opt/cpt/close_gus_cases.py -c v_CASE -y\n\n"
+                    str_to_add = "- Auto close case \nExec_with_creds: /opt/cpt/gus_case_mngr.py -c v_CASE --close -y\n\n"
                     post_list.insert(2, str_to_add)
                     post = "".join(post_list)
                 logging.debug('Writing out post file ' + post_file + ' to ' + consolidated_file)

@@ -40,3 +40,6 @@ release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product s
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
+
+- Auto pause case if case status is not equal to In Progres.
+Exec_with_creds: /opt/cpt/gus_case_mngr.py -c v_CASE --pause -y
