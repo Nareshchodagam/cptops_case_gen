@@ -42,7 +42,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product a
 - release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -auto2
 
 - Verify app
-Exec: python /opt/cpt/bin/check_http_code.py -H v_HOSTS -P 9041,9042,9043,9045,9046,9047
+Exec: /opt/cpt/bin/check_http_code.py -H v_HOSTS -P 9041,9042,9043,9045,9046,9047
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable

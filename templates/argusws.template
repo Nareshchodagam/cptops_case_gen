@@ -45,7 +45,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product a
 - release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -auto2
 
 - Verify app
-Exec: python /opt/cpt/bin/check_http_code.py -H v_HOSTS -P 8080
+Exec: /opt/cpt/bin/check_http_code.py -H v_HOSTS -P 8080
 
 - add to pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_ws -host v_HOSTS -c add_to_pool -auto2
