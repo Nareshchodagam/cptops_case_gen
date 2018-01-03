@@ -260,6 +260,8 @@ if __name__ == "__main__":
                     if opt_bp["cl_opstat"] == cl_status:
                         opt_bp["cl_opstat"] = cl_status
                         opt_bp["templateid"] = 'straight-patch'
+                        opt_bp["grouping"] = 'all'
+                        opt_bp["maxgroupsize"] = '25'
             else:
                 pass
             cluster_status = opt_bp["cl_opstat"]
