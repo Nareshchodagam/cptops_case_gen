@@ -37,8 +37,8 @@ Exec: sleep 20
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_metrics -host v_HOSTM -c  cmd -m "/home/sfdc/start-stop.sh start" -threads -auto2
 
 - Verify app
-Exec: python /opt/cpt/bin/check_http_code.py -H v_HOSTD -P 4477
-Exec: python /opt/cpt/bin/check_http_code.py -H v_HOSTM -P 9010
+Exec: /opt/cpt/bin/check_http_code.py -H v_HOSTD -P 4477
+Exec: /opt/cpt/bin/check_http_code.py -H v_HOSTM -P 9010
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
