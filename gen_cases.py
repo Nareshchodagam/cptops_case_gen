@@ -21,6 +21,7 @@ def groupType(role):
     else:
         return 'majorset'
 
+
 def groupSize(role):
     # presets for certain roles for sizing
     groupsizes = {'search': 15,
@@ -79,9 +80,33 @@ def inputDictStrtoInt(m):
     logging.debug(str)
     return str
 
+
+# W-4574049 This code was repeated on multiple conditions, hence add it to a func and call func on appropriate places
+def cmdformat(output_str):
+    if not options.idb:
+        output_str = output_str + " -x"
+    if options.groupsize:
+        output_str = output_str + " --gsize %s" % groupsize
+    if options.dowork:
+        output_str = output_str + " --dowork " + options.dowork
+    if options.delpatched:
+        output_str = output_str + " --delpatched "
+    if options.casework == "reimage":
+        output_str = output_str + " --serial --monitor "
+    if options.filteros:
+        output_str = output_str + " --filter_os "
+    if options.failthresh:
+        output_str = output_str + " --failthresh " + options.failthresh
+    if options.hostpercent:
+        output_str = output_str + " --hostpercent " + options.hostpercent
+
+    return output_str
+# W-4574049 End
+
+
 if __name__ == "__main__":
     parser = OptionParser()
-    parser.set_defaults(dowork='system_update')
+    parser.set_defaults(dowork='all_updates')
     parser.add_option("-v", action="store_true", dest="verbose", default=False, help="verbosity")
     parser.add_option("-r", "--role", dest="role", help="role to be used")
     parser.add_option("-t", "--template", dest="template", help="template to be used")
@@ -102,7 +127,7 @@ if __name__ == "__main__":
     parser.add_option("--implplan", dest="implplansection", help="Template to use for implementation steps in planner")
     parser.add_option("--taggroups", dest="taggroups", help="Size for blocked groups for large running cases like hbase")
     parser.add_option("--dowork", dest="dowork", help="Include template to use for v_INCLUDE replacement")
-    parser.add_option("--hostpercent", dest="hostpercent", default=None, help=" Host min percentage to calculate concurrency eg 33")
+    parser.add_option("--hostpercent", dest="hostpercent", help=" Host min percentage to calculate concurrency eg 33")
     parser.add_option("--HLGrp", dest="hlgrp", action="store_true", default="False", help="Groups hostlist by DC")
     parser.add_option("--no_host_validation", dest="no_host_v", action="store_true",  help="Skip verify remote hosts")
     parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default="True", help="Auto close case")
@@ -111,6 +136,14 @@ if __name__ == "__main__":
     parser.add_option("--delpatched", dest="delpatched", action='store_true', help="command to remove patched host.")
     # End
     parser.add_option("--csv", dest="csv", help="Read given CSV file and create cases as per the status.")
+    # W-4574049 Command line option to filter hosts by OS [Specific to CentOS7 Migration ]
+    parser.add_option("--cstatus", dest="cstatus", default="approved", help="Change cases status")
+    parser.add_option("--failthresh", dest="failthresh", help="Failure threshold for kp_client batch")
+    parser.add_option("--casework", dest="casework", help="Case type to use eg patch or re-image")
+    parser.add_option("--monitor", dest="monitor", action="store_true", help="monitor [used in reimage]")
+    parser.add_option("--serial", dest="serial", action="store_true", help="serial [ used in reimage]")
+    parser.add_option("--filter_os", dest="filteros", action="store_true", help="Filter hosts for CentOS7 migration")
+    # W-4574049 End
 
     python = 'python'
     excludelist = ''
@@ -125,7 +158,15 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.DEBUG)
     if not options.casesubject:
         options.casesubject = options.patchset + " Patch Bundle"
-    patch_json = "bundle-patch.json"
+
+    # W-4574049 Add to support CentOS7 migration
+    if options.casework == "reimage":
+        patch_json = "migration-patch.json"
+        options.implplansection = "templates/migration-plan.json"
+    else:
+        patch_json = "bundle-patch.json"
+    # W-4574049 end
+
     casesubject = options.casesubject
     grouping = "majorset"
     groupsize = 1
@@ -150,10 +191,12 @@ if __name__ == "__main__":
         groupsize = options.groupsize
     if options.hostpercent:
         hostpercent = options.hostpercent
+
     # W-4531197 Adding logic to remove already patched host for Case.
     if options.delpatched:
         delpatched = options.delpatched
     # End
+
     if options.podgroups and options.casetype == "hostlist" and options.hlgrp == "False":
         data = getData(options.podgroups)
         dcs = getDCs(data)
@@ -163,19 +206,13 @@ if __name__ == "__main__":
             subject = casesubject + ": " + options.role.upper()
         dcs_list = ",".join(dcs)
 
-        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s %s --hostpercent %s --auto_close_case %s """\
-		     """--nolinebacker %s""" % (options.podgroups, options.template, options.patchset, grouping, hostv, options.hostpercent, options.auto_close_case,
+        output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s %s --auto_close_case %s """\
+		     """--nolinebacker %s""" % (options.podgroups, options.template, options.patchset, grouping, hostv, options.auto_close_case,
                					options.nolinebacker)
-        if options.idb != True:
-            output_str = output_str + " -x"
-        if options.groupsize:
-            output_str = output_str + " --gsize %s" % groupsize
-        if options.dowork:
-            output_str = output_str + " --dowork " + options.dowork
-        if options.delpatched:
-            output_str = output_str + " --delpatched "
+
+        output_str = cmdformat(output_str)
         print("%s" % output_str)
-        print("""python gus_cases_vault.py -T change --approved -f templates/%s --infra "%s" -s "%s" -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (patch_json,options.infra,subject,implplansection,dcs_list))
+        print("""python gus_cases_vault.py -T change --cstatus %s  -f templates/%s --infra "%s" -s "%s" -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt -r %s""" % (options.cstatus, patch_json, options.infra, subject, implplansection, dcs_list, options.role))
     elif options.podgroups and options.casetype == "hostlist" and options.hlgrp == True:
         data = getData(options.podgroups)
         hostlist = sortHost(data)
@@ -184,33 +221,14 @@ if __name__ == "__main__":
                 subject = casesubject + " " + options.group + " " + dc.upper()
             else:
                 subject = casesubject + ": " + options.role.upper()
-            output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s  %s --hostpercent %s --auto_close_case %s """\
+            output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s  %s --auto_close_case %s """\
                          """--nolinebacker %s""" % (options.podgroups, options.template, options.patchset, grouping,
-                                                    hostv, options.hostpercent, options.auto_close_case, options.nolinebacker)
-            if options.idb != True:
-                output_str = output_str + " -x"
-            if options.groupsize:
-                output_str = output_str + " --gsize %s" % groupsize
-            if options.dowork:
-                output_str = output_str + " --dowork " + options.dowork
-            if options.delpatched:
-                output_str = output_str + " --delpatched "
+                                                    hostv, options.auto_close_case, options.nolinebacker)
+            output_str = cmdformat(output_str)
             output_str = output_str + '  -l "%s"' % ",".join(hosts)
             print("%s" % output_str)
-            print("""python gus_cases_vault.py -T change --approved -f templates/%s --infra "%s" -s "%s " -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt""" % (patch_json,options.infra,subject,implplansection,dc))
+            print("""python gus_cases_vault.py -T change --cstatus %s -f templates/%s --infra "%s" -s "%s " -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt -r %s""" % (options.cstatus, patch_json,options.infra,subject,implplansection,dc, options.role))
 
-    # This code was used to create core app cases via Gigantor (Currently not used)
-    #elif options.podgroups and options.casetype == "coreappafw":
-    #    data = getData(options.podgroups)
-    #    inst_data = genDCINST(data)
-    #    subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
-    #    print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k  templates/%s -D '%s'""" % (patch_json,options.infra,subject,implplansection,inst_data))
-    #elif options.podgroups and options.casetype == "coreapp-canary":
-    #    data = getData(options.podgroups)
-    #    inst_data = genDCINST(data)
-    #    subject = casesubject + ": " + options.role.upper() + " " + options.casetype.upper() + " " + site_flag
-    #    print("""python gus_cases_vault.py -T change  -f templates/%s --infra "%s" -s "%s" -k templates/%s -D '%s'""" % (
-    #        patch_json, options.infra, subject, implplansection, inst_data))
     elif options.podgroups and not options.casetype:
         data = getData(options.podgroups)
         for l in data:
@@ -272,16 +290,9 @@ if __name__ == "__main__":
             opts_str = re.sub('maxgroupsize": ("\d+")', inputDictStrtoInt, opts_str)
             logging.debug(opts_str)
             # Added linebacker -  W-3779869
-            output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s %s --hostpercent %s --auto_close_case %s -v"""\
-                         """ --nolinebacker %s""" % (options.patchset,opts_str,options.taggroups, hostv ,options.hostpercent, options.auto_close_case,  options.nolinebacker)
-            if options.exclude:
-                output_str = output_str + " --exclude " + options.exclude
-            if options.casetype == "reimage":
-                output_str = output_str + " --serial --monitor"
-            if options.dowork:
-                output_str = output_str + " --dowork " + options.dowork
-            if options.delpatched:
-                output_str = output_str + " --delpatched "
+            output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s %s  --auto_close_case %s -v"""\
+                         """ --nolinebacker %s""" % (options.patchset,opts_str,options.taggroups, hostv, options.auto_close_case,  options.nolinebacker)
+            output_str = cmdformat(output_str)
             print(output_str)
             if options.regexfilter:
                 subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec + "[" + cluster_status + "]"
@@ -292,4 +303,4 @@ if __name__ == "__main__":
                 subject = subject + " " + options.group
             #if not re.search(r"json", options.bundle):
             #    options.bundle = options.bundle + "-patch.json"
-            print("""python gus_cases_vault.py -T change --approved -f templates/%s  --inst %s --infra "%s" -s "%s" -k %s  -l output/summarylist.txt -D %s -i  output/plan_implementation.txt""" % (patch_json,pods,options.infra,subject,implplansection,dc))
+            print("""python gus_cases_vault.py -T change --cstatus %s  -f templates/%s  --inst %s --infra "%s" -s "%s" -k %s  -l output/summarylist.txt -D %s -i  output/plan_implementation.txt -r %s""" % (options.cstatus,patch_json,pods,options.infra,subject,implplansection,dc, options.role))

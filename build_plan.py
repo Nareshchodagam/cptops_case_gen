@@ -8,8 +8,6 @@
 ###############################################################################
 
 from optparse import OptionParser
-import json
-import logging
 import re
 import glob
 import os.path
@@ -32,6 +30,7 @@ post_file = ''
 hosts = []
 hostlist = []
 not_patched_hosts = []
+not_os_hosts = []
 
 new_supportedfields = {'superpod' : 'host.cluster.superpod.name',
                    'role' : 'host.deviceRole',
@@ -73,6 +72,7 @@ def get_hosts_from_file(filename):
         exit()
     return hostlist
 
+
 def write_list_to_file(filename, list, newline=True):
     if newline:
         s = '\n'.join(list)
@@ -81,6 +81,7 @@ def write_list_to_file(filename, list, newline=True):
     f = open(filename, 'w')
     f.write(s)
     f.close()
+
 
 def get_json(input_file):
     with open(common.etcdir + '/' + input_file) as data_file:
@@ -219,7 +220,6 @@ def FindOtherHostIfIdbQuery(dc, cluster, role, HostToRemoveList):
 
 # End
 
-# W-4531197 Adding logic to remove already patched host for Case.
 
 def get_version_json():
     """
@@ -237,6 +237,44 @@ def get_version_json():
     return data
 
 
+# W-4574049 Filter hosts by OS. This is specific CentOS migration project to exclude hosts which are already running on
+# CentOS7
+def filter_hosts_by_os(hosts, osmajor):
+    """
+    :param hosts: Total hosts given by user to filter
+    :param osmajor: Major OS version [ 6 OR 7 ]
+    :return: A list contains hosts which are running on osmajor OS
+    """
+    host_dict = {}
+    allfiltered_hosts_os = []
+    all_hosts = hosts.split(",")
+    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?name="
+    try:
+        response = requests.get(url + hosts, verify=False, timeout=20.0)
+        if response.status_code == 200:
+            data = response.json()
+
+            for ddict in data:
+                host_dict[ddict.get('hostName')] = ddict
+
+            for host in all_hosts:
+                if host not in host_dict.keys():
+                    allfiltered_hosts_os.append(host)
+                else:
+                    ddict_host = host_dict.get(host)
+                    os_version = ddict_host.get('hostOs')
+                    if os_version == osmajor:
+                        allfiltered_hosts_os.append(host)
+            if len(allfiltered_hosts_os) != 0:
+                return ",".join(allfiltered_hosts_os)
+
+    except requests.exceptions.RequestException as e:
+        print("Error while connecting to URL %s - %s" % (url, e))
+        sys.exit(1)
+# W-4574049 block end
+
+
+# W-4531197 Adding logic to remove already patched host for Case.
 def return_not_patched_hosts(hosts, bundle):
     """
     :param hosts:
@@ -251,8 +289,8 @@ def return_not_patched_hosts(hosts, bundle):
 
     try:
         if response.status_code == 200:
-            #str_data = response.content.split('(', 1)[1].split(')')[0] # Jarek changes his DB response from PJSON to JSON, This block of code works with PJSON
-            #data = json.loads(str_data)
+            # str_data = response.content.split('(', 1)[1].split(')')[0] # Jarek changes his DB response from PJSON to JSON, This block of code works with PJSON
+            # data = json.loads(str_data)
             data = json.loads(response.content)
             json_data = get_version_json().get('CENTOS')
 
@@ -452,15 +490,32 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
         output = output.replace('v_ROLE', role)
         output = output.replace('v_BUNDLE', options.bundle)
         output = output.replace('v_NUM', num)
-        output = output.replace('v_GSIZE', str(options.gsize))
-    # Total hack to pass kp_client concurrency and threshold values. Include in refactoring
-    if options.concur and options.failthresh:
-        concur = options.concur
-        failthresh = options.failthresh
-    else:
-        concur, failthresh = getConcurFailure(role,cluster)
-    output = output.replace('v_CONCUR', str(concur))
-    output = output.replace('v_FAILTHRESH', str(failthresh))
+        # output = output.replace('v_GSIZE', str(options.gsize))
+
+        # W-4574049
+        # NOTE - This just an hack to calculate concurrency and threshold for CE7 migration hosts grouping
+        if options.hostpercent and options.failthresh:
+            print('if')
+            output = output.replace('v_GSIZE', str(len(hosts.split(','))))
+            output = output.replace('v_FAILTHRESH', str(len(hosts.split(','))/2))
+        else:
+            print('else')
+            output = output.replace('v_GSIZE', str(options.gsize))
+            output = output.replace('v_FAILTHRESH', str(options.failthresh))
+        # W-4574049 End
+
+# # Total hack to pass kp_client concurrency and threshold values. Include in refactoring
+    # if options.concur and options.failthresh:
+    #     concur = options.concur
+    #     failthresh = options.failthresh
+    # else:
+    #     concur, failthresh = getConcurFailure(role,cluster)
+    # output = output.replace('v_CONCUR', str(concur))
+
+    # if options.failthresh:
+    #     output = output.replace('v_FAILTHRESH', str(options.failthresh))
+
+
     # Added to enable passing the hostfilter inside the plan.
     if options.idbgen and 'hostfilter' in json.loads(options.idbgen):
         input_values = json.loads(options.idbgen)
@@ -501,6 +556,7 @@ def getDoWork(input, dowork):
 
     input = input.replace('v_INCLUDE', v_include)
     return input
+
 
 def getConcurFailure(role,cluster):
     rates = get_json('afw_presets.json')
@@ -563,16 +619,30 @@ def prep_template(template, outfile):
         post_file = common.templatedir + "/generic.post"
 
 
-
 def gen_plan(hosts, cluster, datacenter, superpod, casenum, role, num, groupcount=0,cl_opstat='',ho_opstat='',template_vars={}):
     # Generate the main body of the template (per host)
     logging.debug('Executing gen_plan()')
     print "Generating: " + out_file
     s = open(template_file).read()
     org_host = hosts
-    # W-4531197 Adding logic to remove already patched host for Case.
     global not_patched_hosts
-    if options.delpatched:
+    global not_os_hosts
+
+    # W-4574049 Compile template for hosts which are filtered by OS
+    if options.filteros:
+        hosts = filter_hosts_by_os(hosts, "6")
+        if hosts is None:
+            s = "- Skipping, hosts {0} already running on CentOS7".format(org_host)
+        else:
+            for h in hosts.split(","):
+                not_os_hosts.append(h)
+            s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, num, cl_opstat, ho_opstat,
+                                 template_vars)
+
+    # W-4574049 block end
+
+    # W-4531197 Adding logic to remove already patched host for Case.
+    elif options.delpatched:
         hosts = return_not_patched_hosts(hosts, options.bundle)
         if hosts == None:
             s = "- Skipped Already Patched host {0} for bundle {1}".format(org_host, options.bundle)
@@ -583,11 +653,12 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role, num, groupcoun
                                  template_vars)
     else:
         s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, num, cl_opstat,ho_opstat,template_vars)
-    #End
+    # End
 
     f = open(out_file, 'w')
     f.write(s)
     f.close()
+
 
 def apply_grouptags(content,tag_id):
     return 'BEGIN_GROUP: ' + tag_id + '\n\n' + content + '\n\n' + \
@@ -748,7 +819,7 @@ def gen_plan_by_idbquery(inputdict):
     regexfilters = {}
 
     # calculate host count for app role
-    if options.hostpercent != 'None':
+    if options.hostpercent:
         find_concurrency(options.hostpercent)
 
     gsize = inputdict['maxgroupsize'] if 'maxgroupsize' in inputdict else 1
@@ -835,8 +906,14 @@ def consolidate_idb_query_plans(writeplan,dcs):
     fullhostlist = fullhostlist + fullhostlist1
     #End
 
+    if options.filteros:
+        write_list_to_file(common.outputdir + '/summarylist.txt', not_os_hosts)
+        if os.stat(common.outputdir + '/summarylist.txt').st_size == 0:
+            os.remove(common.outputdir + '/plan_implementation.txt')
+
+
     # Added to remove already pacthed host.
-    if options.delpatched:
+    elif options.delpatched:
         write_list_to_file(common.outputdir + '/summarylist.txt', not_patched_hosts)
 
         if os.stat(common.outputdir + '/summarylist.txt').st_size == 0:
@@ -1045,7 +1122,7 @@ parser.add_option("--gsize", dest="gsize", type="int", default=1, help="Group Si
 parser.add_option("--bundle", dest="bundle", default="current", help="Patchset version")
 parser.add_option("--monitor", dest="monitor", action="store_true", default=False, help="Monitor host")
 parser.add_option("--serial", dest="serial", action="store_true", default=False, help="Monitor host")
-parser.add_option("--hostpercent", dest="hostpercent", default="None", help="Host percentage for core app")
+parser.add_option("--hostpercent", dest="hostpercent", help="Host percentage for core app")
 parser.add_option("--concurr", dest="concur", type="int", help="Concurrency for kp_client batch")
 parser.add_option("--failthresh", dest="failthresh", type="int", help="Failure threshold for kp_client batch")
 parser.add_option("--nested_template", dest="nested", default=False, help="pass a list of templates, for use with hostlists only")
@@ -1058,10 +1135,13 @@ parser.add_option("--dowork", dest="dowork", help="command to supply for dowork 
 parser.add_option("--no_host_validation", dest="no_host_v", action="store_true", help="Skip verify remote hosts")
 parser.add_option("--auto_close_case", dest="auto_close_case", action="store_true", default="True", help="Auto close cases")
 parser.add_option("--nolinebacker", dest="nolinebacker", help="Don't use linebacker")
-
 # W-4531197 Adding logic to remove already patched host for Case.
 parser.add_option("--delpatched", dest="delpatched", action='store_true', help="command to remove patched host.")
-#End
+# End
+# W-4574049 Command line option to filter hosts by OS [Specific to CentOS7 Migration ]
+parser.add_option("--filter_os", dest="filteros", action="store_true", help="command to remove patched host.")
+# W-4574049 end
+
 
 (options, args) = parser.parse_args()
 if __name__ == "__main__":

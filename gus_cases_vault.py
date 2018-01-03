@@ -354,6 +354,7 @@ def update_implplan(filename, case_num):
         file_data = file_data.replace('v_CASE', case_num['CaseNumber'])
     return file_data
 
+
 def PreApproveCase(caseId, session):
     gusObj = Gus()
     Dict = {
@@ -361,6 +362,29 @@ def PreApproveCase(caseId, session):
             }
     details = gusObj.update_case_details(caseId, Dict, session)
     logging.debug(details)
+
+
+# Added to create cases which are not standard Pre-Approved
+def new_unassigned_case(caseId, session):
+    gusObj = Gus()
+    Dict = {
+        "Change-Type": "Minor",
+        'Status': 'New/Unassigned'
+    }
+    details = gusObj.update_case_details(caseId, Dict, session)
+    logging.debug(details)
+
+
+def update_risk_summary(caseId, session, role):
+    gusObj = Gus()
+    str_fmt = "Services Affected: %s\n Risk if change is delayed: Will add delay to rollout CE7 for %s " % (role, role)
+    print(str_fmt)
+    Dict = {
+        "Risk-Summary": str_fmt,
+    }
+    details = gusObj.update_case_details(caseId, Dict, session)
+    logging.debug(details)
+
 
 if __name__ == '__main__':
     
@@ -402,7 +426,6 @@ if __name__ == '__main__':
     parser.add_option("-A", "--submit", action="store_true", dest="submit", help="Submit the case for approval")
     parser.add_option("--inst", dest="inst", help="List of comma separated instances")
     parser.add_option("--infra", dest="infra", help="Infrastructure type")
-    parser.add_option("--approved", action="store_true", dest="pre_appr", help="Change cases status to Approved")
     parser.add_option("-n", "--new", action="store_true", dest="newcase",
                                     help=
                                     """Create a new case. Required args :
@@ -414,6 +437,7 @@ if __name__ == '__main__':
     parser.add_option("-y", "--yaml", dest="yaml", action="store_true", help="patch details via yaml file")
     parser.add_option("-u", "--update", action="store_true", dest="update", help="Required if you want to update a case")
     parser.add_option("-v", action="store_true", dest="verbose", default=False, help="verbosity") # will set to False later
+    parser.add_option("--cstatus", dest="pre_appr", help="Change cases status to Approved")
     (options, args) = parser.parse_args()
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
@@ -501,7 +525,7 @@ if __name__ == '__main__':
         if options.role:
             if options.inst:
                 insts = options.inst
-            create_implamentation_planner(planner_json, caseId, session,options.role,insts)
+            create_implamentation_planner(planner_json, caseId, session,options.role,insts=insts,DCS=options.dc)
         else:
             if options.dc:
                 if options.yaml:
@@ -533,8 +557,15 @@ if __name__ == '__main__':
                 logging.debug(dict)
                 print('Creating logical host connector for %s' % host)
                 createLogicalConnector(dict, caseId, session)
-        if options.pre_appr:
+        if options.pre_appr == "approved":
             PreApproveCase(caseId, session)
+        elif options.pre_appr == "new":
+            new_unassigned_case(caseId, session)
+
+        # TODO - Hack to update RiskSummary for CE7 migrations.
+        if "migration" in options.subject:
+            update_risk_summary(caseId, session, options.role)
+
 
     elif options.attach:
         if options.filepath:
