@@ -22,50 +22,42 @@ from socket import gethostname
 
 # Functions definition
 
-
-def dcs(rolename, podtype, prod=True):
+def dcs(rolename, podtype):
     prod_dc = ['chi', 'was', 'tyo', 'lon', 'ukb', 'hnd', 'phx', 'frf', 'dfw', 'par', 'iad', 'yul', 'yhu', 'syd', 'cdu', 'ord', 'chx', 'wax']
-    non_prod_dc = ['sfz', 'crd', 'sfm', 'prd', 'crz']
-    if prod:
-        if re.search(r'crz', rolename, re.IGNORECASE):
-            prod_dc = 'crz'
-        elif re.search(r'rps', rolename, re.IGNORECASE):
-            prod_dc.extend(['sfz'])
-        elif re.search(r'argus', rolename, re.IGNORECASE):
-            prod_dc = 'prd'
-        elif re.search(r'public', rolename, re.IGNORECASE):
-            prod_dc.extend(['prd'])
-        elif re.search(r'splunk', rolename, re.IGNORECASE):
-            prod_dc.extend(['crz', 'sfz'])
-        elif re.search(r'ajna', podtype, re.IGNORECASE):
-            prod_dc.extend(['sfz', 'prd'])
-        elif re.search(r'ops-stack', podtype, re.IGNORECASE):
-            prod_dc.extend(['crd', 'sfz', 'prd', 'crz'])
-        elif re.search(r'lhub', rolename, re.IGNORECASE):
-            prod_dc = 'sfz'
-        elif re.search(r'cfgapp', rolename, re.IGNORECASE):
-            prod_dc.extend(['crd', 'crz', 'sfz'])
-        elif re.search(r'^cmgt', rolename, re.IGNORECASE):
-            prod_dc = 'was'
-        elif re.search(r'^polcore', rolename, re.IGNORECASE):
-            prod_dc.extend(['prd'])
-        elif re.search(r'^pkicontroller', rolename, re.IGNORECASE):
-            prod_dc.extend(['prd'])
-        elif re.search(r'^syslog', rolename, re.IGNORECASE):
-            prod_dc.extend(['prd', 'crd', 'crz', 'sfm', 'sfz'])
-        elif re.search(r'^grok', rolename, re.IGNORECASE):
-            prod_dc.extend(['prd'])
-        elif re.search(r'hbase', rolename, re.IGNORECASE):
-            prod_dc.extend(['prd'])
-        elif re.search(r'sam', rolename, re.IGNORECASE):
-            prod_dc.extend(['prd'])
-        elif re.search(r'irc', rolename, re.IGNORECASE):
-            prod_dc = (['sfm', 'crd'])
-        elif re.search(r'^hwmon', rolename, re.IGNORECASE):
-            prod_dc.extend(['prd', 'crd'])
-        return prod_dc
-    else:
-        return non_prod_dc
+# removed if condition as we are not using the else part (non_prod_dc)
+    # non_prod_dc = ['sfz', 'crd', 'sfm', 'prd', 'crz']
+    # if prod:
+    if re.search(r'crz', rolename, re.IGNORECASE):
+        prod_dc = 'crz'
+    elif re.search(r'rps', rolename, re.IGNORECASE):
+        prod_dc.extend(['sfz'])
+    elif re.search(r'argus|strata', rolename, re.IGNORECASE):
+        prod_dc = 'prd'
+    elif re.search(r'public', rolename, re.IGNORECASE):
+        prod_dc.extend(['prd'])
+    elif re.search(r'splunk', rolename, re.IGNORECASE):
+        prod_dc.extend(['crz', 'sfz'])
+    elif re.search(r'ajna', podtype, re.IGNORECASE):
+        prod_dc.extend(['sfz', 'prd'])
+    elif re.search(r'ops-stack', podtype, re.IGNORECASE):
+        prod_dc.extend(['crd', 'sfz', 'prd', 'crz'])
+    elif re.search(r'lhub', rolename, re.IGNORECASE):
+        prod_dc = 'sfz'
+    elif re.search(r'cfgapp', rolename, re.IGNORECASE):
+        prod_dc.extend(['crd', 'crz', 'sfz'])
+    elif re.search(r'^cmgt', rolename, re.IGNORECASE):
+        prod_dc = 'was'
+    elif re.search(r'^polcore|^pkicontroller|^grok|hbase|sam', rolename, re.IGNORECASE):
+        prod_dc.extend(['prd'])
+    elif re.search(r'^syslog', rolename, re.IGNORECASE):
+        prod_dc.extend(['prd', 'crd', 'crz', 'sfm', 'sfz'])
+    elif re.search(r'irc', rolename, re.IGNORECASE):
+        prod_dc = (['sfm', 'crd'])
+    elif re.search(r'^hwmon', rolename, re.IGNORECASE):
+        prod_dc.extend(['prd', 'crd'])
+    return prod_dc
+    #else:
+        #return non_prod_dc
 
 
 # Where am I
