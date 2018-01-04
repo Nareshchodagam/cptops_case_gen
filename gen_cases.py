@@ -8,7 +8,6 @@ from optparse import OptionParser
 def groupType(role):
     # presets for certain roles for group type
     groupings = {'search': 'majorset',
-                 'mnds,dnds': 'majorset,minorset',
                  'insights_iworker,insights_redis': 'majorset'
                  }
 
