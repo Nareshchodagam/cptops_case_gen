@@ -24,3 +24,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -invdb_mode -superpod NONE -cluster v_CLUSTER -product  mandm-transceiver -device_role mmxcvr -host v_HOSTS -c start_server -auto2
 
 Exec: echo "Host v_HOSTS system patching completed"
+
+- Auto pause case if case status is not equal to In Progres.
+Exec_with_creds: /opt/cpt/gus_case_mngr.py -c v_CASE --pause -y
