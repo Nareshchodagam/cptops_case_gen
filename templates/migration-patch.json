@@ -2,7 +2,7 @@
   "Details": {
     "RecordTypeId": "012B000000009fB",
     "Change-Type": "Standard Pre Approved",
-    "Status": "Approved, Scheduled",
+    "Status": "New/Unassigned",
     "SRO-Resource": "No",
     "Patch-Vendor": "Redhat",
     "Patch-Desc": "Upgrade servers from CentOS6 to CentOS7",
@@ -19,7 +19,7 @@
     "Shared-Infrastructure": "Yes",
     "Tested-Change": "Yes",
     "Risk-Level": "Low",
-    "Risk-Summary:Test Details": "Has been tested in the IST environment",
+    "Risk-Summary": "Services Affected: Insights/Wave\n Risk if change is delayed: We might miss our deadline ",
     "Impact-Severity": "Low",
     "Impact-Scope": "Host/Node",
     "Impact-Summary": "Low impact due to validations within ORB framework",
@@ -29,16 +29,12 @@
     "Vendor-Case-Number": ""
   },
   "Verif": [
-    "All the below checks will be included in the validation code ",
-    "validate_linux_patchset.py",
     " ",
     "Confirm /etc/centos-release is updated:",
     " ",
     "Validate kernel version:",
     " ",
     "Example of validation command executed on host.",
-    " ",
-    "python validate_linux_patchset.py -c current -f valid_versions.json",
     " "
   ]
 }

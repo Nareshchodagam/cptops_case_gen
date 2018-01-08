@@ -161,13 +161,18 @@ class LookupFields(list):
                    'chatternow' : ['chan','dstore','msg','prsn'],
                    'mandm-hub' : ['mgmt_hub'],
                    'caas' : ['app'],
+                   'hammer-keyrepo' : ['app'],
                    'lightcycle-snapshot' : ['app'],
                    'mandm-agent' : ['app'],
-                   'sfdc-splunk-forwarder' : ['app'],
                    'mq-broker' : ['mq'],
                    'acs' : [ 'acs' ],
                    'searchserver' : [ 'search' ],
-                   'sfdc-base' : ['ffx','cbatch','app','dapp']
+                   'sfdc-base' : ['ffx','cbatch','app','dapp'],
+                    'insights-redis': ['insights_redis', 'insights_iworker'],
+                    'insights-edgeservices': ['insights_redis' ,'insights_iworker'],
+                    'waveagent': ['insights_redis', 'insights_iworker'],
+                    'wave-connector-agent': ['insights_redis', 'insights_iworker'],
+                    'wave-cassandra': ['insights_redis', 'insights_iworker']
             }
           },
               'ignored_process_names_' : 
