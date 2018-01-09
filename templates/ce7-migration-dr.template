@@ -15,6 +15,9 @@ Exec: /opt/cpt/bin/get_versions.py -f ~/version_output.txt -o ~/manifests.txt --
 
 Exec: cat ~/manifests.txt
 
+- Disable nagios monitoring
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
+
 v_INCLUDE
 
 - Deploy apps
