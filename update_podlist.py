@@ -55,6 +55,8 @@ def dcs(rolename, podtype):
         prod_dc = (['sfm', 'crd'])
     elif re.search(r'^hwmon', rolename, re.IGNORECASE):
         prod_dc.extend(['prd', 'crd'])
+    elif re.search(r'nodeapp', rolename, re.IGNORECASE):
+        prod_dc.extend(['crd'])
     return prod_dc
     #else:
         #return non_prod_dc
