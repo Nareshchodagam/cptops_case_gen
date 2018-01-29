@@ -501,11 +501,9 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
             thresh = str(len(hosts.split(','))/2)
             
         if options.hostpercent and options.failthresh:
-            print('if')
             output = output.replace('v_GSIZE', str(len(hosts.split(','))))
             output = output.replace('v_FAILTHRESH', thresh)
         else:
-            print('else')
             output = output.replace('v_GSIZE', str(options.gsize))
             output = output.replace('v_FAILTHRESH', str(options.failthresh))
         # W-4574049 End
