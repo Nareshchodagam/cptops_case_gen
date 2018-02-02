@@ -494,12 +494,16 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
         # W-4574049
         # NOTE - This just an hack to calculate concurrency and threshold for CE7 migration hosts grouping
-        if options.hostpercent and options.failthresh:
-            print('if')
-            output = output.replace('v_GSIZE', str(len(hosts.split(','))))
-            output = output.replace('v_FAILTHRESH', str(len(hosts.split(','))/2))
+
+        if (str(len(hosts.split(','))/2)) == '0':
+            thresh = str(1)
         else:
-            print('else')
+            thresh = str(len(hosts.split(','))/2)
+            
+        if options.hostpercent and options.failthresh:
+            output = output.replace('v_GSIZE', str(len(hosts.split(','))))
+            output = output.replace('v_FAILTHRESH', thresh)
+        else:
             output = output.replace('v_GSIZE', str(options.gsize))
             output = output.replace('v_FAILTHRESH', str(options.failthresh))
         # W-4574049 End
