@@ -1,6 +1,9 @@
 - Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
+- Verify app
+Exec: /opt/cpt/bin/check_http_code.py -H v_OHOSTS -P 8095,8096
+
 - Check for RPMDB and YUM Lock
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/rpmdb_check.sh" -threads -auto2
 
@@ -19,11 +22,8 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product l
 - Pause
 Exec: sleep 120
 
-- Stop the running application
+- Stop the running applications
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product liveagent -host v_HOSTS -c stop_server -threads -auto2
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product liveagent -threads -auto2 -c cmd -m "/home/sfdc/current/liveagent/liveagent/build/ant kafka.stop" -host v_HOSTS
-
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2
 
 v_INCLUDE
 
@@ -38,11 +38,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 
 - Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product liveagent -host v_HOSTS -c start_server -threads -auto2
-
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -threads -auto2
-
-- Validate Zookeeper is online
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/zookeeper_status.py" -threads -auto2
 
 - Add to pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product liveagent -host v_HOSTS -c add_to_pool -auto2
