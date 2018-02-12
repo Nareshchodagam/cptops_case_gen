@@ -577,9 +577,10 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                         pri.write(w)
 
                     if 'Secondary' in pods[index]:
-                        if 'HUB' not in pods[index]['Secondary']:
+                        if 'HUB' not in pods[index]['Secondary'] and 'MFM' not in pods[index]['Secondary']:
                             w = pods[index]['Secondary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                             sec.write(w)
+
             logger.info("Successfully written data to podlist file -  '{0}' for dc '{1}'".format(file_name, dc))
 
 
