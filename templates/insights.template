@@ -10,6 +10,9 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 -Validate hosts are in pool and no issues with the pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,waveagent,wave-connector-agent,wave-cassandra -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -host v_HOSTS -threads -auto2 -d
 
+- Insights Argus alert disable
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/insights_argus_monitor.py -a disable" -threads -auto2
+
 - Disable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable -d 4
 
@@ -47,5 +50,8 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product i
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
+
+- Insights Argus alert enable
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/insights_argus_monitor.py -a enable" -threads -auto2
 
 Exec: echo "Host system patching completed"
