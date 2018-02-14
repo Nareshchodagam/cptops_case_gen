@@ -85,7 +85,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_s
 - Verify outbound connection
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl https://na44.salesforce.com/smth.jsp" -threads -auto2
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl http://www.amazon.com" -threads -auto2
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl https://ultra-api.ultradns.com" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl https://portal.ultradns.com" -threads -auto2
 
 - Verify internet over http
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "wget -e use_proxy=yes -e http_proxy=v_HOSTS:8080 -O - http://www.google.com" -threads -auto2
