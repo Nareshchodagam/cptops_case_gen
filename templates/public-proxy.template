@@ -14,7 +14,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product b
 - Verify outbound connection
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl https://na44.salesforce.com/smth.jsp" -threads -auto2
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl http://www.amazon.com" -threads -auto2
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl https://portal.ultradns.com/" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl https://portal.ultradns.com" -threads -auto2
 
 - Verify internet over http
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "wget -e use_proxy=yes -e http_proxy=v_HOSTS:8080 -O - http://www.google.com" -threads -auto2
