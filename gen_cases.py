@@ -8,7 +8,8 @@ from optparse import OptionParser
 def groupType(role):
     # presets for certain roles for group type
     groupings = {'search': 'majorset',
-                 'insights_iworker,insights_redis': 'majorset'
+                 'insights_iworker,insights_redis': 'majorset',
+                 'ajna_mgmt,ajna_tracing,ajna_wrangler': 'minorset'
                  }
 
     if options.hostopstat and options.csv:
