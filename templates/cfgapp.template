@@ -14,7 +14,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 - Stop the running application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product inventorydb,cidb,deployment-api -host v_HOSTS -c stop_server -ping_validation -min_host_percent=33 -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "id; if [[ $(rpm -q --queryformat '%{VERSION}' centos-release) == 7 ]]; then /usr/bin/systemctl stop gomon; else /sbin/stop gomon; fi" -threads -auto2
 
 v_INCLUDE
  
@@ -28,16 +28,13 @@ Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
 
 - Start Gomon Service
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/sbin/start gomon" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "id; if [[ $(rpm -q --queryformat '%{VERSION}' centos-release) == 7 ]]; then /usr/bin/systemctl start gomon; else /sbin/start gomon; fi" -threads -auto2
 
 - Wait for Gomon service to come up
 Exec: sleep 30
 
 - Validate the Gomon Service.
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/sbin/status gomon" -threads -auto2
-
-- Validate the application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product inventorydb,cidb,deployment-api -host v_HOSTS -c antstatuscheck -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "id; if [[ $(rpm -q --queryformat '%{VERSION}' centos-release) == 7 ]]; then /usr/bin/systemctl status gomon; else /sbin/status gomon; fi" -threads -auto2
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
