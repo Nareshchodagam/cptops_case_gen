@@ -1,3 +1,5 @@
+ops0-vc1-1-cdu
+ops0-vc2-1-cdu
 ops-vc1-1-chi
 ops-vc2-1-chi
 ops-vc1-1-chx
@@ -10,10 +12,13 @@ ops-vc1-1-crz
 ops-vc1-2-crz
 ops-vc2-1-crz
 ops-vc2-2-crz
+ops-vc2-2-crz
 ops0-vc1-1-dfw
 ops0-vc2-1-dfw
 ops0-vc1-1-frf
 ops0-vc2-1-frf
+ops0-vc2-1-hnd
+ops0-vc1-1-hnd
 ops0-vc1-1-iad
 ops0-vc2-1-iad
 ops0-vc1-1-lon
@@ -26,6 +31,8 @@ ops0-vc1-1-phx
 ops0-vc2-1-phx
 ops-vc1-1-sfm
 ops-vc2-1-sfm
+ops-vc1-2-sfz
+ops-vc2-2-sfz
 ops-vc1-1-tyo
 ops-vc2-1-tyo
 ops0-vc1-1-ukb
@@ -36,7 +43,7 @@ ops-vc1-1-wax
 ops-vc1-2-wax
 ops-vc2-1-wax
 ops-vc2-2-wax
-ops0-vc2-1-yhu
 ops0-vc1-1-yhu
+ops0-vc2-1-yhu
 ops0-vc1-1-yul
 ops0-vc2-1-yul
