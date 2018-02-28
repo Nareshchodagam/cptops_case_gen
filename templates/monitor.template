@@ -19,11 +19,8 @@ Exec: var=v_HOSTS ; for i in ${var//,/ }; do scp  -o StrictHostKeyChecking=no -o
 
 v_INCLUDE
 
--Disable monitoring on appropriate pod-monitor host
-Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
-
--Disable monitoring on appropriate ops-monitor host
-Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable -m ops-monitor-v_DATACENTER
+- Disable GOC++ alerts ("enable" alert suppression)
+Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a enable -H v_HOSTS
 
 - Stop the application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n nagios -e '/usr/bin/nagios -d /etc/nagios/nagios.cfg' -c '/etc/init.d/nagios stop' -k" -threads -auto2
@@ -40,11 +37,8 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 - Start the application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n nagios -e '/usr/bin/nagios -d /etc/nagios/nagios.cfg' -c '/etc/init.d/nagios start' -s" -threads -auto2
 
--Enable monitoring on appropriate pod-monitor host
-Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable -m ops-monitor-v_DATACENTER
-
--Enable monitoring on appropriate ops-monitor host
-Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
+- Enable GOC++ alerts ("enable" alert suppression)
+Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a disable -H v_HOSTS
 
 -Remove the zip from remote host
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "rm /tmp/nagios*.zip" -threads -auto2
