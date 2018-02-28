@@ -550,7 +550,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                         hostlist_pri, hostlist_sec = listbuilder(line.split()[0], dc)
                         p.extend(hostlist_pri)
                         s.extend(hostlist_sec)
-            pod_list = ['ops', 'ops0', 'net', 'net0', 'sr1', 'sr2']
+            pod_list = ['ops', 'ops0', 'ops3' 'net', 'net0', 'sr1', 'sr2']
             hostlist_pri, hostlist_sec = listbuilder(pod_list, dc)
             p.extend(hostlist_pri)
             s.extend(hostlist_sec)
