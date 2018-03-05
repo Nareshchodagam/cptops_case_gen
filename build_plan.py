@@ -303,7 +303,7 @@ def return_not_patched_hosts(hosts, bundle):
                 else:
                     ddict_host = host_dict.get(host)
                     jkernel = json_data.get(ddict_host.get('hostOs')).get(bundle).get('kernel')
-                    if (bundle not in ddict_host.get('hostRelease')) and (jkernel not in ddict_host.get('hostKernel')):
+                    if (bundle not in ddict_host.get('hostRelease')) or (jkernel not in ddict_host.get('hostKernel')):
                         not_patched_hosts_all.append(host)
 
             if len(not_patched_hosts_all) != 0:
