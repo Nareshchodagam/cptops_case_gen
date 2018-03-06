@@ -37,6 +37,8 @@ def dcs(rolename, podtype):
         prod_dc.extend(['crz', 'sfz'])
     elif re.search(r'ajna', podtype, re.IGNORECASE):
         prod_dc.extend(['sfz', 'prd'])
+    elif re.search(r'secrets|netmonitor|mom', podtype, re.IGNORECASE):
+        prod_dc.extend(['xrd', 'crd', 'sfz', 'prd', 'crz'])
     elif re.search(r'ops-stack', podtype, re.IGNORECASE):
         prod_dc.extend(['crd', 'sfz', 'prd', 'crz'])
     elif re.search(r'lhub', rolename, re.IGNORECASE):
@@ -670,4 +672,3 @@ if __name__ == "__main__":
                     logger.info("\n************************* Done with Role '{0}' *************************\n".format(k))
             else:
                 continue
-
