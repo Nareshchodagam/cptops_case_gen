@@ -388,29 +388,24 @@ class Buildplan_helper:
     def _get_hosts_from_idbquery(self,datacenters,idbfilters):
         """
            datacenters: tuple of 3 character datacenter ids eg : was,chi,tyo ..
-           idbfilters : dict of key = valid target fieldname, value = tuple of values  
-           
+           idbfilters : dict of key = valid target fieldname, value = tuple of values
+
         """
         results = []
-        myfields = self._get_field_list()            
+        myfields = self._get_field_list()
         json_by_reststring = self.idbhost.idbquery(datacenters,self.idb_resource,myfields,idbfilters,self.usehostlist)
-        for reststring in json_by_reststring:
-            total, json_idb, dc = json_by_reststring[reststring]
-            if total > 0:
-                for jsonresult in json_idb:
-                    logging.debug( jsonresult )
-                    row={}
-                    row['datacenter']=dc
-                    for key in self.fields:
-                        if not type(self.fields[key]) is list:
-                            row[key] = self._check_cache(jsonresult,self.fields[key])
-                        else:
-                            row[key] = self._get_configs_fields(jsonresult,self.fields[key])
-                    results.append(row)
-            else:
-                    logging.debug( 'no values for: ' + reststring )
-        self.rows=results
-        if len(self.rows)==0:    
+        for dc, json_result in json_by_reststring.items():
+            for jsonresult in json_result:
+                row = {}
+                row['datacenter'] = dc
+                for key in self.fields:
+                    if not type(self.fields[key]) is list:
+                        row[key] = self._check_cache(jsonresult,self.fields[key])
+                    else:
+                        row[key] = self._get_configs_fields(jsonresult,self.fields[key])
+                results.append(row)
+        self.rows = results
+        if len(self.rows) == 0:
             raise Exception('No records qualify check your query filters')
  
     def _set_default_fields(self,res):
