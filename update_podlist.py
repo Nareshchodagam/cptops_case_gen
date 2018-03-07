@@ -80,6 +80,8 @@ def where_am_i():
     else:
         inst, hfuc, g, site = hostname.split('-')
         short_site = site.replace(".ops.sfdc.net", "")
+        short_site = short_site.replace(".eng.sfdc.net", "")
+        short_site = short_site.replace(".data.sfdc.net", "")
     logger.info("Setup the site name to '{0}'" .format(short_site))
     return short_site
 
@@ -104,7 +106,7 @@ def idb_connect(site):
         logger.info("Successfully connect to iDB")
         return idb
     except Exception as e:
-        logger.error(color.RED + "Unable to connect to idb, '{0}'" .format(e) + color.END)
+        logger.error("Unable to connect to idb, '{0}'".format(e))
         sys.exit(1)
 
 
