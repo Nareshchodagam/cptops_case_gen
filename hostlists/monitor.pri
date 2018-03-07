@@ -30,6 +30,7 @@ cs116-monitor1-1-syd
 ops0-monitor1-1-syd
 ops-monitor2-1-chi
 ops0-monitor2-4-chi
+ops-monitor30-1-chi
 sr1-monitor1-1-chi
 cs52-monitor1-1-dfw
 cs3-monitor1-1-dfw
@@ -96,6 +97,8 @@ cs21-monitor1-1-dfw
 na79-monitor1-1-dfw
 na64-monitor1-1-dfw
 ops0-monitor1-1-dfw
+ops0-monitor1-3-dfw
+ops0-monitor1-4-dfw
 cs32-monitor1-1-wax
 na21-monitor1-1-wax
 cs33-monitor1-1-wax
@@ -189,6 +192,8 @@ na35-monitor1-1-phx
 cs60-monitor1-1-phx
 cs61-monitor2-1-phx
 ops0-monitor2-1-phx
+ops0-monitor1-3-phx
+ops0-monitor2-4-phx
 cs98-monitor1-1-yul
 cs99-monitor1-1-yul
 na99-monitor1-1-yul
@@ -339,6 +344,7 @@ cs1-monitor1-1-was
 na28-monitor2-1-was
 ops-monitor2-1-was
 ops0-monitor2-4-was
+ops-monitor30-1-was
 sr2-monitor1-1-was
 sr7-monitor1-1-ukb
 cs31-monitor1-1-ukb
