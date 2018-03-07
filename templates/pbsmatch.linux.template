@@ -2,16 +2,16 @@
 -RR based commands
 
 -Copy remote scripts to the target hosts
-release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Check for RPMDB and YUM Lock
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/rpmdb_check.sh" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/rpmdb_check.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Validate the host needs to be patched
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Set the boot device to HDD
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Validate hosts are in pool and no issues with the pool
 - release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbspectrum -c bigipcheck -threads -auto2 -d
@@ -25,13 +25,13 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product p
 v_INCLUDE
  
 - Reboot the host
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Check the host is online
 Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Start the application (pbspectrum takes several minutes to start up)
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product pbspectrum,sfdc-splunk-forwarder -host v_HOSTS -c start_server -ping_validation -min_host_percent=34 -auto2
@@ -40,6 +40,6 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product p
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
 
 - test endpoint connectivity.
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m 'curl localhost:8080/validateDeployment.jsp' -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m 'curl localhost:8080/validateDeployment.jsp' -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 Exec: echo "Host v_HOSTS patching completed"

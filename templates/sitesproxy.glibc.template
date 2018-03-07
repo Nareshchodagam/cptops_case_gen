@@ -11,7 +11,7 @@ Exec: DC=v_DATACENTER
 RR based commands
 -Copy remote scripts to the target hosts
 
-release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 -Validate hosts are in pool and no issues with the pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -c bigipcheck -thread -auto2
@@ -29,10 +29,10 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role proxy -host v_HOSTS -c stop_server -auto2
 
 - Execute the update script
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/update_glibc.sh" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/update_glibc.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Reboot the host
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Check the host is online
 Exec: /home/paulf/check_reconnect.py -H v_HOSTS
@@ -44,8 +44,8 @@ release_runner.pl -forced_host v_HOSTS -c cmd -m "rpm -qa | grep glibc; rpm -qa 
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -device_role proxy -host v_HOSTS -c start_server -auto2
 
 - validate the max file descriptors as squid startup can be problematic target is 65k if it fails do a stop and start to restart it.
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/bin/squidclient -p 8084 mgr:info | grep 'file descrip'|grep -i max" -auto2
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/bin/squidclient -p 8085 mgr:info | grep 'file descrip'|grep -i max" -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/bin/squidclient -p 8084 mgr:info | grep 'file descrip'|grep -i max" -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/bin/squidclient -p 8085 mgr:info | grep 'file descrip'|grep -i max" -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Start Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -device_role proxy -host v_HOSTS -c start_server -auto2
@@ -60,7 +60,7 @@ release_runner.pl -c enable_host_monitor -forced_host v_HOSTS -forced_monitor_ho
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -c bigipcheck -thread -auto2
 
 - test endpoint connectivity.
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m 'wget --header "X-Salesforce-Forwarded-To: v_CLUSTER.salesforce.com" --header "X-Salesforce-SIP: 10.13.37.1" --header "Host: www.test.com" -O - http://`hostname -f`:8084/smth.jsp' -auto2
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m 'wget --header "X-Salesforce-Forwarded-To: v_CLUSTER.salesforce.com" --header "X-Salesforce-SIP: 10.13.37.1" --header "Host: www.test.com" -O - http://`hostname -f`:8085/smth.jsp' -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m 'wget --header "X-Salesforce-Forwarded-To: v_CLUSTER.salesforce.com" --header "X-Salesforce-SIP: 10.13.37.1" --header "Host: www.test.com" -O - http://`hostname -f`:8084/smth.jsp' -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m 'wget --header "X-Salesforce-Forwarded-To: v_CLUSTER.salesforce.com" --header "X-Salesforce-SIP: 10.13.37.1" --header "Host: www.test.com" -O - http://`hostname -f`:8085/smth.jsp' -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 Exec: echo "Host v_HOSTS ghost patching completed"
