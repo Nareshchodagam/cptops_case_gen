@@ -1,8 +1,8 @@
 - Copy remote scripts to the target hosts
-release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Set the iDB password to the latest otherwise we might get some errors
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/ib-passwd-rotation.sh" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/ib-passwd-rotation.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - get version numbers for apps
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host v_HOSTS > ~/version_output.txt
@@ -28,7 +28,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v
 v_INCLUDE
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Deploy apps
 release_runner.pl -invdb_mode -versions `cat ~/manifests.txt` -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -auto2 -threads -c deploy -versions `cat ~/manifests.txt`

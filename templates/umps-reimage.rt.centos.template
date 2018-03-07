@@ -1,8 +1,8 @@
 - Copy remote scripts to the target hosts
-release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Set the iDB password to the latest otherwise we might get some errors
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/ib-passwd-rotation.sh" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/ib-passwd-rotation.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Check local port
 release_runner.pl -forced_host v_DSTORE -c cmd -m "./remote_transfer/check_local_port 8087" -threads -auto2
@@ -10,7 +10,7 @@ release_runner.pl -forced_host v_DSTORE -c cmd -m "./remote_transfer/check_local
 release_runner.pl -forced_host v_MSG -c cmd -m "./remote_transfer/check_local_port 8086" -threads -auto2
 
 - Validate host is running RHEL
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_os.py -t rhel" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_os.py -t rhel" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - get version numbers for apps
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder,chatternow -c versioncheck -threads -auto2 -host v_HOSTS > /tmp/version_output.txt
