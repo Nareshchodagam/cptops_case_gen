@@ -3,6 +3,9 @@
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
+- Write cptrelease file
+release_runner.pl -forced_host v_HOSTS  -c sudo_cmd -m "./remote_transfer/write_cptrelease.py --last" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
 - Validate the host needs to be patched
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
@@ -67,7 +70,10 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service httpd start" -thr
 #-check for mount points commenting out as redundant 
 #release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "[ $(mount | grep '/hub/' | wc -l) -gt 0 ]" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 - Enable nagios monitoring
-#Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable -m v_MONITOR
+Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
+
+- Update cptrelease file
+release_runner.pl -forced_host v_HOSTS  -c sudo_cmd -m "./remote_transfer/write_cptrelease.py --current -c v_CASE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 Manual: check that the datacenters mounted on /hub are accessible on https://loghub-sfz.dmz.salesforce.com/
 Exec: echo "Host v_HOSTS system patching completed"
