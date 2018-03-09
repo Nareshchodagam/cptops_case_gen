@@ -23,7 +23,7 @@ from socket import gethostname
 # Functions definition
 
 def dcs(rolename, podtype):
-    prod_dc = ['chi', 'was', 'tyo', 'lon', 'ukb', 'hnd', 'phx', 'frf', 'dfw', 'par', 'iad', 'yul', 'yhu', 'syd', 'cdu', 'ord', 'chx', 'wax']
+    prod_dc = ['chi', 'was', 'lon', 'ukb', 'hnd', 'phx', 'frf', 'dfw', 'par', 'iad', 'yul', 'yhu', 'syd', 'cdu', 'ord', 'chx', 'wax']
 # removed if condition as we are not using the else part (non_prod_dc)
     # non_prod_dc = ['sfz', 'crd', 'sfm', 'prd', 'crz']
     # if prod:
@@ -49,7 +49,7 @@ def dcs(rolename, podtype):
         prod_dc = 'was'
     elif re.search(r'public|^polcore|^pkicontroller|^grok|hbase|sam|dvasyslog|nwexp|dvamon|dvaexp', rolename, re.IGNORECASE):
         prod_dc.extend(['prd'])
-    elif re.search(r'^syslog|^inst|^edns|^ns|^netmgt|^smart|cfgapp', rolename, re.IGNORECASE):
+    elif re.search(r'^syslog|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel', rolename, re.IGNORECASE):
         prod_dc.extend(['prd', 'crd', 'crz', 'sfm', 'sfz'])
     elif re.search(r'irc', rolename, re.IGNORECASE):
         prod_dc = (['sfm', 'crd'])
@@ -524,21 +524,21 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
-                    if pods[index]['Primary'] != "None":
-                        if 'cs' in file_name:
-                            if 'CS' in pods[index]['Primary'] and 'GLA' not in pods[index]['Primary']:
-                                w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
-                                pri.write(w)
-                            elif 'CS' not in pods[index]['Primary'] and 'GLA' not in pods[index]['Primary']:
-                                w = pods[index]['Primary'] + " " + dc.upper() +  " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
-                                sec.write(w)
-                        else:
-                            if 'CS' not in pods[index]['Primary'] and 'GLA' not in pods[index]['Primary']:
-                                w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
-                                pri.write(w)
-                            elif 'GLA' not in pods[index]['Primary']:
-                                w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
-                                sec.write(w)
+                    #if pods[index]['Primary'] != "None":
+                        #if 'cs' in file_name:
+                        #    if 'CS' in pods[index]['Primary'] and 'GLA' not in pods[index]['Primary']:
+                        #        w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
+                        #        pri.write(w)
+                        #    elif 'CS' not in pods[index]['Primary'] and 'GLA' not in pods[index]['Primary']:
+                        #        w = pods[index]['Primary'] + " " + dc.upper() +  " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
+                        #        sec.write(w)
+                        #else:
+                        #if 'CS' not in pods[index]['Primary'] and 'GLA' not in pods[index]['Primary']:
+                    w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
+                    pri.write(w)
+                        #elif 'GLA' not in pods[index]['Primary']:
+                    w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
+                    sec.write(w)
 
         elif re.match(r'(monitor)', preset_name, re.IGNORECASE):  # This was added as part of - 'T-1810443'
             """
