@@ -2,6 +2,9 @@ RR based commands
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -auto2 -threads -property "sudo_cmd_line_trunk_fix=1"
 
+- Update cptrelease file
+release_runner.pl -forced_host v_HOSTS  -c sudo_cmd -m "./remote_transfer/write_cptrelease.py --current -c v_CASE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
 - Check for RPMDB and YUM Lock
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/rpmdb_check.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
@@ -33,6 +36,9 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product  
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
+
+- Update cptrelease file
+release_runner.pl -forced_host v_HOSTS  -c sudo_cmd -m "./remote_transfer/write_cptrelease.py --current -c v_CASE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 Exec: echo "Host v_HOSTS system patching completed"
 
