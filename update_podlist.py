@@ -371,6 +371,8 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
     :return: None
     """
     pri, sec = file_handles(file_name)
+    pod_data = []
+    f_read = False
     for dc in idb_data.keys():
         if re.search(r'afw', file_name, re.IGNORECASE):
             groupsize = 1
@@ -547,13 +549,16 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
             p = []
             s = []
 
-            for files in ['pod.pri', 'pod.sec']:
-                f_data = read_file('hostlists/', files, json_fmt=False)
-                for line in f_data:
-                    if dc in line.lower():
-                        hostlist_pri, hostlist_sec = listbuilder(line.split()[0], dc)
-                        p.extend(hostlist_pri)
-                        s.extend(hostlist_sec)
+            if not f_read:
+                for files in ['pod.pri', 'pod.sec']:
+                    f_data = read_file('hostlists/', files, json_fmt=False)
+                    pod_data.extend(f_data)
+                    f_read = True
+            for line in pod_data:
+                if dc in line.lower():
+                    hostlist_pri, hostlist_sec = listbuilder(line.split()[0], dc)
+                    p.extend(hostlist_pri)
+                    s.extend(hostlist_sec)
             pod_list = ['ops', 'ops0', 'ops3', 'ops4', 'net', 'net0', 'sr1', 'sr2']
             hostlist_pri, hostlist_sec = listbuilder(pod_list, dc)
             p.extend(hostlist_pri)
@@ -638,7 +643,7 @@ if __name__ == "__main__":
         if args.preset_name:  # This loop will be called when user is trying to extract information for a specific role
             cstm_preset_data = {}
             if 'monitor' in args.preset_name:
-                args.preset_name = 'search_prod,' + args.preset_name
+                args.preset_name = 'ffx_prod,' + args.preset_name
             for preset in args.preset_name.split(','):
                 try:
                     cstm_preset_data[preset] = preset_data[preset]
