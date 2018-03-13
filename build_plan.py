@@ -473,7 +473,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
 # W-4171797
         try:
-            if re.search(r"cmgtapi", role):
+            if re.search(r"cmgtapi", role, re.IGNORECASE):
                 output = output.replace('v_OHOSTS', FindOtherHost(options.hostlist, host_list))
         except:
             pass
