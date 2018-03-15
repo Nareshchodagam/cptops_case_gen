@@ -1,51 +1,20 @@
-ops0-vc1-1-cdu
-ops0-vc2-1-cdu
-ops-vc1-1-chi
-ops-vc2-1-chi
-ops-vc1-1-chx
-ops-vc2-1-chx
-ops-vc1-1-crd
-ops-vc1-2-crd
-ops-vc2-1-crd
-ops-vc2-2-crd
-ops-vc1-1-crz
-ops-vc1-2-crz
-ops-vc2-1-crz
-ops-vc2-2-crz
-ops-vc2-2-crz
-ops0-vc1-1-dfw
-ops0-vc2-1-dfw
-ops0-vc1-1-frf
-ops0-vc2-1-frf
-ops0-vc2-1-hnd
-ops0-vc1-1-hnd
-ops0-vc1-1-iad
-ops0-vc2-1-iad
-ops0-vc1-1-lon
-ops0-vc2-1-lon
-ops0-vc1-1-ord
-ops0-vc2-1-ord
-ops0-vc1-1-par
-ops0-vc2-1-par
-ops0-vc1-1-phx
-ops0-vc2-1-phx
-ops-vc1-1-sfm
-ops-vc2-1-sfm
-ops-vc1-2-sfz
-ops-vc2-2-sfz
-ops0-vc1-1-syd
-ops0-vc2-1-syd
-ops-vc1-1-tyo
-ops-vc2-1-tyo
-ops0-vc1-1-ukb
-ops0-vc2-1-ukb
-ops-vc1-1-was
-ops-vc2-1-was
-ops-vc1-1-wax
-ops-vc1-2-wax
-ops-vc2-1-wax
-ops-vc2-2-wax
-ops0-vc1-1-yhu
-ops0-vc2-1-yhu
-ops0-vc1-1-yul
-ops0-vc2-1-yul
+VC PRD NONE ACTIVE
+VC CDU NONE ACTIVE
+VC PAR NONE ACTIVE
+VC FRF NONE ACTIVE
+VC CHI NONE ACTIVE
+VC DFW NONE ACTIVE
+VC LON NONE ACTIVE
+VC WAS NONE ACTIVE
+VC UKB NONE ACTIVE
+VC SFZ NONE ACTIVE
+VC SYD NONE ACTIVE
+VC PHX NONE ACTIVE
+VC ORD NONE ACTIVE
+VC HND NONE ACTIVE
+VC CRZ NONE ACTIVE
+VC SFM NONE ACTIVE
+VC YUL NONE ACTIVE
+VC CRD NONE ACTIVE
+VC IAD NONE ACTIVE
+VC YHU NONE ACTIVE

@@ -14,7 +14,6 @@ eu7-monitor1-1-par
 cs80-monitor1-1-par
 eu12-monitor1-1-par
 ops0-monitor1-1-par
-ops-monitor1-1-tyo
 ap1-monitor1-1-hnd
 ap7-monitor1-1-hnd
 cs31-monitor1-1-hnd
