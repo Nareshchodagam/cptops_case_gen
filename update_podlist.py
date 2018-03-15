@@ -57,6 +57,8 @@ def dcs(rolename, podtype):
         prod_dc.extend(['prd', 'crd'])
     elif re.search(r'nodeapp', rolename, re.IGNORECASE):
         prod_dc.extend(['crd'])
+    elif re.search(r'sdproxy|^gdsdclient|^servicedirectory', rolename, re.IGNORECASE):
+        prod_dc.extend(['prd'])
     return prod_dc
     #else:
         #return non_prod_dc
