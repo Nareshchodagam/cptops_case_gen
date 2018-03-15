@@ -211,7 +211,10 @@ def FindOtherHostIfIdbQuery(dc, cluster, role, HostToRemoveList):
     idb.clustinfo(dc, cluster)
     idb.deviceRoles(role)
     allhosts = idb.roles_all[cluster][role]
-    allhosts.remove(HostToRemoveList)
+    if not isinstance(HostToRemoveList, list):
+        allhosts = list(set(allhosts) - set(HostToRemoveList.split(",")))
+    else:
+        allhosts = list(set(allhosts) - set(HostToRemoveList))
     filtered_host = ",".join(allhosts)
     if not filtered_host:
         return HostToRemoveList
@@ -471,7 +474,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
 # W-4171797
         try:
-            if re.search(r"cmgtapi", role):
+            if re.search(r"cmgtapi", role, re.IGNORECASE):
                 output = output.replace('v_OHOSTS', FindOtherHost(options.hostlist, host_list))
         except:
             pass
@@ -479,7 +482,8 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
 # W-4506396
         try:
-            if re.search(r"stgmgt|stgpm|lapp", role):
+            if re.search(r"stgmgt|stgpm|lapp", role, re.IGNORECASE):
+                print(role)
                 output = output.replace('v_OHOSTS', FindOtherHostIfIdbQuery(datacenter, cluster, role, hosts))
         except:
             pass
