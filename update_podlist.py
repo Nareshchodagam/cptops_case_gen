@@ -526,7 +526,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
-                    #if pods[index]['Primary'] != "None":
+                    if pods[index]['Primary'] != "None":
                         #if 'cs' in file_name:
                         #    if 'CS' in pods[index]['Primary'] and 'GLA' not in pods[index]['Primary']:
                         #        w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
@@ -536,11 +536,11 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                         #        sec.write(w)
                         #else:
                         #if 'CS' not in pods[index]['Primary'] and 'GLA' not in pods[index]['Primary']:
-                    w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
-                    pri.write(w)
+                        w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
+                        pri.write(w)
                         #elif 'GLA' not in pods[index]['Primary']:
-                    w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
-                    sec.write(w)
+                        #w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
+                        #sec.write(w)
 
         elif re.match(r'(monitor)', preset_name, re.IGNORECASE):  # This was added as part of - 'T-1810443'
             """
