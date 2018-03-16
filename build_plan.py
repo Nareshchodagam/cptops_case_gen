@@ -788,14 +788,23 @@ def find_concurrency(hostpercent):
     :param inputdict: takes inputdict
     :return: maxgroupsize
     """
+    a_hosts=[]
+    n_hosts=[]
     idb = Idbhost()
     pod = inputdict['clusters']
     dc = inputdict['datacenter']
     idb.clustinfo(dc, pod)
     role = inputdict['roles']
     idb.deviceRoles(role)
-    c = idb.roles_all
-    inputdict['maxgroupsize'] = int(hostpercent)*(len(c.values()[0].values()[0]))/100
+    total_hosts = idb.roles_all.values()[0].values()[0]
+    idb.gethost(total_hosts)
+    for h in total_hosts:
+        if 'ACTIVE' in idb.mlist[h]['opsStatus_Host']:
+            a_hosts.append(h)
+        else:
+            n_hosts.append(h)
+    inputdict['maxgroupsize'] = int(hostpercent)*(len(a_hosts))/100
+
 
 def gen_plan_by_idbquery(inputdict):
 
