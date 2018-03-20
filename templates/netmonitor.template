@@ -16,9 +16,6 @@ v_INCLUDE
 -Disable monitoring on appropriate pod-monitor host
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
--Disable monitoring on appropriate ops-monitor host
-Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable -m ops-monitor-v_DATACENTER
-
 - Stop the application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n nagios -e '/usr/bin/nagios -d /etc/nagios/nagios.cfg' -c '/etc/init.d/nagios stop' -k" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
