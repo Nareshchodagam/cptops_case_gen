@@ -30,6 +30,12 @@ v_INCLUDE
 - Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
+- Update perm (Only on Redis hosts)
+release_runner.pl -forced_host v_HOSTS  -c sudo_cmd -m 'echo "if [[ ! -z \$(hostname | grep -i redis) ]] ; then chown -R wavecass:sfdc /home/wavecass/logs ; fi" > /tmp/chperm.sh ; chmod a+x /tmp/chperm.sh' -threads -auto2
+
+- Execute Perm
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/tmp/chperm.sh" -threads -auto2
+
 - Deploy apps
 release_runner.pl -invdb_mode -versions `cat ~/manifests.txt` -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -auto2 -threads -c deploy -versions `cat ~/manifests.txt`
 
