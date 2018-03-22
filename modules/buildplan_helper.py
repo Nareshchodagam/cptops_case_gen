@@ -161,7 +161,6 @@ class LookupFields(list):
                    'chatternow' : ['chan','dstore','msg','prsn'],
                    'mandm-hub' : ['mgmt_hub'],
                    'caas' : ['app'],
-                   'hammer-keyrepo' : ['app'],
                    'lightcycle-snapshot' : ['app'],
                    'mandm-agent' : ['app'],
                    'mq-broker' : ['mq'],
