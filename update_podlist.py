@@ -49,7 +49,7 @@ def dcs(rolename, podtype):
         prod_dc = 'was'
     elif re.search(r'public|^polcore|^pkicontroller|^grok|hbase|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr', rolename, re.IGNORECASE):
         prod_dc.extend(['prd'])
-    elif re.search(r'^syslog|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|vc', rolename, re.IGNORECASE):
+    elif re.search(r'^syslog|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|vc|rdb', rolename, re.IGNORECASE):
         prod_dc.extend(['prd', 'crd', 'crz', 'sfm', 'sfz'])
     elif re.search(r'irc', rolename, re.IGNORECASE):
         prod_dc = (['sfm', 'crd'])
@@ -351,6 +351,7 @@ def listbuilder(pod_list, dc):  # This was added as part of - 'T-1810443'
                         stby_host = val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc
                     if stby_host not in hostlist_sec:
                         hostlist_sec.append(stby_host)
+
     return hostlist_pri, hostlist_sec
 
 
