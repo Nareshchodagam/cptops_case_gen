@@ -37,7 +37,15 @@ def groupSize(role):
 def getData(filename):
     # Read in data from a file and return it
     with open(filename) as data_file:
-        data = data_file.readlines()
+        data = []
+        for line in data_file:
+            if options.filtergia == True:
+                if re.findall(r'\s(CHX|WAX)\s', line):
+                    data.append(line)
+            else:
+                if re.findall(r'\s(CHX|WAX)\s', line):
+                    continue
+                data.append(line)
     return data
 
 def genDCINST(data):
@@ -144,6 +152,7 @@ if __name__ == "__main__":
     parser.add_option("--monitor", dest="monitor", action="store_true", help="monitor [used in reimage]")
     parser.add_option("--serial", dest="serial", action="store_true", help="serial [ used in reimage]")
     parser.add_option("--filter_os", dest="filteros", action="store_true", help="Filter hosts for CentOS7 migration")
+    parser.add_option("--filter_gia", dest="filtergia", action="store_true", default="False", help="Only create case for GIA")
     # W-4574049 End
 
     python = 'python'
