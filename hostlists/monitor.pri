@@ -346,7 +346,7 @@ ops0-monitor2-4-was
 ops-monitor30-1-was
 sr2-monitor1-1-was
 sr7-monitor1-1-ukb
-cs31-monitor1-1-ukb
+ops0-monitor1-1-ukb
 cs5-monitor1-1-ukb
 ap4-monitor1-1-ukb
 ap5-monitor1-1-ukb
