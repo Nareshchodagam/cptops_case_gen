@@ -49,7 +49,7 @@ def dcs(rolename, podtype):
         prod_dc = 'was'
     elif re.search(r'public|^polcore|^pkicontroller|^grok|hbase|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr', rolename, re.IGNORECASE):
         prod_dc.extend(['prd'])
-    elif re.search(r'^syslog|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|vc|rdb', rolename, re.IGNORECASE):
+    elif re.search(r'^syslog|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|vc|rdb|hmrlog', rolename, re.IGNORECASE):
         prod_dc.extend(['prd', 'crd', 'crz', 'sfm', 'sfz'])
     elif re.search(r'irc', rolename, re.IGNORECASE):
         prod_dc = (['sfm', 'crd'])
@@ -206,7 +206,7 @@ def file_handles(file_name):
     :param file_name:
     :return: None
     """
-    if re.search(r'acs|trust|afw|hammer|hbase.pri|pod|public-trust|monitor', file_name, re.IGNORECASE):
+    if re.search(r'acs|trust|afw|hammer|hbase.pri|pod|public-trust|monitor|hmrlog', file_name, re.IGNORECASE):
         file_handle_pri = open('hostlists/' + file_name, 'w')
         file_handle_sec = open('hostlists/' + file_name.split('.')[0] + '.sec', 'w')
         logger.info("Opened file handles on podlist file - '{0}, {1}.sec'".format(file_name, file_name.split('.')[0]))
@@ -408,7 +408,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                         sec.write(w_active)
             logger.info("Successfully written data to podlist files - '{0}, {1}.sec' for dc '{2}'".format(file_name, file_name.split('.')[0], dc))
 
-        elif re.search(r'hammer', file_name, re.IGNORECASE):
+        elif re.search(r'hammer|hmrlog', file_name, re.IGNORECASE):
             groupsize = 5
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
