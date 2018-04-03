@@ -14,8 +14,6 @@ Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant cluster stopLocalNode" -host v_HOSTS
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-kerberos -threads  -auto2 -c cmd -m "~/current/bigdata-kerberos/kerberos/build/ant -w krb stopLocal" -host v_HOSTS
 
-- Stop Splunk
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product sfdc-splunk-forwarder  -auto2 -c stop_server -host v_HOSTS
 
 v_INCLUDE
 
