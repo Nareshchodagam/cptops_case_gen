@@ -30,7 +30,7 @@ release_runner.pl -forced_host v_HOSTS_ALL -c sudo_cmd -m "./remote_transfer/upd
 release_runner.pl -forced_host v_HOSTS_ALL -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Reboot the host
-release_runner.pl -forced_host v_HOSTS_ALL -c sudo_cmd -m "reboot" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS_ALL -c sudo_cmd -m "reboot" -property "ssh_timeout=15" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Check the host is online
 Exec: ~/check_reconnect.py -H v_HOSTS_ALL

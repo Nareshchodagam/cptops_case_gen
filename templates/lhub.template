@@ -45,7 +45,7 @@ Manual: Contact SANENG resource to shut down fc ports for v_HOSTS
 v_INCLUDE
  
 - Reboot the host
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -property "ssh_timeout=15" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Wait for the hosts to boot up
 Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS

@@ -35,7 +35,7 @@ Manual: Engage DBEng to bring the databases down on public-webproddb1-1-v_DATACE
 v_INCLUDE
  
 - Reboot the host
-release_runner.pl -forced_host public-webapp2-1-v_DATACENTER,v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host public-webapp2-1-v_DATACENTER,v_HOSTS -c sudo_cmd -m "reboot" -property "ssh_timeout=15" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Wait for the hosts to boot up
 Exec: /opt/cpt/bin/check_reconnect.py -H public-webapp2-1-v_DATACENTER,v_HOSTS

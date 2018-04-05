@@ -45,7 +45,7 @@ v_INCLUDE
 release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "./remote_transfer/chk_symlinks.py" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Reboot the host
-release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "reboot" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "reboot" -property "ssh_timeout=15" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Wait for the hosts to boot up
 Exec: /opt/cpt/bin/check_reconnect.py -H v_CPS1,v_MSG1,v_DSTORE1

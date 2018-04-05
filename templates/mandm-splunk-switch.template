@@ -22,7 +22,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - logsearch_2 -c './se
 v_INCLUDE
 
 - Reboot the host
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2 -comment 'BLOCK v_NUM' -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -property "ssh_timeout=15" -threads -auto2 -comment 'BLOCK v_NUM' -property "sudo_cmd_line_trunk_fix=1"
 
 - Wait for the hosts to boot up
 Exec: echo 'BLOCK v_NUM' &&  /opt/cpt/bin/check_reconnect.py -H v_HOSTS

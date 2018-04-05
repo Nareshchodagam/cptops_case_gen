@@ -38,7 +38,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "cp ./remote_transfer/ifdo
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "chmod +x ./remote_transfer/verify_if-eth.sh; ./remote_transfer/verify_if-eth.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Reboot the host
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -property "ssh_timeout=15" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Wait for the hosts to boot up
 Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
