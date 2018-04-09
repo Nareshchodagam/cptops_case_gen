@@ -46,7 +46,7 @@ def dcs(rolename, podtype):
     elif re.search(r'^artifactrepo', rolename, re.IGNORECASE):
         prod_dc.extend(['crd', 'crz', 'sfz'])
     elif re.search(r'^cmgt', rolename, re.IGNORECASE):
-        prod_dc = 'was'
+        prod_dc = 'phx'
     elif re.search(r'public|^polcore|^pkicontroller|^grok|hbase|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr', rolename, re.IGNORECASE):
         prod_dc.extend(['prd'])
     elif re.search(r'^syslog|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|vc|rdb|hmrlog', rolename, re.IGNORECASE):
