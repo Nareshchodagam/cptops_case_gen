@@ -205,7 +205,7 @@ cs14-monitor1-1-iad
 cs8-monitor1-1-iad
 na56-monitor1-1-iad
 na88-monitor1-1-iad
-cs64-monitor1-1-iad
+cs64-monitor2-1-iad
 na50-monitor1-1-iad
 cs65-monitor1-1-iad
 cs77-monitor1-1-iad
