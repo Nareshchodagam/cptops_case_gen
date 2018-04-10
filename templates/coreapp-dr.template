@@ -19,6 +19,9 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 - Disable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
+- Validate haproxy is running
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n haproxy -r -i " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
 - Stop the running application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -drnostart -c stop_server -stopall  -property pingcheck_max_tries=600,pingcheck_poll_interval_secs=3,uptime_limit=30 -threads -auto2 -host_status v_HO_OPSTAT
 
@@ -32,6 +35,9 @@ Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Validate haproxy is started
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n haproxy -i -s" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -drnostart -c start_server -property pingcheck_max_tries=600,pingcheck_poll_interval_secs=3,uptime_limit=30 -threads -auto2 -host_status v_HO_OPSTAT
