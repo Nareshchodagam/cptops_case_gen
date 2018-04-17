@@ -164,7 +164,7 @@ def UploadDataToBlackswanV1(caseNum):
     except Exception as e:
         print('error : %s' % e)
     if valid_api != True:
-        apikey, user = GetApiKey()
+        apikey = GetApiKey()
         print("Savinng ApiKey.")
         saveApiKey(savedapikey, apikey)
     else:
