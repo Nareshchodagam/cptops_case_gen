@@ -306,7 +306,7 @@ def return_not_patched_hosts(hosts, bundle):
                 else:
                     ddict_host = host_dict.get(host)
                     jkernel = json_data.get(ddict_host.get('hostOs')).get(bundle).get('kernel')
-                    if (bundle not in ddict_host.get('hostRelease')) or (jkernel not in ddict_host.get('hostKernel')):
+                    if (bundle not in ddict_host.get('patchCurrentRelease')) or (jkernel not in ddict_host.get('patchKernel')):
                         not_patched_hosts_all.append(host)
 
             if len(not_patched_hosts_all) != 0:
@@ -1202,6 +1202,10 @@ if __name__ == "__main__":
             print "You ran the legacy version"
           else:
             gen_plan_by_idbquery(inputdict)
+            #Genrate json file for blackswan.
+            from caseToblackswan import CreateBlackswanJson
+            CreateBlackswanJson(inputdict, options.bundle)
+            #END#
           exit()
       elif options.allatonce and not options.skipidb:
           cleanup_out()
