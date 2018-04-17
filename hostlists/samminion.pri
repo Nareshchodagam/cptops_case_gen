@@ -13,6 +13,7 @@ prd-sam_gater PRD NONE ACTIVE
 prd-samtest PRD NONE ACTIVE
 prd-sam_chatbot_kingdom PRD NONE ACTIVE
 SAM_ZIPKIN PRD NONE ACTIVE
+prd-sam_mit PRD NONE ACTIVE
 prd-sam_ceph PRD NONE ACTIVE
 prd-sam_moderation_einstein PRD NONE ACTIVE
 prd-samdevpool PRD NONE ACTIVE
@@ -96,6 +97,7 @@ SAM_CHATBOT_KINGDOM SYD NONE ACTIVE
 SAM_WARDEN SYD NONE ACTIVE
 SYD-SLB SYD NONE ACTIVE
 iad-sp1-sam_caas IAD SP1 ACTIVE
+iad-sp2-sam_caas IAD SP2 ACTIVE
 iad-sam_iot IAD NONE ACTIVE
 iad-sam_crosscloudplatform IAD NONE ACTIVE
 iad-sam_warden IAD NONE ACTIVE
@@ -113,8 +115,10 @@ iad-sam_report_collector IAD NONE ACTIVE
 iad-sam_moderation_einstein IAD NONE ACTIVE
 iad-search_model_executor IAD NONE ACTIVE
 iad-sam_chatbot_kingdom IAD NONE ACTIVE
-iad-sp2-sam_caas IAD SP2 ACTIVE
 dfw-sp1-sam_caas DFW SP1 ACTIVE
+dfw-sp2-sam_caas DFW SP2 ACTIVE
+dfw-sp3-sam_caas DFW SP3 ACTIVE
+dfw-sp4-sam_caas DFW SP4 ACTIVE
 dfw-sam_cloudatlas_dir DFW NONE ACTIVE
 dfw-sam_moderation_einstein DFW NONE ACTIVE
 dfw-sam_ceph DFW NONE ACTIVE
@@ -126,9 +130,6 @@ dfw-slb DFW NONE ACTIVE
 dfw-search_model_executor DFW NONE ACTIVE
 dfw-sam_chatbot_kingdom DFW NONE ACTIVE
 dfw-sam_gater DFW NONE ACTIVE
-dfw-sp3-sam_caas DFW SP3 ACTIVE
-dfw-sp4-sam_caas DFW SP4 ACTIVE
-dfw-sp2-sam_caas DFW SP2 ACTIVE
 SAM_CAAS-CDU-SP1 CDU SP1 ACTIVE
 CDU-SP1-SAM_CAAS CDU SP1 ACTIVE
 SAM_REPORT_COLLECTOR CDU NONE ACTIVE
