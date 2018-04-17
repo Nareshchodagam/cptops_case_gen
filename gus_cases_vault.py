@@ -458,7 +458,7 @@ if __name__ == '__main__':
         logging.debug(valid_login)
     except Exception as e:
         print('error : %s' % e)
-    
+
     if valid_login != True:
         try:
             client_id,client_secret,username,passwd = getCreds()
@@ -494,7 +494,6 @@ if __name__ == '__main__':
                 if options.inst:
                     full_instances = options.inst
                 print('DC variable does not contain instance keys : %s' % e)
-
     if options.casetype == 'change':
         insts = ''
         if options.inst:
@@ -550,6 +549,12 @@ if __name__ == '__main__':
             submitCase(caseId, session)
         logging.debug('The case number is %s' % caseNum['CaseNumber'])
         print(caseNum['CaseNumber'])
+
+        #Push case Details to blackswan
+        from caseToblackswan import UploadDataToBlackswanV1
+        UploadDataToBlackswanV1(caseNum)
+        #END#
+
         if options.logicalHost:
             logical_hosts = getLogicalConnectors(hosts, session)
             for host in logical_hosts:
