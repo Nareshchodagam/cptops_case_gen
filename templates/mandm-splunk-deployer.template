@@ -16,7 +16,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Goc++ Alert disable
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/insights_argus_monitor.py -a disable" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/insights_argus_monitor.py -a enable" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Stop the running application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - logsearch_1 -c './service stop'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
@@ -40,7 +40,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service httpd start" -thr
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service httpd status" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - GOC++ alert enable
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/insights_argus_monitor.py -a enable" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/insights_argus_monitor.py -a disable" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Update cptrelease file
 release_runner.pl -forced_host v_HOSTS  -c sudo_cmd -m "./remote_transfer/write_cptrelease.py --current -c v_CASE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
