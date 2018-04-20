@@ -95,14 +95,20 @@ def CreateBlackswanJson(inputdict, bundle):
     if not username:
         username = raw_input("\nEnter username(One Time Only): ")
         saveApiKey(user, username)
-    roles = inputdict["roles"].split(",")
+
     patchcases = []
-    for role in roles:
-        patchcases_part = {"role": role,
-                      "dc": inputdict["datacenter"],
-                      "superpod": inputdict["superpod"],
-                      "pod": inputdict["clusters"]}
-        patchcases.append(patchcases_part)
+    if inputdict:
+        roles = inputdict["roles"].split(",")
+        for role in roles:
+            patchcases_part = {"role": role,
+                               "dc": inputdict["datacenter"],
+                               "superpod": inputdict["superpod"],
+                               "pod": inputdict["clusters"]}
+            patchcases.append(patchcases_part)
+    else:
+        print("Patch cases is blank")
+        logging.debug(patchcases)
+
     json_dict = [{"captain": False,
                  "katzmeow": True,
                  "created": datetime.datetime.now().isoformat()+"Z",
