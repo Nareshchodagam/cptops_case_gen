@@ -335,7 +335,9 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
         if pdict['superpod']:
            superpod = pdict['superpod']
     except:
+
         logging.debug('No idbgen passed')
+
         pass
 
     #before default ids in case of subsets
@@ -1003,6 +1005,8 @@ def write_plan_dc(dc,template_id,writeplan):
 def get_clean_hostlist(hostlist):
     hostnames =[]
     dcs = []
+    roles = []
+    pods = []
     hostlist_chk = re.compile(r'\w*-\w*-\d-\w*[\S|,]*')
     output_list = hostlist_chk.search(hostlist)
     if output_list:
@@ -1011,6 +1015,12 @@ def get_clean_hostlist(hostlist):
     if isinstance(hostlist, list):
         for line in hostlist:
             dc = line.split('-')[3]
+            role = line.split('-')[1].rstrip('1234567890.')
+            pod = line.split('-')[0]
+            if pod not in pods:
+                pods.append(pod)
+            if role not in roles:
+                roles.append(role)
             if dc not in dcs:
                 dcs.append(dc)
             hostnames.append(line)
@@ -1018,18 +1028,24 @@ def get_clean_hostlist(hostlist):
         file = open(hostlist).readlines()
         for line in file:
             dc = line.split('-')[3].rstrip('\n')
+            role = line.split('-')[1].rstrip('1234567890.\n')
+            pod = line.split('-')[0].rstrip('\n')
+            if pod not in pods:
+                pods.append(pod)
+            if role not in roles:
+                roles.append(role)
             if dc not in dcs:
                 dcs.append(dc)
             hostnames.append(line.rstrip('\n').rstrip())
 
-    return dcs,hostnames
+    return dcs, hostnames, roles, pods
 
 def gen_nested_plan_idb(hostlist, templates, regex_dict,group_dict,gsize):
 
     imp_plans = {
         'plan' : []
     }
-    dcs, hostnames = get_clean_hostlist(hostlist)
+    dcs, hostnames, role, pods = get_clean_hostlist(options.hostlist)
     idbfilters = { 'name': hostnames }
     bph = Buildplan_helper(dcs,endpoint,supportedfields,idbfilters,True)
     for nestedtemplate in templates:
@@ -1059,7 +1075,7 @@ def gen_nested_plan_idb(hostlist, templates, regex_dict,group_dict,gsize):
     write_list_to_file(common.outputdir + '/summarylist.txt', hostnames , newline=True)
 
 def gen_plan_by_hostlist_idb(hostlist, templateid, gsize, grouping):
-    dcs, hostnames = get_clean_hostlist(hostlist)
+    dcs, hostnames, roles, pods = get_clean_hostlist(hostlist)
     idbfilters = { 'name': hostnames }
 
     bph = Buildplan_helper(dcs,endpoint,supportedfields,idbfilters,True)
@@ -1068,7 +1084,7 @@ def gen_plan_by_hostlist_idb(hostlist, templateid, gsize, grouping):
 
 def gen_plan_by_hostlist(hostlist, templateid, gsize, groups):
 
-    dcs, hostnames = get_clean_hostlist(hostlist)
+    dcs, hostnames, role, pods = get_clean_hostlist(options.hostlist)
 
     bph = Buildplan_helper(dcs,None, supportedfields,{},False,hostnames)
     writeplan = bph.apply_groups(groups,templateid,gsize)
@@ -1210,6 +1226,7 @@ if __name__ == "__main__":
       elif options.allatonce and not options.skipidb:
           cleanup_out()
           hosts = ','.join(get_hosts_from_file(options.hostlist))
+          print ("****This is for testing****")
           prep_template(options.template, common.outputdir + '/' + 'allhosts_' + options.filename)
           gen_plan(hosts, options.cluster, options.datacenter, options.superpod, options.caseNum, options.role)
           consolidate_plan(hosts, options.cluster, options.datacenter, options.superpod, options.caseNum, options.role)
@@ -1272,7 +1289,12 @@ if __name__ == "__main__":
               consolidate_plan(hosts, cluster, datacenter, superpod, casenum, role)
               exit()
           if options.grouping:
-              gen_plan_by_hostlist(options.hostlist, options.template, options.gsize,options.grouping.split(','))
+              dcs, hostnames, role, pods = get_clean_hostlist(options.hostlist)
+              inputdict = {"datacenter": ','.join(dcs), "superpod": 'none', "roles": ','.join(role),
+                           "clusters": ','.join(pods)}
+              gen_plan_by_hostlist(options.hostlist, options.template, options.gsize, options.grouping.split(','))
+              from caseToblackswan import CreateBlackswanJson
+              CreateBlackswanJson(inputdict, options.bundle)
               exit()
 
       if options.nested and options.hostlist:
@@ -1296,6 +1318,8 @@ if __name__ == "__main__":
           exit()
 
       if options.hostlist:
+          noidbdict={}
+
           #hostlist_chk = re.compile(r'([a-z,0-9,-]*)')
           groups = options.grouping.split(',')
           if not options.template:
