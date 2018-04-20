@@ -1226,7 +1226,6 @@ if __name__ == "__main__":
       elif options.allatonce and not options.skipidb:
           cleanup_out()
           hosts = ','.join(get_hosts_from_file(options.hostlist))
-          print ("****This is for testing****")
           prep_template(options.template, common.outputdir + '/' + 'allhosts_' + options.filename)
           gen_plan(hosts, options.cluster, options.datacenter, options.superpod, options.caseNum, options.role)
           consolidate_plan(hosts, options.cluster, options.datacenter, options.superpod, options.caseNum, options.role)
@@ -1318,8 +1317,6 @@ if __name__ == "__main__":
           exit()
 
       if options.hostlist:
-          noidbdict={}
-
           #hostlist_chk = re.compile(r'([a-z,0-9,-]*)')
           groups = options.grouping.split(',')
           if not options.template:
