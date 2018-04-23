@@ -550,11 +550,6 @@ if __name__ == '__main__':
         logging.debug('The case number is %s' % caseNum['CaseNumber'])
         print(caseNum['CaseNumber'])
 
-        #Push case Details to blackswan
-        from caseToblackswan import UploadDataToBlackswanV1
-        UploadDataToBlackswanV1(caseNum)
-        #END#
-
         if options.logicalHost:
             logical_hosts = getLogicalConnectors(hosts, session)
             for host in logical_hosts:
@@ -570,6 +565,11 @@ if __name__ == '__main__':
         # TODO - Hack to update RiskSummary for CE7 migrations.
         if "migration" in options.subject:
             update_risk_summary(caseId, session, options.role)
+
+        # Push case Details to blackswan
+        from caseToblackswan import UploadDataToBlackswanV1
+        UploadDataToBlackswanV1(caseNum)
+        # END#
 
 
     elif options.attach:
