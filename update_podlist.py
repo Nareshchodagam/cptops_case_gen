@@ -673,9 +673,6 @@ if __name__ == "__main__":
                         total_idb_data[v[1]] = idb_ret
                         if not idb_ret:
                             continue
-
-                        print total_idb_data
-
                     else:
                         logger.info("Skipping iDB query, using data from cache")
 
