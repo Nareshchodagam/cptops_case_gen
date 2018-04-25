@@ -157,7 +157,7 @@ na37-monitor1-1-phx
 na48-monitor1-1-phx
 cs62-monitor1-1-phx
 na38-monitor1-1-phx
-na34-monitor1-1-phx
+ops0-monitor3-1-phx
 cs52-monitor1-1-phx
 na33-monitor2-1-phx
 cs3-monitor1-1-phx
