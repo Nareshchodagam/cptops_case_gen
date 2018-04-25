@@ -590,7 +590,9 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                         if 'HUB' not in pods[index]['Secondary'] and 'MFM' not in pods[index]['Secondary']:
                             w = pods[index]['Secondary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                             sec.write(w)
-
+                        else:
+                            w = pods[index]['Secondary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
+                            pri.write(w)
             logger.info("Successfully written data to podlist file -  '{0}' for dc '{1}'".format(file_name, dc))
 
 
@@ -671,6 +673,8 @@ if __name__ == "__main__":
                         total_idb_data[v[1]] = idb_ret
                         if not idb_ret:
                             continue
+
+                        print total_idb_data
 
                     else:
                         logger.info("Skipping iDB query, using data from cache")
