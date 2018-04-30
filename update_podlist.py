@@ -47,9 +47,9 @@ def dcs(rolename, podtype):
         prod_dc.extend(['crd', 'crz', 'sfz'])
     elif re.search(r'^cmgt', rolename, re.IGNORECASE):
         prod_dc = 'phx'
-    elif re.search(r'public|^polcore|^pkicontroller|^grok|hbase|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr', rolename, re.IGNORECASE):
+    elif re.search(r'public|^polcore|^pkicontroller|^grok|hbase|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr|dva_onboarding', rolename, re.IGNORECASE):
         prod_dc.extend(['prd'])
-    elif re.search(r'^syslog|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|vc|rdb|hmrlog', rolename, re.IGNORECASE):
+    elif re.search(r'^syslog|^vnscanam_prod|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|vc|rdb|hmrlog', rolename, re.IGNORECASE):
         prod_dc.extend(['prd', 'crd', 'crz', 'sfm', 'sfz'])
     elif re.search(r'irc', rolename, re.IGNORECASE):
         prod_dc = (['sfm', 'crd'])
@@ -590,7 +590,9 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                         if 'HUB' not in pods[index]['Secondary'] and 'MFM' not in pods[index]['Secondary']:
                             w = pods[index]['Secondary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                             sec.write(w)
-
+                        else:
+                            w = pods[index]['Secondary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
+                            pri.write(w)
             logger.info("Successfully written data to podlist file -  '{0}' for dc '{1}'".format(file_name, dc))
 
 
@@ -659,7 +661,7 @@ if __name__ == "__main__":
         for k, v in preset_data.items():
             if v[1]:
                 logger.info("\n************************* Starting on role '{0}'*************************".format(k))
-                if v[1] not in role_details or re.search(r'afw|acs|hbase|lhub|log_hub|splunk-', v[0], re.IGNORECASE):
+                if v[1] not in role_details or re.search(r'afw|hbase|lhub|log_hub|splunk-|pod|hammer', v[0], re.IGNORECASE):
                     role_details.append(v[1])
                     total_idb_data['monitor'] = {dc:'' for dc in dcs(k, v[1])}
                     if v[1] not in total_idb_data.keys():
@@ -671,7 +673,6 @@ if __name__ == "__main__":
                         total_idb_data[v[1]] = idb_ret
                         if not idb_ret:
                             continue
-
                     else:
                         logger.info("Skipping iDB query, using data from cache")
 
