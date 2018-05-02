@@ -265,7 +265,7 @@ def filter_hosts_by_os(hosts, osmajor):
                     allfiltered_hosts_os.append(host)
                 else:
                     ddict_host = host_dict.get(host)
-                    os_version = ddict_host.get('hostOs')
+                    os_version = ddict_host.get('patchOs')
                     if os_version == osmajor:
                         allfiltered_hosts_os.append(host)
             if len(allfiltered_hosts_os) != 0:
@@ -299,13 +299,12 @@ def return_not_patched_hosts(hosts, bundle):
 
             for ddict in data:
                 host_dict[ddict.get('hostName')] = ddict
-
             for host in all_hosts:
                 if host not in host_dict.keys():
                     not_patched_hosts_all.append(host)
                 else:
                     ddict_host = host_dict.get(host)
-                    jkernel = json_data.get(ddict_host.get('hostOs')).get(bundle).get('kernel')
+                    jkernel = json_data.get(ddict_host.get('patchOs')).get(bundle).get('kernel')
                     if (bundle not in ddict_host.get('patchCurrentRelease')) or (jkernel not in ddict_host.get('patchKernel')):
                         not_patched_hosts_all.append(host)
 
