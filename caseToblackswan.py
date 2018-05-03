@@ -99,14 +99,16 @@ def CreateBlackswanJson(inputdict, bundle):
     patchcases = []
     if inputdict:
         roles = inputdict["roles"].split(",")
+        pods = inputdict["clusters"].split(",")
         for role in roles:
-            patchcases_part = {"role": role,
-                               "dc": inputdict["datacenter"],
-                               "superpod": inputdict["superpod"],
-                               "pod": inputdict["clusters"]}
-            patchcases.append(patchcases_part)
+            for pod in pods:
+                patchcases_part = {"role": role,
+                                   "dc": inputdict["datacenter"],
+                                   "superpod": inputdict["superpod"],
+                                   "pod": pod}
+                patchcases.append(patchcases_part)
     else:
-        print("Patch cases is blank")
+        print("Patch case is blank")
         logging.debug(patchcases)
 
     json_dict = [{"captain": False,
