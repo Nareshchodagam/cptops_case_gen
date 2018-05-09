@@ -256,7 +256,10 @@ def get_json_change_details(filename, subject, hosts, infratype,full_instances):
         details['Subject'] = subject
     if hosts != None:
         hl_len = str(len(hosts))
-        msg = "\n\nHostlist:\n" + "\n".join(hosts)
+        if re.search("hdaas", hosts[0]):
+            msg = "\n\nHostlist:\n" + "Check attached hostlist"
+        else:
+            msg = "\n\nHostlist:\n" + "\n".join(hosts)
         details['Description'] += msg
         details['Subject'] = subject + " [" + hl_len + "]"    
     details['Infrastructure-Type'] = infratype
@@ -516,6 +519,10 @@ if __name__ == '__main__':
         
         logging.debug(hosts)
         caseId = create_change_case(jsoncase, session)
+        if options.inst == "HDAAS" and options.hostlist:
+            print("Due to character limit in the description field, attaching hostlist file for Deepsea")
+            hosts = options.hostlist
+            attach_file(hosts, 'hostlist.txt', caseId, session)
         #create_implementation_plan(caseId, session)
         if options.yaml:
             planner_json = getYamlData(options.implanner)

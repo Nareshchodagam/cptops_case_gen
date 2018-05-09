@@ -479,7 +479,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
-                    if pods[index]['Primary'] != "None" and re.match(r"HBASE\d|HDAAS|ARG1HBSVC|DCHBASE", pods[index]['Primary'], re.IGNORECASE):
+                    if pods[index]['Primary'] != "None" and re.match(r"HBASE\d|HBASEX|HDAAS|ARG1HBSVC|DCHBASE", pods[index]['Primary'], re.IGNORECASE):
                         w = pods[index]['Primary'] + " " + dc + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                         pri.write(w)
             logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
