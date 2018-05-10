@@ -19,10 +19,7 @@ Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 - Verify RPS pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product releasestore -host v_HOSTS -c ensure_availability -min_host_percent 70 -threads -d -ensure_availability_lb_only -auto2
 
-- Stop the running application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product ttorrent -host v_HOSTS -c stop_server -threads -auto2
-
-- Stop ttorrent
+- Stop app
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product releasestore -host v_HOSTS -c stop_server -threads -auto2
 
 
@@ -39,9 +36,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 
 - Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product releasestore -device_role v_ROLE -host v_HOSTS -c start_server -auto2
-
-- Start ttorrent
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product ttorrent -device_role v_ROLE -host v_HOSTS -c start_server -auto2
 
 - Sleep (120 seconds)
 Exec: sleep 120
