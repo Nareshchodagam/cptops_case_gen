@@ -23,7 +23,7 @@ from socket import gethostname
 # Functions definition
 
 def dcs(rolename, podtype):
-    prod_dc = ['chi', 'was', 'lon', 'ukb', 'hnd', 'phx', 'frf', 'dfw', 'par', 'iad', 'yul', 'yhu', 'syd', 'cdu', 'ord', 'chx', 'wax']
+    prod_dc = ['chi', 'was', 'lon', 'ukb', 'hnd', 'phx', 'frf', 'dfw', 'par', 'iad', 'yul', 'yhu', 'syd', 'cdu', 'ord', 'chx', 'wax' ]
 # removed if condition as we are not using the else part (non_prod_dc)
     # non_prod_dc = ['sfz', 'crd', 'sfm', 'prd', 'crz']
     # if prod:
@@ -37,7 +37,7 @@ def dcs(rolename, podtype):
         prod_dc.extend(['crz', 'sfz', 'prd'])
     elif re.search(r'ajna', podtype, re.IGNORECASE):
         prod_dc.extend(['sfz', 'prd'])
-    elif re.search(r'secrets|netmonitor|mom', podtype, re.IGNORECASE):
+    elif re.search(r'secrets|netmonitor|mom|gingham', podtype, re.IGNORECASE):
         prod_dc.extend(['xrd', 'crd', 'sfz', 'prd', 'crz'])
     elif re.search(r'ops-stack', podtype, re.IGNORECASE):
         prod_dc.extend(['crd', 'sfz', 'prd', 'crz'])
