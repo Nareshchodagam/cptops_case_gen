@@ -95,12 +95,6 @@ na32-monitor1-1-dfw
 na7-monitor1-1-dfw
 na39-monitor1-1-dfw
 cs59-monitor1-1-dfw
-na38-monitor1-1-dfw
-cs60-monitor2-1-dfw
-na35-monitor1-1-dfw
-na37-monitor1-1-dfw
-cs61-monitor1-1-dfw
-na48-monitor1-1-dfw
 na55-monitor1-1-dfw
 na40-monitor1-1-dfw
 na47-monitor1-1-dfw
@@ -122,6 +116,12 @@ na61-monitor1-1-dfw
 na67-monitor1-1-dfw
 na68-monitor1-1-dfw
 na62-monitor1-1-dfw
+na38-monitor1-1-dfw
+cs60-monitor2-1-dfw
+na35-monitor1-1-dfw
+na37-monitor1-1-dfw
+cs61-monitor1-1-dfw
+na48-monitor1-1-dfw
 cs51-monitor1-1-dfw
 cs50-monitor1-1-dfw
 ops0-monitor1-1-dfw
@@ -131,10 +131,6 @@ cs30-monitor1-1-dfw
 gs1-monitor1-1-dfw
 na3-monitor1-1-dfw
 na44-monitor1-1-dfw
-na43-monitor1-1-dfw
-cs63-monitor1-1-dfw
-cs62-monitor1-1-dfw
-na42-monitor1-1-dfw
 gs0-monitor2-1-dfw
 cs10-monitor1-1-dfw
 cs11-monitor1-1-dfw
@@ -150,6 +146,10 @@ cs68-monitor1-1-dfw
 na79-monitor1-1-dfw
 na60-monitor1-1-dfw
 na64-monitor1-1-dfw
+na43-monitor1-1-dfw
+cs63-monitor1-1-dfw
+cs62-monitor1-1-dfw
+na42-monitor1-1-dfw
 ops0-monitor1-1-dfw
 ops0-monitor1-3-dfw
 ops0-monitor1-4-dfw
