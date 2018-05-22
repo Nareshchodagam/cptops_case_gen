@@ -132,15 +132,6 @@ dfw-sam_gater DFW NONE ACTIVE
 dfw-sp3-sam_caas DFW SP3 ACTIVE
 dfw-sp4-sam_caas DFW SP4 ACTIVE
 dfw-sp2-sam_caas DFW SP2 ACTIVE
-ukb-sp1-sam_caas UKB SP1 ACTIVE
-ukb-sam_cloudatlas UKB NONE ACTIVE
-ukb-sam_gater UKB NONE ACTIVE
-ukb-sam_warden UKB NONE ACTIVE
-ukb-sam_ceph UKB NONE ACTIVE
-ukb-sam_report_collector UKB NONE ACTIVE
-ukb-sam_cloudatlas_dir UKB NONE ACTIVE
-ukb-sam_moderation_einstein UKB NONE ACTIVE
-ukb-sam_chatbot_kingdom UKB NONE ACTIVE
 SAM_CAAS-CDU-SP1 CDU SP1 ACTIVE
 CDU-SP1-SAM_CAAS CDU SP1 ACTIVE
 SAM_REPORT_COLLECTOR CDU NONE ACTIVE
@@ -213,6 +204,7 @@ SAM_GATER YUL NONE ACTIVE
 wax-sam_gater WAX NONE ACTIVE
 chx-sam_gater CHX NONE ACTIVE
 ord-sp1-sam_caas ORD SP1 ACTIVE
+ord-sp2-sam_caas ORD SP2 ACTIVE
 ord-sam_report_collector ORD NONE ACTIVE
 ord-sam_cloudatlas_dir ORD NONE ACTIVE
 ord-sam_sfstore ORD NONE ACTIVE
@@ -230,7 +222,6 @@ ORD-slb ORD NONE ACTIVE
 ord-universalsearch_svc ORD NONE ACTIVE
 ord-search_model_executor ORD NONE ACTIVE
 ord-sam_chatbot_kingdom ORD NONE ACTIVE
-ord-sp2-sam_caas ORD SP2 ACTIVE
 frf-sp1-sam_caas FRF SP1 ACTIVE
 frf-sam_gater FRF NONE ACTIVE
 frf-sam_report_collector FRF NONE ACTIVE
@@ -243,6 +234,15 @@ frf-sam_cloudatlas FRF NONE ACTIVE
 frf-search_model_executor FRF NONE ACTIVE
 frf-sam_iot FRF NONE ACTIVE
 frf-sam_chatbot_kingdom FRF NONE ACTIVE
+ukb-sp1-sam_caas UKB SP1 ACTIVE
+ukb-sam_cloudatlas UKB NONE ACTIVE
+ukb-sam_gater UKB NONE ACTIVE
+ukb-sam_warden UKB NONE ACTIVE
+ukb-sam_ceph UKB NONE ACTIVE
+ukb-sam_report_collector UKB NONE ACTIVE
+ukb-sam_cloudatlas_dir UKB NONE ACTIVE
+ukb-sam_moderation_einstein UKB NONE ACTIVE
+ukb-sam_chatbot_kingdom UKB NONE ACTIVE
 SAM_CAAS-YHU-SP1 YHU SP1 ACTIVE
 YHU-SP1-SAM_CAAS YHU SP1 ACTIVE
 SAM_CLOUDATLAS YHU NONE ACTIVE
