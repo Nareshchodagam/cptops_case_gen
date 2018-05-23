@@ -19,11 +19,11 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl https://na44.salesfo
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl http://www.amazon.com" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "curl https://portal.ultradns.com" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Verify internet over http
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "wget -e use_proxy=yes -e http_proxy=v_HOSTS:8080 -O - http://www.google.com" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Verify GUS over http
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "wget -e use_proxy=yes -e http_proxy=v_HOSTS:8080 -O - http://gus.my.salesforce.com" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Verify internet over https
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "wget -e use_proxy=yes -e https_proxy=v_HOSTS:8080 -O - https://www.google.com" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Verify GUS over https
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "wget -e use_proxy=yes -e https_proxy=v_HOSTS:8080 -O - https://gus.my.salesforce.com" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Get initial static routes
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_static_routes.py -f static_route.orig" -auto2 -property "sudo_cmd_line_trunk_fix=1"
