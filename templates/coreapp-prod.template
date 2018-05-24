@@ -29,7 +29,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-agent -host v_HOSTS -c stop_server -property pingcheck_max_tries=600,pingcheck_poll_interval_secs=3,uptime_limit=30 -ping_validation -min_host_percent 66 -threads -auto2 -host_status v_HO_OPSTAT
 
 - Stop the coreApp application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -host v_HOSTS -c stop_server -property pingcheck_max_tries=600,pingcheck_poll_interval_secs=3,uptime_limit=30 -ping_validation -min_host_percent 66 -threads -auto2 -host_status v_HO_OPSTAT
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -host v_HOSTS -c stop_server -property pingcheck_max_tries=600,pingcheck_poll_interval_secs=3,uptime_limit=30 -ping_validation -min_host_percent 66 -stopall -ignored_process_names 'perl' -threads -auto2 -host_status v_HO_OPSTAT
 
 
 v_INCLUDE
