@@ -23,14 +23,14 @@ from socket import gethostname
 # Functions definition
 
 def dcs(rolename, podtype):
-    prod_dc = ['chi', 'was', 'lon', 'ukb', 'hnd', 'phx', 'frf', 'dfw', 'par', 'iad', 'yul', 'yhu', 'syd', 'cdu', 'ord', 'chx', 'wax' ]
+    prod_dc = ['chi', 'xrd', 'was', 'lon', 'ukb', 'hnd', 'phx', 'frf', 'dfw', 'par', 'iad', 'yul', 'yhu', 'syd', 'cdu', 'ord', 'chx', 'wax' ]
 # removed if condition as we are not using the else part (non_prod_dc)
     # non_prod_dc = ['sfz', 'crd', 'sfm', 'prd', 'crz']
     # if prod:
     if re.search(r'crz', rolename, re.IGNORECASE):
         prod_dc = 'crz'
     elif re.search(r'rps', rolename, re.IGNORECASE):
-        prod_dc.extend(['sfz'])
+        prod_dc.extend(['sfz', 'crd', 'crz', 'prd', 'sfm'])
     elif re.search(r'^warden|argus|strata', rolename, re.IGNORECASE):
         prod_dc = 'prd'
     elif re.search(r'splunk', rolename, re.IGNORECASE):
