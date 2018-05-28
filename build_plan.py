@@ -473,17 +473,9 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 # Added only to facilitate ARGUS_WRITED and ARGUS_METRICS roles to work together
 # End
 
-# W-4171797
-        try:
-            if re.search(r"cmgtapi", role, re.IGNORECASE):
-                output = output.replace('v_OHOSTS', FindOtherHost(options.hostlist, host_list))
-        except:
-            pass
- # End
-
 # W-4506396
         try:
-            if re.search(r"stgmgt|stgpm|lapp|searchmgr|searchidx", role, re.IGNORECASE):
+            if re.search(r"stgmgt|cmgtapi|stgpm|lapp|searchmgr|searchidx", role, re.IGNORECASE):
                 print(role)
                 output = output.replace('v_OHOSTS', FindOtherHostIfIdbQuery(datacenter, cluster, role, hosts))
         except:
