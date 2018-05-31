@@ -26,7 +26,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product i
 Exec: sleep 120
 
 - Stop the running application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,wave-connector-agent,wave-cassandra -host v_HOSTS -c stop_server -stopall -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,wave-connector-agent,wave-cassandra,automated-insights -host v_HOSTS -c stop_server -stopall -threads -auto2
 
 - Stop Splunk
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2
@@ -43,13 +43,13 @@ Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Start the application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,wave-connector-agent,wave-cassandra -host v_HOSTS -c start_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,wave-connector-agent,wave-cassandra,automated-insights -host v_HOSTS -c start_server -threads -auto2
 
 - Validate Applications
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,wave-connector-agent,wave-cassandra -host v_HOSTS -c antstatuscheck -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,wave-connector-agent,wave-cassandra,automated-insights -host v_HOSTS -c antstatuscheck -threads -auto2
 
 -Add to pool
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,wave-connector-agent,wave-cassandra -host v_HOSTS -c add_to_pool -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,wave-connector-agent,wave-cassandra,automated-insights -host v_HOSTS -c add_to_pool -threads -auto2
 
 - Update cptrelease file
 release_runner.pl -forced_host v_HOSTS  -c sudo_cmd -m "./remote_transfer/write_cptrelease.py --current -c v_CASE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
