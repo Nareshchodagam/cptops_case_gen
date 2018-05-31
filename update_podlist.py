@@ -29,7 +29,7 @@ def dcs(rolename, podtype):
     # if prod:
     if re.search(r'crz', rolename, re.IGNORECASE):
         prod_dc = 'crz'
-    elif re.search(r'rps', rolename, re.IGNORECASE):
+    elif re.search(r'rps|release', rolename, re.IGNORECASE):
         prod_dc.extend(['sfz', 'crd', 'crz', 'prd', 'sfm'])
     elif re.search(r'^warden|argus|strata|cmgtapi', rolename, re.IGNORECASE):
         prod_dc = 'prd'
