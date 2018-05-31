@@ -475,7 +475,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
 
 # W-4506396
         try:
-            if re.search(r"stgmgt|cmgtapi|stgpm|lapp|searchmgr|searchidx", role, re.IGNORECASE):
+            if re.search(r"stgmgt|cmgtapi|stgpm|lapp|searchmgr|searchidx|artifactrepo|rps", role, re.IGNORECASE):
                 print(role)
                 output = output.replace('v_OHOSTS', FindOtherHostIfIdbQuery(datacenter, cluster, role, hosts))
         except:
