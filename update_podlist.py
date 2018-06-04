@@ -35,7 +35,7 @@ def dcs(rolename, podtype):
         prod_dc = 'prd'
     elif re.search(r'splunk', rolename, re.IGNORECASE):
         prod_dc.extend(['crz', 'sfz', 'prd'])
-    elif re.search(r'ajna', podtype, re.IGNORECASE):
+    elif re.search(r'ajna|sms', podtype, re.IGNORECASE):
         prod_dc.extend(['sfz', 'prd'])
     elif re.search(r'secrets|netmonitor|mom|gingham', podtype, re.IGNORECASE):
         prod_dc.extend(['xrd', 'crd', 'sfz', 'prd', 'crz'])
