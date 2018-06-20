@@ -649,7 +649,7 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role, num, groupcoun
     # W-4574049 block end
 
     # W-4531197 Adding logic to remove already patched host for Case.
-    elif options.delpatched:
+    elif options.delpatched or options.skip_bundle:
 	if not options.skip_bundle:
 	   options.skip_bundle = " "
         hosts = return_not_patched_hosts(hosts, options.bundle, options.skip_bundle)
