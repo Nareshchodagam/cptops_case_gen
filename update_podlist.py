@@ -43,7 +43,7 @@ def dcs(rolename, podtype):
         prod_dc.extend(['crd', 'sfz', 'prd', 'crz'])
     elif re.search(r'lhub', rolename, re.IGNORECASE):
         prod_dc = 'sfz'
-    elif re.search(r'^artifactrepo', rolename, re.IGNORECASE):
+    elif re.search(r'^deploydata|^artifactrepo', rolename, re.IGNORECASE):
         prod_dc.extend(['crd', 'crz', 'sfz'])
     elif re.search(r'^cmgt', rolename, re.IGNORECASE):
         prod_dc = 'phx'
@@ -57,7 +57,7 @@ def dcs(rolename, podtype):
         prod_dc.extend(['prd', 'crd'])
     elif re.search(r'nodeapp|^csm', rolename, re.IGNORECASE):
         prod_dc.extend(['crd'])
-    elif re.search(r'pra_prod|^pravmh|^deploydata|sdproxy|^gdsdclient|^servicedirectory', rolename, re.IGNORECASE):
+    elif re.search(r'pra_prod|^pravmh|sdproxy|^gdsdclient|^servicedirectory', rolename, re.IGNORECASE):
         prod_dc.extend(['prd'])
     return prod_dc
     #else:
