@@ -100,6 +100,8 @@ def cmdformat(output_str):
         output_str = output_str + " --dowork " + options.dowork
     if options.delpatched:
         output_str = output_str + " --delpatched "
+    if options.skip_bundle:
+        output_str = output_str + " --skip_bundle " + options.skip_bundle
     if options.casework == "reimage":
         output_str = output_str + " --serial --monitor "
     if options.filteros:
@@ -133,6 +135,7 @@ if __name__ == "__main__":
     parser.add_option("--hostopstat", dest="hostopstat", help="Host operation status")
     parser.add_option("--casesubject", dest="casesubject", help="Initital case subject to use")
     parser.add_option("--patchset", dest="patchset", help="Patchset name eg 2015.10 or 2016.01")
+    parser.add_option("--skip_bundle", dest="skip_bundle", help="Skip patch bundle eg 2015.10")
     parser.add_option("--implplan", dest="implplansection", help="Template to use for implementation steps in planner")
     parser.add_option("--taggroups", dest="taggroups", help="Size for blocked groups for large running cases like hbase")
     parser.add_option("--dowork", dest="dowork", help="Include template to use for v_INCLUDE replacement")
@@ -205,6 +208,8 @@ if __name__ == "__main__":
     # W-4531197 Adding logic to remove already patched host for Case.
     if options.delpatched:
         delpatched = options.delpatched
+    if options.skip_bundle:
+	skip_bundle = options.skip_bundle
     # End
 
     if options.podgroups and options.casetype == "hostlist" and options.hlgrp == "False":
