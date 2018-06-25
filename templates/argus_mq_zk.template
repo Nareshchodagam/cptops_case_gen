@@ -19,10 +19,10 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
 - Stop the running application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_mq_zk -host v_HOSTS -c  cmd -m "/home/sfdc/start-stop.sh stop" -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_mq_zk -host v_HOSTS -c cmd -m "/home/sfdc/start-stop.sh stop" -threads -auto2
 
-- Stop the Splunk
-- release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -auto2
+- Stop the ElasticSearch node (defaults to port 9200)
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_mq_zk -host v_HOSTS -c cmd -m "/home/sfdc/start-stop-esnode.sh stop" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 v_INCLUDE
 
@@ -39,10 +39,10 @@ Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Start the application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_mq_zk -host v_HOSTS -c  cmd -m "/home/sfdc/start-stop.sh start" -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_mq_zk -host v_HOSTS -c cmd -m "/home/sfdc/start-stop.sh start" -threads -auto2
 
-- Start Splunk
-- release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -auto2
+- Start the ElasticSearch node (defaults to port 9200)
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_mq_zk -host v_HOSTS -c cmd -m "/home/sfdc/start-stop-esnode.sh start" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Verify app
 Exec: /opt/cpt/bin/check_http_code.py -H v_HOSTS -P 2181
