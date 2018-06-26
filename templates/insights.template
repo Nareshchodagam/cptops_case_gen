@@ -4,9 +4,6 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 - Write cptrelease file
 release_runner.pl -forced_host v_HOSTS  -c sudo_cmd -m "./remote_transfer/write_cptrelease.py --last" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Validate the host needs to be patched
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
@@ -24,6 +21,9 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product i
 
 - Sleep (Requested by Insights team)
 Exec: sleep 120
+
+-Enable edgeservices to prepare for OS patching.
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices -host v_HOSTS -c cmd -m "cd /home/sfdc/current/edgeservices/edgeservices/build && ./ant -q ospatch" -threads -auto2
 
 - Stop the running application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis,insights-edgeservices,wave-connector-agent,wave-cassandra,automated-insights -host v_HOSTS -c stop_server -threads -auto2

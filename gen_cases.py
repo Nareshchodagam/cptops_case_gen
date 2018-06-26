@@ -171,6 +171,8 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.DEBUG)
     if not options.casesubject:
         options.casesubject = options.patchset + " Patch Bundle"
+    else:
+        options.casesubject += " Patch Bundle"
 
     # W-4574049 Add to support CentOS7 migration
     if options.casework == "reimage":
