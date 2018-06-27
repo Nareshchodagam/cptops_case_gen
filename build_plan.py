@@ -652,14 +652,15 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role, num, groupcoun
     elif options.delpatched or options.skip_bundle:
         if not options.skip_bundle:
             options.skip_bundle = None
-            hosts = return_not_patched_hosts(hosts, options.bundle, options.skip_bundle)
-            if hosts == None:
-                s = "- Skipped Already Patched host {0} for bundle {1} or {2}".format(org_host, options.bundle, options.skip_bundle)
-            else:
-                for h in hosts.split(","):
-                    not_patched_hosts.append(h)
-                s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, num, cl_opstat, ho_opstat,
-                                     template_vars)
+
+        hosts = return_not_patched_hosts(hosts, options.bundle, options.skip_bundle)
+        if hosts == None:
+            s = "- Skipped Already Patched host {0} for bundle {1} or {2}".format(org_host, options.bundle, options.skip_bundle)
+        else:
+            for h in hosts.split(","):
+                not_patched_hosts.append(h)
+            s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, num, cl_opstat, ho_opstat,
+                                 template_vars)
     else:
         s = compile_template(s, hosts, cluster, datacenter, superpod, casenum, role, num, cl_opstat,ho_opstat,template_vars)
     # End
