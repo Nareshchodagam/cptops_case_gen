@@ -47,7 +47,8 @@ def dcs(rolename, podtype):
         prod_dc.extend(['crd', 'crz', 'sfz'])
     elif re.search(r'^cmgt', rolename, re.IGNORECASE):
         prod_dc = 'phx'
-    elif re.search(r'public|^polcore|^pkicontroller|^grok|hbase|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr|dva_onboarding|^deepsea|syntheticsagent', rolename, re.IGNORECASE):
+    elif re.search(r'public|^polcore|^pkicontroller|^grok|hbase|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr|'
+                   r'dva_onboarding|^deepsea|syntheticsagent|syntheticsmaster', rolename, re.IGNORECASE):
         prod_dc.extend(['prd'])
     elif re.search(r'^syslog|^vnscanam|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|vc|rdb|hmrlog|^appauth', rolename, re.IGNORECASE):
         prod_dc.extend(['prd', 'crd', 'crz', 'sfm', 'sfz'])
