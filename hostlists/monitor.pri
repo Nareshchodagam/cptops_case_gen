@@ -23,9 +23,7 @@ ops0-monitor1-1-hnd
 ops0-monitor1-1-hnd
 ops0-monitor1-1-hnd
 ops0-monitor1-1-hnd
-cs115-monitor1-1-syd
 ops0-monitor1-1-syd
-cs116-monitor1-1-syd
 ops0-monitor1-1-syd
 sr1-monitor1-1-chi
 na9-monitor1-1-chi
@@ -187,8 +185,6 @@ ops0-monitor1-2-iad
 ops0-monitor1-2-iad
 ops0-monitor1-2-iad
 ops0-monitor1-1-iad
-cs116-monitor1-1-cdu
-cs115-monitor1-1-cdu
 ops0-monitor1-1-cdu
 ops0-monitor1-1-cdu
 ops0-monitor2-1-phx
@@ -263,8 +259,6 @@ na60-monitor1-1-phx
 ops0-monitor2-1-phx
 ops0-monitor1-3-phx
 ops0-monitor2-4-phx
-cs98-monitor1-1-yul
-cs99-monitor1-1-yul
 ops0-monitor1-1-yul
 ops0-monitor1-1-yul
 cs32-monitor1-1-chx
@@ -291,9 +285,7 @@ ops0-monitor1-2-ord
 ops0-monitor1-2-ord
 ops0-monitor1-2-ord
 ops0-monitor1-1-ord
-cs99-monitor1-1-yhu
 ops0-monitor1-1-yhu
-cs98-monitor2-1-yhu
 ops0-monitor1-1-yhu
 na11-monitor1-1-was
 na14-monitor1-1-was
