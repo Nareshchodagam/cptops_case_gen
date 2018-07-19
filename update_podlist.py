@@ -38,7 +38,7 @@ def dcs(rolename, podtype):
         prod_dc.extend(['crz', 'sfz', 'prd'])
     elif re.search(r'ajna|sms', podtype, re.IGNORECASE):
         prod_dc.extend(['sfz', 'prd'])
-    elif re.search(r'secrets|netmonitor|mom|gingham', podtype, re.IGNORECASE):
+    elif re.search(r'secrets|secrets_ci|netmonitor|mom|gingham', podtype, re.IGNORECASE):
         prod_dc.extend(['xrd', 'crd', 'sfz', 'prd', 'crz'])
     elif re.search(r'ops-stack', podtype, re.IGNORECASE):
         prod_dc.extend(['crd', 'sfz', 'prd', 'crz'])
