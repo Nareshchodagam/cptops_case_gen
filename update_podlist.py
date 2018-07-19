@@ -310,7 +310,7 @@ def listbuilder(pod_list, dc):  # This was added as part of - 'T-1810443'
     # searching for just monitor as below commented line shows, errs with NoneType on run
     # hostnum = re.compile(r"(^monitor)([1-6])")
     
-    hostnum = re.compile(r"(^monitor|^netmonitor)([1-6])")
+    hostnum = re.compile(r"(^monitor|^netmonitor)(\d+)")
     hostcomp = re.compile(r'(\w*-\w*)(?<!\d)')
     hostlist_pri = []
     hostlist_sec = []
@@ -349,10 +349,16 @@ def listbuilder(pod_list, dc):  # This was added as part of - 'T-1810443'
                         hostlist_pri.append(host[0])
                     match = hostnum.search(mon_num[1])
                     num = int(match.group(2))
-                    if (num % 2) == 0:
-                        stby_host = val.lower() + "-" + match.group(1) + str(num - 1) + "-" + mon_num[2] + "-" + dc
+		    if (num % 2) == 0:
+                        if num == 30:
+                                stby_host = val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc
+                        else:
+                                stby_host = val.lower() + "-" + match.group(1) + str(num - 1) + "-" + mon_num[2] + "-" + dc
                     else:
-                        stby_host = val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc
+                        if num == 31:
+                                stby_host = val.lower() + "-" + match.group(1) + str(num - 1) + "-" + mon_num[2] + "-" + dc
+                        else:
+                                stby_host = val.lower() + "-" + match.group(1) + str(num + 1) + "-" + mon_num[2] + "-" + dc
                     if stby_host not in hostlist_sec:
                         hostlist_sec.append(stby_host)
 
