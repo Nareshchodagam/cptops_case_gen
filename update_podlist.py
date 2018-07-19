@@ -38,20 +38,20 @@ def dcs(rolename, podtype):
         prod_dc.extend(['crz', 'sfz', 'prd'])
     elif re.search(r'ajna|sms', podtype, re.IGNORECASE):
         prod_dc.extend(['sfz', 'prd'])
-    elif re.search(r'secrets|netmonitor|mom|gingham', podtype, re.IGNORECASE):
+    elif re.search(r'secrets|secrets_ci|netmonitor|mom|gingham', podtype, re.IGNORECASE):
         prod_dc.extend(['xrd', 'crd', 'sfz', 'prd', 'crz'])
     elif re.search(r'ops-stack', podtype, re.IGNORECASE):
         prod_dc.extend(['crd', 'sfz', 'prd', 'crz'])
     elif re.search(r'lhub', rolename, re.IGNORECASE):
         prod_dc = 'sfz'
-    elif re.search(r'^deploydata|^artifactrepo', rolename, re.IGNORECASE):
+    elif re.search(r'^deploydata', rolename, re.IGNORECASE):
         prod_dc.extend(['crd', 'crz', 'sfz'])
     elif re.search(r'^cmgt', rolename, re.IGNORECASE):
         prod_dc = 'phx'
     elif re.search(r'public|^polcore|^pkicontroller|^grok|hbase|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr|'
                    r'dva_onboarding|^deepsea|syntheticsagent|syntheticsmaster', rolename, re.IGNORECASE):
         prod_dc.extend(['prd'])
-    elif re.search(r'^vnscanam|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|rdb|hmrlog', rolename, re.IGNORECASE):
+    elif re.search(r'^vnscanam|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|rdb|hmrlog|^artifactrepo', rolename, re.IGNORECASE):
         prod_dc.extend(['prd', 'crd', 'crz', 'sfm', 'sfz'])
     elif re.search(r'^syslog|appauth|vc', rolename, re.IGNORECASE):
         prod_dc.extend(['crd', 'crz', 'sfm', 'sfz'])    # TODO This code block can be refactored.

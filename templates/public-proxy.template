@@ -40,9 +40,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/squid stop" -
 - Stop the running (NAMED/BIND) application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/named stop" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Stop Splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c stop_server -threads -auto2
-
 
 v_INCLUDE
 
@@ -79,8 +76,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/etc/init.d/squid status"
 - validate the max file descriptors as squid startup can be problematic target is 65k if it fails do a stop and start to restart it.
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_maxfs_desc.py" -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Start Splunk
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -threads -auto2
 
 - Verify default gateway
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_static_routes.py -g" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
