@@ -25,7 +25,7 @@ v_INCLUDE
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Reboot the host
-release_runner.pl -threads -auto2 -c sudo_cmd -m "reboot" -forced_host v_HOSTS -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -property "ssh_timeout=15" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Check the host is online
 Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
