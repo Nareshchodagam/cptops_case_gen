@@ -37,7 +37,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 Exec: /opt/cpt/bin/check_http_code.py -H v_HOSTS -P 7071,8082
 
 - Write cptrelease file
-release_runner.pl -forced_host v_HOSTS  -c sudo_cmd -m "./remote_transfer/write_cptrelease.py --current" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS  -c sudo_cmd -m "./remote_transfer/write_cptrelease.py --current -c v_CASE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 Exec: echo "Host v_HOSTS system patching completed"
 
