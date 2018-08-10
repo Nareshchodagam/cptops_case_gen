@@ -284,12 +284,14 @@ def isInstancePri(inst, dc):
     for o in output.split('\n'):
         logger.debug(o)
         if re.search(r'monitor', o):
-            inst, hfunc, short_site = get_inst_site(o)
-            logger.debug("%s : %s " % (short_site, dc))
-            if short_site != dc:
-                return "DR"
-            else:
-                return "PROD"
+	        splitted = o.split("-")
+	        if len(splitted) > 3:
+                	inst, hfunc, short_site = get_inst_site(o)
+            		logger.debug("%s : %s " % (short_site, dc))
+            		if short_site != dc:
+                		return "DR"
+            		else:
+                		return "PROD"
 
 
 def chunks(l, n):
