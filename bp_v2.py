@@ -14,6 +14,7 @@ import argparse
 import logging
 import json
 import os
+import re
 
 pp = pprint.PrettyPrinter(indent=2)
 
@@ -42,7 +43,13 @@ def get_data(cluster, role, dc):
     :return:
     '''
     master_json = {}
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?cluster={}&role={}&dc={}".format(cluster, role, dc)
+    ice_chk = re.compile(r'ice|mist')
+
+    if cluster != "NA":
+        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?cluster={}&role={}&dc={}".format(cluster, role, dc)
+    else:
+        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
+
     response = requests.get(url, verify=False)
     if response.json() is None:
         logging.error("No Data Present")
@@ -53,16 +60,45 @@ def get_data(cluster, role, dc):
     for hostname in data:
         if hostname['clusterStatus'] == cl_status and hostname['hostStatus'] == ho_status and \
                 hostname['patchCurrentRelease'] != options.bundle:
-            master_json[hostname['hostName']] = {'RackNumber': hostname['hostRackNumber'], 'Role': hostname['roleName'],
-                                                               'Bundle': hostname['patchCurrentRelease']}
+                master_json[hostname['hostName']] = {'RackNumber': hostname['hostRackNumber'], 'Role': hostname['roleName'], 'Bundle': hostname['patchCurrentRelease']}
         else:
+            logging.debug("{}: Current Bundle:{} Cluster Status:{} Host Status:{}".format(hostname['hostName'], hostname['patchCurrentRelease'], hostname['clusterStatus'], hostname['hostStatus']))
             continue
+
     logging.debug("Master Json {}".format(master_json))
     if not master_json:
         logging.error("All Hosts are current at {} bundle".format(options.bundle))
         sys.exit(1)
     else:
-        return master_json
+        #master_json = ice_chk(master_json)
+        master_json = hostfilter_chk(master_json)
+
+    if not master_json:
+        logging.error("No servers match any filters.")
+        sys.exit(1)
+
+    return master_json
+
+def hostfilter_chk(data):
+    if hostfilter:
+        host_filter = re.compile(r'{}'.format(hostfilter))
+        for host in data.keys():
+            if not host_filter.match(host):
+                logging.debug("{} does not match ...".format(host))
+                del data[host]
+            else:
+                continue
+    return data
+
+def ice_mist_check(hostname):
+    ice_chk = re.compile(r'ice|mist|^stm')
+
+    if options.ice:
+        if ice_chk.match(hostname):
+            logging.debug("Host matches skipping...")
+            return 1
+        else:
+            return 0
 
 def validate_templates(tempalteid):
     '''
@@ -254,16 +290,27 @@ def main_worker(templateid, new_data):
     sum_file.close()
     create_masterplan(consolidated_file, pre_template)
 
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Build_Plan   ")
-    parser.add_argument("--bundle", dest="bundle", default="current", help="Patchset version")
-    parser.add_argument("-G", "--idbgen", dest="idbgen", help="generate from idb")
-    parser.add_argument("--taggroups", dest="taggroups", default=0, help="number of sub-plans per group tag")
-    parser.add_argument("--nolinebacker", dest="nolinebacker", action="store_true", default=False, help="Don't use linebacker")
-    parser.add_argument("--gsize", dest="gsize", default=1, help="Group Size value")
-    parser.add_argument("--dowork", dest="dowork", help="command to supply for dowork functionality")
-    parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Verbose Logging")
+    parser = argparse.ArgumentParser(description="Build_Plan")
+    group1 = parser.add_argument_group('Standard', 'Command Line Options')
+    group2 = parser.add_argument_group('Advanced', 'Additonal Parameters')
+    group1.add_argument("-r", "--role", dest="role", help="Device RoleName")
+    group1.add_argument("-d", "--datacenter", dest="dc", help="Datacenter")
+    group1.add_argument("-p", "--pod", dest="pod", help="Superpod")
+    group1.add_argument("-c", "--cluster", dest="cluster", help="Cluster")
+    group1.add_argument("-t", "--template", dest="templateid", help="Template")
+    group1.add_argument("-g", "--grouping", dest="grouping", help="Host Grouping (majorset|minorset|byrack)")
+    group1.add_argument("--maxgroupsize", dest="maxgroupsize", help="# of servers in parallel")
+    group1.add_argument("--dr", dest="dr", action="store_true", default=False, help="DR Host only")
+    group1.add_argument("--bundle", dest="bundle", default="current", help="Patchset version")
+    group1.add_argument("--gsize", dest="gsize", default=1, help="Group Size value")
+    group1.add_argument("--dowork", dest="dowork", help="command to supply for dowork functionality")
+    group1.add_argument("-G", "--idbgen", dest="idbgen", help='Create json string for input (i.e \'{"dr": "FALSE", "datacenter": "prd", "roles": "sdb", "templateid": "sdb", "grouping": "majorset", "maxgroupsize": 1}\')')
+    group2.add_argument("--taggroups", dest="taggroups", default=0, help="number of sub-plans per group tag")
+    group2.add_argument("--nolinebacker", dest="nolinebacker", action="store_true", default=False, help="Don't use linebacker")
+    group2.add_argument("--hostpercent", dest="hostpercent", help="% of hosts in parallel")
+    group2.add_argument("--no_ice", dest="ice", action="store_true", default=False, help="Include ICE host in query")
+    group2.add_argument("-v", "--verbose", action="store_true", default=False, help="Verbose Logging")
     options = parser.parse_args()
 
     ###############################################################################
@@ -298,19 +345,39 @@ if __name__ == "__main__":
         logging.debug(inputdict)
         role = inputdict['roles']
         dc = inputdict['datacenter']
-        pod = inputdict['superpod']
         grouping = inputdict['grouping']
-        cluster = inputdict['clusters']
         templateid = inputdict['templateid']
         dr = inputdict['dr']
 
-
-        #Error checking for variables.
+        # options parameters
         try:
-            gsize = inputdict['maxgroupsize'] if grouping != "byrack" else 0
-        except KeyError as err:
-            logging.error("Missing value %s", err)
-            sys.exit(1)
+            pod = inputdict['superpod']
+        except KeyError:
+            pod = "NA"
+
+        try:
+            hostfilter = inputdict['hostfilter']
+        except KeyError:
+            hostfilter="None"
+
+        try:
+            cluster = inputdict['clusters']
+        except KeyError:
+            cluster = "NA"
+
+        try:
+            hostfilter = inputdict['hostfilter']
+        except KeyError:
+            pass
+
+        # Error checking for variables.
+        if grouping != "byrack":
+            try:
+                gsize = inputdict['maxgroupsize']
+            except KeyError:
+                gsize = 1
+        else:
+            gsize = 0
 
         try:
             cl_status = inputdict['cl_opstat']
