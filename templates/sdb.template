@@ -16,11 +16,8 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 - Disable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
 
-- Set Host to MAINTENANCE in db.dat
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - sdb -c 'test -f /sdb/mgmt/bin && cd /sdb/mgmt/bin && sed -i -e "s/^STATE .*$/STATE MAINTENANCE/g" db.dat || echo "db.dat does not exist. Skipping"'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
-- Verfiy entire cluster is healthy
-release_runner.pl -no_lb -no_monitor -product sayonaradb -device_roles v_ROLE -cluster v_CLUSTER -superpod v_SUPERPOD --invdb_mode -auto2 -cluster_status ACTIVE -dostandby -c cmd -m 'cd current/sfdc-base/sayonaradb/build; ./ant sdbcont.verify' -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Verify Cluster
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_sdb.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Stop container.
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - sdb -c 'cd current/sfdc-base/sayonaradb/build; ./ant sdbcont.stop'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
@@ -39,14 +36,11 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 - Start container
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - sdb -c 'cd current/sfdc-base/sayonaradb/build; ./ant sdbcont.start'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Verfiy entire cluster is healthy
-release_runner.pl -no_lb -no_monitor -product sayonaradb -device_roles v_ROLE -cluster v_CLUSTER -superpod v_SUPERPOD --invdb_mode -auto2 -cluster_status ACTIVE -dostandby -c cmd -m 'cd current/sfdc-base/sayonaradb/build; ./ant sdbcont.verify' -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Verify Cluster
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_sdb.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c enable
-
-- Set Host to Online in db.dat
-release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "su - sdb -c 'test -f /sdb/mgmt/bin && cd /sdb/mgmt/bin && sed -i -e "s/^STATE .*$/STATE ONLINE/g" db.dat || echo "db.dat does not exist. Skipping"'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Update cptrelease file
 release_runner.pl -forced_host v_HOSTS  -c sudo_cmd -m "./remote_transfer/write_cptrelease.py --current -c v_CASE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
