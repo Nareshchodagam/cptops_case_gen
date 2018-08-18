@@ -169,6 +169,7 @@ ops0-monitor3-1-phx
 ops0-monitor1-3-phx
 ops0-monitor2-4-phx
 ops0-monitor1-1-yul
+ops0-monitor1-1-yul
 cs32-monitor1-1-chx
 na21-monitor1-1-chx
 cs33-monitor1-1-chx
