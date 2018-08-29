@@ -140,6 +140,7 @@ ops0-monitor1-2-iad
 ops0-monitor1-2-iad
 ops0-monitor1-1-iad
 ops0-monitor1-1-cdu
+ops0-monitor1-1-cdu
 ops0-monitor3-1-phx
 ops0-monitor3-1-phx
 ops0-monitor3-1-phx
