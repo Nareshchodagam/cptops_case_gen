@@ -10,7 +10,11 @@ def groupType(role):
     groupings = {'search': 'majorset',
                  'lhub': 'minorset',
                  'insights_iworker,insights_redis': 'majorset',
-                 'ajna_mgmt,ajna_tracing,ajna_wrangler': 'minorset'
+                 'ajna_mgmt,ajna_tracing,ajna_wrangler': 'minorset',
+                 'samcompute': 'byrack',
+                 'samkubeapi': 'byrack',
+                 'sam_node': 'byrack',
+                 'sam_master': 'byrack'
                  }
 
     if options.hostopstat and options.csv:
@@ -156,6 +160,7 @@ if __name__ == "__main__":
     parser.add_option("--serial", dest="serial", action="store_true", help="serial [ used in reimage]")
     parser.add_option("--filter_os", dest="filteros", action="store_true", help="Filter hosts for CentOS7 migration")
     parser.add_option("--filter_gia", dest="filtergia", action="store_true", default="False", help="Only create case for GIA")
+    parser.add_option("-x", "--bpv2", dest="bpv2", action="store_true", default="False", help="Create cases with Build_Plan_v2")
     # W-4574049 End
 
     python = 'python'
@@ -304,9 +309,12 @@ if __name__ == "__main__":
             opts_str = re.sub('maxgroupsize": ("\d+")', inputDictStrtoInt, opts_str)
             logging.debug(opts_str)
             # Added linebacker -  W-3779869
-            output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s %s  --auto_close_case %s -v"""\
-                         """ --nolinebacker %s""" % (options.patchset,opts_str,options.taggroups, hostv, options.auto_close_case,  options.nolinebacker)
-            output_str = cmdformat(output_str)
+            if options.bpv2 == True:
+                output_str = """python bp_v2.py --bundle %s -G '%s' -v --dowork %s""" % (options.patchset, opts_str, options.dowork)
+            else:
+                output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s %s  --auto_close_case %s -v""" \
+                             """ --nolinebacker %s""" % (options.patchset, opts_str, options.taggroups, hostv, options.auto_close_case, options.nolinebacker)
+                output_str = cmdformat(output_str)
             print(output_str)
             if options.regexfilter:
                 subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec + "[" + cluster_status + "]"
