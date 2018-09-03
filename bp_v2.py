@@ -358,17 +358,12 @@ if __name__ == "__main__":
         try:
             hostfilter = inputdict['hostfilter']
         except KeyError:
-            hostfilter="None"
+            hostfilter = None
 
         try:
             cluster = inputdict['clusters']
         except KeyError:
             cluster = "NA"
-
-        try:
-            hostfilter = inputdict['hostfilter']
-        except KeyError:
-            pass
 
         # Error checking for variables.
         if grouping != "byrack":
