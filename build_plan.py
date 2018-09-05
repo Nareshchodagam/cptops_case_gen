@@ -825,7 +825,7 @@ def gen_plan_by_idbquery(inputdict):
         idbfilters["deviceRole"] = inputdict['roles'].split(',')
     if 'clusters' in inputdict:
         idbfilters["cluster.name"] = inputdict['clusters'].split(',')
-    if  'clusterTypes' in inputdict:
+    if 'clusterTypes' in inputdict:
         idbfilters["cluster.clusterType"] = inputdict['clusterTypes'].split(',')
     if 'superpods' in inputdict:
         idbfilters["cluster.superpod.name"] = inputdict['superpods'].split(',')
@@ -874,6 +874,7 @@ def gen_plan_by_idbquery(inputdict):
     bph = Buildplan_helper(dcs,endpoint,supportedfields,idbfilters)
     bph.apply_regexfilters(regexfilters)
     writeplan = bph.apply_groups(grouping,template_id,gsize)
+
     consolidate_idb_query_plans(writeplan, dcs)
 
 def consolidate_idb_query_plans(writeplan,dcs):
@@ -956,7 +957,9 @@ def write_plan_dc(dc,template_id,writeplan):
     global gblSplitHosts
     grouptagcount=0
     results=writeplan[template_id][(dc,)]
+
     i=0
+    p=1
 
     allhosts=[]
     allclusters=[]
@@ -965,6 +968,8 @@ def write_plan_dc(dc,template_id,writeplan):
 
     template_vars = {}
     cleanup_out()
+
+
     for mygroup in sorted(results.keys()):
         for sizegroup in sorted(results[mygroup]):
             i+=1
@@ -992,10 +997,20 @@ def write_plan_dc(dc,template_id,writeplan):
             fileprefix = str(i)
             gblSplitHosts = build_dynamic_groups(hostnames)
             logging.debug(gblSplitHosts)
+            # The following section is to manage dynamic grouping while writing plan. Currently being hardcoded to 10%
+            if 'ajna_broker' in roles:
+                g_div = int(10*len(hostnames)/100)
+                if g_div == 0: g_div = 1
+                ho_lst = [hostnames[j: j + g_div] for j in range(0, len(hostnames), g_div)]
+                for h in ho_lst:
+                    prep_template(template_id, common.outputdir + '/' + str(p) + "_plan_implementation.txt")
+                    gen_plan(','.join(h).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),str(p),p,','.join(cluster_operationalstatus),','.join(host_operationalstatus), template_vars)
+                    p+=1
+            else:
+                prep_template(template_id, common.outputdir + '/' + fileprefix + "_plan_implementation.txt")
+                gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),
+                         fileprefix,i,','.join(cluster_operationalstatus),','.join(host_operationalstatus), template_vars)
 
-            prep_template(template_id, common.outputdir + '/' + fileprefix + "_plan_implementation.txt")
-            gen_plan(','.join(hostnames).encode('ascii'), ','.join(clusters), dc, superpod, options.caseNum, ','.join(roles),
-                     fileprefix,i,','.join(cluster_operationalstatus),','.join(host_operationalstatus), template_vars)
 
     consolidated_plan = consolidate_plan(','.join(set(allhosts)), ','.join(set(allclusters)), dc, ','.join(set(allsuperpods)), options.caseNum, ','.join(set(allroles)))
     print 'Template: '+ template_id
