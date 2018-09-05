@@ -416,7 +416,7 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
         if 'v_COMMAND' not in output and 'mkdir ' not in output:
             output = output.replace('v_HOSTS', '$(cat ~/v_CASE_include)')
             output_list = output.splitlines(True)
-            if role != "secrets":
+            if role not in ("secrets", "smszk"):
                 output_list.insert(1, '\n- Verify if hosts are patched or not up\nExec: echo "Verify hosts BLOCK v_NUM" && '
                                   '/opt/cpt/bin/verify_hosts.py -H v_HOSTS --bundle v_BUNDLE --case v_CASE\n\n')
             output = "".join(output_list)
