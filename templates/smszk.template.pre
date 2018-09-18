@@ -5,4 +5,4 @@ Exec: mkdir -p ~/releaserunner/remote_transfer
 Exec: cp -R /opt/cpt/remote/* ~/releaserunner/remote_transfer/
 
 - Find leader and rebuild hostlist.
-Exec: /opt/cpt/bin/zookeeper_status.py -c v_CASE -H v_HOSTS --byleader
+Exec: /opt/cpt/remote/zookeeper_status.py -c v_CASE -H v_HOSTS --byleader
