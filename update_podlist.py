@@ -23,8 +23,8 @@ from socket import gethostname
 # Functions definition
 
 def dcs(rolename, podtype):
-    prod_dc = ['chi', 'xrd', 'was', 'lon', 'ukb', 'hnd', 'phx', 'frf', 'dfw', 'par',
-               'iad', 'yul', 'yhu', 'syd', 'cdu', 'ord', 'chx', 'wax', 'fra', 'cdg']
+    prod_dc = ['chi', 'was', 'lon', 'ukb', 'hnd', 'phx','dfw','frf', 'par','iad', 'ord',
+               'yul', 'yhu', 'syd', 'cdu', 'chx', 'wax', 'fra', 'cdg', 'ia2', 'ph2', 'xrd']
 # removed if condition as we are not using the else part (non_prod_dc)
     # non_prod_dc = ['sfz', 'crd', 'sfm', 'prd', 'crz']
     # if prod:
