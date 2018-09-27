@@ -124,10 +124,16 @@ class Groups(Organizer):
     def majorset(self, data):
         self.bymajor['Details'] = self.details
         self.bymajor['Hostnames'] = {}
-        for host in data.iterkeys():
-            regout = self.hostnum.search(host.split("-")[1])
+        self.master_data = data
+        for host in self.master_data.iterkeys():
+            try:
+                majorset = self.master_data[host]['Majorset']
+            except KeyError as valerr:
+                print valerr
+                raise
+            #regout = self.hostnum.search(host.split("-")[1])
             #regout = self.hostnum.search(host)
-            majorset = int(regout.group())
+            #majorset = int(regout.group())
             if majorset in self.bymajor['Hostnames'].keys():
                 self.bymajor['Hostnames'][majorset].append(host)
             else:
@@ -138,9 +144,15 @@ class Groups(Organizer):
     def minorset(self, data):
         self.byminor['Details'] = self.details
         self.byminor['Hostnames'] = {}
-        for host in data.iterkeys():
-            regout = self.hostnum.search(host.split("-")[2])
-            minorset = regout.groups()
+        self.master_data = data
+        for host in self.master_data.iterkeys():
+            try:
+                minorset = self.master_data[host]['Minorset']
+            except KeyError as valerr:
+                print valerr
+                raise
+            #regout = self.hostnum.search(host.split("-")[2])
+            #minorset = regout.groups()
             if minorset in self.byminor['Hostnames'].keys():
                 self.byminor['Hostnames'][minorset].append(host)
             else:
