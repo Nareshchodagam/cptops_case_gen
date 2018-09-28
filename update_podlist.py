@@ -189,6 +189,12 @@ def parse_json_data(data):
         return role_details
 
 def captain_pods(role, dc):
+    """
+    This function us for fetching the cluster onboarded on to Captain.
+    :param role: querying atlas api for role
+    :param dc: querying atlas api for dc
+    :return: a list of pods onboarded to captain.
+    """
     pods = []
     url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/role-clusters?role={}&dc={}".format(role, dc)
     response = requests.get(url, verify=False)
@@ -409,10 +415,10 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
     c_pods = []
     f_read = False
     for dc in idb_data.keys():
+        c_pods = captain_pods(role, dc)
         if re.search(r'afw', file_name, re.IGNORECASE):
             groupsize = 1
             for sp, pods in idb_data[dc].items():
-                c_pods = captain_pods(role, dc)
                 ttl_len = len(pods)
                 p = []
                 s = []
@@ -610,18 +616,18 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
-                    if 'Primary' in pods[index]:
-                        if 'irc' in file_name and 'MTA' in pods[index]['Primary'] and pods[index]['Primary'] not in c_pods:
+                    if 'Primary' in pods[index] and pods[index]['Primary'] not in c_pods:
+                        if 'irc' in file_name and 'MTA' in pods[index]['Primary']:
                             continue
-                        elif 'argus' in file_name and 'ARGUS_DEV' in pods[index]['Primary'] and pods[index]['Primary'] not in c_pods:
+                        elif 'argus' in file_name and 'ARGUS_DEV' in pods[index]['Primary']:
                             continue
-                        elif 'piperepo' in file_name and 'OPS_PIPELINE' not in pods[index]['Primary'] and pods[index]['Primary'] not in c_pods:
+                        elif 'piperepo' in file_name and 'OPS_PIPELINE' not in pods[index]['Primary']:
                             continue
                         w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                         pri.write(w)
 
-                    if 'Secondary' in pods[index]:
-                        if 'HUB' not in pods[index]['Secondary'] and 'MFM' not in pods[index]['Secondary'] and pods[index]['Secondary'] not in c_pods:
+                    if 'Secondary' in pods[index] and pods[index]['Secondary'] not in c_pods:
+                        if 'HUB' not in pods[index]['Secondary'] and 'MFM' not in pods[index]['Secondary']:
                             w = pods[index]['Secondary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                             sec.write(w)
                         else:
