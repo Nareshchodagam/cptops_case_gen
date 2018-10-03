@@ -37,6 +37,8 @@ def dcs(rolename, podtype):
         prod_dc.extend(['sfz', 'crd', 'crz', 'prd', 'sfm'])
     elif re.search(r'^warden|argus|strata|cmgtapi', rolename, re.IGNORECASE):
         prod_dc = 'prd'
+    elif re.search(r'icesplunk', rolename, re.IGNORECASE):
+        prod_dc = (['sfm', 'prd', 'crd'])
     elif re.search(r'splunk', rolename, re.IGNORECASE):
         prod_dc.extend(['crz', 'sfz', 'prd'])
     elif re.search(r'ajna|sms', podtype, re.IGNORECASE):
