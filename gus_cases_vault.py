@@ -363,7 +363,7 @@ def update_implplan(filename, case_num):
 def PreApproveCase(caseId, session):
     gusObj = Gus()
     Dict = {
-                "Status": "Approved, Scheduled"
+                'Status': 'Approved, Scheduled',
             }
     details = gusObj.update_case_details(caseId, Dict, session)
     logging.debug(details)
@@ -373,8 +373,8 @@ def PreApproveCase(caseId, session):
 def new_unassigned_case(caseId, session):
     gusObj = Gus()
     Dict = {
-        'Change-Type': 'Minor',
-        'Status': 'New/Unassigned',
+        "Change-Type": "Minor",
+        'Status': 'New/Unassigned'
     }
     details = gusObj.update_case_details(caseId, Dict, session)
     logging.debug(details)
@@ -404,7 +404,7 @@ def updateCaseInformation_(caseId, session):
             'Content-Type': 'application/json',
             'Sforce-Auto-Assign': 'False'
         }
-        
+
         try:
             res = patch(url_, data=json.dumps(dict), headers=header_)
             return res
@@ -610,6 +610,7 @@ if __name__ == '__main__':
             updateCaseInformation_(caseId, session)
         elif options.pre_appr == "new":
             new_unassigned_case(caseId, session)
+            updateCaseInformation_(caseId, session)
 
         # TODO - Hack to update RiskSummary for CE7 migrations.
         if "migration" in options.subject:
