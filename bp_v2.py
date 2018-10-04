@@ -60,9 +60,14 @@ def get_data(cluster, role, dc):
     for hostname in data:
         if hostname['clusterStatus'] == cl_status and hostname['hostStatus'] == ho_status and \
                 hostname['patchCurrentRelease'] != options.bundle:
-                master_json[hostname['hostName']] = {'RackNumber': hostname['hostRackNumber'], 'Role': hostname['roleName'], 'Bundle': hostname['patchCurrentRelease']}
+                master_json[hostname['hostName']] = {'RackNumber': hostname['hostRackNumber'],
+                                                     'Role': hostname['roleName'], 'Bundle': hostname['patchCurrentRelease'],
+                                                     'Majorset': hostname['hostMajorSet'], 'Minorset': hostname['hostMinorSet']}
         else:
-            logging.debug("{}: Current Bundle:{} Cluster Status:{} Host Status:{}".format(hostname['hostName'], hostname['patchCurrentRelease'], hostname['clusterStatus'], hostname['hostStatus']))
+            logging.debug("{}: Current Bundle:{} Cluster Status:{} Host Status:{}".format(hostname['hostName'],
+                                                                                          hostname['patchCurrentRelease'],
+                                                                                          hostname['clusterStatus'],
+                                                                                          hostname['hostStatus']))
             continue
 
     logging.debug("Master Json {}".format(master_json))
@@ -88,6 +93,8 @@ def hostfilter_chk(data):
                 del data[host]
             else:
                 continue
+    else:
+        continue
     return data
 
 def ice_mist_check(hostname):
@@ -395,6 +402,7 @@ if __name__ == "__main__":
     elif grouping == "minorset":
         new_data = grp.minorset(master_json)
         logging.debug("By Minorset: {}".format(new_data))
+        group_worker(templateid, new_data, gsize)
     elif grouping == "byrack":
         new_data = grp.rackorder(master_json)
         logging.debug("By Rack Data: {}".format(new_data))

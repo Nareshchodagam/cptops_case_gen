@@ -19,12 +19,15 @@ from argparse import RawTextHelpFormatter
 from idbhost import Idbhost
 from os import environ
 from socket import gethostname
+import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 # Functions definition
 
 def dcs(rolename, podtype):
-    prod_dc = ['chi', 'xrd', 'was', 'lon', 'ukb', 'hnd', 'phx', 'frf', 'dfw', 'par',
-               'iad', 'yul', 'yhu', 'syd', 'cdu', 'ord', 'chx', 'wax', 'fra', 'cdg']
+    prod_dc = ['chi', 'was', 'lon', 'ukb', 'hnd', 'phx','dfw','frf', 'par','iad', 'ord',
+               'yul', 'yhu', 'syd', 'cdu', 'chx', 'wax', 'fra', 'cdg', 'ia2', 'ph2', 'xrd']
 # removed if condition as we are not using the else part (non_prod_dc)
     # non_prod_dc = ['sfz', 'crd', 'sfm', 'prd', 'crz']
     # if prod:
@@ -34,6 +37,8 @@ def dcs(rolename, podtype):
         prod_dc.extend(['sfz', 'crd', 'crz', 'prd', 'sfm'])
     elif re.search(r'^warden|argus|strata|cmgtapi', rolename, re.IGNORECASE):
         prod_dc = 'prd'
+    elif re.search(r'icesplunk', rolename, re.IGNORECASE):
+        prod_dc = (['sfm', 'prd', 'crd'])
     elif re.search(r'splunk', rolename, re.IGNORECASE):
         prod_dc.extend(['crz', 'sfz', 'prd'])
     elif re.search(r'ajna|sms', podtype, re.IGNORECASE):
@@ -49,7 +54,7 @@ def dcs(rolename, podtype):
     elif re.search(r'^cmgt', rolename, re.IGNORECASE):
         prod_dc = 'phx'
     elif re.search(r'public|^polcore|^pkicontroller|^grok|hbase|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr|'
-                   r'dva_onboarding|^deepsea|syntheticsagent|syntheticsmaster', rolename, re.IGNORECASE):
+                   r'dva_onboarding|^deepsea|syntheticsagent|syntheticsmaster|^snd', rolename, re.IGNORECASE):
         prod_dc.extend(['prd'])
     elif re.search(r'^vnscanam|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|rdb|hmrlog|^artifactrepo', rolename, re.IGNORECASE):
         prod_dc.extend(['prd', 'crd', 'crz', 'sfm', 'sfz'])
@@ -175,7 +180,7 @@ def parse_json_data(data):
             if 'prod' in roletype and 'canary' not in roletype and 'standby' not in roletype:
                 for role_file in roledata.values():
                     try:
-                        role_details[roletype] = [role_file['PODGROUP'], role_file['CLUSTER_TYPE']]
+                        role_details[roletype] = [role_file['PODGROUP'], role_file['CLUSTER_TYPE'], role_file['ROLE']]
                     except Exception as e:
                         logger.warn("update_podlist.py: Auto podlist not supported for preset '{0}' - '{1}' is missing"
                                       .format(roletype, e))
@@ -185,6 +190,28 @@ def parse_json_data(data):
         logger.info("Successfully parsed the data")
         return role_details
 
+def captain_pods(role, dc):
+    """
+    This function us for fetching the cluster onboarded on to Captain.
+    :param role: querying atlas api for role
+    :param dc: querying atlas api for dc
+    :return: a list of pods onboarded to captain.
+    """
+    pods = []
+    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/role-clusters?role={}&dc={}".format(role, dc)
+    response = requests.get(url, verify=False)
+
+    try:
+        r_data = response.json()
+        for cl in r_data:
+            if cl['captain'] == True and cl['pod'] not in pods:
+                pods.append(cl['pod'])
+            else:
+                logger.info("No Captain Clusters")
+    except:
+        pass
+
+    return pods
 
 def query_to_idb(dc, rolename, idb_object, cl_status):
     """
@@ -367,7 +394,7 @@ def listbuilder(pod_list, dc):  # This was added as part of - 'T-1810443'
     return hostlist_pri, hostlist_sec
 
 
-def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
+def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
     """
     This function decides formatting of data to be writtenin  podlist file and it is responsible to restructure incoming data.
     This function regorub the data for the follwing roles
@@ -387,8 +414,10 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
     """
     pri, sec = file_handles(file_name)
     pod_data = []
+    c_pods = []
     f_read = False
     for dc in idb_data.keys():
+        c_pods = captain_pods(role, dc)
         if re.search(r'afw', file_name, re.IGNORECASE):
             groupsize = 1
             for sp, pods in idb_data[dc].items():
@@ -396,9 +425,9 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                 p = []
                 s = []
                 for index in range(0, ttl_len):
-                    if 'Primary' in pods[index] and pods[index]['Primary'] != "None":
+                    if 'Primary' in pods[index] and pods[index]['Primary'] != "None" and pods[index]['Primary'] not in c_pods:
                         p.append([pods[index]['Primary'], pods[index]['Operational Status']])
-                    if 'Secondary' in pods[index] and pods[index]['Secondary'] != "None":
+                    if 'Secondary' in pods[index] and pods[index]['Secondary'] != "None" and pods[index]['Secondary'] not in c_pods:
                         s.append([pods[index]['Secondary'], pods[index]['Operational Status']])
 
                 chunked = chunks(p, groupsize)
@@ -427,9 +456,9 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                 p = []
                 s = []
                 for index in range(0, ttl_len):
-                    if 'Primary' in pods[index] and pods[index]['Primary'] != "None":
+                    if 'Primary' in pods[index] and pods[index]['Primary'] != "None" and pods[index]['Primary'] not in c_pods:
                         p.append([pods[index]['Primary'], pods[index]['Operational Status']])
-                    if 'Secondary' in pods[index] and pods[index]['Secondary'] != "None":
+                    if 'Secondary' in pods[index] and pods[index]['Secondary'] != "None" and pods[index]['Secondary'] not in c_pods:
                         s.append([pods[index]['Secondary'], pods[index]['Operational Status']])
 
                 chunked = chunks(p, groupsize)
@@ -462,9 +491,9 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                 p = []
                 s = []
                 for index in range(0, ttl_len):
-                    if 'Primary' in pods[index] and pods[index]['Primary'] != "None":
+                    if 'Primary' in pods[index] and pods[index]['Primary'] != "None" and pods[index]['Primary'] not in c_pods:
                         p.append([pods[index]['Primary'], pods[index]['Operational Status']])
-                    if 'Secondary' in pods[index] and pods[index]['Secondary'] != "None":
+                    if 'Secondary' in pods[index] and pods[index]['Secondary'] != "None" and pods[index]['Secondary'] not in c_pods:
                         s.append([pods[index]['Secondary'], pods[index]['Operational Status']])
 
                 chunked = chunks(p, groupsize)
@@ -492,7 +521,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
                     # TODO Why this regex was added.
-                    if pods[index]['Primary'] != "None" and re.match(r"HBASE\d|HBASEX|HDAAS|STG\dHDAAS|ARG1HBSVC|DCHBASE", pods[index]['Primary'], re.IGNORECASE):
+                    if pods[index]['Primary'] != "None" and re.match(r"HBASE\d|HBASEX|HDAAS|STG\dHDAAS|ARG1HBSVC|DCHBASE", pods[index]['Primary'], re.IGNORECASE) and pods[index]['Primary'] not in c_pods:
                         w = pods[index]['Primary'] + " " + dc + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                         pri.write(w)
             logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
@@ -508,7 +537,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                 s = []
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
-                    if pods[index]['Primary'] != "None" and 'HBASE' in pods[index]['Primary']:
+                    if pods[index]['Primary'] != "None" and 'HBASE' in pods[index]['Primary'] and pods[index]['Primary'] not in c_pods:
                         loc = isInstancePri(pods[index]['Primary'], dc)
                         if loc == 'PROD':
                             p.append([pods[index]['Primary'], pods[index]['Operational Status']])
@@ -542,7 +571,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
-                    if pods[index]['Primary'] != "None":
+                    if pods[index]['Primary'] != "None" and pods[index]['Primary'] not in c_pods:
                         #if 'cs' in file_name:
                         #    if 'CS' in pods[index]['Primary'] and 'GLA' not in pods[index]['Primary']:
                         #        w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
@@ -589,7 +618,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
-                    if 'Primary' in pods[index]:
+                    if 'Primary' in pods[index] and pods[index]['Primary'] not in c_pods:
                         if 'irc' in file_name and 'MTA' in pods[index]['Primary']:
                             continue
                         elif 'argus' in file_name and 'ARGUS_DEV' in pods[index]['Primary']:
@@ -599,7 +628,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize):
                         w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                         pri.write(w)
 
-                    if 'Secondary' in pods[index]:
+                    if 'Secondary' in pods[index] and pods[index]['Secondary'] not in c_pods:
                         if 'HUB' not in pods[index]['Secondary'] and 'MFM' not in pods[index]['Secondary']:
                             w = pods[index]['Secondary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                             sec.write(w)
@@ -689,7 +718,7 @@ if __name__ == "__main__":
                     else:
                         logger.info("Skipping iDB query, using data from cache")
 
-                    parse_cluster_pod_data(v[0], k, total_idb_data[v[1]], groupsize)
+                    parse_cluster_pod_data(v[0], k, total_idb_data[v[1]], groupsize, v[2])
                     logger.info("\n************************* Done with Role '{0}' *************************\n".format(k))
                 else:
                     logger.info("skipping... The podlist file {0} for role {1}  has been processed" .format(v[0], k))

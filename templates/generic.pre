@@ -3,3 +3,7 @@ Exec: mkdir -p ~/releaserunner/remote_transfer
 
 - get the remote scripts:
 Exec: cp -R /opt/cpt/remote/* ~/releaserunner/remote_transfer/
+
+- create creds.conf file if not present
+Exec_with_creds: /opt/cpt/creds_conf.py
+
