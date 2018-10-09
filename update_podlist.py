@@ -238,7 +238,7 @@ def check_ambari(dc):
     """
     pjson = {}
     cluster = []
-    pod_data = idb.cluster_data('HBASE',dc)
+    pod_data = idb.clusterdata_complete('HBASE',dc)
     pjson[dc] = pod_data[0]['data']
     for value in pjson.values():
         for i in value:
