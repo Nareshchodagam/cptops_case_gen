@@ -551,7 +551,6 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
         elif re.match(r'hbase_ambari_prod', preset_name, re.IGNORECASE):
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
             cluster = check_ambari(dc)
-            print(cluster)
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
