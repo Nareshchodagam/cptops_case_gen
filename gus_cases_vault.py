@@ -3,7 +3,8 @@
     Script for creating cases in Gus
 '''
 from GUS.base import Auth
-from GUS.base import Gus 
+from GUS.base import Gus
+from requests import patch
 from optparse import OptionParser
 import base64
 import logging
@@ -33,6 +34,7 @@ except IOError:
     sys.exit(1)
 
 os.environ['NO_PROXY'] = "secretservice.dmz.salesforce.com"
+
 
 def saveSession(savedsession,session):
     with open(savedsession, 'w') as f:
@@ -378,6 +380,45 @@ def new_unassigned_case(caseId, session):
     logging.debug(details)
 
 
+def updateCaseInformation_(caseId, session):
+    """
+    WI : #W-5497258 - User Story - CHANGE CASE TOOLING UPDATE
+    New Changes made in GUS ref Doc: https://salesforce.quip.com/CrvDAUP4brXu
+    :param caseId: caseID
+    :param session: access_token and instance url dict
+    :return: http response code
+    """
+    def caseDetailUpdate__(id, dict, ses):
+        """
+        Gus Object not updated to take these(new) changes, so creating a patch request apart of gus obj.
+        :param id:
+        :param dict:
+        :param ses:
+        :return:
+        """
+        token_, ins_ = str(ses['token']), ses['instance']
+        api_ver_ = config.get('GUS', 'api_ver')
+        url_ = str(ins_) + '/services/data/' + api_ver_ + '/sobjects/Case/' + id
+        header_ = {
+            'Authorization': "Bearer {0}".format(token_),
+            'Content-Type': 'application/json',
+            'Sforce-Auto-Assign': 'False'
+        }
+
+        try:
+            res = patch(url_, data=json.dumps(dict), headers=header_)
+            return res
+        except Exception as e:
+            print('Unable to update case: ', e)
+
+    Dict = {
+                "SM_Business_Name__c": "a6nB00000008OQHIA2",
+                "SM_Change_Category__c": "a8gB0000000027BIAQ"
+    }
+    details = caseDetailUpdate__(caseId, Dict, session)
+    logging.debug(details)
+
+
 def update_risk_summary(caseId, session, role):
     gusObj = Gus()
     str_fmt = "Services Affected: %s\n Risk if change is delayed: Will add delay to rollout CE7 for %s " % (role, role)
@@ -566,8 +607,10 @@ if __name__ == '__main__':
                 createLogicalConnector(dict, caseId, session)
         if options.pre_appr == "approved":
             PreApproveCase(caseId, session)
+            updateCaseInformation_(caseId, session)
         elif options.pre_appr == "new":
             new_unassigned_case(caseId, session)
+            updateCaseInformation_(caseId, session)
 
         # TODO - Hack to update RiskSummary for CE7 migrations.
         if "migration" in options.subject:
