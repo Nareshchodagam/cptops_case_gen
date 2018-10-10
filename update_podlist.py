@@ -230,6 +230,22 @@ def query_to_idb(dc, rolename, idb_object, cl_status):
     else:
         return idb.spcl_grp
 
+def check_ambari(dc):
+    """
+    This function is used to query ambari cluster with dc name
+    :param dc: DC to query
+    :return: ambari cluster
+    """
+    pjson = {}
+    cluster = []
+    pod_data = idb.clusterdata_complete('HBASE',dc)
+    pjson[dc] = pod_data[0]['data']
+    for value in pjson.values():
+        for i in value:
+            for j in i.get('clusterConfigs'):
+                if j.get('key') == "is_ambari_managed" :
+                    cluster.append(i.get('name'))
+    return cluster
 
 def file_handles(file_name):
     """
@@ -517,13 +533,34 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
 
         elif re.match(r'hbase_sp_prod', preset_name, re.IGNORECASE):
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
+            cluster = check_ambari(dc)
+
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
                     # TODO Why this regex was added.
-                    if pods[index]['Primary'] != "None" and re.match(r"HBASE\d|HBASEX|HDAAS|STG\dHDAAS|ARG1HBSVC|DCHBASE", pods[index]['Primary'], re.IGNORECASE) and pods[index]['Primary'] not in c_pods:
+                    if pods[index]['Primary'] != "None" and \
+                            re.match(r"HBASE\d|HBASEX|HDAAS|STG\dHDAAS|ARG1HBSVC|DCHBASE", pods[index]['Primary'], re.IGNORECASE) \
+                            and pods[index]['Primary'] not in c_pods and pods[index]['Primary'] not in cluster:
                         w = pods[index]['Primary'] + " " + dc + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                         pri.write(w)
+
+
+            logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
+
+        elif re.match(r'hbase_ambari_prod', preset_name, re.IGNORECASE):
+            logger.info("Writing data on podlist file - '{0}'".format(file_name))
+            cluster = check_ambari(dc)
+            for sp, pods in idb_data[dc].items():
+                ttl_len = len(pods)
+                for index in range(0, ttl_len):
+                    # TODO Why this regex was added.
+                    if pods[index]['Primary'] != "None" and \
+                            re.match(r"HBASE\d|HBASEX|HDAAS|STG\dHDAAS|ARG1HBSVC|DCHBASE", pods[index]['Primary'], re.IGNORECASE) \
+                            and pods[index]['Primary'] not in c_pods and pods[index]['Primary'] in cluster:
+                        w = pods[index]['Primary'] + " " + dc + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
+                        pri.write(w)
+
             logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
 
         elif re.search(r'(hbase_prod)', preset_name, re.IGNORECASE):
