@@ -41,7 +41,7 @@ def dcs(rolename, podtype):
         prod_dc = (['sfm', 'prd', 'crd'])
     elif re.search(r'splunk', rolename, re.IGNORECASE):
         prod_dc.extend(['crz', 'sfz', 'prd'])
-    elif re.search(r'ajna|sms', podtype, re.IGNORECASE):
+    elif re.search(r'ajna|sms|public', podtype, re.IGNORECASE):
         prod_dc.extend(['sfz', 'prd'])
     elif re.search(r'secrets|secrets_ci|netmonitor|mom|gingham|netbot', podtype, re.IGNORECASE):
         prod_dc.extend(['xrd', 'crd', 'sfz', 'prd', 'crz'])
@@ -53,7 +53,7 @@ def dcs(rolename, podtype):
         prod_dc.extend(['crd', 'crz', 'sfz'])
     elif re.search(r'^cmgt', rolename, re.IGNORECASE):
         prod_dc = 'phx'
-    elif re.search(r'public|^polcore|^pkicontroller|^grok|hbase|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr|'
+    elif re.search(r'gateway|^polcore|^pkicontroller|^grok|hbase|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr|'
                    r'dva_onboarding|^deepsea|syntheticsagent|syntheticsmaster|^snd', rolename, re.IGNORECASE):
         prod_dc.extend(['prd'])
     elif re.search(r'^vnscanam|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|rdb|hmrlog|^artifactrepo', rolename, re.IGNORECASE):
