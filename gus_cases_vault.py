@@ -15,6 +15,7 @@ import json
 import sys
 import os
 from datetime import datetime, date, time, timedelta
+from caseToblackswan import UploadDataToBlackswanV1, ApiKeyTest
 try:
     import yaml
 except:
@@ -557,7 +558,10 @@ if __name__ == '__main__':
         else:
             jsoncase = get_json_change_details(options.filename, options.subject, hosts,infratype, full_instances)
         logging.debug(jsoncase)
-        
+
+        #Checking for Atlas API
+        ApiKeyTest()
+
         logging.debug(hosts)
         caseId = create_change_case(jsoncase, session)
         if options.inst == "HDAAS" and options.hostlist:
@@ -617,7 +621,6 @@ if __name__ == '__main__':
             update_risk_summary(caseId, session, options.role)
 
         # Push case Details to blackswan
-        from caseToblackswan import UploadDataToBlackswanV1
         UploadDataToBlackswanV1(caseNum)
         # END#
 
