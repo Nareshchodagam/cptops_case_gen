@@ -181,13 +181,12 @@ def ApiKeyTest():
 
     return apikey
 
-def UploadDataToBlackswanV1(caseNum):
+def UploadDataToBlackswanV1(caseNum, apikey):
     """
     :param caseNum:
     :return:
     """
     jsondata = BlackswanJson(caseNum)
-    apikey = ApiKeyTest()
     url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/gus-cases/new"
     headers = {"x-api-key": apikey}
     res = requests.post(url, data=json.dumps(jsondata), headers=headers, verify=False)
