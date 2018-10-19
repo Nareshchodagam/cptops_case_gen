@@ -559,8 +559,8 @@ if __name__ == '__main__':
             jsoncase = get_json_change_details(options.filename, options.subject, hosts,infratype, full_instances)
         logging.debug(jsoncase)
 
-        #Checking for Atlas API
-        ApiKeyTest()
+        #Checking for Atlas API KEY
+        apikey = ApiKeyTest()
 
         logging.debug(hosts)
         caseId = create_change_case(jsoncase, session)
@@ -621,7 +621,7 @@ if __name__ == '__main__':
             update_risk_summary(caseId, session, options.role)
 
         # Push case Details to blackswan
-        UploadDataToBlackswanV1(caseNum)
+        UploadDataToBlackswanV1(caseNum, apikey)
         # END#
 
 
