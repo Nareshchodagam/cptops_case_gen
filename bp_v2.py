@@ -15,6 +15,7 @@ import logging
 import json
 import os
 import re
+from caseToblackswan import CreateBlackswanJson
 
 pp = pprint.PrettyPrinter(indent=2)
 
@@ -60,15 +61,20 @@ def get_data(cluster, role, dc):
     for hostname in data:
         if hostname['clusterStatus'] == cl_status and hostname['hostStatus'] == ho_status and \
                 hostname['patchCurrentRelease'] != options.bundle:
+            try:
+                if hostname['hostCaptain']:
+                    logging.debug("Excluding Captain owned host: {}".format(hostname['hostName']))
+            except KeyError:
                 master_json[hostname['hostName']] = {'RackNumber': hostname['hostRackNumber'],
-                                                     'Role': hostname['roleName'], 'Bundle': hostname['patchCurrentRelease'],
-                                                     'Majorset': hostname['hostMajorSet'], 'Minorset': hostname['hostMinorSet']}
+                                                     'Role': hostname['roleName'],
+                                                     'Bundle': hostname['patchCurrentRelease'],
+                                                     'Majorset': hostname['hostMajorSet'],
+                                                     'Minorset': hostname['hostMinorSet']}
         else:
             logging.debug("{}: Current Bundle:{} Cluster Status:{} Host Status:{}".format(hostname['hostName'],
                                                                                           hostname['patchCurrentRelease'],
                                                                                           hostname['clusterStatus'],
                                                                                           hostname['hostStatus']))
-            continue
 
     logging.debug("Master Json {}".format(master_json))
     if not master_json:
@@ -91,10 +97,6 @@ def hostfilter_chk(data):
             if not host_filter.match(host):
                 logging.debug("{} does not match ...".format(host))
                 del data[host]
-            else:
-                continue
-    else:
-        continue
     return data
 
 def ice_mist_check(hostname):
@@ -392,6 +394,7 @@ if __name__ == "__main__":
     else:
         sys.exit(1)
 
+    CreateBlackswanJson(inputdict, options.bundle)
     cleanup()
     master_json = get_data(cluster, role, dc)
     grp = Groups(cl_status, ho_status, pod, role, dc, cluster, gsize, grouping, templateid, dowork)
