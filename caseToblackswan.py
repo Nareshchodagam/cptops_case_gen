@@ -53,10 +53,10 @@ def CheckApiKey(apikey):
             print("Api key is valid.")
             return True
         else:
-            print("WARNING: Api key is not valid.")
+            logging.warning("WARNING: Api key is not valid.")
             return False
     except Exception as e:
-        print("Unable to connect to Blackswan API, ", e)
+        logging.error("Unable to connect to Blackswan API, ", e)
         return False
 
 def writeToFile(data):
@@ -154,14 +154,12 @@ def BlackswanJson(caseNum):
     writeToFile(jsonFile)
     return jsonFile
 
-def UploadDataToBlackswanV1(caseNum):
+def ApiKeyTest():
     """
-    :param caseNum:
+    Test ATLAS API KEY/CERT.
     :return:
     """
-    jsondata = BlackswanJson(caseNum)
     apikey = ''
-    valid_api = ''
     savedapikey = "savedapikey"
     if os.path.isfile(savedapikey):
         apikey = getApiKey(savedapikey)
@@ -170,21 +168,35 @@ def UploadDataToBlackswanV1(caseNum):
         valid_api = CheckApiKey(apikey)
         logging.debug(apikey)
     except Exception as e:
-        print('error : %s' % e)
+        logging.error('Check Certificate path of ATLAS/VAULTCZAR - ERROR : %s' % e)
+        sys.exit(1)
+
     if valid_api != True:
+        print("Fetching new api key from vault...")
         apikey = GetApiKey()
-        print("Savinng ApiKey.")
+        print("Saving ApiKey.")
         saveApiKey(savedapikey, apikey)
     else:
         print("Saved ApiKey is valid.")
+
+    return apikey
+
+def UploadDataToBlackswanV1(caseNum, apikey):
+    """
+    :param caseNum:
+    :return:
+    """
+    jsondata = BlackswanJson(caseNum)
     url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/gus-cases/new"
     headers = {"x-api-key": apikey}
     res = requests.post(url, data=json.dumps(jsondata), headers=headers, verify=False)
+
     try:
         if res.status_code == 200:
             print("Successfully Posted data to Blackswan.")
         else:
-            print("Unable to post data to blackswan")
-
+            logging.error("ERROR: Unable to post data to blackswan")
+            sys.exit(1)
     except Exception as e:
-        print("Unable to connect to blackswan API :: %s", e)
+        logging.error("ERROR: Unable to connect to blackswan API :: %s", e)
+        sys.exit(1)
