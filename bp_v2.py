@@ -195,6 +195,8 @@ def compile_template(new_data, value, template, work_template, file_num):
     output = output.replace('v_DATACENTER', new_data['Details']['dc'])
     output = output.replace('v_SUPERPOD', new_data['Details']['Superpod'])
     output = output.replace('v_ROLE', new_data['Details']['role'])
+    output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
+    output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
     output = output.replace('v_BUNDLE', options.bundle)
     output = output.replace('v_HOSTS', ','.join(value))
     output = output.replace('v_NUM', str(file_num))
