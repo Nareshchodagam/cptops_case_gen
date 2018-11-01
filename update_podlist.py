@@ -563,6 +563,20 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
 
             logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
 
+        #Added to accomodate SAYONARA ZOOKEPER HBASE POD's - W-5483209
+        elif re.match(r'hbase_sayonara_prod', preset_name, re.IGNORECASE):
+            logger.info("Writing data on podlist file - '{0}'".format(file_name))
+            for sp, pods in idb_data[dc].items():
+                ttl_len = len(pods)
+                for index in range(0, ttl_len):
+                    if pods[index]['Primary'] != "None" and \
+                            re.match(r"^SAYONARA", pods[index]['Primary'], re.IGNORECASE) and pods[index]['Primary'] not in c_pods:
+                        w = pods[index]['Primary'] + " " + dc + " " + sp.upper() + " " + pods[index][
+                            'Operational Status'] + "\n"
+                        pri.write(w)
+            logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
+        #END
+
         elif re.search(r'(hbase_prod)', preset_name, re.IGNORECASE):
             """
             This code splits up hbase clusters into primary, secondary lists
