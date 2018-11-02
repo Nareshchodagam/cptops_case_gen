@@ -390,7 +390,7 @@ if __name__ == "__main__":
         except KeyError:
             cl_status = "ACTIVE"
         try:
-            ho_status = inputdict['ho_stat']
+            ho_status = inputdict['ho_opstat']
         except KeyError:
             ho_status = "ACTIVE"
     else:
