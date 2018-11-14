@@ -16,6 +16,7 @@ import json
 import os
 import re
 from caseToblackswan import CreateBlackswanJson
+import pdb
 
 pp = pprint.PrettyPrinter(indent=2)
 
@@ -58,27 +59,32 @@ def get_data(cluster, role, dc):
     else:
         data = response.json()
 
-    for hostname in data:
-        if hostname['clusterStatus'] == cl_status and hostname['hostStatus'] == ho_status and \
-                hostname['patchCurrentRelease'] != options.bundle:
-            try:
-                if hostname['hostCaptain']:
-                    logging.debug("Excluding Captain owned host: {}".format(hostname['hostName']))
-            except KeyError:
-                master_json[hostname['hostName']] = {'RackNumber': hostname['hostRackNumber'],
-                                                     'Role': hostname['roleName'],
-                                                     'Bundle': hostname['patchCurrentRelease'],
-                                                     'Majorset': hostname['hostMajorSet'],
-                                                     'Minorset': hostname['hostMinorSet']}
+    for host in data:
+        logging.debug("{}: patchCurrentRelease:{} clusterStatus:{} hostStatus:{}".format(host['hostName'],
+                                                                                          host['patchCurrentRelease'],
+                                                                                          host['clusterStatus'],
+                                                                                          host['hostStatus']))
+        if host['clusterStatus'] == cl_status:
+            if host['hostStatus'] == ho_status:
+                if host['patchCurrentRelease'] != options.bundle:
+                    if not host['hostCaptain']:
+                        master_json[host['hostName']] = {'RackNumber': host['hostRackNumber'],
+                                                             'Role': host['roleName'],
+                                                             'Bundle': host['patchCurrentRelease'],
+                                                             'Majorset': host['hostMajorSet'],
+                                                             'Minorset': host['hostMinorSet']}
+                    else:
+                        logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
+                else:
+                    logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],host['patchCurrentRelease']))
+            else:
+                logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'],host['hostStatus']))
         else:
-            logging.debug("{}: Current Bundle:{} Cluster Status:{} Host Status:{}".format(hostname['hostName'],
-                                                                                          hostname['patchCurrentRelease'],
-                                                                                          hostname['clusterStatus'],
-                                                                                          hostname['hostStatus']))
+            logging.debug("{}: clusterStatus is {}, excluded".format(host['hostName'],host['clusterStatus']))
 
     logging.debug("Master Json {}".format(master_json))
     if not master_json:
-        logging.error("All Hosts are current at {} bundle".format(options.bundle))
+        logging.error("The hostlist is empty!")
         sys.exit(1)
     else:
         #master_json = ice_chk(master_json)
@@ -332,9 +338,8 @@ if __name__ == "__main__":
     cwd = os.getcwd()
     if not os.path.isdir(cwd + "/output"):
         os.mkdir(cwd + "/output")
-    #outputdir = "/root/git/cptops_case_gen/output/"
-    consolidated_file = os.getcwd() + "/output/plan_implementation.txt"
-    summary = "{}/output/summarylist.txt".format(os.getcwd())
+    consolidated_file = cwd + "/output/plan_implementation.txt"
+    summary = cwd + "/output/summarylist.txt"
     if os.path.isfile(summary):
         os.remove(summary)
     sum_file = open(summary, 'a')
