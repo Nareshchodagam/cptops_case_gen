@@ -16,7 +16,6 @@ import json
 import os
 import re
 from caseToblackswan import CreateBlackswanJson
-import pdb
 
 pp = pprint.PrettyPrinter(indent=2)
 
