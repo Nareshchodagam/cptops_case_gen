@@ -84,7 +84,7 @@ def get_data(cluster, role, dc):
 
     logging.debug("Master Json {}".format(master_json))
     if not master_json:
-        logging.error("All Hosts are current at {} bundle".format(options.bundle))
+        logging.error("The hostlist is empty!"
         sys.exit(1)
     else:
         #master_json = ice_chk(master_json)
