@@ -37,6 +37,8 @@ def dcs(rolename, podtype):
         prod_dc.extend(['sfz', 'crd', 'crz', 'prd', 'sfm'])
     elif re.search(r'^warden|argus|strata|cmgtapi', rolename, re.IGNORECASE):
         prod_dc = 'prd'
+    elif re.search(r'hbase', rolename, re.IGNORECASE):
+        prod_dc.extend(['sfm', 'prd', 'crd'])
     elif re.search(r'icesplunk', rolename, re.IGNORECASE):
         prod_dc = (['sfm', 'prd', 'crd'])
     elif re.search(r'splunk', rolename, re.IGNORECASE):
@@ -53,7 +55,7 @@ def dcs(rolename, podtype):
         prod_dc.extend(['crd', 'crz', 'sfz'])
     elif re.search(r'^cmgt', rolename, re.IGNORECASE):
         prod_dc = 'phx'
-    elif re.search(r'gateway|^polcore|^pkicontroller|^grok|hbase|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr|'
+    elif re.search(r'gateway|^polcore|^pkicontroller|^grok|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr|'
                    r'dva_onboarding|^deepsea|syntheticsagent|syntheticsmaster|^snd', rolename, re.IGNORECASE):
         prod_dc.extend(['prd'])
     elif re.search(r'^vnscanam|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|rdb|hmrlog|^artifactrepo', rolename, re.IGNORECASE):
@@ -556,14 +558,44 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
                 for index in range(0, ttl_len):
                     # TODO Why this regex was added.
                     if pods[index]['Primary'] != "None" and \
-                            re.match(r"HBASE\d|HBASEX|HDAAS|STG\dHDAAS|ARG1HBSVC|DCHBASE", pods[index]['Primary'], re.IGNORECASE) \
+                            re.match(r"HBASE\d|HBASEX|HDAAS|STG\dHDAAS|ARG1HBSVC|DCHBASE|ISTHBASE02", pods[index]['Primary'], re.IGNORECASE) \
                             and pods[index]['Primary'] not in c_pods and pods[index]['Primary'] in cluster:
                         w = pods[index]['Primary'] + " " + dc + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                         pri.write(w)
 
             logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
 
-        #Added to accomodate SAYONARA ZOOKEPER HBASE POD's - W-5483209
+        #Added to accomodate HBASE internal clusters  - W-5105681
+        elif re.match(r'hbase_internal_prod', preset_name, re.IGNORECASE):
+            logger.info("Writing data on podlist file - '{0}'".format(file_name))
+            print(idb_data[dc].items)
+            for sp, pods in idb_data[dc].items():
+                ttl_len = len(pods)
+		cluster_list = ['dev1hdaas', 'dev2hdaas', 'dev3hdaas', 'dev6hdaas', 'prodinternal1', 'prodinternal2', 'int1hdaas', 'int2hdaas', 'sbox1hdaas', 'sbox2hdaas', 'blitzhbase01', 'blitzhbase02', 'hbsr1',
+		                'phoenix', 'isthbase01', 'hbsrcrd2', 'proddebug', 'perfengma2', 'relvalidation', 'blitz1', 'blitz2', 'blitz3', 'blitz4']
+                for index in range(0, ttl_len):
+                    # TODO Why this regex was added.
+                    if pods[index]['Primary'] != "None" and( pods[index]['Primary'].lower() in cluster_list) :
+                        w = pods[index]['Primary'] + " " + dc + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
+                        pri.write(w)
+            logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
+
+        elif re.match(r'hbase_internal_dch_prod', preset_name, re.IGNORECASE):
+            logger.info("Writing data on podlist file - '{0}'".format(file_name))
+            print(idb_data[dc].items)
+            for sp, pods in idb_data[dc].items():
+                ttl_len = len(pods)
+                cluster_list = ['dev4hdaas', 'dev5hdaas', 'dev7hdaas', 'dev8hdaas', 'iot1dchbase0a', 'perf1hdaas', 'testhbase']
+                for index in range(0, ttl_len):
+                    # TODO Why this regex was added.
+                    if pods[index]['Primary'] != "None" and( pods[index]['Primary'].lower() in cluster_list) :
+                        w = pods[index]['Primary'] + " " + dc + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
+                        pri.write(w)
+            logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
+
+	#END
+        
+	#Added to accomodate SAYONARA ZOOKEPER HBASE POD's - W-5483209
         elif re.match(r'hbase_sayonara_prod', preset_name, re.IGNORECASE):
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
             for sp, pods in idb_data[dc].items():
