@@ -1,0 +1,9 @@
+- Added as per W-5190509
+release_runnerse_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "hostname |grep -i stg1hdaas ;if [ $? -eq 0 ];then ~/current/bigdata-util/util/build/ant backup sanityValidation; else : ;fi " -host $(cat ~/v_CASE_include|awk -F ',' '{print $1}')
+
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant validation validate single"
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-kerberos -threads  -auto2 -c cmd -m "~/current/bigdata-kerberos/kerberos/build/ant -w krb validate"
+
+- To regenerate this Implementation Plan use the following command.
+
+- v_COMMAND
