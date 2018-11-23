@@ -706,8 +706,6 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
                     if 'Primary' in pods[index] and pods[index]['Primary'] not in c_pods:
                         if 'irc' in file_name and 'MTA' in pods[index]['Primary']:
                             continue
-                        elif 'argus' in file_name and 'ARGUS_DEV' in pods[index]['Primary']:
-                            continue
                         elif 'piperepo' in file_name and 'OPS_PIPELINE' not in pods[index]['Primary']:
                             continue
                         w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
