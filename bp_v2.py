@@ -287,9 +287,9 @@ def group_worker(templateid, new_data, gsize):
     sum_file.close()
     create_masterplan(consolidated_file, pre_template)
 
-def main_worker(templateid, new_data):
+def main_worker(templateid, new_data, gsize):
     '''
-    This fucntions works with the byrack data. It just prints the contents of the
+    This function works with the byrack data. It just prints the contents of the
     value from the new_data dictionary to populate the v_HOSTS variable. Probably needs
     to be renamed.
     :param templateid:
@@ -298,12 +298,39 @@ def main_worker(templateid, new_data):
     :return:
     '''
     file_num = 1
+    total_groups = 0
+    host_count = 0
+    byrack_group = []
 
     template, work_template, pre_template, post_template = validate_templates(templateid)
     for pri in new_data['Grouping'].iterkeys():
         for key, value in new_data['Grouping'][pri].iteritems():
-            compile_template(new_data, value, template, work_template, file_num)
-            file_num = file_num + 1
+            if gsize == 0:
+                compile_template(new_data, value, template, work_template, file_num)
+                file_num = file_num + 1
+                logging.debug(key, value)
+                total_groups = total_groups + 1
+                host_count = host_count + len(value)
+            else:
+                for host in value:
+                    byrack_group.append(host)
+                    if len(byrack_group) == gsize:
+                        compile_template(new_data, byrack_group, template, work_template, file_num)
+                        file_num = file_num + 1
+                        logging.debug(byrack_group)
+                        total_groups = total_groups + 1
+                        host_count = host_count + len(byrack_group)
+                        byrack_group = []
+                    elif host == value[-1]:
+                        compile_template(new_data, byrack_group, template, work_template, file_num)
+                        file_num = file_num + 1
+                        logging.debug(byrack_group)
+                        total_groups = total_groups + 1
+                        host_count = host_count + len(byrack_group)
+                        byrack_group = []
+
+    logging.debug("Total # of groups: {}".format(total_groups))
+    logging.debug("Total # of servers to be patched: {}".format(host_count))
     sum_file.close()
     create_masterplan(consolidated_file, pre_template)
 
@@ -382,14 +409,13 @@ if __name__ == "__main__":
             cluster = "NA"
 
         # Error checking for variables.
-        if grouping != "byrack":
-            try:
-                gsize = inputdict['maxgroupsize']
-            except KeyError:
+        try:
+            gsize = inputdict['maxgroupsize']
+        except KeyError:
+            if grouping == "byrack":
+                gsize = 0
+            else:
                 gsize = 1
-        else:
-            gsize = 0
-
         try:
             cl_status = inputdict['cl_opstat']
         except KeyError:
@@ -415,7 +441,7 @@ if __name__ == "__main__":
         group_worker(templateid, new_data, gsize)
     elif grouping == "byrack":
         new_data = grp.rackorder(master_json)
-        logging.debug("By Rack Data: {}".format(new_data))
-        main_worker(templateid, new_data)
+        logging.debug("By Rack Data: {}".format(pp.pprint(new_data)))
+        main_worker(templateid, new_data, gsize)
     else:
         sys.exit(1)
