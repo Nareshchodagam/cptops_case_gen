@@ -43,6 +43,8 @@ def dcs(rolename, podtype):
         prod_dc = (['sfm', 'prd', 'crd'])
     elif re.search(r'splunk', rolename, re.IGNORECASE):
         prod_dc.extend(['crz', 'sfz', 'prd'])
+    elif re.search(r'^bks_', rolename, re.IGNORECASE):
+        prod_dc = ['crd', 'crz', 'wax']
     elif re.search(r'ajna|sms|public', podtype, re.IGNORECASE):
         prod_dc.extend(['sfz', 'prd'])
     elif re.search(r'secrets|secrets_ci|netmonitor|mom|gingham|netbot', podtype, re.IGNORECASE):
@@ -703,8 +705,6 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
                 for index in range(0, ttl_len):
                     if 'Primary' in pods[index] and pods[index]['Primary'] not in c_pods:
                         if 'irc' in file_name and 'MTA' in pods[index]['Primary']:
-                            continue
-                        elif 'argus' in file_name and 'ARGUS_DEV' in pods[index]['Primary']:
                             continue
                         elif 'piperepo' in file_name and 'OPS_PIPELINE' not in pods[index]['Primary']:
                             continue

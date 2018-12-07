@@ -188,7 +188,11 @@ if __name__ == "__main__":
     # W-4574049 end
 
     casesubject = options.casesubject
-    grouping = "majorset"
+    if not options.group:
+        grouping = "majorset"
+    else:
+        grouping = options.group
+
     groupsize = 1
     implplansection = "templates/6u6-plan.json"
     if re.match(r'ffx', options.role, re.IGNORECASE) and not options.casetype and not options.exclude:
@@ -205,7 +209,7 @@ if __name__ == "__main__":
             options.dr = "false"
 
     if options.role:
-        grouping = groupType(options.role)
+        #grouping = groupType(options.role)
         groupsize = groupSize(options.role)
     if options.groupsize:
         groupsize = options.groupsize

@@ -17,7 +17,9 @@ import os
 import re
 from caseToblackswan import CreateBlackswanJson
 
+#Global assignments
 pp = pprint.PrettyPrinter(indent=2)
+global new_data
 
 
 def tryint(s):
@@ -181,7 +183,7 @@ def prep_template(work_template, template):
 
     return output
 
-def compile_template(new_data, value, template, work_template, file_num):
+def compile_template(value, template, work_template, file_num):
     '''
     This function put the template together subsititue variables with information it obtain from
     command line and blackswan.
@@ -211,7 +213,50 @@ def compile_template(new_data, value, template, work_template, file_num):
     for t in value:
         sum_file.write(t + "\n")
 
-def create_masterplan(consolidated_file, pre_template):
+def compile_pre_template(template):
+    '''
+    This function configures the pre template.
+    :param new_data:
+    :param template:
+    :return:
+    '''
+    with open(template, 'r') as out:
+        output = out.read()
+    output = output.replace('v_CLUSTER', new_data['Details']['cluster'])
+    output = output.replace('v_DATACENTER', new_data['Details']['dc'])
+    output = output.replace('v_SUPERPOD', new_data['Details']['Superpod'])
+    output = output.replace('v_ROLE', new_data['Details']['role'])
+    output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
+    output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
+    output = output.replace('v_BUNDLE', options.bundle)
+
+    return output
+
+def compile_post_template(template):
+    '''
+    This function configures the post template.
+    :param new_data:
+    :param template:
+    :return:
+    '''
+    build_command = " ".join(sys.argv)
+    build_command = build_command.replace("{", "'{")
+    build_command = build_command.replace("}", "}'")
+
+    with open(template, 'r') as out:
+        output = out.read()
+    output = output.replace('v_CLUSTER', new_data['Details']['cluster'])
+    output = output.replace('v_DATACENTER', new_data['Details']['dc'])
+    output = output.replace('v_SUPERPOD', new_data['Details']['Superpod'])
+    output = output.replace('v_ROLE', new_data['Details']['role'])
+    output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
+    output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
+    output = output.replace('v_BUNDLE', options.bundle)
+    output = output.replace('v_COMMAND', build_command)
+
+    return output
+
+def create_masterplan(consolidated_file, pre_template, post_template):
     '''
     This function basically takes all the plans in the output directory and consolidates
     them into one plan.
@@ -227,7 +272,7 @@ def create_masterplan(consolidated_file, pre_template):
         pass
     final_file = open(consolidated_file, 'a')
     with open(pre_template, "r") as pre:
-        pre = pre.read()
+        pre = compile_pre_template(pre_template)
         final_file.write('BEGIN_GROUP: PRE\n' + pre + '\nEND_GROUP: PRE\n\n')
 
     for f in read_files:
@@ -236,10 +281,13 @@ def create_masterplan(consolidated_file, pre_template):
                 #print('Writing out: ' + f + ' to ' + consolidated_file)
                 final_file.write(infile.read() + '\n\n')
 
-    post = "- Auto close case \nExec_with_creds: /opt/cpt/gus_case_mngr.py -c v_CASE --close -y\n\n"
+    post_file = compile_post_template(post_template)
+    post_list = post_file.splitlines(True)
+    case_post = "- Auto close case \nExec_with_creds: /opt/cpt/gus_case_mngr.py -c v_CASE --close -y\n\n"
+    post_list.insert(-5, case_post)
+    post = "".join(post_list)
     final_file.write('BEGIN_GROUP: POST\n' + post + '\nEND_GROUP: POST\n\n')
     cleanup()
-
 
 def cleanup():
     '''
@@ -252,7 +300,7 @@ def cleanup():
         if junk != consolidated_file:
             os.remove(junk)
 
-def group_worker(templateid, new_data, gsize):
+def group_worker(templateid, gsize):
     '''
     "This function is responsible for doing the work assoicated with the gsize variable.
     it ensures the number of host done in parallel are translated correctly into the v_HOSTS
@@ -274,21 +322,21 @@ def group_worker(templateid, new_data, gsize):
             if len(host_group) == gsize:
                 logging.debug(host_group)
                 logging.debug("File_Num: {}".format(file_num))
-                compile_template(new_data, host_group, template, work_template, file_num)
+                compile_template(host_group, template, work_template, file_num)
                 host_group = []
                 file_num = file_num + 1
             elif host == new_data['Hostnames'][key][-1]:
                 logging.debug(host_group)
                 logging.debug("File_Num: {}".format(file_num))
-                compile_template(new_data, host_group, template, work_template, file_num)
+                compile_template(host_group, template, work_template, file_num)
                 file_num = file_num + 1
                 host_group = []
     sum_file.close()
-    create_masterplan(consolidated_file, pre_template)
+    create_masterplan(consolidated_file, pre_template, post_template)
 
-def main_worker(templateid, new_data):
+def main_worker(templateid, gsize):
     '''
-    This fucntions works with the byrack data. It just prints the contents of the
+    This function works with the byrack data. It just prints the contents of the
     value from the new_data dictionary to populate the v_HOSTS variable. Probably needs
     to be renamed.
     :param templateid:
@@ -297,14 +345,41 @@ def main_worker(templateid, new_data):
     :return:
     '''
     file_num = 1
+    total_groups = 0
+    host_count = 0
+    byrack_group = []
 
     template, work_template, pre_template, post_template = validate_templates(templateid)
     for pri in new_data['Grouping'].iterkeys():
         for key, value in new_data['Grouping'][pri].iteritems():
-            compile_template(new_data, value, template, work_template, file_num)
-            file_num = file_num + 1
+            if gsize == 0:
+                compile_template(value, template, work_template, file_num)
+                file_num = file_num + 1
+                logging.debug("{} {}".format(key, value))
+                total_groups = total_groups + 1
+                host_count = host_count + len(value)
+            else:
+                for host in value:
+                    byrack_group.append(host)
+                    if len(byrack_group) == gsize:
+                        compile_template(byrack_group, template, work_template, file_num)
+                        file_num = file_num + 1
+                        logging.debug(byrack_group)
+                        total_groups = total_groups + 1
+                        host_count = host_count + len(byrack_group)
+                        byrack_group = []
+                    elif host == value[-1]:
+                        compile_template(byrack_group, template, work_template, file_num)
+                        file_num = file_num + 1
+                        logging.debug(byrack_group)
+                        total_groups = total_groups + 1
+                        host_count = host_count + len(byrack_group)
+                        byrack_group = []
+
+    logging.debug("Total # of groups: {}".format(total_groups))
+    logging.debug("Total # of servers to be patched: {}".format(host_count))
     sum_file.close()
-    create_masterplan(consolidated_file, pre_template)
+    create_masterplan(consolidated_file, pre_template, post_template)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Build_Plan")
@@ -381,14 +456,13 @@ if __name__ == "__main__":
             cluster = "NA"
 
         # Error checking for variables.
-        if grouping != "byrack":
-            try:
-                gsize = inputdict['maxgroupsize']
-            except KeyError:
+        try:
+            gsize = inputdict['maxgroupsize']
+        except KeyError:
+            if grouping == "byrack":
+                gsize = 0
+            else:
                 gsize = 1
-        else:
-            gsize = 0
-
         try:
             cl_status = inputdict['cl_opstat']
         except KeyError:
@@ -407,14 +481,14 @@ if __name__ == "__main__":
     if grouping == "majorset":
         new_data = grp.majorset(master_json)
         logging.debug("By Majorset: {}".format(new_data))
-        group_worker(templateid, new_data, gsize)
+        group_worker(templateid, gsize)
     elif grouping == "minorset":
         new_data = grp.minorset(master_json)
         logging.debug("By Minorset: {}".format(new_data))
-        group_worker(templateid, new_data, gsize)
+        group_worker(templateid, gsize)
     elif grouping == "byrack":
         new_data = grp.rackorder(master_json)
-        logging.debug("By Rack Data: {}".format(new_data))
-        main_worker(templateid, new_data)
+        logging.debug("By Rack Data: {}".format(pp.pprint(new_data)))
+        main_worker(templateid, gsize)
     else:
         sys.exit(1)
