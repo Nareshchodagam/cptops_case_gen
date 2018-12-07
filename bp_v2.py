@@ -214,6 +214,25 @@ def compile_template(value, template, work_template, file_num):
     for t in value:
         sum_file.write(t + "\n")
 
+def compile_pre_template(template):
+    '''
+    This function configures the pre template.
+    :param new_data:
+    :param template:
+    :return:
+    '''
+    with open(template, 'r') as out:
+        output = out.read()
+    output = output.replace('v_CLUSTER', new_data['Details']['cluster'])
+    output = output.replace('v_DATACENTER', new_data['Details']['dc'])
+    output = output.replace('v_SUPERPOD', new_data['Details']['Superpod'])
+    output = output.replace('v_ROLE', new_data['Details']['role'])
+    output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
+    output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
+    output = output.replace('v_BUNDLE', options.bundle)
+
+    return output
+
 def compile_post_template(template):
     '''
     This function configures the post template.
@@ -254,7 +273,7 @@ def create_masterplan(consolidated_file, pre_template, post_template):
         pass
     final_file = open(consolidated_file, 'a')
     with open(pre_template, "r") as pre:
-        pre = pre.read()
+        pre = compile_pre_template(pre_template)
         final_file.write('BEGIN_GROUP: PRE\n' + pre + '\nEND_GROUP: PRE\n\n')
 
     for f in read_files:
