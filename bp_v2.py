@@ -155,6 +155,7 @@ def prep_template(work_template, template):
         output = out.read()
         output = output.replace('v_INCLUDE', dw)
 
+
     """This code is to add unique comment to each line in implementation plan.
              e.g - release_runner.pl -forced_host $(cat ~/v_CASE_include) -force_update_bootstrap -c sudo_cmd -m "ls" -auto2 -threads
              -comment 'BLOCK 1'"""
@@ -205,6 +206,7 @@ def compile_template(value, template, work_template, file_num):
     output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
     output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
     output = output.replace('v_BUNDLE', options.bundle)
+    output = compile_vMNDS_(output)
     output = output.replace('v_HOSTS', ','.join(value))
     output = output.replace('v_NUM', str(file_num))
     f = open(outfile, 'w')
@@ -254,6 +256,36 @@ def compile_post_template(template):
     output = output.replace('v_BUNDLE', options.bundle)
     output = output.replace('v_COMMAND', build_command)
 
+    return output
+
+def compile_vMNDS_(output):
+    """
+    :param template: template
+    :return: output
+    """
+
+    # Load Hbase hbase-mnds template.
+    hbaseDowork_ = "{}/templates/{}.template".format(os.getcwd(), "hbase-mnds")
+
+    # Check for hbase-mnds template existance.
+    if os.path.isfile(hbaseDowork_):
+        with open(hbaseDowork_, 'r') as f:
+            mndsData = f.readlines()
+
+    # Load the template data into variable.
+    v_MNDS = "".join(mndsData)
+
+    # Replace the v_MNDS variable in Hbase Mnds template.
+    try:
+        if re.search(r"mnds", new_data['Details']['role'], re.IGNORECASE):
+            logging.debug(v_MNDS)
+            output = output.replace('v_MNDS', v_MNDS)
+        else:
+            output = output.replace('v_MNDS', "- SKIPPING MNDS CHECK.")
+    except:
+        pass
+
+    # Return the plan_implimentation with changed v_MNDS.
     return output
 
 def create_masterplan(consolidated_file, pre_template, post_template):
