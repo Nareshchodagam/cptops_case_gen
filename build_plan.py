@@ -1236,9 +1236,10 @@ parser.add_option("--os", dest="os", help="command to filter hosts based on majo
 (options, args) = parser.parse_args()
 if __name__ == "__main__":
     try:
-        if options.os != "6" and options.os != "7":
-            print("\n--os valid options are 6 and 7, provided {0}\n".format(options.os))
-            sys.exit(1)
+        if options.os:
+            if options.os != "6" and options.os != "7":
+                print("\n--os valid options are 6 and 7, provided {0}\n".format(options.os))
+                sys.exit(1)
 
         if options.serial == True:
             endpoint = 'hosts?'
