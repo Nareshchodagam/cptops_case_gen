@@ -211,6 +211,7 @@ def compile_template(value, template, work_template, file_num):
             output_list.insert(1, '\n- Verify if hosts are patched or not up\nExec: echo "Verify hosts BLOCK v_NUM" && '
                                   '/opt/cpt/bin/verify_hosts.py -H v_HOSTS --bundle v_BUNDLE --case v_CASE\n\n')
         output = "".join(output_list)
+    output = compile_vMNDS_(output)
     output = output.replace('v_CLUSTER', new_data['Details']['cluster'])
     output = output.replace('v_DATACENTER', new_data['Details']['dc'])
     output = output.replace('v_SUPERPOD', new_data['Details']['Superpod'])
@@ -218,7 +219,6 @@ def compile_template(value, template, work_template, file_num):
     output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
     output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
     output = output.replace('v_BUNDLE', options.bundle)
-    output = compile_vMNDS_(output)
     output = output.replace('v_HOSTS', ','.join(value))
     output = output.replace('v_NUM', str(file_num))
     f = open(outfile, 'w')
