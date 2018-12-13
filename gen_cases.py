@@ -102,14 +102,14 @@ def cmdformat(output_str):
         output_str = output_str + " --gsize %s" % groupsize
     if options.dowork:
         output_str = output_str + " --dowork " + options.dowork
+    if options.os:
+        output_str = output_str + " --os " + options.os
     if options.delpatched:
         output_str = output_str + " --delpatched "
     if options.skip_bundle:
         output_str = output_str + " --skip_bundle " + options.skip_bundle
     if options.casework == "reimage":
         output_str = output_str + " --serial --monitor "
-    if options.filteros:
-        output_str = output_str + " --filter_os "
     if options.failthresh:
         output_str = output_str + " --failthresh " + options.failthresh
     if options.hostpercent:
@@ -151,6 +151,7 @@ if __name__ == "__main__":
     # W-4531197 Adding logic to remove already patched host for Case.
     parser.add_option("--delpatched", dest="delpatched", action='store_true', help="command to remove patched host.")
     # End
+    parser.add_option("--os", dest="os", help="command to filter hosts based on major set, Valid Options are 6 and 7")
     parser.add_option("--csv", dest="csv", help="Read given CSV file and create cases as per the status.")
     # W-4574049 Command line option to filter hosts by OS [Specific to CentOS7 Migration ]
     parser.add_option("--cstatus", dest="cstatus", default="approved", help="Change cases status")
@@ -158,10 +159,9 @@ if __name__ == "__main__":
     parser.add_option("--casework", dest="casework", help="Case type to use eg patch or re-image")
     parser.add_option("--monitor", dest="monitor", action="store_true", help="monitor [used in reimage]")
     parser.add_option("--serial", dest="serial", action="store_true", help="serial [ used in reimage]")
-    parser.add_option("--filter_os", dest="filteros", action="store_true", help="Filter hosts for CentOS7 migration")
     parser.add_option("--filter_gia", dest="filtergia", action="store_true", default="False", help="Only create case for GIA")
     parser.add_option("-x", "--bpv2", dest="bpv2", action="store_true", default="False", help="Create cases with Build_Plan_v2")
-    # W-4574049 End
+    #W-4574049 End
 
     python = 'python'
     excludelist = ''
@@ -219,6 +219,10 @@ if __name__ == "__main__":
     # W-4531197 Adding logic to remove already patched host for Case.
     if options.delpatched:
         delpatched = options.delpatched
+
+    if options.os:
+        os = options.os
+
     if options.skip_bundle:
 	skip_bundle = options.skip_bundle
     # End
