@@ -73,7 +73,8 @@ def get_data(cluster, role, dc):
                                                              'Role': host['roleName'],
                                                              'Bundle': host['patchCurrentRelease'],
                                                              'Majorset': host['hostMajorSet'],
-                                                             'Minorset': host['hostMinorSet']}
+                                                             'Minorset': host['hostMinorSet'],
+                                                             'OS_Version': host['patchOs']}
                     else:
                         logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
                 else:
@@ -91,6 +92,9 @@ def get_data(cluster, role, dc):
         #master_json = ice_chk(master_json)
         master_json = hostfilter_chk(master_json)
 
+    if options.os_version:
+        master_json = os_chk(master_json)
+
     if not master_json:
         logging.error("No servers match any filters.")
         sys.exit(1)
@@ -104,6 +108,14 @@ def hostfilter_chk(data):
             if not host_filter.match(host):
                 logging.debug("{} does not match ...".format(host))
                 del data[host]
+    return data
+
+def os_chk(data):
+    for host in data.keys():
+        if options.os_version != data[host]['OS_Version']:
+            logging.debug("{}: OS_Version is {}, excluded".format(host, \
+                          data[host]['OS_Version']))
+            del data[host]
     return data
 
 def ice_mist_check(hostname):
@@ -429,9 +441,10 @@ if __name__ == "__main__":
     group1.add_argument("--gsize", dest="gsize", default=1, help="Group Size value")
     group1.add_argument("--dowork", dest="dowork", help="command to supply for dowork functionality")
     group1.add_argument("-G", "--idbgen", dest="idbgen", help='Create json string for input (i.e \'{"dr": "FALSE", "datacenter": "prd", "roles": "sdb", "templateid": "sdb", "grouping": "majorset", "maxgroupsize": 1}\')')
+    group1.add_argument("-o", "--os", dest="os_version", help="Filter servers by OS Version")
     group2.add_argument("--taggroups", dest="taggroups", default=0, help="number of sub-plans per group tag")
     group2.add_argument("--nolinebacker", dest="nolinebacker", action="store_true", default=False, help="Don't use linebacker")
-    group2.add_argument("--hostpercent", dest="hostpercent", help="% of hosts in parallel")
+    group2.add_argument("--hostpercent", dest="hostpercent", help="percentange of hosts in parallel")
     group2.add_argument("--no_ice", dest="ice", action="store_true", default=False, help="Include ICE host in query")
     group2.add_argument("-v", "--verbose", action="store_true", default=False, help="Verbose Logging")
     options = parser.parse_args()
