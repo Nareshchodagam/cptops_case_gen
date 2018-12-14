@@ -61,28 +61,32 @@ def get_data(cluster, role, dc):
         data = response.json()
 
     for host in data:
-        logging.debug("{}: patchCurrentRelease:{} clusterStatus:{} hostStatus:{}".format(host['hostName'],
+        logging.debug("{}: patchCurrentRelease:{} clusterStatus:{} hostStatus:{} hostFailover:{}".format(host['hostName'],
                                                                                           host['patchCurrentRelease'],
                                                                                           host['clusterStatus'],
-                                                                                          host['hostStatus']))
-        if host['clusterStatus'] == cl_status:
-            if host['hostStatus'] == ho_status:
-                if host['patchCurrentRelease'] != options.bundle:
-                    if not host['hostCaptain']:
-                        master_json[host['hostName']] = {'RackNumber': host['hostRackNumber'],
+                                                                                          host['hostStatus'],
+                                                                                          host['hostFailover']))
+        if host['hostFailover'] == failoverstatus or failoverstatus == None:
+            if host['clusterStatus'] == cl_status:
+                if host['hostStatus'] == ho_status:
+                    if host['patchCurrentRelease'] != options.bundle:
+                        if not host['hostCaptain']:
+                            master_json[host['hostName']] = {'RackNumber': host['hostRackNumber'],
                                                              'Role': host['roleName'],
                                                              'Bundle': host['patchCurrentRelease'],
                                                              'Majorset': host['hostMajorSet'],
                                                              'Minorset': host['hostMinorSet'],
                                                              'OS_Version': host['patchOs']}
+                        else:
+                            logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
                     else:
-                        logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
+                        logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],host['patchCurrentRelease']))
                 else:
-                    logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],host['patchCurrentRelease']))
+                    logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'],host['hostStatus']))
             else:
-                logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'],host['hostStatus']))
+                logging.debug("{}: clusterStatus is {}, excluded".format(host['hostName'],host['clusterStatus']))
         else:
-            logging.debug("{}: clusterStatus is {}, excluded".format(host['hostName'],host['clusterStatus']))
+            logging.debug("{}: failoverStatus is {}, excluded".format(host['hostName'], host['hostFailover']))
 
     logging.debug("Master Json {}".format(master_json))
     if not master_json:
@@ -494,6 +498,11 @@ if __name__ == "__main__":
             hostfilter = inputdict['hostfilter']
         except KeyError:
             hostfilter = None
+        try:
+            failoverstatus = inputdict['regexfilter']
+            failoverstatus = failoverstatus.split("=")[1]
+        except KeyError:
+            failoverstatus = None
 
         try:
             cluster = inputdict['clusters']
