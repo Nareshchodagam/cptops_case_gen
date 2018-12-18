@@ -669,8 +669,8 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role, num, groupcoun
     global not_os_hosts
 
     # W-4574049 Compile template for hosts which are filtered by OS
-    if options.filteros:
-        hosts = filter_hosts_by_os(hosts, "6")
+    if options.os:
+        hosts = filter_hosts_by_os(hosts, options.os)
         if hosts is None:
             s = "- Skipping, hosts {0} already running on CentOS7".format(org_host)
         else:
@@ -960,7 +960,7 @@ def consolidate_idb_query_plans(writeplan, dcs):
     fullhostlist = fullhostlist + fullhostlist1
     # End
 
-    if options.filteros:
+    if options.os:
         write_list_to_file(common.outputdir + '/summarylist.txt', not_os_hosts)
         if os.stat(common.outputdir + '/summarylist.txt').st_size == 0:
             os.remove(common.outputdir + '/plan_implementation.txt')
@@ -1229,13 +1229,18 @@ parser.add_option("--delpatched", dest="delpatched", action='store_true', help="
 parser.add_option("--skip_bundle", dest="skip_bundle", help="command to skip bundle")
 # End
 # W-4574049 Command line option to filter hosts by OS [Specific to CentOS7 Migration ]
-parser.add_option("--filter_os", dest="filteros", action="store_true", help="command to remove patched host.")
+parser.add_option("--os", dest="os", help="command to filter hosts based on major set, Valid Options are 6 and 7")
 # W-4574049 end
 
 
 (options, args) = parser.parse_args()
 if __name__ == "__main__":
     try:
+        if options.os:
+            if options.os != "6" and options.os != "7":
+                print("\n--os valid options are 6 and 7, provided {0}\n".format(options.os))
+                sys.exit(1)
+
         if options.serial == True:
             endpoint = 'hosts?'
             supportedfields['serialnumber'] = 'serialNumber'
