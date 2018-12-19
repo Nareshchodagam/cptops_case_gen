@@ -26,11 +26,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 # Functions definition
 
 def dcs(rolename, podtype):
-    prod_dc = ['chi', 'was', 'lon', 'ukb', 'hnd', 'phx','dfw','frf', 'par','iad', 'ord',
-               'yul', 'yhu', 'syd', 'cdu', 'chx', 'wax', 'fra', 'cdg', 'ia2', 'ph2', 'xrd']
-# removed if condition as we are not using the else part (non_prod_dc)
-    # non_prod_dc = ['sfz', 'crd', 'sfm', 'prd', 'crz']
-    # if prod:
+    prod_dc = validate_dc()
     if re.search(r'crz', rolename, re.IGNORECASE):
         prod_dc = 'crz'
     elif re.search(r'rps|release', rolename, re.IGNORECASE):
@@ -216,6 +212,30 @@ def captain_pods(role, dc):
         pass
 
     return pods
+
+def validate_dc():
+    """
+    This function query DC name from ATLAS
+    :return: valid DC name
+    """
+    valid_dc = []
+    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/datacenters/list"
+    response = requests.get(url,verify=False)
+    try:
+        response_data = response.json()
+        non_prod_dc = ['sfz', 'crd', 'sfm', 'prd', 'crz']
+        for data in response_data:
+            if data['name'].encode("ascii","replace") in non_prod_dc:
+                pass
+            else:
+                valid_dc.append(data['name'].encode("ascii","replace"))
+    except:
+        valid_dcs = ['was', 'chi', 'dfw', 'par', 'lon', 'frf', 'tyo', 'chx',
+                     'wax', 'sfm', 'phx', 'ukb', 'crd', 'crz', 'ord', 'iad',
+                     'yul', 'yhu', 'hnd', 'cdu', 'syd', 'xrd', 'fra', 'cdg',
+                     'ia2', 'ph2', 'lo2', 'lo3', 'rd1', 'rz1', 'ttd', 'hio']
+    return valid_dc
+
 
 def query_to_idb(dc, rolename, idb_object, cl_status):
     """
@@ -760,7 +780,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     logger = custom_logger()
-
     groupsize = args.groupsize  # NOTE This is specific to group the PODS
     groupsize = int(groupsize)
     if args.update:
