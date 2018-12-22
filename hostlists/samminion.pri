@@ -145,6 +145,7 @@ dfw-sp3-sam_caas DFW SP3 ACTIVE
 dfw-sp4-sam_caas DFW SP4 ACTIVE
 dfw-sp2-sam_caas DFW SP2 ACTIVE
 iad-sp1-sam_caas IAD SP1 ACTIVE
+iad-sp2-sam_caas IAD SP2 ACTIVE
 iad-sam_iot IAD NONE ACTIVE
 iad-sam_crosscloudplatform IAD NONE ACTIVE
 iad-sam_warden IAD NONE ACTIVE
@@ -162,7 +163,6 @@ iad-sam_report_collector IAD NONE ACTIVE
 iad-sam_moderation_einstein IAD NONE ACTIVE
 iad-search_model_executor IAD NONE ACTIVE
 iad-sam_chatbot_kingdom IAD NONE ACTIVE
-iad-sp2-sam_caas IAD SP2 ACTIVE
 wax-sam_gater WAX NONE ACTIVE
 chx-sam_gater CHX NONE ACTIVE
 ukb-sp1-sam_caas UKB SP1 ACTIVE
@@ -214,9 +214,6 @@ SAM_CLOUDATLAS FRA NONE PROVISIONING
 SAM_SEARCH_MODEL_EXECUTOR FRA NONE PROVISIONING
 fra-sam_datapool FRA NONE PROVISIONING
 phx-sp1-sam_caas PHX SP1 ACTIVE
-phx-sp2-sam_caas PHX SP2 ACTIVE
-phx-sp3-sam_caas PHX SP3 ACTIVE
-phx-sp4-sam_caas PHX SP4 ACTIVE
 phx-sam_gater PHX NONE ACTIVE
 phx-sam_cloudatlas PHX NONE ACTIVE
 phx-sam_cloudatlas_dir PHX NONE ACTIVE
@@ -230,6 +227,9 @@ phx-slb PHX NONE ACTIVE
 phx-sam_chatbot_kingdom PHX NONE ACTIVE
 phx-sam_gatewayconfig PHX NONE PROVISIONING
 phx-sam_datapool PHX NONE PROVISIONING
+phx-sp3-sam_caas PHX SP3 ACTIVE
+phx-sp4-sam_caas PHX SP4 ACTIVE
+phx-sp2-sam_caas PHX SP2 ACTIVE
 ord-sp1-sam_caas ORD SP1 ACTIVE
 ord-sp2-sam_caas ORD SP2 ACTIVE
 ord-sam_report_collector ORD NONE ACTIVE
