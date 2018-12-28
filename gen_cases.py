@@ -319,6 +319,8 @@ if __name__ == "__main__":
             # Added linebacker -  W-3779869
             if options.bpv2 == True:
                 output_str = """python bp_v2.py --bundle %s -G '%s' -v --dowork %s""" % (options.patchset, opts_str, options.dowork)
+                if options.os:
+                    output_str = output_str + " --os " + options.os
             else:
                 output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s %s  --auto_close_case %s -v""" \
                              """ --nolinebacker %s""" % (options.patchset, opts_str, options.taggroups, hostv, options.auto_close_case, options.nolinebacker)
