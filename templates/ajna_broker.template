@@ -20,7 +20,6 @@ Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a enable -H v_HOSTS
 - Stop kafka
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-kafka -host v_HOSTS -device_role v_ROLE -c stop_server -auto2 -threads
 
-Exec: sleep 60
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
@@ -37,6 +36,9 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 
 - Start kafka
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-kafka  -device_role v_ROLE -host v_HOSTS -c start_server  -auto2 -threads
+
+- Pause for a minute to allow the broker to join the cluster and start replicating data
+Exec: sleep 60
 
 - Validate app
 release_runner.pl -invdb_mode -c antstatuscheck_with_retries -host v_HOSTS -product mandm-kafka -superpod v_SUPERPOD -cluster v_CLUSTER -auto2 -threads
