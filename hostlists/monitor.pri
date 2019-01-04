@@ -3,6 +3,7 @@ ops0-monitor2-1-cdg
 ops0-monitor2-1-cdg
 ops0-monitor2-1-cdg
 ops0-monitor2-1-cdg
+ops0-monitor2-1-cdg
 ops0-monitor1-1-cdu
 ops0-monitor1-1-cdu
 ops0-monitor1-1-cdu
@@ -21,6 +22,7 @@ ops0-monitor1-2-ph2
 ops0-monitor1-1-ph2
 ops0-monitor1-3-ph2
 ops0-monitor1-1-ttd
+ops0-monitor2-1-fra
 ops0-monitor2-1-fra
 ops0-monitor2-1-fra
 ops0-monitor2-1-fra
