@@ -55,7 +55,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/check_s
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "diff -s static_route.post static_route.orig" -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Start Application - NAMED
-elease_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/sbin/service named restart" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/sbin/service named restart" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Wait for NAMED to start succesfully.
 Exec: sleep 30
