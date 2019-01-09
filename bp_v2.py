@@ -39,6 +39,13 @@ def sort_key(s):
 
     return [ tryint(c) for c in re.split('([0-9]+)', s) ]
 
+def url_response(url):
+    response = requests.get(url, verify=False)
+    if response.json() is None:
+        logging.error("No Data Present")
+        sys.exit(1)
+    return response.json()
+
 def get_data(cluster, role, dc):
     '''
     Function queries blackswan for data. It then strips the necessary information and recreates it
@@ -53,12 +60,7 @@ def get_data(cluster, role, dc):
     else:
         url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
 
-    response = requests.get(url, verify=False)
-    if response.json() is None:
-        logging.error("No Data Present")
-        sys.exit(1)
-    else:
-        data = response.json()
+    data = url_response(url)
 
     for host in data:
         logging.debug("{}: patchCurrentRelease:{} clusterStatus:{} hostStatus:{} hostFailover:{}".format(host['hostName'],
@@ -69,7 +71,7 @@ def get_data(cluster, role, dc):
         if host['hostFailover'] == failoverstatus or failoverstatus == None:
             if host['clusterStatus'] == cl_status:
                 if host['hostStatus'] == ho_status:
-                    if host['superpodName'] == pod:
+                    if host['superpodName'] in pod_dict.keys():
                         if host['patchCurrentRelease'] != options.bundle:
                             if not host['hostCaptain']:
                                 master_json[host['hostName']] = {'RackNumber': host['hostRackNumber'],
@@ -532,7 +534,54 @@ if __name__ == "__main__":
     else:
         sys.exit(1)
 
-    CreateBlackswanJson(inputdict, options.bundle)
+
+    # If POD,CLuster info is not passed to this script, Below logic retrieves the info from Atlas
+    single_cluster = False
+    if pod == "NA" and cluster == "NA":
+        cluster = []
+        pod_dict = {}
+        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
+        data = url_response(url)
+        for host in data:
+            pod = host['superpodName']
+            cluster = host['clusterName']
+            if pod not in pod_dict:
+                pod_dict[pod] = []
+            if cluster not in pod_dict[pod]:
+                pod_dict[pod].append(cluster)
+
+    elif pod != "NA" and cluster == "NA":
+        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}&sp={}".format(role, dc, pod)
+        data = url_response(url)
+        pod_dict = {pod: []}
+        for host in data:
+            cluster = host['clusterName']
+            if cluster not in pod_dict[pod]:
+                pod_dict[pod].append(cluster)
+
+    elif pod == "NA" and cluster != "NA":
+        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}&cluster={}".format(role, dc,cluster)
+        data = url_response(url)
+        single_cluster = True
+        pod = data[0]['superpodName']
+        pod_dict = {pod: cluster}
+
+    else:
+        pod_dict = {pod: cluster}
+        single_cluster = True
+
+
+    for pod, clusters in pod_dict.items():
+        inputdict['superpod'] = pod
+        total_cluster_list=[]
+        if not single_cluster:
+            clusters = ",".join(clusters)
+            total_cluster_list.append(clusters)
+        inputdict['clusters'] = clusters
+        CreateBlackswanJson(inputdict, options.bundle)
+    if total_cluster_list:
+        cluster = ",".join(total_cluster_list)
+
     cleanup()
     master_json = get_data(cluster, role, dc)
     grp = Groups(cl_status, ho_status, pod, role, dc, cluster, gsize, grouping, templateid, dowork)
