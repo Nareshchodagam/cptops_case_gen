@@ -192,28 +192,32 @@ def parse_json_data(data):
         logger.info("Successfully parsed the data")
         return role_details
 
-def captain_pods(role, dc):
+def captain_clusters(role, dc):
     """
-    This function us for fetching the cluster onboarded on to Captain.
+    This function us for fetching the cluster onboarded on to Captain
     :param role: querying atlas api for role
     :param dc: querying atlas api for dc
-    :return: a list of pods onboarded to captain.
+    :return: a list of clusters onboarded to captain.
     """
-    pods = []
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/role-clusters?role={}&dc={}".format(role, dc)
+    clusters = []
+
+    # get cluster data from Atlas for the specified role and dc
+    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/role-clusters?role={0}&dc={1}".format(role, dc)
     response = requests.get(url, verify=False)
-
-    try:
-        r_data = response.json()
-        for cl in r_data:
-            if cl['captain'] == True and cl['pod'] not in pods:
-                pods.append(cl['pod'])
-            else:
-                logger.info("No Captain Clusters")
-    except:
-        pass
-
-    return pods
+    atlas_data = response.json()
+    logger.debug("captain_clusters; role:{0} dc:{1} atlas_data:{2}".format(role, dc, atlas_data))
+    
+    # parse a list of cluster names out of the returned data, if any
+    # NOTE: 'pod' key here is a misnomer; it's the cluster name
+    if atlas_data:
+        for cluster in atlas_data:
+            if cluster['captain'] == True and cluster['pod'] not in clusters:
+                clusters.append(cluster['pod'])
+    
+    # if not empty, print info msg with cluster list
+    if clusters:
+        logger.info("{0},{1} captain clusters: {2} ".format(role, dc, ",".join(clusters))) 
+    return clusters
 
 def validate_dc():
     """
@@ -459,7 +463,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
     c_pods = []
     f_read = False
     for dc in idb_data.keys():
-        c_pods = captain_pods(role, dc)
+        c_pods = captain_clusters(role, dc)
         if re.search(r'afw', file_name, re.IGNORECASE):
             groupsize = 1
             for sp, pods in idb_data[dc].items():
