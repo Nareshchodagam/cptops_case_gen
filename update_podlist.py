@@ -58,7 +58,7 @@ def dcs(rolename, podtype):
         prod_dc.extend(['prd'])
     elif re.search(r'^vnscanam|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|netbot|rdb|hmrlog|^artifactrepo', rolename, re.IGNORECASE):
         prod_dc.extend(['prd', 'crd', 'crz', 'sfm', 'sfz'])
-    elif re.search(r'^syslog|appauth|vc', rolename, re.IGNORECASE):
+    elif re.search(r'^syslog|appauth|vc|delphi', rolename, re.IGNORECASE):
         prod_dc.extend(['crd', 'crz', 'sfm', 'sfz'])    # TODO This code block can be refactored.
     elif re.search(r'irc', rolename, re.IGNORECASE):
         prod_dc = (['sfm', 'crd'])
