@@ -626,7 +626,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
                     if pods[index]['Primary'] != "None" and \
-                            re.match(r"^SAYONARA", pods[index]['Primary'], re.IGNORECASE) and pods[index]['Primary'] not in c_pods:
+                            re.match(r"^SAYONARA|ICE1SAYONARA[1-2]A", pods[index]['Primary'], re.IGNORECASE) and pods[index]['Primary'] not in c_pods:
                         w = pods[index]['Primary'] + " " + dc + " " + sp.upper() + " " + pods[index][
                             'Operational Status'] + "\n"
                         pri.write(w)
