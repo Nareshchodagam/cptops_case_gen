@@ -211,7 +211,7 @@ def compile_template(value, template, work_template, file_num):
     if 'v_COMMAND' not in output and 'mkdir ' not in output:
         output = output.replace('v_HOSTS', '$(cat ~/v_CASE_include)')
         output_list = output.splitlines(True)
-        if role != "secrets":
+        if role not in ("secrets", "smszk"):
             output_list.insert(1, '\n- Verify if hosts are patched or not up\nExec: echo "Verify hosts BLOCK v_NUM" && '
                                   '/opt/cpt/bin/verify_hosts.py -H v_HOSTS --bundle v_BUNDLE --case v_CASE\n\n')
         output = "".join(output_list)
@@ -247,6 +247,7 @@ def compile_pre_template(template):
     output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
     output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
     output = output.replace('v_BUNDLE', options.bundle)
+    output = output.replace('v_HOSTS', ','.join(allhosts))
 
     return output
 
@@ -533,16 +534,16 @@ if __name__ == "__main__":
     master_json = get_data(cluster, role, dc)
     grp = Groups(cl_status, ho_status, pod, role, dc, cluster, gsize, grouping, templateid, dowork)
     if grouping == "majorset":
-        new_data = grp.majorset(master_json)
+        new_data, allhosts = grp.majorset(master_json)
         logging.debug("By Majorset: {}".format(new_data))
         group_worker(templateid, gsize)
     elif grouping == "minorset":
-        new_data = grp.minorset(master_json)
+        new_data, allhosts = grp.minorset(master_json)
         logging.debug("By Minorset: {}".format(new_data))
         group_worker(templateid, gsize)
     elif grouping == "byrack":
-        new_data = grp.rackorder(master_json)
-        logging.debug("By Rack Data: {}".format(pp.pprint(new_data)))
+        new_data, allhosts = grp.rackorder(master_json)
+        logging.debug("By Rack Data: {}".format(new_data))
         main_worker(templateid, gsize)
     else:
         sys.exit(1)
