@@ -38,6 +38,12 @@ ops0-monitor1-1-frf
 ops0-monitor1-1-frf
 ops0-monitor1-1-frf
 ops0-monitor1-1-frf
+sr1-monitor1-1-chi
+na9-monitor1-1-chi
+cs8-monitor1-1-chi
+na10-monitor1-1-chi
+gs0-monitor2-1-chi
+cs14-monitor1-1-chi
 cs15-monitor1-1-chi
 na2-monitor1-1-chi
 cs16-monitor1-1-chi
@@ -62,12 +68,9 @@ na27-monitor2-1-chi
 cs42-monitor1-1-chi
 na31-monitor2-1-chi
 na28-monitor2-1-chi
-sr1-monitor1-1-chi
-na9-monitor1-1-chi
-cs8-monitor1-1-chi
-na10-monitor1-1-chi
-gs0-monitor2-1-chi
-cs14-monitor1-1-chi
+na12-monitor1-1-chi
+na11-monitor1-1-chi
+na14-monitor1-1-chi
 na15-monitor1-1-chi
 cs17-monitor1-1-chi
 cs18-monitor1-1-chi
@@ -90,9 +93,6 @@ na26-monitor2-1-chi
 cs44-monitor2-1-chi
 cs41-monitor2-1-chi
 na25-monitor2-1-chi
-na12-monitor1-1-chi
-na11-monitor1-1-chi
-na14-monitor1-1-chi
 ops-monitor2-1-chi
 ops0-monitor2-4-chi
 ops-monitor30-1-chi
@@ -280,6 +280,7 @@ ops0-monitor4-2-ord
 ops0-monitor4-2-ord
 ops0-monitor1-1-ord
 ops0-monitor1-1-hio
+ops0-monitor1-1-hnd
 ops0-monitor1-1-hnd
 ops0-monitor1-1-hnd
 ops0-monitor1-1-hnd
