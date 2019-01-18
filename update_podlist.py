@@ -380,7 +380,7 @@ def listbuilder(pod_list, dc):  # This was added as part of - 'T-1810443'
     """
     # searching for just monitor as below commented line shows, errs with NoneType on run
     # hostnum = re.compile(r"(^monitor)([1-6])")
-    
+
     hostnum = re.compile(r"(^monitor|^netmonitor)(\d+)")
     hostcomp = re.compile(r'(\w*-\w*)(?<!\d)')
     hostlist_pri = []
@@ -595,8 +595,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
             print(idb_data[dc].items)
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
-		cluster_list = ['dev1hdaas', 'dev2hdaas', 'dev3hdaas', 'dev6hdaas', 'prodinternal1', 'prodinternal2', 'int1hdaas', 'int2hdaas', 'sbox1hdaas', 'sbox2hdaas', 'blitzhbase01', 'blitzhbase02', 'hbsr1',
-		                'phoenix', 'isthbase01', 'hbsrcrd2', 'proddebug', 'perfengma2', 'relvalidation', 'blitz1', 'blitz2', 'blitz3', 'blitz4']
+                cluster_list = ['dev1hdaas', 'dev2hdaas', 'dev3hdaas', 'dev6hdaas', 'prodinternal1', 'prodinternal2', 'int1hdaas', 'int2hdaas', 'sbox1hdaas', 'sbox2hdaas', 'blitzhbase01', 'blitzhbase02', 'hbsr1','phoenix', 'isthbase01', 'hbsrcrd2', 'proddebug', 'perfengma2', 'relvalidation', 'blitz1', 'blitz2', 'blitz3', 'blitz4', 'icebd10hbase2a', 'icebd11hbase2a', 'icebd12hbase2a', 'icebd13hbase2a', 'stmda1hbase2a', 'stmfa1hbase2a', 'stmfb1hbase2a', 'stmfc1hbase2a', 'stmfd1hbase2a', 'stmra1hbase2a', 'stmsa1hbase2a', 'stmua1hbase2a', 'stmub1hbase2a']
                 for index in range(0, ttl_len):
                     # TODO Why this regex was added.
                     if pods[index]['Primary'] != "None" and( pods[index]['Primary'].lower() in cluster_list) :
@@ -618,7 +617,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
             logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
 
 	#END
-        
+
 	#Added to accomodate SAYONARA ZOOKEPER HBASE POD's - W-5483209
         elif re.match(r'hbase_sayonara_prod', preset_name, re.IGNORECASE):
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
@@ -672,7 +671,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
 
         elif re.search(r'lapp', preset_name, re.IGNORECASE):
             """
-            This code generate podlist files for lapp hosts [CS and PROD]. 
+            This code generate podlist files for lapp hosts [CS and PROD].
             """
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
             for sp, pods in idb_data[dc].items():
