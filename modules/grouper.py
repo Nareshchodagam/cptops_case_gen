@@ -89,6 +89,7 @@ class Groups(Organizer):
         self.bymajor = {}
         self.byminor = {}
         self.byrack = {}
+        self.allhosts = []
         #self.hostnum = re.compile(r'\w*-\w*(\d)-(\d*)-\w*')
         self.hostnum = re.compile(r'(\d.*)')
         self.grouptype = grouptype
@@ -109,6 +110,7 @@ class Groups(Organizer):
         self.byrack['Hostnames'] = {}
         self.master_data = data
         for host in self.master_data.iterkeys():
+            self.allhosts.append(host)
             try:
                 racknum = self.master_data[host]['RackNumber']
             except KeyError as valerr:
@@ -119,13 +121,14 @@ class Groups(Organizer):
             else:
                 self.byrack['Hostnames'][racknum] = [host]
 
-        return self.bundleorg()
+        return self.bundleorg(), self.allhosts
 
     def majorset(self, data):
         self.bymajor['Details'] = self.details
         self.bymajor['Hostnames'] = {}
         self.master_data = data
         for host in self.master_data.iterkeys():
+            self.allhosts.append(host)
             try:
                 majorset = self.master_data[host]['Majorset']
             except KeyError as valerr:
@@ -139,13 +142,14 @@ class Groups(Organizer):
             else:
                 self.bymajor['Hostnames'][majorset] = [host]
 
-        return self.bymajor
+        return self.bymajor, self.allhosts
 
     def minorset(self, data):
         self.byminor['Details'] = self.details
         self.byminor['Hostnames'] = {}
         self.master_data = data
         for host in self.master_data.iterkeys():
+            self.allhosts.append(host)
             try:
                 minorset = self.master_data[host]['Minorset']
             except KeyError as valerr:
