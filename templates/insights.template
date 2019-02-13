@@ -54,7 +54,10 @@ Exec: sleep 20
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices -host v_HOSTS -c start_server -threads -auto2
 
 - Validate Applications
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices,wave-connector-agent,automated-insights -host v_HOSTS -c antstatuscheck -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product wave-connector-agent,automated-insights -host v_HOSTS -c antstatuscheck -threads -auto2
+
+- Validate edgeservices
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices -host v_HOSTS -c antstatuscheck -threads -auto2
 
 
 - Update Patching data in GUS
