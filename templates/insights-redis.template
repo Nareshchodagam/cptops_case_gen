@@ -52,6 +52,12 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product i
 -Add to pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis -host v_HOSTS -c add_to_pool -threads -auto2
 
+- Wait a short while to let pool stabilize
+Exec: sleep 30
+
+-Validate hosts are in pool and no issues with the pool
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-redis -c bigipcheck -bigipstatus AVAILABILITY_STATUS_GREEN -host v_HOSTS -threads -auto2 -d
+
 - Update Patching data in GUS
 Exec_with_creds: /opt/cpt/update_lh.py --case v_CASE --host v_HOSTS --bundle v_BUNDLE --etime
 
