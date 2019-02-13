@@ -40,7 +40,7 @@ Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Start Authrad services
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_authrad.sh start"-threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_authrad.sh start" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Validate Authrad service status
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_authrad.sh status" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
