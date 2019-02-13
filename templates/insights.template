@@ -47,11 +47,14 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validat
 - Start non-edge applications
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product wave-connector-agent,automated-insights -host v_HOSTS -c start_server -threads -auto2
 
+- Pause 20s for services to stabilize
+Exec: sleep 20
+
 - Start edgeservices application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices -host v_HOSTS -c start_server -threads -auto2
 
 - Validate Applications
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices,wave-connector-agent,wave-cassandra,automated-insights -host v_HOSTS -c antstatuscheck -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices,wave-connector-agent,automated-insights -host v_HOSTS -c antstatuscheck -threads -auto2
 
 
 - Update Patching data in GUS
