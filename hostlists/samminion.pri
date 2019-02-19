@@ -143,7 +143,6 @@ dfw-sam_gater DFW NONE ACTIVE
 dfw-sam_datapool DFW NONE PROVISIONING
 dfw-sam_gatewayconfig DFW NONE PROVISIONING
 iad-sp1-sam_caas IAD SP1 ACTIVE
-iad-sp2-sam_caas IAD SP2 ACTIVE
 iad-sam_iot IAD NONE ACTIVE
 iad-sam_crosscloudplatform IAD NONE ACTIVE
 iad-sam_warden IAD NONE ACTIVE
@@ -161,6 +160,7 @@ iad-sam_report_collector IAD NONE ACTIVE
 iad-sam_moderation_einstein IAD NONE ACTIVE
 iad-search_model_executor IAD NONE ACTIVE
 iad-sam_chatbot_kingdom IAD NONE ACTIVE
+iad-sp2-sam_caas IAD SP2 ACTIVE
 wax-sam_gater WAX NONE ACTIVE
 chx-sam_gater CHX NONE ACTIVE
 ukb-sp1-sam_caas UKB SP1 ACTIVE
