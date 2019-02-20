@@ -321,6 +321,8 @@ if __name__ == "__main__":
                 output_str = """python bp_v2.py --bundle %s -G '%s' -v --dowork %s""" % (options.patchset, opts_str, options.dowork)
                 if options.os:
                     output_str = output_str + " --os " + options.os
+		if options.skip_bundle:
+		    output_str = output_str + " --skip_bundle " + options.skip_bundle
             else:
                 output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s %s  --auto_close_case %s -v""" \
                              """ --nolinebacker %s""" % (options.patchset, opts_str, options.taggroups, hostv, options.auto_close_case, options.nolinebacker)
