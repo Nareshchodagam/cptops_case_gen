@@ -166,7 +166,7 @@ def getCaseNum(caseId,session):
 
 def gen_time():
     start_time = datetime.now()
-    end_time = start_time + timedelta(days = 7)
+    end_time = start_time + timedelta(hours = 5)
     return start_time.isoformat(),end_time.isoformat()
 
 def create_implamentation_planner(data, caseId, session,role=None,insts=None,DCS=None):
