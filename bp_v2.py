@@ -604,5 +604,9 @@ if __name__ == "__main__":
         new_data, allhosts = grp.rackorder(master_json)
         logging.debug("By Rack Data: {}".format(new_data))
         main_worker(templateid, gsize)
+    elif grouping == "all":
+        new_data, allhosts = grp.all(master_json)
+        logging.debug("By All: {}".format(new_data))
+        group_worker(templateid, gsize)
     else:
         sys.exit(1)
