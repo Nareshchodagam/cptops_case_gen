@@ -13,11 +13,11 @@ ops0-monitor1-1-ph2
 ops0-monitor1-1-ph2
 ops0-monitor1-1-ph2
 ops0-monitor1-1-ph2
-ops0-monitor1-2-ph2
-ops0-monitor1-2-ph2
-ops0-monitor1-2-ph2
 ops0-monitor1-3-ph2
 ops0-monitor1-3-ph2
+ops0-monitor1-2-ph2
+ops0-monitor1-2-ph2
+ops0-monitor1-2-ph2
 ops0-monitor1-1-ph2
 ops0-monitor1-1-ph2
 ops0-monitor1-1-ph2
@@ -338,7 +338,7 @@ ops0-monitor1-1-ia2
 ops0-monitor1-2-ia2
 ops0-monitor1-2-ia2
 ops0-monitor1-2-ia2
-ops0-monitor15-3-ia2
-ops0-monitor15-3-ia2
+ops0-monitor1-3-ia2
+ops0-monitor1-3-ia2
 ops0-monitor1-1-ia2
 ops0-monitor1-3-ia2
