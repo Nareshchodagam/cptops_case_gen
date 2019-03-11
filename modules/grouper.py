@@ -89,6 +89,7 @@ class Groups(Organizer):
         self.bymajor = {}
         self.byminor = {}
         self.byrack = {}
+        self.byall = {}
         self.allhosts = []
         #self.hostnum = re.compile(r'\w*-\w*(\d)-(\d*)-\w*')
         self.hostnum = re.compile(r'(\d.*)')
@@ -162,4 +163,15 @@ class Groups(Organizer):
             else:
                 self.byminor['Hostnames'][minorset] = [host]
 
-        return self.byminor
+        return self.byminor, self.allhosts
+
+    def all(self, data):
+        self.byall['Details'] = self.details
+        self.byall['Hostnames'] = {"straight patch":[]}
+        self.master_data = data
+
+        for host in self.master_data.iterkeys():
+            self.allhosts.append(host)
+            self.byall['Hostnames']["straight patch"].append(host)
+        return self.byall, self.allhosts
+    

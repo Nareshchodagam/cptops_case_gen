@@ -68,18 +68,24 @@ def get_data(cluster, role, dc):
                                                                                           host['clusterStatus'],
                                                                                           host['hostStatus'],
                                                                                           host['hostFailover']))
+        json_data = {'RackNumber': host['hostRackNumber'], 'Role': host['roleName'],
+                     'Bundle': host['patchCurrentRelease'], 'Majorset': host['hostMajorSet'],
+                     'Minorset': host['hostMinorSet'],'OS_Version': host['patchOs']}
+        host_json = json.dumps(json_data)
         if host['hostFailover'] == failoverstatus or failoverstatus == None:
             if host['clusterStatus'] == cl_status:
                 if host['hostStatus'] == ho_status:
                     if host['superpodName'] in pod_dict.keys():
                         if host['patchCurrentRelease'] != options.bundle:
                             if not host['hostCaptain']:
-                                master_json[host['hostName']] = {'RackNumber': host['hostRackNumber'],
-                                                                 'Role': host['roleName'],
-                                                                 'Bundle': host['patchCurrentRelease'],
-                                                                 'Majorset': host['hostMajorSet'],
-                                                                 'Minorset': host['hostMinorSet'],
-                                                                 'OS_Version': host['patchOs']}
+                                if options.skip_bundle:
+                                    if host['patchCurrentRelease'] != options.skip_bundle:
+                                        master_json[host['hostName']] = json.loads(host_json)
+                                    else:
+                                        logging.debug("{}: patchCurrentRelease is {},"
+                                                      " skipped".format(host['hostName'], host['patchCurrentRelease']))
+                                else:
+                                    master_json[host['hostName']] = json.loads(host_json)
                             else:
                                 logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
                         else:
@@ -108,7 +114,6 @@ def get_data(cluster, role, dc):
     if not master_json:
         logging.error("No servers match any filters.")
         sys.exit(1)
-
     return master_json
 
 def hostfilter_chk(data):
@@ -457,6 +462,7 @@ if __name__ == "__main__":
     group2.add_argument("--nolinebacker", dest="nolinebacker", action="store_true", default=False, help="Don't use linebacker")
     group2.add_argument("--hostpercent", dest="hostpercent", help="percentange of hosts in parallel")
     group2.add_argument("--no_ice", dest="ice", action="store_true", default=False, help="Include ICE host in query")
+    group2.add_argument("--skip_bundle", dest="skip_bundle", help="command to skip bundle")
     group2.add_argument("-v", "--verbose", action="store_true", default=False, help="Verbose Logging")
     options = parser.parse_args()
 
@@ -598,5 +604,9 @@ if __name__ == "__main__":
         new_data, allhosts = grp.rackorder(master_json)
         logging.debug("By Rack Data: {}".format(new_data))
         main_worker(templateid, gsize)
+    elif grouping == "all":
+        new_data, allhosts = grp.all(master_json)
+        logging.debug("By All: {}".format(new_data))
+        group_worker(templateid, gsize)
     else:
         sys.exit(1)
