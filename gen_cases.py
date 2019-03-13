@@ -4,6 +4,7 @@ import json
 import logging
 import re
 from optparse import OptionParser
+import os
 
 def groupType(role):
     # presets for certain roles for group type
@@ -118,7 +119,6 @@ def cmdformat(output_str):
     return output_str
 # W-4574049 End
 
-
 if __name__ == "__main__":
     parser = OptionParser()
     parser.set_defaults(dowork='all_updates')
@@ -175,7 +175,10 @@ if __name__ == "__main__":
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     if not options.casesubject:
-        options.casesubject = options.patchset + " Patch Bundle"
+        if options.patchset == "current":
+            options.casesubject = "Current Patch Bundle"
+        else:
+            options.casesubject =  options.patchset + " Current Patch Bundle"
     else:
         options.casesubject += " Patch Bundle"
 
