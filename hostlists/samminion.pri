@@ -125,7 +125,6 @@ frf-search_model_executor FRF NONE ACTIVE
 frf-sam_iot FRF NONE ACTIVE
 frf-sam_chatbot_kingdom FRF NONE ACTIVE
 iad-sp1-sam_caas IAD SP1 ACTIVE
-iad-sp2-sam_caas IAD SP2 ACTIVE
 iad-sam_iot IAD NONE ACTIVE
 iad-sam_crosscloudplatform IAD NONE ACTIVE
 iad-sam_warden IAD NONE ACTIVE
@@ -143,6 +142,7 @@ iad-sam_report_collector IAD NONE ACTIVE
 iad-sam_moderation_einstein IAD NONE ACTIVE
 iad-search_model_executor IAD NONE ACTIVE
 iad-sam_chatbot_kingdom IAD NONE ACTIVE
+iad-sp2-sam_caas IAD SP2 ACTIVE
 dfw-sp1-sam_caas DFW SP1 ACTIVE
 dfw-sam_cloudatlas_dir DFW NONE ACTIVE
 dfw-sam_moderation_einstein DFW NONE ACTIVE
@@ -232,7 +232,6 @@ phx-sam_datapool PHX NONE ACTIVE
 phx-sam_chatbot_kingdom PHX NONE ACTIVE
 phx-sam_gatewayconfig PHX NONE PROVISIONING
 ord-sp1-sam_caas ORD SP1 ACTIVE
-ord-sp2-sam_caas ORD SP2 ACTIVE
 ord-sam_report_collector ORD NONE ACTIVE
 ord-sam_cloudatlas_dir ORD NONE ACTIVE
 ord-sam_sfstore ORD NONE ACTIVE
@@ -250,6 +249,7 @@ ORD-slb ORD NONE ACTIVE
 ord-universalsearch_svc ORD NONE ACTIVE
 ord-search_model_executor ORD NONE ACTIVE
 ord-sam_chatbot_kingdom ORD NONE ACTIVE
+ord-sp2-sam_caas ORD SP2 ACTIVE
 HIO-SAM_CROSSCLOUDSETUP HIO NONE ACTIVE
 SAM_CUSTOMERRESOLUTIONENGINE HIO NONE ACTIVE
 HIO-SAM_CLOUDATLAS_DIR HIO NONE ACTIVE
