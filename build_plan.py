@@ -320,9 +320,8 @@ def return_not_patched_hosts(hosts, bundle, skip_bundle):
                                 jkernel not in ddict_host.get('patchKernel')):
                             not_patched_hosts_all.append(host)
                     else:
-                        if (bundle not in ddict_host.get('patchCurrentRelease')) and (
-                                skip_bundle not in ddict_host.get('patchCurrentRelease')):
-                            not_patched_hosts_all.append(host)
+                        if (ddict_host.get('patchCurrentRelease') < skip_bundle):
+                                not_patched_hosts_all.append(host)
 
             if len(not_patched_hosts_all) != 0:
                 return ",".join(not_patched_hosts_all)
