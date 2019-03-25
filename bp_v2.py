@@ -76,21 +76,21 @@ def get_data(cluster, role, dc):
             if host['clusterStatus'] == cl_status:
                 if host['hostStatus'] == ho_status:
                     if host['superpodName'] in pod_dict.keys():
-                        if host['patchCurrentRelease'] != options.bundle:
-                            if not host['hostCaptain']:
-                                if options.skip_bundle:
-                                    if host['patchCurrentRelease'] < options.skip_bundle:
-                                        master_json[host['hostName']] = json.loads(host_json)
-                                    else:
-                                        logging.debug("{}: patchCurrentRelease is {},"
-                                                      " skipped".format(host['hostName'], host['patchCurrentRelease']))
+                        #if host['patchCurrentRelease'] != options.bundle:
+                        if not host['hostCaptain']:
+                            if options.skip_bundle:
+                                if host['patchCurrentRelease'] < options.skip_bundle:
+                                     master_json[host['hostName']] = json.loads(host_json)
                                 else:
-                                    master_json[host['hostName']] = json.loads(host_json)
+                                    logging.debug("{}: patchCurrentRelease is {},"
+                                                  " skipped".format(host['hostName'], host['patchCurrentRelease']))
                             else:
-                                logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
+                                    master_json[host['hostName']] = json.loads(host_json)
                         else:
-                            logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
-                                          host['patchCurrentRelease']))
+                                logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
+                        #else:
+                            #logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
+                             #             host['patchCurrentRelease']))
                     else:
                         logging.debug("{}: Superpod is {}, excluded".format(host['hostName'], host['superpodName']))
                 else:
@@ -101,6 +101,8 @@ def get_data(cluster, role, dc):
             logging.debug("{}: failoverStatus is {}, excluded".format(host['hostName'], host['hostFailover']))
 
     logging.debug("Master Json {}".format(master_json))
+    if options.bundle == "current" or options.bundle == "candidate":
+        master_json = bundle_cleanup(master_json)
     if not master_json:
         logging.error("The hostlist is empty!")
         sys.exit(1)
@@ -131,6 +133,29 @@ def os_chk(data):
             logging.debug("{}: OS_Version is {}, excluded".format(host, \
                           data[host]['OS_Version']))
             del data[host]
+    return data
+
+def bundle_cleanup(data):
+    '''
+
+    :param data:
+    :return:
+    '''
+    version_file = "/root/git/cptops_validation_tools/includes/valid_versions.json"
+    if not os.path.isfile(version_file):
+        logging.error("Cannot find file {}".format(version_file))
+        os.exit(1)
+    with open(version_file) as f:
+        bundle_data = json.load(f)
+    c7_ver = bundle_data['CENTOS']['7']['current']['sfdc-release']
+    c6_ver = bundle_data['CENTOS']['6']['current']['sfdc-release']
+
+    for host in data.keys():
+        if data[host]['OS_Version'] == "7" and data[host]['Bundle'] == c7_ver:
+            del data[host]
+        elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] == c6_ver:
+            del data[host]
+
     return data
 
 def ice_mist_check(hostname):
