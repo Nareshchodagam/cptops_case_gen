@@ -79,7 +79,7 @@ def get_data(cluster, role, dc):
                         #if host['patchCurrentRelease'] != options.bundle:
                         if not host['hostCaptain']:
                             if options.skip_bundle:
-                                if host['patchCurrentRelease'] != options.skip_bundle:
+                                if host['patchCurrentRelease'] < options.skip_bundle:
                                      master_json[host['hostName']] = json.loads(host_json)
                                 else:
                                     logging.debug("{}: patchCurrentRelease is {},"
