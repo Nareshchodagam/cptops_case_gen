@@ -287,7 +287,7 @@ def filter_hosts_by_os(hosts, osmajor):
 
 
 # W-4531197 Adding logic to remove already patched host for Case.
-def return_not_patched_hosts(hosts, bundle, skip_bundle):
+def return_not_patched_hosts(hosts, skip_bundle):
     """
     :param hosts:
     :param bundle:
@@ -299,7 +299,6 @@ def return_not_patched_hosts(hosts, bundle, skip_bundle):
     host_dict = {}
     not_patched_hosts_all = []
     all_hosts = hosts.split(",")
-
     try:
         if response.status_code == 200:
             # str_data = response.content.split('(', 1)[1].split(')')[0] # Jarek changes his DB response from PJSON to JSON, This block of code works with PJSON
@@ -314,14 +313,15 @@ def return_not_patched_hosts(hosts, bundle, skip_bundle):
                     not_patched_hosts_all.append(host)
                 else:
                     ddict_host = host_dict.get(host)
+		    if (ddict_host.get('hostOs') in json_data.keys()):
+			bundle = json_data.get(ddict_host.get('patchOs')).get('current').get('sfdc-release')
                     if not skip_bundle:
                         jkernel = json_data.get(ddict_host.get('patchOs')).get(bundle).get('kernel')
                         if (bundle not in ddict_host.get('patchCurrentRelease')) or (
                                 jkernel not in ddict_host.get('patchKernel')):
                             not_patched_hosts_all.append(host)
                     else:
-                        if (bundle not in ddict_host.get('patchCurrentRelease')) and (
-                                skip_bundle not in ddict_host.get('patchCurrentRelease')):
+                        if (ddict_host.get('patchCurrentRelease') < skip_bundle):
                             not_patched_hosts_all.append(host)
 
             if len(not_patched_hosts_all) != 0:
@@ -685,7 +685,7 @@ def gen_plan(hosts, cluster, datacenter, superpod, casenum, role, num, groupcoun
     elif options.delpatched or options.skip_bundle:
         if not options.skip_bundle:
             options.skip_bundle = None
-        hosts = return_not_patched_hosts(hosts, options.bundle, options.skip_bundle)
+        hosts = return_not_patched_hosts(hosts, options.skip_bundle)
         if hosts == None:
             s = "- Skipped Already Patched host {0} for bundle {1} or {2}".format(org_host, options.bundle,
                                                                                   options.skip_bundle)
