@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/cptops_case_gen.iml" filepath="$PROJECT_DIR$/.idea/cptops_case_gen.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../cptops_exec_with_creds/.idea/cptops_exec_with_creds.iml" filepath="$PROJECT_DIR$/../cptops_exec_with_creds/.idea/cptops_exec_with_creds.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../cptops_jenkins/.idea/cptops_jenkins.iml" filepath="$PROJECT_DIR$/../cptops_jenkins/.idea/cptops_jenkins.iml" />
+    </modules>
+  </component>
+</project>
