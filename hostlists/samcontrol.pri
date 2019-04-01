@@ -58,6 +58,9 @@ CDU-SDSTOOLS CDU NONE ACTIVE
 CDU-SAM_DP CDU NONE ACTIVE
 CDU-SAM_KINGDOM_CAAS CDU NONE PROVISIONING
 ph2-sp1-sam_caas PH2 SP1 PROVISIONING
+ph2-sp2-sam_caas PH2 SP2 ACTIVE
+ph2-sp3-sam_caas PH2 SP3 ACTIVE
+ph2-sp4-sam_caas PH2 SP4 ACTIVE
 ph2-universalsearch_svc PH2 NONE ACTIVE
 ph2-sam_gatewayconfig PH2 NONE ACTIVE
 ph2-sam_kingdom_caas PH2 NONE ACTIVE
@@ -65,9 +68,6 @@ ph2-sam_mc_consumer PH2 NONE ACTIVE
 ph2-sam_report_collector PH2 NONE ACTIVE
 ph2-sam PH2 NONE PROVISIONING
 ph2-sam_gater PH2 NONE PROVISIONING
-ph2-sp3-sam_caas PH2 SP3 ACTIVE
-ph2-sp4-sam_caas PH2 SP4 ACTIVE
-ph2-sp2-sam_caas PH2 SP2 ACTIVE
 TTD-SP1-SAM_COREAPP TTD SP1 ACTIVE
 TTD-SP1-SAM_IOT_TEST TTD SP1 ACTIVE
 TTD-SP1-SAM_CHATBOT TTD SP1 ACTIVE
@@ -135,12 +135,12 @@ TTD-SDSTOOLSDEV TTD NONE ACTIVE
 par-slb PAR NONE ACTIVE
 par-sam_kingdom_caas PAR NONE PROVISIONING
 frf-sam_kingdom_caas FRF NONE PROVISIONING
-dfw-sam_mgmt_hub DFW NONE ACTIVE
-dfw-sam_dp DFW NONE ACTIVE
-dfw-sam_kingdom_caas DFW NONE PROVISIONING
 iad-sam_datapool IAD NONE ACTIVE
 iad-sam_mc_consumer IAD NONE ACTIVE
 iad-sam_kingdom_caas IAD NONE PROVISIONING
+dfw-sam_mgmt_hub DFW NONE ACTIVE
+dfw-sam_dp DFW NONE ACTIVE
+dfw-sam_kingdom_caas DFW NONE PROVISIONING
 ukb-slb UKB NONE ACTIVE
 ukb-sam_kingdom_caas UKB NONE PROVISIONING
 SYD-SP1-SDB_KUBE SYD SP1 ACTIVE
@@ -323,6 +323,9 @@ xrd-sdstoolsdev XRD NONE ACTIVE
 xrd-sam_mgmt_hub XRD NONE ACTIVE
 XRD-SAM_KINGDOM_CAAS XRD NONE PROVISIONING
 ia2-sp1-sam_caas IA2 SP1 PROVISIONING
+ia2-sp2-sam_caas IA2 SP2 ACTIVE
+ia2-sp3-sam_caas IA2 SP3 ACTIVE
+ia2-sp4-sam_caas IA2 SP4 ACTIVE
 ia2-sam_mc_consumer IA2 NONE ACTIVE
 ia2-sam_kingdom_caas IA2 NONE ACTIVE
 ia2-sam_gatewayconfig IA2 NONE ACTIVE
@@ -330,9 +333,6 @@ ia2-sam_report_collector IA2 NONE ACTIVE
 ia2-universalsearch_svc IA2 NONE ACTIVE
 ia2-sam IA2 NONE PROVISIONING
 ia2-sam_gater IA2 NONE PROVISIONING
-ia2-sp3-sam_caas IA2 SP3 ACTIVE
-ia2-sp4-sam_caas IA2 SP4 ACTIVE
-ia2-sp2-sam_caas IA2 SP2 ACTIVE
 YHU-SP1-SDB_KUBE YHU SP1 ACTIVE
 YHU-SP1-SAM_COREAPPALPHA YHU SP1 ACTIVE
 YHU-SP1-SAM_COREAPP YHU SP1 PROVISIONING
