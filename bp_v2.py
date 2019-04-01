@@ -17,7 +17,7 @@ import os
 import re
 from caseToblackswan import CreateBlackswanJson
 
-#Global assignments
+# Global assignments
 pp = pprint.PrettyPrinter(indent=2)
 global new_data
 
@@ -39,12 +39,14 @@ def sort_key(s):
 
     return [ tryint(c) for c in re.split('([0-9]+)', s) ]
 
+
 def url_response(url):
     response = requests.get(url, verify=False)
     if response.json() is None:
         logging.error("No Data Present")
         sys.exit(1)
     return response.json()
+
 
 def get_data(cluster, role, dc):
     '''
@@ -118,6 +120,7 @@ def get_data(cluster, role, dc):
         sys.exit(1)
     return master_json
 
+
 def hostfilter_chk(data):
     if hostfilter:
         host_filter = re.compile(r'{}'.format(hostfilter))
@@ -127,6 +130,7 @@ def hostfilter_chk(data):
                 del data[host]
     return data
 
+
 def os_chk(data):
     for host in data.keys():
         if options.os_version != data[host]['OS_Version']:
@@ -134,6 +138,7 @@ def os_chk(data):
                           data[host]['OS_Version']))
             del data[host]
     return data
+
 
 def bundle_cleanup(data):
     '''
@@ -158,6 +163,7 @@ def bundle_cleanup(data):
 
     return data
 
+
 def ice_mist_check(hostname):
     ice_chk = re.compile(r'ice|mist|^stm')
 
@@ -167,6 +173,7 @@ def ice_mist_check(hostname):
             return 1
         else:
             return 0
+
 
 def validate_templates(tempalteid):
     '''
@@ -194,6 +201,7 @@ def validate_templates(tempalteid):
     logging.debug(post_template)
 
     return template, work_template, pre_template, post_template
+
 
 def prep_template(work_template, template):
     '''
@@ -236,10 +244,11 @@ def prep_template(work_template, template):
 
     return output
 
-def compile_template(value, template, work_template, file_num):
+
+def compile_template(hosts, template, work_template, file_num):
     '''
-    This function put the template together subsititue variables with information it obtain from
-    command line and blackswan.
+    This function put the template together substitute variables with information it obtains from
+    command line and Atlas/Blackswan.
     :return:
     '''
     outfile = os.getcwd() + "/output/{}_plan_implementation.txt".format(file_num)
@@ -259,13 +268,18 @@ def compile_template(value, template, work_template, file_num):
     output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
     output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
     output = output.replace('v_BUNDLE', options.bundle)
-    output = output.replace('v_HOSTS', ','.join(value))
+    output = output.replace('v_HOSTS', ','.join(hosts))
     output = output.replace('v_NUM', str(file_num))
+    # other host and v_OHOSTS are used to create a check against all but the host to be patched (i.e. lapp, rps)
+    other_hosts = list(set(allhosts) - set(hosts))
+    output = output.replace('v_OHOSTS', ','.join(other_hosts))
+
     f = open(outfile, 'w')
     f.write(output)
     f.close()
-    for t in value:
+    for t in hosts:
         sum_file.write(t + "\n")
+
 
 def compile_pre_template(template):
     '''
@@ -286,6 +300,7 @@ def compile_pre_template(template):
     output = output.replace('v_HOSTS', ','.join(allhosts))
 
     return output
+
 
 def compile_post_template(template):
     '''
@@ -311,6 +326,7 @@ def compile_post_template(template):
 
     return output
 
+
 def compile_vMNDS_(output):
     """
     :param template: template
@@ -320,7 +336,7 @@ def compile_vMNDS_(output):
     # Load Hbase hbase-mnds template.
     hbaseDowork_ = "{}/templates/{}.template".format(os.getcwd(), "hbase-mnds")
 
-    # Check for hbase-mnds template existance.
+    # Check for hbase-mnds template existence.
     if os.path.isfile(hbaseDowork_):
         with open(hbaseDowork_, 'r') as f:
             mndsData = f.readlines()
@@ -340,6 +356,7 @@ def compile_vMNDS_(output):
 
     # Return the plan_implimentation with changed v_MNDS.
     return output
+
 
 def create_masterplan(consolidated_file, pre_template, post_template):
     '''
@@ -363,7 +380,7 @@ def create_masterplan(consolidated_file, pre_template, post_template):
     for f in read_files:
         if f != consolidated_file:
             with open(f, "r") as infile:
-                #print('Writing out: ' + f + ' to ' + consolidated_file)
+                # print('Writing out: ' + f + ' to ' + consolidated_file)
                 final_file.write(infile.read() + '\n\n')
 
     post_file = compile_post_template(post_template)
@@ -373,6 +390,7 @@ def create_masterplan(consolidated_file, pre_template, post_template):
     post = "".join(post_list)
     final_file.write('BEGIN_GROUP: POST\n' + post + '\nEND_GROUP: POST\n\n')
     cleanup()
+
 
 def cleanup():
     '''
@@ -385,9 +403,10 @@ def cleanup():
         if junk != consolidated_file:
             os.remove(junk)
 
+
 def group_worker(templateid, gsize):
     '''
-    "This function is responsible for doing the work assoicated with the gsize variable.
+    "This function is responsible for doing the work associated with the gsize variable.
     it ensures the number of host done in parallel are translated correctly into the v_HOSTS
     variable.
     :param templateid:
@@ -418,6 +437,7 @@ def group_worker(templateid, gsize):
                 host_group = []
     sum_file.close()
     create_masterplan(consolidated_file, pre_template, post_template)
+
 
 def main_worker(templateid, gsize):
     '''
@@ -465,6 +485,7 @@ def main_worker(templateid, gsize):
     logging.debug("Total # of servers to be patched: {}".format(host_count))
     sum_file.close()
     create_masterplan(consolidated_file, pre_template, post_template)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Build_Plan")
@@ -566,8 +587,7 @@ if __name__ == "__main__":
     else:
         sys.exit(1)
 
-
-    # If POD,CLuster info is not passed to this script, Below logic retrieves the info from Atlas
+    # If POD,CLuster info is not passed to this script, Below logic retrieves the info from Blackswan/Atlas
     single_cluster = False
     if pod == "NA" and cluster == "NA":
         cluster = []
@@ -601,7 +621,6 @@ if __name__ == "__main__":
     else:
         pod_dict = {pod: cluster}
         single_cluster = True
-
 
     for pod, clusters in pod_dict.items():
         inputdict['superpod'] = pod
