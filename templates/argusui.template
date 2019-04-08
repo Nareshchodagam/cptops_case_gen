@@ -54,7 +54,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product a
 - release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-splunk-forwarder -host v_HOSTS -c start_server -auto2
 
 - Verify app
-Exec: /opt/cpt/bin/check_http_code.py -H v_HOSTS -P 8080,8443
+release_runner.pl -forced_host v_HOSTS -c  sudo_cmd -m "runuser -l sfdc -c '/home/sfdc/check-argus-services.py'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - add to pool
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_ui -host v_HOSTS -c add_to_pool -auto2
