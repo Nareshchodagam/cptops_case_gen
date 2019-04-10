@@ -267,31 +267,42 @@ if __name__ == "__main__":
         for l in data:
             try:
                 pods, dc, sp, cl_status = l.split()
+                template=options.template
+                if cl_status in ["PROVISIONING","DECOM"] and options.role.lower() != 'ffx':
+                    template = "straight-patch-Goc++"
+                else:
+                    template=options.template
                 if sp:
                     if (options.role or options.role.upper()) == "prsn,chan,msg,dstore":
                         # Create a dict containing the options used for input to build_plan for Chatter with SP option passed
                         opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                                  "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
+                                  "maxgroupsize": groupsize, "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
                     elif (options.role.lower()) == "app":
                         # This section is to remove grouping tag for core app #W-3758985
                         opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                                  "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
+                                  "maxgroupsize": groupsize, "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
                     else:
                         # Create a dict containing the options used for input to build_plan with SP option passed
                         opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                                   "grouping": grouping, "maxgroupsize": groupsize,
-                                  "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
+                                  "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
             except:
                 pods, dc, cl_status = l.split()
                 # Create a dict containing the options used for input to build_plan for Chatter
+                pods, dc, sp, cl_status = l.split()
+                template = options.template
+                if cl_status in ["PROVISIONING", "DECOM"] and options.role.lower() != 'ffx':
+                    template = "straight-patch-Goc++"
+                else:
+                    template = options.template
                 if (options.role or options.role.upper()) == "prsn,chan,msg,dstore":
                     opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                              "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
+                              "maxgroupsize": groupsize, "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
                 else:
                     # Create a dict containing the options used for input to build_plan
                     opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                               "grouping": grouping, "maxgroupsize": groupsize,
-                              "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
+                              "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
             opt_gc = {}
             if options.filter:
                 filter = options.filter
@@ -341,3 +352,6 @@ if __name__ == "__main__":
             #if not re.search(r"json", options.bundle):
             #    options.bundle = options.bundle + "-patch.json"
             print("""python gus_cases_vault.py -T change --cstatus %s  -f templates/%s  --inst %s --infra "%s" -s "%s" -k %s  -l output/summarylist.txt -D %s -i  output/plan_implementation.txt -r %s""" % (options.cstatus,patch_json,pods,options.infra,subject,implplansection,dc, options.role))
+
+
+
