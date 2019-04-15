@@ -9,3 +9,4 @@ tmp
 bin/creds.config
 bin/creds.config.prod
 bin/creds.config.test
+.DS_Store
