@@ -2,7 +2,7 @@
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Validate the host needs to be patched
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m “/usr/local/libexec/orb-check.py -a CURRENT" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m “./remote_transfer/orb-check.py -a CURRENT" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Disable nagios monitoring
 Exec_with_creds: /opt/cpt/bin/nagios_monitor.py -H v_HOSTS -c disable
@@ -29,7 +29,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -property "ssh_ti
 Exec: ~/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m “/usr/local/libexec/orb-check.py -a CURRENT" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m “./remote_transfer/orb-check.py -a CURRENT" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 -zookeepser
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service zookeeper-server start" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"

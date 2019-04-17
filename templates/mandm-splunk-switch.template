@@ -32,7 +32,7 @@ Exec: echo 'BLOCK v_NUM' &&  /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m “/usr/local/libexec/orb-check.py -a CURRENT" -threads -auto2 -comment 'BLOCK v_NUM' -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m “./remote_transfer/orb-check.py -a CURRENT" -threads -auto2 -comment 'BLOCK v_NUM' -property "sudo_cmd_line_trunk_fix=1"
 
 - Start the application
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - logsearch_1 -c './service start'" -threads -auto2 -comment 'BLOCK v_NUM' -property "sudo_cmd_line_trunk_fix=1"
