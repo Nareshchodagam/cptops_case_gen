@@ -3,8 +3,6 @@
 
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Validate the host needs to be patched
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-check.py -a CURRENT" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 
 -set to boot fro HDD
