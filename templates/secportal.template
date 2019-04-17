@@ -8,7 +8,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "rm -rf /etc/cptrelease" -
 Exec_with_creds: /opt/cpt/update_lh.py -l --case v_CASE --host v_HOSTS --bundle v_BUNDLE
 
 - Validate the host needs to be patched
-Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python /opt/cpt/remote/validate_linux_patchset.py -c v_BUNDLE -f /opt/cpt/remote/valid_versions.json"
+Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python/usr/local/libexec/orb-check.py -a CURRENT"
 
 - Set the boot device to HDD
 Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/bin/python /opt/cpt/remote/manage_bootdevice.py -s -d HDD"
@@ -29,7 +29,7 @@ Exec: echo 'BLOCK 1' &&  echo "Now reboot the host v_HOSTS: sudo shutdown -r now
 Exec: echo 'BLOCK 1' &&  /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
-Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python /opt/cpt/remote/validate_linux_patchset.py -c v_BUNDLE -f /opt/cpt/remote/valid_versions.json"
+Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python/usr/local/libexec/orb-check.py -a CURRENT"
 
 -Validate Secportal host app is running
 Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /opt/cpt/remote/validate_secportal.sh"
