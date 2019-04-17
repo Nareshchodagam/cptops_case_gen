@@ -175,10 +175,14 @@ if __name__ == "__main__":
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     if not options.casesubject:
+<<<<<<< HEAD
         if options.patchset == "current":
             options.casesubject = "Current Patch Bundle"
         else:
             options.casesubject =  options.patchset + " Current Patch Bundle"
+=======
+        options.casesubject = str(options.patchset).capitalize() + " Patch Bundle"
+>>>>>>> 57bdb0667bce1716436b029d687051f9b54ce65a
     else:
         options.casesubject += " Patch Bundle"
 
