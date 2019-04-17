@@ -2,7 +2,7 @@
 release_runner.pl -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2  -forced_host v_HOSTS -property "sudo_cmd_line_trunk_fix=1"
 
 -Validate the host needs to be patched
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m “./remote_transfer/orb-check.py -a CURRENT" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
@@ -24,7 +24,7 @@ release_runner.pl -threads -auto2 -c sudo_cmd -m "reboot" -forced_host v_HOSTS -
 Exec: ~/check_reconnect.py -H v_HOSTS
 
 -Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m “./remote_transfer/orb-check.py -a CURRENT" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 #- Start the applications
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant -- cluster startLocalNode  -s disable" -host v_HOSTS
