@@ -4,8 +4,6 @@ Exec: ~/verify_hosts.py -H v_HOSTS --bundle v_BUNDLE --case v_CASE
 -Copy remote scripts to the target hosts
 release_runner.pl -forced_host $(cat ~/v_CASE_include) -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Validate the host needs to be patched
-release_runner.pl -forced_host $(cat ~/v_CASE_include) -c sudo_cmd -m "./remote_transfer/orb-check.py -a CURRENT -o centos -m" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Set the boot device to HDD
 release_runner.pl -forced_host $(cat ~/v_CASE_include) -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
