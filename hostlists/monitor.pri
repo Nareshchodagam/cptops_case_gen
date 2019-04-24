@@ -3,13 +3,9 @@ ops0-monitor1-1-cdu
 ops0-monitor1-1-cdu
 ops0-monitor1-1-cdu
 ops0-monitor1-1-cdu
+ops0-monitor1-1-cdu
+ops0-monitor1-4-ph2
 ops0-monitor1-1-ttd
-sr1-monitor1-1-chi
-na9-monitor1-1-chi
-cs8-monitor1-1-chi
-na10-monitor1-1-chi
-gs0-monitor2-1-chi
-cs14-monitor1-1-chi
 cs15-monitor1-1-chi
 na2-monitor1-1-chi
 cs16-monitor1-1-chi
@@ -34,9 +30,12 @@ cs1-monitor1-1-chi
 na28-monitor2-1-chi
 na24-monitor1-1-chi
 na6-monitor2-1-chi
-na12-monitor1-1-chi
-na11-monitor1-1-chi
-na14-monitor1-1-chi
+sr1-monitor1-1-chi
+na9-monitor1-1-chi
+cs8-monitor1-1-chi
+na10-monitor1-1-chi
+gs0-monitor2-1-chi
+cs14-monitor1-1-chi
 na15-monitor1-1-chi
 cs17-monitor1-1-chi
 cs18-monitor1-1-chi
@@ -59,6 +58,9 @@ na30-monitor2-1-chi
 cs4-monitor1-1-chi
 cs2-monitor2-1-chi
 na29-monitor2-1-chi
+na12-monitor1-1-chi
+na11-monitor1-1-chi
+na14-monitor1-1-chi
 ops-monitor2-1-chi
 ops0-monitor2-4-chi
 ops-monitor30-1-chi
@@ -153,6 +155,7 @@ ops0-monitor6-1-syd
 ops0-monitor6-1-syd
 ops0-monitor6-1-syd
 ops0-monitor6-1-syd
+ops0-monitor6-1-syd
 ops0-monitor1-1-hio
 ops0-monitor1-1-yul
 ops0-monitor1-1-yul
@@ -160,3 +163,4 @@ ops0-monitor1-1-yul
 ops0-monitor1-1-yhu
 ops0-monitor1-1-yhu
 ops0-monitor1-1-yhu
+ops0-monitor1-4-ia2
