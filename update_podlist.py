@@ -43,7 +43,7 @@ def dcs(rolename, podtype):
         prod_dc = ['crd', 'crz', 'wax']
     elif re.search(r'ajna|sms|public', podtype, re.IGNORECASE):
         prod_dc.extend(['sfz', 'prd'])
-    elif re.search(r'secrets|secrets_ci|netmonitor|mom|secds|gingham|secmgt', podtype, re.IGNORECASE):
+    elif re.search(r'secrets|secrets_ci|netmonitor|mom|secds|gingham|samsecurity|secmgt', podtype, re.IGNORECASE):
         prod_dc.extend(['xrd', 'crd', 'sfz', 'prd', 'crz'])
     elif re.search(r'^rackbot|^tools', rolename, re.IGNORECASE):
         prod_dc.extend(['prd', 'crd', 'sfm', 'xrd'])
