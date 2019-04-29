@@ -91,7 +91,7 @@ class Groups(Organizer):
         self.byrack = {}
         self.byall = {}
         self.allhosts = []
-        self.pcldcs = ["yul","yhu", "syd", "cdu"]
+        self.pcldcs = ["yul","yhu", "syd", "cdu", "hio", "ttd"]
         #self.hostnum = re.compile(r'\w*-\w*(\d)-(\d*)-\w*')
         self.hostnum = re.compile(r'(\d.*)')
         self.grouptype = grouptype
