@@ -258,7 +258,7 @@ def filter_hosts_by_os(hosts, osmajor):
     host_dict = {}
     allfiltered_hosts_os = []
     all_hosts = hosts.split(",")
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?name="
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?name="
     try:
         response = requests.get(url + hosts, verify=False, timeout=20.0)
         if response.status_code == 200:
@@ -294,7 +294,7 @@ def return_not_patched_hosts(hosts, skip_bundle):
     :param skip_bundle:
     :return:
     """
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?name="
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?name="
     response = requests.get(url + hosts, verify=False)
     host_dict = {}
     not_patched_hosts_all = []
