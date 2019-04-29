@@ -204,7 +204,7 @@ def captain_clusters(role, dc):
     clusters = []
 
     # get cluster data from Atlas for the specified role and dc
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/role-clusters?role={0}&dc={1}".format(role, dc)
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/role-clusters?role={0}&dc={1}".format(role, dc)
     response = requests.get(url, verify=False)
     atlas_data = response.json()
     logger.debug("captain_clusters; role:{0} dc:{1} atlas_data:{2}".format(role, dc, atlas_data))
@@ -227,7 +227,7 @@ def validate_dc():
     :return: valid DC name
     """
     valid_dc = []
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/datacenters/list"
+    url = "https://ops1-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/datacenters/list"
     response = requests.get(url,verify=False)
     try:
         response_data = response.json()
