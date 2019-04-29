@@ -45,7 +45,7 @@ def GetApiKey():
     return apiKey
 
 def CheckApiKey(apikey):
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/test/apikey"
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/test/apikey"
     headers = {"x-api-key": apikey}
     res = requests.get(url, headers=headers, verify=False)
     try:
