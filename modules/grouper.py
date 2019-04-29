@@ -91,6 +91,7 @@ class Groups(Organizer):
         self.byrack = {}
         self.byall = {}
         self.allhosts = []
+        self.pcldcs = ["yul","yhu", "syd", "cdu", "hio", "ttd"]
         #self.hostnum = re.compile(r'\w*-\w*(\d)-(\d*)-\w*')
         self.hostnum = re.compile(r'(\d.*)')
         self.grouptype = grouptype
@@ -110,6 +111,7 @@ class Groups(Organizer):
         self.byrack['Details'] = self.details
         self.byrack['Hostnames'] = {}
         self.master_data = data
+        pcl_grp = 0
         for host in self.master_data.iterkeys():
             self.allhosts.append(host)
             try:
@@ -117,6 +119,9 @@ class Groups(Organizer):
             except KeyError as valerr:
                 print valerr
                 raise
+            if host.split("-")[3] in self.pcldcs or racknum == "":
+                racknum = 'pcl{}'.format(pcl_grp)
+                pcl_grp += 1
             if racknum in self.byrack['Hostnames'].keys():
                 self.byrack['Hostnames'][racknum].append(host)
             else:
@@ -174,4 +179,3 @@ class Groups(Organizer):
             self.allhosts.append(host)
             self.byall['Hostnames']["straight patch"].append(host)
         return self.byall, self.allhosts
-    
