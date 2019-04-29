@@ -227,7 +227,7 @@ def validate_dc():
     :return: valid DC name
     """
     valid_dc = []
-    url = "https://ops1-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/datacenters/list"
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/datacenters/list"
     response = requests.get(url,verify=False)
     try:
         response_data = response.json()
