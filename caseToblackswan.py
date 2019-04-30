@@ -187,7 +187,7 @@ def UploadDataToBlackswanV1(caseNum, apikey):
     :return:
     """
     jsondata = BlackswanJson(caseNum)
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/gus-cases/new"
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/gus-cases/new"
     headers = {"x-api-key": apikey}
     res = requests.post(url, data=json.dumps(jsondata), headers=headers, verify=False)
 
