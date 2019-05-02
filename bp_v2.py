@@ -515,8 +515,7 @@ if __name__ == "__main__":
     ###############################################################################
     #                Constants
     ###############################################################################
-    bundle = options.bundle.upper()
-    options.bundle = options.bundle.upper()
+    bundle = options.bundle
     dowork = options.dowork
     cwd = os.getcwd()
     if not os.path.isdir(cwd + "/output"):
