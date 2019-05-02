@@ -1251,7 +1251,7 @@ if __name__ == "__main__":
         if not options.bundle:
             options.bundle = "bundle"
         else:
-            options.bundle = options.bundle.upper()    
+            options.bundle = options.bundle
 
         if options.exclude_list:
             with open(options.exclude_list) as f:
