@@ -103,7 +103,7 @@ def get_data(cluster, role, dc):
             logging.debug("{}: failoverStatus is {}, excluded".format(host['hostName'], host['hostFailover']))
 
     logging.debug("Master Json {}".format(master_json))
-    if options.bundle == "current" or options.bundle == "candidate":
+    if options.bundle == "CURRENT" or options.bundle == "CANDIDATE":
         master_json = bundle_cleanup(master_json)
     if not master_json:
         logging.error("The hostlist is empty!")
@@ -515,7 +515,8 @@ if __name__ == "__main__":
     ###############################################################################
     #                Constants
     ###############################################################################
-    bundle = options.bundle
+    bundle = options.bundle.upper()
+    options.bundle = options.bundle.upper()
     dowork = options.dowork
     cwd = os.getcwd()
     if not os.path.isdir(cwd + "/output"):

@@ -1250,6 +1250,8 @@ if __name__ == "__main__":
             supportedfields['monitor-host'] = ['cluster.clusterConfigs', {'key': 'monitor-host'}]
         if not options.bundle:
             options.bundle = "bundle"
+        else:
+            options.bundle = options.bundle.upper()    
 
         if options.exclude_list:
             with open(options.exclude_list) as f:
