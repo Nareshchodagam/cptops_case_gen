@@ -38,7 +38,7 @@ Exec: echo 'BLOCK 1' &&  /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /opt/cpt/remote/validate_srdapp.sh"
 
 - Validate that the hosts have been patched and are running the correct version
-Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python ./remote_transfer/orb-check.py -a CURRENT"
+Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python ./remote_transfer/orb-check.py -a v_BUNDLE"
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a enable -H v_HOSTS && echo 'BLOCK 1'

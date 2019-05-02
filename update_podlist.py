@@ -29,7 +29,7 @@ def dcs(rolename, podtype):
     prod_dc = validate_dc()
     if re.search(r'crz', rolename, re.IGNORECASE):
         prod_dc = 'crz'
-    elif re.search(r'rps|release|puppet', rolename, re.IGNORECASE):
+    elif re.search(r'rps|release|puppet|airdev', rolename, re.IGNORECASE):
         prod_dc.extend(['sfz', 'crd', 'crz', 'prd', 'sfm'])
     elif re.search(r'^warden|argus|strata|cmgtapi', rolename, re.IGNORECASE):
         prod_dc = 'prd'
@@ -43,7 +43,7 @@ def dcs(rolename, podtype):
         prod_dc = ['crd', 'crz', 'wax']
     elif re.search(r'ajna|sms|public', podtype, re.IGNORECASE):
         prod_dc.extend(['sfz', 'prd'])
-    elif re.search(r'secrets|secrets_ci|netmonitor|mom|gingham', podtype, re.IGNORECASE):
+    elif re.search(r'secrets|secrets_ci|netmonitor|mom|secds|gingham|samsecurity|secmgt', podtype, re.IGNORECASE):
         prod_dc.extend(['xrd', 'crd', 'sfz', 'prd', 'crz'])
     elif re.search(r'^rackbot|^tools', rolename, re.IGNORECASE):
         prod_dc.extend(['prd', 'crd', 'sfm', 'xrd'])
@@ -204,7 +204,7 @@ def captain_clusters(role, dc):
     clusters = []
 
     # get cluster data from Atlas for the specified role and dc
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/role-clusters?role={0}&dc={1}".format(role, dc)
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/role-clusters?role={0}&dc={1}".format(role, dc)
     response = requests.get(url, verify=False)
     atlas_data = response.json()
     logger.debug("captain_clusters; role:{0} dc:{1} atlas_data:{2}".format(role, dc, atlas_data))
@@ -227,7 +227,7 @@ def validate_dc():
     :return: valid DC name
     """
     valid_dc = []
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/datacenters/list"
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/datacenters/list"
     response = requests.get(url,verify=False)
     try:
         response_data = response.json()
@@ -460,7 +460,6 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
     :param groupsize: No. of pods to write in a single line
     :return: None
     """
-    pri, sec = file_handles(file_name)
     pod_data = []
     c_pods = []
     f_read = False
@@ -810,24 +809,26 @@ if __name__ == "__main__":
         role_details = []
         total_idb_data = {}
         for k, v in preset_data.items():
-            if v[1]:
+            clustype = v[1].split(',')
+            pri, sec = file_handles(v[0])
+            for clustname in clustype:
                 logger.info("\n************************* Starting on role '{0}'*************************".format(k))
-                if v[1] not in role_details or re.search(r'afw|hbase|lhub|log_hub|splunk-|pod|hammer', v[0], re.IGNORECASE):
-                    role_details.append(v[1])
+                if clustname not in role_details or re.search(r'afw|hbase|lhub|log_hub|splunk-|pod|hammer', v[0], re.IGNORECASE):
+                    role_details.append(clustname)
                     total_idb_data['monitor'] = {dc:'' for dc in dcs(k, v[1])}
                     if v[1] not in total_idb_data.keys():
                         if args.datacenter:
                             dcs = args.datacenter.split(',')
-                            idb_ret = query_to_idb(dcs, v[1],  idb, args.cluster_status)
+                            idb_ret = query_to_idb(dcs, clustname,  idb, args.cluster_status)
                         else:
-                            idb_ret = query_to_idb(dcs(k, v[1]), v[1], idb, args.cluster_status)
-                        total_idb_data[v[1]] = idb_ret
+                            idb_ret = query_to_idb(dcs(k, clustname), clustname, idb, args.cluster_status)
+                        total_idb_data[clustname] = idb_ret
                         if not idb_ret:
                             continue
                     else:
                         logger.info("Skipping iDB query, using data from cache")
 
-                    parse_cluster_pod_data(v[0], k, total_idb_data[v[1]], groupsize, v[2])
+                    parse_cluster_pod_data(v[0], k, total_idb_data[clustname], groupsize, v[2])
                     logger.info("\n************************* Done with Role '{0}' *************************\n".format(k))
                 else:
                     logger.info("skipping... The podlist file {0} for role {1}  has been processed" .format(v[0], k))

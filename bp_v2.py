@@ -58,9 +58,9 @@ def get_data(cluster, role, dc):
     ice_chk = re.compile(r'ice|mist')
 
     if cluster != "NA":
-        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?cluster={}&role={}&dc={}".format(cluster, role, dc)
+        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?cluster={}&role={}&dc={}".format(cluster, role, dc)
     else:
-        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
+        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
 
     data = url_response(url)
 
@@ -592,7 +592,7 @@ if __name__ == "__main__":
     if pod == "NA" and cluster == "NA":
         cluster = []
         pod_dict = {}
-        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
+        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
         data = url_response(url)
         for host in data:
             pod = host['superpodName']
@@ -603,7 +603,7 @@ if __name__ == "__main__":
                 pod_dict[pod].append(cluster)
 
     elif pod != "NA" and cluster == "NA":
-        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}&sp={}".format(role, dc, pod)
+        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}&sp={}".format(role, dc, pod)
         data = url_response(url)
         pod_dict = {pod: []}
         for host in data:
@@ -612,7 +612,7 @@ if __name__ == "__main__":
                 pod_dict[pod].append(cluster)
 
     elif pod == "NA" and cluster != "NA":
-        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}&cluster={}".format(role, dc,cluster)
+        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}&cluster={}".format(role, dc,cluster)
         data = url_response(url)
         single_cluster = True
         pod = data[0]['superpodName']
