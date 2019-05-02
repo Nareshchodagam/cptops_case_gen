@@ -32,7 +32,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -property "ssh_ti
 Exec: ~/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-check.py -a CURRENT" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-check.py -a v_BUNDLE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 -start all apps on web hosts
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -product web-sfdc -property "domain_override=ops.sfdc.net" -c start_server -auto2 -threads
