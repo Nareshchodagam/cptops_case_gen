@@ -273,6 +273,7 @@ def compile_template(hosts, template, work_template, file_num):
     # other host and v_OHOSTS are used to create a check against all but the host to be patched (i.e. lapp, rps)
     other_hosts = list(set(allhosts) - set(hosts))
     output = output.replace('v_OHOSTS', ','.join(other_hosts))
+    output = output.replace('v_ALLHOSTS', ','.join(allhosts))
 
     f = open(outfile, 'w')
     f.write(output)
