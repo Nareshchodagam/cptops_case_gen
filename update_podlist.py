@@ -464,7 +464,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
     c_pods = []
     f_read = False
     for dc in idb_data.keys():
-        c_pods = captain_clusters(role, dc)
+        #c_pods = captain_clusters(role, dc)
         if re.search(r'afw', file_name, re.IGNORECASE):
             groupsize = 1
             for sp, pods in idb_data[dc].items():

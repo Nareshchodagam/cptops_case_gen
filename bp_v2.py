@@ -76,20 +76,19 @@ def get_data(cluster, role, dc):
         host_json = json.dumps(json_data)
         if host['hostFailover'] == failoverstatus or failoverstatus == None:
             if host['clusterStatus'] == cl_status:
-                if host['hostStatus'] in ["ACTIVE","PROVISIONING","DECOM"]:
+                if host['hostStatus'] == ["ACTIVE"]:
                     if host['superpodName'] in pod_dict.keys():
                         #if host['patchCurrentRelease'] != options.bundle:
-                        if not host['hostCaptain']:
-                            if options.skip_bundle:
-                                if host['patchCurrentRelease'] < options.skip_bundle:
-                                     master_json[host['hostName']] = json.loads(host_json)
-                                else:
-                                    logging.debug("{}: patchCurrentRelease is {},"
-                                                  " skipped".format(host['hostName'], host['patchCurrentRelease']))
+                        #if not host['hostCaptain']:
+                        if options.skip_bundle:
+                            if host['patchCurrentRelease'] < options.skip_bundle:
+                                master_json[host['hostName']] = json.loads(host_json)
                             else:
-                                    master_json[host['hostName']] = json.loads(host_json)
+                                logging.debug("{}: patchCurrentRelease is {}, skipped".format(host['hostName'], host['patchCurrentRelease']))
                         else:
-                                logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
+                                master_json[host['hostName']] = json.loads(host_json)
+                        #else:
+                        #        logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
                         #else:
                             #logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
                              #             host['patchCurrentRelease']))
