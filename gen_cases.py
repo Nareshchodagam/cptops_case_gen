@@ -186,6 +186,8 @@ if __name__ == "__main__":
     if options.casework == "reimage":
         patch_json = "migration-patch.json"
         options.implplansection = "templates/migration-plan.json"
+    elif options.filtergia == True:
+        patch_json = "gia-bundle.json"
     else:
         patch_json = "bundle-patch.json"
     # W-4574049 end

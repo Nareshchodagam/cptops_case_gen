@@ -412,7 +412,7 @@ def updateCaseInformation_(caseId, session):
             print('Unable to update case: ', e)
 
     Dict = {
-                "SM_Business_Name__c": "a6nB00000008OQHIA2",
+                #"SM_Business_Name__c": "a6nB00000008OQHIA2",
                 "SM_Change_Category__c": "a8gB0000000027BIAQ"
     }
     details = caseDetailUpdate__(caseId, Dict, session)
