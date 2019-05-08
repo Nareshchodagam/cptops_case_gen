@@ -76,7 +76,7 @@ def get_data(cluster, role, dc):
         host_json = json.dumps(json_data)
         if host['hostFailover'] == failoverstatus or failoverstatus == None:
             if host['clusterStatus'] == cl_status:
-                if host['hostStatus'] == ["ACTIVE"]:
+                if host['hostStatus'] == "ACTIVE" :
                     if host['superpodName'] in pod_dict.keys():
                         #if host['patchCurrentRelease'] != options.bundle:
                         #if not host['hostCaptain']:
