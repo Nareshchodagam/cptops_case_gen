@@ -4,8 +4,8 @@ release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product b
 - BigData data management validation
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -auto2 -c cmd -m "hostname |grep -i stg1hdaas-mnds1-1 ;if [ \$? -eq 0 ];then /home/sfdc/current/bigdata-util/util/prodScripts/startBigDataMigrationValidation.sh; else : ;fi " -host $(cat ~/v_CASE_include)
 
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant validation validate single"
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-kerberos -threads  -auto2 -c cmd -m "~/current/bigdata-kerberos/kerberos/build/ant -w krb validate"
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -device_roles mnds -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant validation validate single"
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-kerberos -device_roles mnds -threads  -auto2 -c cmd -m "~/current/bigdata-kerberos/kerberos/build/ant -- -w krb validate"
 
 Exec: echo "Patching completed"
 
