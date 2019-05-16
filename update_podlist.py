@@ -285,7 +285,7 @@ def file_handles(file_name):
     :param file_name:
     :return: None
     """
-    if re.search(r'acs|trust|afw|hammer|hbase.pri|pod|public-trust|monitor|hmrlog', file_name, re.IGNORECASE):
+    if re.search(r'acs|dbaascl|trust|afw|hammer|hbase.pri|pod|public-trust|monitor|hmrlog', file_name, re.IGNORECASE):
         file_handle_pri = open('hostlists/' + file_name, 'w')
         file_handle_sec = open('hostlists/' + file_name.split('.')[0] + '.sec', 'w')
         logger.info("Opened file handles on podlist file - '{0}, {1}.sec'".format(file_name, file_name.split('.')[0]))
