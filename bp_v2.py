@@ -130,6 +130,19 @@ def hostfilter_chk(data):
     return data
 
 
+def find_concurrency(hostpercent):
+    """
+    This function calculates the host count per block #W-3758985
+    :param inputdict: takes inputdict
+    :return: maxgroupsize
+    """
+    pod = inputdict['clusters']
+    dc = inputdict['datacenter']
+    role = inputdict['roles']
+    master_json = get_data(pod, role, dc)
+    inputdict['maxgroupsize'] = int(hostpercent) * (len(master_json)) / 100
+
+
 def os_chk(data):
     for host in data.keys():
         if options.os_version != data[host]['OS_Version']:
@@ -570,13 +583,6 @@ if __name__ == "__main__":
 
         # Error checking for variables.
         try:
-            gsize = inputdict['maxgroupsize']
-        except KeyError:
-            if grouping == "byrack":
-                gsize = 0
-            else:
-                gsize = 1
-        try:
             cl_status = inputdict['cl_opstat']
         except KeyError:
             cl_status = "ACTIVE"
@@ -634,6 +640,15 @@ if __name__ == "__main__":
         cluster = ",".join(total_cluster_list)
 
     cleanup()
+    if options.hostpercent:
+        find_concurrency(options.hostpercent)
+    try:
+        gsize = inputdict['maxgroupsize']
+    except KeyError:
+        if grouping == "byrack":
+            gsize = 0
+        else:
+            gsize = 1
     master_json = get_data(cluster, role, dc)
     grp = Groups(cl_status, ho_status, pod, role, dc, cluster, gsize, grouping, templateid, dowork)
     if grouping == "majorset":
