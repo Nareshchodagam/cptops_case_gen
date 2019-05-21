@@ -275,17 +275,8 @@ if __name__ == "__main__":
                 else:
                     template=options.template
                 if sp:
-                    if (options.role or options.role.upper()) == "prsn,chan,msg,dstore":
-                        # Create a dict containing the options used for input to build_plan for Chatter with SP option passed
-                        opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                                  "maxgroupsize": groupsize, "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
-                    elif (options.role.lower()) == "app":
-                        # This section is to remove grouping tag for core app #W-3758985
-                        opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                                  "maxgroupsize": groupsize, "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
-                    else:
-                        # Create a dict containing the options used for input to build_plan with SP option passed
-                        opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
+                    # Create a dict containing the options used for input to build_plan with SP option passed
+                    opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                                   "grouping": grouping, "maxgroupsize": groupsize,
                                   "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
             except:
@@ -297,12 +288,8 @@ if __name__ == "__main__":
                     template = "straight-patch-Goc++"
                 else:
                     template = options.template
-                if (options.role or options.role.upper()) == "prsn,chan,msg,dstore":
-                    opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                              "maxgroupsize": groupsize, "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
-                else:
-                    # Create a dict containing the options used for input to build_plan
-                    opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
+                # Create a dict containing the options used for input to build_plan
+                opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                               "grouping": grouping, "maxgroupsize": groupsize,
                               "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
             opt_gc = {}
@@ -339,6 +326,8 @@ if __name__ == "__main__":
                     output_str = output_str + " --os " + options.os
 		if options.skip_bundle:
 		    output_str = output_str + " --skip_bundle " + options.skip_bundle
+		if options.hostpercent:
+		    output_str = output_str + " --hostpercent " + options.hostpercent
             else:
                 output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s %s  --auto_close_case %s -v""" \
                              """ --nolinebacker %s""" % (options.patchset, opts_str, options.taggroups, hostv, options.auto_close_case, options.nolinebacker)
