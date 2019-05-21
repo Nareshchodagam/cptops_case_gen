@@ -102,7 +102,7 @@ def get_data(cluster, role, dc):
             logging.debug("{}: failoverStatus is {}, excluded".format(host['hostName'], host['hostFailover']))
 
     logging.debug("Master Json {}".format(master_json))
-    if options.bundle == "CURRENT" or options.bundle == "CANARY":
+    if options.bundle.lower() == "current"  or options.bundle.lower() == "canary":
         master_json = bundle_cleanup(master_json)
     if not master_json:
         logging.error("The hostlist is empty!")
@@ -139,8 +139,9 @@ def find_concurrency(hostpercent):
     pod = inputdict['clusters']
     dc = inputdict['datacenter']
     role = inputdict['roles']
-    master_json = get_data(pod, role, dc)
-    inputdict['maxgroupsize'] = int(hostpercent) * (len(master_json)) / 100
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?cluster={}&role={}&dc={}".format(cluster, role, dc)
+    data = url_response(url)
+    inputdict['maxgroupsize'] = int(hostpercent) * (len(data)) / 100
 
 
 def os_chk(data):
@@ -158,14 +159,14 @@ def bundle_cleanup(data):
     :param data:
     :return:
     '''
-    version_file = "/root/git/cptops_validation_tools/includes/valid_versions.json"
-    if not os.path.isfile(version_file):
-        logging.error("Cannot find file {}".format(version_file))
-        os.exit(1)
-    with open(version_file) as f:
-        bundle_data = json.load(f)
-    c7_ver = bundle_data['CENTOS']['7']['current']['sfdc-release']
-    c6_ver = bundle_data['CENTOS']['6']['current']['sfdc-release']
+    current_bundle = {}
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/patch-bundles"
+    bundles = url_response(url)
+    for bundle in bundles:
+	if bundle['current'] == True :
+		current_bundle[str(int(float(bundle['os'])))] = bundle['release']
+    c7_ver = current_bundle['7']
+    c6_ver = current_bundle['6']
 
     for host in data.keys():
         if data[host]['OS_Version'] == "7" and data[host]['Bundle'] == c7_ver:
