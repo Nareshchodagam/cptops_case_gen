@@ -97,7 +97,7 @@ def inputDictStrtoInt(m):
 
 # W-4574049 This code was repeated on multiple conditions, hence add it to a func and call func on appropriate places
 def cmdformat(output_str):
-    if not options.idb:
+    if not options.idb and not options.bpv2:
         output_str = output_str + " -x"
     if options.groupsize:
         output_str = output_str + " --gsize %s" % groupsize
@@ -322,16 +322,10 @@ if __name__ == "__main__":
             # Added linebacker -  W-3779869
             if options.bpv2 == True:
                 output_str = """python bp_v2.py --bundle %s -G '%s' -v --dowork %s""" % (options.patchset, opts_str, options.dowork)
-                if options.os:
-                    output_str = output_str + " --os " + options.os
-		if options.skip_bundle:
-		    output_str = output_str + " --skip_bundle " + options.skip_bundle
-		if options.hostpercent:
-		    output_str = output_str + " --hostpercent " + options.hostpercent
             else:
                 output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s %s  --auto_close_case %s -v""" \
                              """ --nolinebacker %s""" % (options.patchset, opts_str, options.taggroups, hostv, options.auto_close_case, options.nolinebacker)
-                output_str = cmdformat(output_str)
+            output_str = cmdformat(output_str)
             print(output_str)
             if options.regexfilter:
                 subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec + "[" + cluster_status + "]"
@@ -343,6 +337,7 @@ if __name__ == "__main__":
             #if not re.search(r"json", options.bundle):
             #    options.bundle = options.bundle + "-patch.json"
             print("""python gus_cases_vault.py -T change --cstatus %s  -f templates/%s  --inst %s --infra "%s" -s "%s" -k %s  -l output/summarylist.txt -D %s -i  output/plan_implementation.txt -r %s""" % (options.cstatus,patch_json,pods,options.infra,subject,implplansection,dc, options.role))
+
 
 
 
