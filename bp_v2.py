@@ -139,9 +139,8 @@ def find_concurrency(hostpercent):
     pod = inputdict['clusters']
     dc = inputdict['datacenter']
     role = inputdict['roles']
-    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?cluster={}&role={}&dc={}".format(cluster, role, dc)
-    data = url_response(url)
-    inputdict['maxgroupsize'] = int(hostpercent) * (len(data)) / 100
+    master_json = get_data(pod, role, dc)
+    inputdict['maxgroupsize'] = int(hostpercent) * (len(master_json)) / 100
 
 
 def os_chk(data):
