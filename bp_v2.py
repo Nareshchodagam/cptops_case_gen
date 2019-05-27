@@ -31,13 +31,14 @@ def tryint(s):
     except:
         return s
 
+
 def sort_key(s):
     """
         function for sorting lists of values to make them readable from left to right
     """
     s = str(s)
 
-    return [ tryint(c) for c in re.split('([0-9]+)', s) ]
+    return [tryint(c) for c in re.split('([0-9]+)', s)]
 
 
 def url_response(url):
@@ -66,49 +67,49 @@ def get_data(cluster, role, dc):
 
     for host in data:
         logging.debug("{}: patchCurrentRelease:{} clusterStatus:{} hostStatus:{} hostFailover:{}".format(host['hostName'],
-                                                                                          host['patchCurrentRelease'],
-                                                                                          host['clusterStatus'],
-                                                                                          host['hostStatus'],
-                                                                                          host['hostFailover']))
+                                                                                                         host['patchCurrentRelease'],
+                                                                                                         host['clusterStatus'],
+                                                                                                         host['hostStatus'],
+                                                                                                         host['hostFailover']))
         json_data = {'RackNumber': host['hostRackNumber'], 'Role': host['roleName'],
                      'Bundle': host['patchCurrentRelease'], 'Majorset': host['hostMajorSet'],
-                     'Minorset': host['hostMinorSet'],'OS_Version': host['patchOs']}
+                     'Minorset': host['hostMinorSet'], 'OS_Version': host['patchOs']}
         host_json = json.dumps(json_data)
         if host['hostFailover'] == failoverstatus or failoverstatus == None:
             if host['clusterStatus'] == cl_status:
-                if host['hostStatus'] == "ACTIVE" :
+                if host['hostStatus'] == "ACTIVE":
                     if host['superpodName'] in pod_dict.keys():
-                        #if host['patchCurrentRelease'] != options.bundle:
-                        #if not host['hostCaptain']:
+                        # if host['patchCurrentRelease'] != options.bundle:
+                        # if not host['hostCaptain']:
                         if options.skip_bundle:
                             if host['patchCurrentRelease'] < options.skip_bundle:
                                 master_json[host['hostName']] = json.loads(host_json)
                             else:
                                 logging.debug("{}: patchCurrentRelease is {}, skipped".format(host['hostName'], host['patchCurrentRelease']))
                         else:
-                                master_json[host['hostName']] = json.loads(host_json)
-                        #else:
+                            master_json[host['hostName']] = json.loads(host_json)
+                        # else:
                         #        logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
-                        #else:
-                            #logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
-                             #             host['patchCurrentRelease']))
+                        # else:
+                            # logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
+                         #             host['patchCurrentRelease']))
                     else:
                         logging.debug("{}: Superpod is {}, excluded".format(host['hostName'], host['superpodName']))
                 else:
-                    logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'],host['hostStatus']))
+                    logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'], host['hostStatus']))
             else:
-                logging.debug("{}: clusterStatus is {}, excluded".format(host['hostName'],host['clusterStatus']))
+                logging.debug("{}: clusterStatus is {}, excluded".format(host['hostName'], host['clusterStatus']))
         else:
             logging.debug("{}: failoverStatus is {}, excluded".format(host['hostName'], host['hostFailover']))
 
     logging.debug("Master Json {}".format(master_json))
-    if options.bundle.lower() == "current"  or options.bundle.lower() == "canary":
-        master_json = bundle_cleanup(master_json)
+
     if not master_json:
         logging.error("The hostlist is empty!")
         sys.exit(1)
     else:
         #master_json = ice_chk(master_json)
+        master_json = bundle_cleanup(master_json, options.bundle)
         master_json = hostfilter_chk(master_json)
 
     if options.os_version:
@@ -146,33 +147,53 @@ def find_concurrency(hostpercent):
 def os_chk(data):
     for host in data.keys():
         if options.os_version != data[host]['OS_Version']:
-            logging.debug("{}: OS_Version is {}, excluded".format(host, \
-                          data[host]['OS_Version']))
+            logging.debug("{}: OS_Version is {}, excluded".format(host,
+                                                                  data[host]['OS_Version']))
             del data[host]
     return data
 
 
-def bundle_cleanup(data):
+def bundle_cleanup(data, targetbundle):
     '''
-
+    This function checks excludes the hosts that are already patched
     :param data:
     :return:
     '''
     current_bundle = {}
     url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/patch-bundles"
     bundles = url_response(url)
-    for bundle in bundles:
-	if bundle['current'] == True :
-		current_bundle[str(int(float(bundle['os'])))] = bundle['release']
-    c7_ver = current_bundle['7']
-    c6_ver = current_bundle['6']
+    if targetbundle.lower() == "current":
+        for bundle in bundles:
+            if bundle['current'] == True:
+                current_bundle[str(int(float(bundle['os'])))] = bundle['release']
+        c7_ver = current_bundle['7']
+        c6_ver = current_bundle['6']
+    elif targetbundle.lower() == "canary":
+        # atlas patch-bundles endpoint doesnt return canary info. leaving blank for now.
+        # todo: get canary bundle info and assign to
+        # c7_ver and c6_ver respectively
+        c7_ver = ""
+        c6_ver = ""
+    else:
+        # if any other specific bundle values are passed
+        c7_ver = c6_ver = targetbundle
 
-    for host in data.keys():
-        if data[host]['OS_Version'] == "7" and data[host]['Bundle'] == c7_ver:
-            del data[host]
-        elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] == c6_ver:
-            del data[host]
-
+    if targetbundle.lower() in ["current", "canary"]:
+        for host in data.keys():
+            if data[host]['OS_Version'] == "7" and data[host]['Bundle'] == c7_ver:
+                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                del data[host]
+            elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] == c6_ver:
+                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                del data[host]
+    else:
+        for host in data.keys():
+            if data[host]['OS_Version'] == "7" and data[host]['Bundle'] >= c7_ver:
+                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                del data[host]
+            elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] >= c6_ver:
+                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                del data[host]
     return data
 
 
@@ -192,7 +213,7 @@ def validate_templates(tempalteid):
     This functions validates that all templates are in place.
     :return:
     '''
-    #check if templates exist
+    # check if templates exist
     ######
     template = "{}/templates/{}.template".format(os.getcwd(), templateid)
     template_1 = "{}/templates/{}.template.pre".format(os.getcwd(), templateid)
@@ -227,7 +248,6 @@ def prep_template(work_template, template):
         output = out.read()
         output = output.replace('v_INCLUDE', dw)
 
-
     """This code is to add unique comment to each line in implementation plan.
              e.g - release_runner.pl -forced_host $(cat ~/v_CASE_include) -force_update_bootstrap -c sudo_cmd -m "ls" -auto2 -threads
              -comment 'BLOCK 1'"""
@@ -245,7 +265,7 @@ def prep_template(work_template, template):
                 o_list.insert(i, cmd)
             elif o_list[i].startswith('Exec_with') and 'BLOCK' not in o_list[i]:
                 cmd = "Exec_with_creds: " + o_list[i][
-                                            o_list[i].index(':') + 1:].strip() + " && echo 'BLOCK v_NUM'\n"
+                    o_list[i].index(':') + 1:].strip() + " && echo 'BLOCK v_NUM'\n"
                 o_list.remove(o_list[i])
                 o_list.insert(i, cmd)
             elif o_list[i].startswith('Exec') and 'BLOCK' not in o_list[i]:
@@ -618,7 +638,7 @@ if __name__ == "__main__":
                 pod_dict[pod].append(cluster)
 
     elif pod == "NA" and cluster != "NA":
-        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}&cluster={}".format(role, dc,cluster)
+        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}&cluster={}".format(role, dc, cluster)
         data = url_response(url)
         single_cluster = True
         pod = data[0]['superpodName']
@@ -630,7 +650,7 @@ if __name__ == "__main__":
 
     for pod, clusters in pod_dict.items():
         inputdict['superpod'] = pod
-        total_cluster_list=[]
+        total_cluster_list = []
         if not single_cluster:
             clusters = ",".join(clusters)
             total_cluster_list.append(clusters)
