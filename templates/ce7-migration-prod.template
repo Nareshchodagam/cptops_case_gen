@@ -27,7 +27,7 @@ v_INCLUDE
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-check.py -a v_BUNDLE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Deploy apps
 release_runner.pl -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy  -ping_validation -min_host_percent 33 -property pingcheck_max_tries=700 -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER_manifests.txt`

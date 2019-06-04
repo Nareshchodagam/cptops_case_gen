@@ -17,7 +17,7 @@ import os
 import re
 from caseToblackswan import CreateBlackswanJson
 
-#Global assignments
+# Global assignments
 pp = pprint.PrettyPrinter(indent=2)
 global new_data
 
@@ -31,13 +31,15 @@ def tryint(s):
     except:
         return s
 
+
 def sort_key(s):
     """
         function for sorting lists of values to make them readable from left to right
     """
     s = str(s)
 
-    return [ tryint(c) for c in re.split('([0-9]+)', s) ]
+    return [tryint(c) for c in re.split('([0-9]+)', s)]
+
 
 def url_response(url):
     response = requests.get(url, verify=False)
@@ -45,6 +47,7 @@ def url_response(url):
         logging.error("No Data Present")
         sys.exit(1)
     return response.json()
+
 
 def get_data(cluster, role, dc):
     '''
@@ -56,50 +59,57 @@ def get_data(cluster, role, dc):
     ice_chk = re.compile(r'ice|mist')
 
     if cluster != "NA":
-        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?cluster={}&role={}&dc={}".format(cluster, role, dc)
+        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?cluster={}&role={}&dc={}".format(cluster, role, dc)
     else:
-        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
+        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
 
     data = url_response(url)
 
     for host in data:
         logging.debug("{}: patchCurrentRelease:{} clusterStatus:{} hostStatus:{} hostFailover:{}".format(host['hostName'],
-                                                                                          host['patchCurrentRelease'],
-                                                                                          host['clusterStatus'],
-                                                                                          host['hostStatus'],
-                                                                                          host['hostFailover']))
+                                                                                                         host['patchCurrentRelease'],
+                                                                                                         host['clusterStatus'],
+                                                                                                         host['hostStatus'],
+                                                                                                         host['hostFailover']))
+        json_data = {'RackNumber': host['hostRackNumber'], 'Role': host['roleName'],
+                     'Bundle': host['patchCurrentRelease'], 'Majorset': host['hostMajorSet'],
+                     'Minorset': host['hostMinorSet'], 'OS_Version': host['patchOs']}
+        host_json = json.dumps(json_data)
         if host['hostFailover'] == failoverstatus or failoverstatus == None:
             if host['clusterStatus'] == cl_status:
-                if host['hostStatus'] == ho_status:
+                if host['hostStatus'] == "ACTIVE":
                     if host['superpodName'] in pod_dict.keys():
-                        if host['patchCurrentRelease'] != options.bundle:
-                            if not host['hostCaptain']:
-                                master_json[host['hostName']] = {'RackNumber': host['hostRackNumber'],
-                                                                 'Role': host['roleName'],
-                                                                 'Bundle': host['patchCurrentRelease'],
-                                                                 'Majorset': host['hostMajorSet'],
-                                                                 'Minorset': host['hostMinorSet'],
-                                                                 'OS_Version': host['patchOs']}
+                        # if host['patchCurrentRelease'] != options.bundle:
+                        # if not host['hostCaptain']:
+                        if options.skip_bundle:
+                            if host['patchCurrentRelease'] < options.skip_bundle:
+                                master_json[host['hostName']] = json.loads(host_json)
                             else:
-                                logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
+                                logging.debug("{}: patchCurrentRelease is {}, skipped".format(host['hostName'], host['patchCurrentRelease']))
                         else:
-                            logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
-                                          host['patchCurrentRelease']))
+                            master_json[host['hostName']] = json.loads(host_json)
+                        # else:
+                        #        logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
+                        # else:
+                            # logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
+                         #             host['patchCurrentRelease']))
                     else:
                         logging.debug("{}: Superpod is {}, excluded".format(host['hostName'], host['superpodName']))
                 else:
-                    logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'],host['hostStatus']))
+                    logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'], host['hostStatus']))
             else:
-                logging.debug("{}: clusterStatus is {}, excluded".format(host['hostName'],host['clusterStatus']))
+                logging.debug("{}: clusterStatus is {}, excluded".format(host['hostName'], host['clusterStatus']))
         else:
             logging.debug("{}: failoverStatus is {}, excluded".format(host['hostName'], host['hostFailover']))
 
     logging.debug("Master Json {}".format(master_json))
+
     if not master_json:
         logging.error("The hostlist is empty!")
         sys.exit(1)
     else:
         #master_json = ice_chk(master_json)
+        master_json = bundle_cleanup(master_json, options.bundle)
         master_json = hostfilter_chk(master_json)
 
     if options.os_version:
@@ -108,8 +118,8 @@ def get_data(cluster, role, dc):
     if not master_json:
         logging.error("No servers match any filters.")
         sys.exit(1)
-
     return master_json
+
 
 def hostfilter_chk(data):
     if hostfilter:
@@ -120,13 +130,72 @@ def hostfilter_chk(data):
                 del data[host]
     return data
 
+
+def find_concurrency(hostpercent):
+    """
+    This function calculates the host count per block #W-3758985
+    :param inputdict: takes inputdict
+    :return: maxgroupsize
+    """
+    pod = inputdict['clusters']
+    dc = inputdict['datacenter']
+    role = inputdict['roles']
+    master_json = get_data(pod, role, dc)
+    inputdict['maxgroupsize'] = round(float(hostpercent) * (len(master_json)) / 100)
+
+
 def os_chk(data):
     for host in data.keys():
         if options.os_version != data[host]['OS_Version']:
-            logging.debug("{}: OS_Version is {}, excluded".format(host, \
-                          data[host]['OS_Version']))
+            logging.debug("{}: OS_Version is {}, excluded".format(host,
+                                                                  data[host]['OS_Version']))
             del data[host]
     return data
+
+
+def bundle_cleanup(data, targetbundle):
+    '''
+    This function checks excludes the hosts that are already patched
+    :param data:
+    :return:
+    '''
+    current_bundle = {}
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/patch-bundles"
+    bundles = url_response(url)
+    if targetbundle.lower() == "current":
+        for bundle in bundles:
+            if bundle['current'] == True:
+                current_bundle[str(int(float(bundle['os'])))] = bundle['release']
+        c7_ver = current_bundle['7']
+        c6_ver = current_bundle['6']
+    elif targetbundle.lower() == "canary":
+        # atlas patch-bundles endpoint doesnt return canary info. leaving blank for now.
+        # todo: get canary bundle info and assign to
+        # c7_ver and c6_ver respectively
+        c7_ver = ""
+        c6_ver = ""
+    else:
+        # if any other specific bundle values are passed
+        c7_ver = c6_ver = targetbundle
+
+    if targetbundle.lower() in ["current", "canary"]:
+        for host in data.keys():
+            if data[host]['OS_Version'] == "7" and data[host]['Bundle'] == c7_ver:
+                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                del data[host]
+            elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] == c6_ver:
+                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                del data[host]
+    else:
+        for host in data.keys():
+            if data[host]['OS_Version'] == "7" and data[host]['Bundle'] >= c7_ver:
+                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                del data[host]
+            elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] >= c6_ver:
+                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                del data[host]
+    return data
+
 
 def ice_mist_check(hostname):
     ice_chk = re.compile(r'ice|mist|^stm')
@@ -138,12 +207,13 @@ def ice_mist_check(hostname):
         else:
             return 0
 
+
 def validate_templates(tempalteid):
     '''
     This functions validates that all templates are in place.
     :return:
     '''
-    #check if templates exist
+    # check if templates exist
     ######
     template = "{}/templates/{}.template".format(os.getcwd(), templateid)
     template_1 = "{}/templates/{}.template.pre".format(os.getcwd(), templateid)
@@ -165,6 +235,7 @@ def validate_templates(tempalteid):
 
     return template, work_template, pre_template, post_template
 
+
 def prep_template(work_template, template):
     '''
     This function does the prep work to the template by adding the comment line and block v_NUM.
@@ -176,7 +247,6 @@ def prep_template(work_template, template):
     with open(template, 'r') as out:
         output = out.read()
         output = output.replace('v_INCLUDE', dw)
-
 
     """This code is to add unique comment to each line in implementation plan.
              e.g - release_runner.pl -forced_host $(cat ~/v_CASE_include) -force_update_bootstrap -c sudo_cmd -m "ls" -auto2 -threads
@@ -195,7 +265,7 @@ def prep_template(work_template, template):
                 o_list.insert(i, cmd)
             elif o_list[i].startswith('Exec_with') and 'BLOCK' not in o_list[i]:
                 cmd = "Exec_with_creds: " + o_list[i][
-                                            o_list[i].index(':') + 1:].strip() + " && echo 'BLOCK v_NUM'\n"
+                    o_list[i].index(':') + 1:].strip() + " && echo 'BLOCK v_NUM'\n"
                 o_list.remove(o_list[i])
                 o_list.insert(i, cmd)
             elif o_list[i].startswith('Exec') and 'BLOCK' not in o_list[i]:
@@ -206,10 +276,11 @@ def prep_template(work_template, template):
 
     return output
 
-def compile_template(value, template, work_template, file_num):
+
+def compile_template(hosts, template, work_template, file_num):
     '''
-    This function put the template together subsititue variables with information it obtain from
-    command line and blackswan.
+    This function put the template together substitute variables with information it obtains from
+    command line and Atlas/Blackswan.
     :return:
     '''
     outfile = os.getcwd() + "/output/{}_plan_implementation.txt".format(file_num)
@@ -229,13 +300,19 @@ def compile_template(value, template, work_template, file_num):
     output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
     output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
     output = output.replace('v_BUNDLE', options.bundle)
-    output = output.replace('v_HOSTS', ','.join(value))
+    output = output.replace('v_HOSTS', ','.join(hosts))
     output = output.replace('v_NUM', str(file_num))
+    # other host and v_OHOSTS are used to create a check against all but the host to be patched (i.e. lapp, rps)
+    other_hosts = list(set(allhosts) - set(hosts))
+    output = output.replace('v_OHOSTS', ','.join(other_hosts))
+    output = output.replace('v_ALLHOSTS', ','.join(allhosts))
+
     f = open(outfile, 'w')
     f.write(output)
     f.close()
-    for t in value:
+    for t in hosts:
         sum_file.write(t + "\n")
+
 
 def compile_pre_template(template):
     '''
@@ -256,6 +333,7 @@ def compile_pre_template(template):
     output = output.replace('v_HOSTS', ','.join(allhosts))
 
     return output
+
 
 def compile_post_template(template):
     '''
@@ -281,6 +359,7 @@ def compile_post_template(template):
 
     return output
 
+
 def compile_vMNDS_(output):
     """
     :param template: template
@@ -290,7 +369,7 @@ def compile_vMNDS_(output):
     # Load Hbase hbase-mnds template.
     hbaseDowork_ = "{}/templates/{}.template".format(os.getcwd(), "hbase-mnds")
 
-    # Check for hbase-mnds template existance.
+    # Check for hbase-mnds template existence.
     if os.path.isfile(hbaseDowork_):
         with open(hbaseDowork_, 'r') as f:
             mndsData = f.readlines()
@@ -310,6 +389,7 @@ def compile_vMNDS_(output):
 
     # Return the plan_implimentation with changed v_MNDS.
     return output
+
 
 def create_masterplan(consolidated_file, pre_template, post_template):
     '''
@@ -333,7 +413,7 @@ def create_masterplan(consolidated_file, pre_template, post_template):
     for f in read_files:
         if f != consolidated_file:
             with open(f, "r") as infile:
-                #print('Writing out: ' + f + ' to ' + consolidated_file)
+                # print('Writing out: ' + f + ' to ' + consolidated_file)
                 final_file.write(infile.read() + '\n\n')
 
     post_file = compile_post_template(post_template)
@@ -343,6 +423,7 @@ def create_masterplan(consolidated_file, pre_template, post_template):
     post = "".join(post_list)
     final_file.write('BEGIN_GROUP: POST\n' + post + '\nEND_GROUP: POST\n\n')
     cleanup()
+
 
 def cleanup():
     '''
@@ -355,9 +436,10 @@ def cleanup():
         if junk != consolidated_file:
             os.remove(junk)
 
+
 def group_worker(templateid, gsize):
     '''
-    "This function is responsible for doing the work assoicated with the gsize variable.
+    "This function is responsible for doing the work associated with the gsize variable.
     it ensures the number of host done in parallel are translated correctly into the v_HOSTS
     variable.
     :param templateid:
@@ -388,6 +470,7 @@ def group_worker(templateid, gsize):
                 host_group = []
     sum_file.close()
     create_masterplan(consolidated_file, pre_template, post_template)
+
 
 def main_worker(templateid, gsize):
     '''
@@ -436,6 +519,7 @@ def main_worker(templateid, gsize):
     sum_file.close()
     create_masterplan(consolidated_file, pre_template, post_template)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Build_Plan")
     group1 = parser.add_argument_group('Standard', 'Command Line Options')
@@ -457,6 +541,7 @@ if __name__ == "__main__":
     group2.add_argument("--nolinebacker", dest="nolinebacker", action="store_true", default=False, help="Don't use linebacker")
     group2.add_argument("--hostpercent", dest="hostpercent", help="percentange of hosts in parallel")
     group2.add_argument("--no_ice", dest="ice", action="store_true", default=False, help="Include ICE host in query")
+    group2.add_argument("--skip_bundle", dest="skip_bundle", help="command to skip bundle")
     group2.add_argument("-v", "--verbose", action="store_true", default=False, help="Verbose Logging")
     options = parser.parse_args()
 
@@ -518,13 +603,6 @@ if __name__ == "__main__":
 
         # Error checking for variables.
         try:
-            gsize = inputdict['maxgroupsize']
-        except KeyError:
-            if grouping == "byrack":
-                gsize = 0
-            else:
-                gsize = 1
-        try:
             cl_status = inputdict['cl_opstat']
         except KeyError:
             cl_status = "ACTIVE"
@@ -535,13 +613,12 @@ if __name__ == "__main__":
     else:
         sys.exit(1)
 
-
-    # If POD,CLuster info is not passed to this script, Below logic retrieves the info from Atlas
+    # If POD,CLuster info is not passed to this script, Below logic retrieves the info from Blackswan/Atlas
     single_cluster = False
     if pod == "NA" and cluster == "NA":
         cluster = []
         pod_dict = {}
-        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
+        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
         data = url_response(url)
         for host in data:
             pod = host['superpodName']
@@ -552,7 +629,7 @@ if __name__ == "__main__":
                 pod_dict[pod].append(cluster)
 
     elif pod != "NA" and cluster == "NA":
-        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}&sp={}".format(role, dc, pod)
+        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}&sp={}".format(role, dc, pod)
         data = url_response(url)
         pod_dict = {pod: []}
         for host in data:
@@ -561,7 +638,7 @@ if __name__ == "__main__":
                 pod_dict[pod].append(cluster)
 
     elif pod == "NA" and cluster != "NA":
-        url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}&cluster={}".format(role, dc,cluster)
+        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}&cluster={}".format(role, dc, cluster)
         data = url_response(url)
         single_cluster = True
         pod = data[0]['superpodName']
@@ -571,10 +648,9 @@ if __name__ == "__main__":
         pod_dict = {pod: cluster}
         single_cluster = True
 
-
     for pod, clusters in pod_dict.items():
         inputdict['superpod'] = pod
-        total_cluster_list=[]
+        total_cluster_list = []
         if not single_cluster:
             clusters = ",".join(clusters)
             total_cluster_list.append(clusters)
@@ -584,6 +660,15 @@ if __name__ == "__main__":
         cluster = ",".join(total_cluster_list)
 
     cleanup()
+    if options.hostpercent:
+        find_concurrency(options.hostpercent)
+    try:
+        gsize = inputdict['maxgroupsize']
+    except KeyError:
+        if grouping == "byrack":
+            gsize = 0
+        else:
+            gsize = 1
     master_json = get_data(cluster, role, dc)
     grp = Groups(cl_status, ho_status, pod, role, dc, cluster, gsize, grouping, templateid, dowork)
     if grouping == "majorset":
@@ -598,5 +683,9 @@ if __name__ == "__main__":
         new_data, allhosts = grp.rackorder(master_json)
         logging.debug("By Rack Data: {}".format(new_data))
         main_worker(templateid, gsize)
+    elif grouping == "all":
+        new_data, allhosts = grp.all(master_json)
+        logging.debug("By All: {}".format(new_data))
+        group_worker(templateid, gsize)
     else:
         sys.exit(1)

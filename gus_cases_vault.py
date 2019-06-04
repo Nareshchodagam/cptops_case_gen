@@ -165,8 +165,7 @@ def getCaseNum(caseId,session):
     return case_details
 
 def gen_time():
-    now = datetime.now()
-    start_time = now + timedelta(days = 1)
+    start_time = datetime.now()
     end_time = start_time + timedelta(hours = 5)
     return start_time.isoformat(),end_time.isoformat()
 
@@ -413,7 +412,7 @@ def updateCaseInformation_(caseId, session):
             print('Unable to update case: ', e)
 
     Dict = {
-                "SM_Business_Name__c": "a6nB00000008OQHIA2",
+                #"SM_Business_Name__c": "a6nB00000008OQHIA2",
                 "SM_Change_Category__c": "a8gB0000000027BIAQ"
     }
     details = caseDetailUpdate__(caseId, Dict, session)

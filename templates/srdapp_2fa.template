@@ -9,8 +9,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "rm -rf /etc/cptrelease" -
 - Write patching data in GUS
 Exec_with_creds: /opt/cpt/update_lh.py -l --case v_CASE --host v_HOSTS --bundle v_BUNDLE
 
-- Validate the host needs to be patched
-Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python /opt/cpt/remote/validate_linux_patchset.py -c v_BUNDLE -f /opt/cpt/remote/valid_versions.json"
 
 - Notify people logged in about the patching and the coming reboot
 Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /usr/bin/wall \"Hi, This host will be restarted within the next 30 mins as part of the monthly patch maintenance to keep our environment secure and up-to-date. Please save your session and move to another host if needed. Thanks.\""
@@ -40,7 +38,7 @@ Exec: echo 'BLOCK 1' &&  /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 Exec: echo 'BLOCK 1' &&  echo "Now run on the v_HOSTS host the following: sudo /opt/cpt/remote/validate_srdapp.sh"
 
 - Validate that the hosts have been patched and are running the correct version
-Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python /opt/cpt/remote/validate_linux_patchset.py -c v_BUNDLE -f /opt/cpt/remote/valid_versions.json"
+Exec: echo 'BLOCK 1' &&  echo "Now ssh to v_HOSTS and run the following: sudo /usr/bin/python ./remote_transfer/orb-check.py -a v_BUNDLE"
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a enable -H v_HOSTS && echo 'BLOCK 1'

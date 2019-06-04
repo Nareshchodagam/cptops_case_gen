@@ -34,7 +34,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -property "ssh_ti
 Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_linux_patchset.py -c v_BUNDLE -f ./remote_transfer/valid_versions.json -u" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-check.py -a v_BUNDLE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Sleep for 1 Min (Wait for last host to come up completely in order to Avoid App failure)
 Exec: sleep 60

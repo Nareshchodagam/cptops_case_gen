@@ -26,13 +26,13 @@ contains scripts to interact with GUS to create Changes, Incidents or User Stori
 # Setup (Long way)
 - Clone repos. 
 
-	> git clone -b master --recursive git@git.soma.salesforce.com:CPT/cptops_case_gen cptops_case_gen
-	> git clone -b master git@git.soma.salesforce.com:CPT/cptops_gus_base cptops_gus_base
+    git clone -b master --recursive git@git.soma.salesforce.com:CPT/cptops_case_gen cptops_case_gen
+    git clone -b master git@git.soma.salesforce.com:CPT/cptops_gus_base cptops_gus_base
 	
 - Install GUS libraries and add idbhost to pythonpath. 
 
-	> cd cptops_gus_base ; python setup.py install
-	> export PYTHONPATH:<dir_location>/cptops_case_gen/idbhost
+    cd cptops_gus_base ; python setup.py install
+    export PYTHONPATH:<dir_location>/cptops_case_gen/idbhost
 
 - Create creds.config or vaultscreds.config file. Follow these [instructions](https://git.soma.salesforce.com/CPT/cptops_gus_base)
 
