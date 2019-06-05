@@ -818,8 +818,8 @@ if __name__ == "__main__":
                     total_idb_data['monitor'] = {dc:'' for dc in dcs(k, v[1])}
                     if v[1] not in total_idb_data.keys():
                         if args.datacenter:
-                            dcs = args.datacenter.split(',')
-                            idb_ret = query_to_idb(dcs, clustname,  idb, args.cluster_status)
+                            datacenters = args.datacenter.split(',')
+                            idb_ret = query_to_idb(datacenters, clustname,  idb, args.cluster_status)
                         else:
                             idb_ret = query_to_idb(dcs(k, clustname), clustname, idb, args.cluster_status)
                         total_idb_data[clustname] = idb_ret
