@@ -270,10 +270,10 @@ if __name__ == "__main__":
             try:
                 pods, dc, sp, cl_status = l.split()
                 template=options.template
-                if cl_status in ["PROVISIONING","DECOM"] and options.role.lower() != 'ffx':
-                    template = "straight-patch-Goc++"
-                else:
-                    template=options.template
+                #if cl_status in ["PROVISIONING","DECOM"] and options.role.lower() != 'ffx':
+                #    template = "straight-patch-Goc++"
+                #else:
+                #    template=options.template
                 if sp:
                     # Create a dict containing the options used for input to build_plan with SP option passed
                     opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
