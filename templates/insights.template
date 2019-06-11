@@ -44,14 +44,8 @@ Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 - Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-check.py -a v_BUNDLE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Start non-edge applications
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product wave-connector-agent,automated-insights -host v_HOSTS -c start_server -threads -auto2
-
-- Pause 20s for services to stabilize
-Exec: sleep 20
-
-- Start edgeservices application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product insights-edgeservices -host v_HOSTS -c start_server -threads -auto2
+- Give the app some time to start after boot
+Exec: sleep 120
 
 - Validate Applications
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product wave-connector-agent,automated-insights -host v_HOSTS -c antstatuscheck -threads -auto2
