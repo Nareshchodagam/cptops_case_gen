@@ -127,6 +127,9 @@ frf-search_model_executor FRF NONE ACTIVE
 frf-sam_iot FRF NONE ACTIVE
 frf-sam_chatbot_kingdom FRF NONE ACTIVE
 dfw-sp1-sam_caas DFW SP1 ACTIVE
+dfw-sp2-sam_caas DFW SP2 ACTIVE
+dfw-sp3-sam_caas DFW SP3 ACTIVE
+dfw-sp4-sam_caas DFW SP4 ACTIVE
 dfw-sam_cloudatlas_dir DFW NONE ACTIVE
 dfw-sam_moderation_einstein DFW NONE ACTIVE
 dfw-sam_ceph DFW NONE ACTIVE
@@ -141,9 +144,6 @@ dfw-sam_chatbot_kingdom DFW NONE ACTIVE
 dfw-sam_gater DFW NONE ACTIVE
 dfw-sam_datapool DFW NONE PROVISIONING
 dfw-sam_gatewayconfig DFW NONE PROVISIONING
-dfw-sp3-sam_caas DFW SP3 ACTIVE
-dfw-sp4-sam_caas DFW SP4 ACTIVE
-dfw-sp2-sam_caas DFW SP2 ACTIVE
 iad-sp1-sam_caas IAD SP1 ACTIVE
 iad-sam_iot IAD NONE ACTIVE
 iad-sam_crosscloudplatform IAD NONE ACTIVE
@@ -214,9 +214,6 @@ SAM_WARDEN FRA NONE PROVISIONING
 SAM_CLOUDATLAS FRA NONE PROVISIONING
 SAM_SEARCH_MODEL_EXECUTOR FRA NONE PROVISIONING
 phx-sp1-sam_caas PHX SP1 ACTIVE
-phx-sp2-sam_caas PHX SP2 ACTIVE
-phx-sp3-sam_caas PHX SP3 ACTIVE
-phx-sp4-sam_caas PHX SP4 ACTIVE
 phx-sam_gater PHX NONE ACTIVE
 phx-sam_cloudatlas PHX NONE ACTIVE
 phx-sam_cloudatlas_dir PHX NONE ACTIVE
@@ -230,6 +227,9 @@ phx-slb PHX NONE ACTIVE
 phx-sam_datapool PHX NONE ACTIVE
 phx-sam_chatbot_kingdom PHX NONE ACTIVE
 phx-sam_gatewayconfig PHX NONE PROVISIONING
+phx-sp3-sam_caas PHX SP3 ACTIVE
+phx-sp4-sam_caas PHX SP4 ACTIVE
+phx-sp2-sam_caas PHX SP2 ACTIVE
 ord-sp1-sam_caas ORD SP1 ACTIVE
 ord-sp2-sam_caas ORD SP2 ACTIVE
 ord-sam_report_collector ORD NONE ACTIVE
@@ -848,9 +848,6 @@ YHU-SAM_EVENTBUS YHU NONE ACTIVE
 YHU-SAM_DP YHU NONE ACTIVE
 YHU-SAM_KINGDOM_CAAS YHU NONE PROVISIONING
 ia2-sp1-sam_caas IA2 SP1 PROVISIONING
-ia2-sp2-sam_caas IA2 SP2 ACTIVE
-ia2-sp3-sam_caas IA2 SP3 ACTIVE
-ia2-sp4-sam_caas IA2 SP4 ACTIVE
 ia2-sam_mc_consumer IA2 NONE ACTIVE
 ia2-sam_dp IA2 NONE ACTIVE
 ia2-sam_kingdom_caas IA2 NONE ACTIVE
@@ -859,6 +856,9 @@ ia2-sam_report_collector IA2 NONE ACTIVE
 ia2-universalsearch_svc IA2 NONE ACTIVE
 ia2-sam IA2 NONE PROVISIONING
 ia2-sam_gater IA2 NONE PROVISIONING
+ia2-sp3-sam_caas IA2 SP3 ACTIVE
+ia2-sp4-sam_caas IA2 SP4 ACTIVE
+ia2-sp2-sam_caas IA2 SP2 ACTIVE
 prd-sam PRD NONE ACTIVE
 prd-samdev PRD NONE ACTIVE
 SAM CDG NONE PROVISIONING
@@ -885,9 +885,9 @@ SAM YUL NONE ACTIVE
 YUL-SAM YUL NONE ACTIVE
 xrd-sam XRD NONE ACTIVE
 SAM XRD NONE ACTIVE
+SAM IA2 NONE ACTIVE
 YHU-SAM YHU NONE ACTIVE
 SAM YHU NONE ACTIVE
-SAM IA2 NONE ACTIVE
 prd-sdc PRD NONE ACTIVE
 prd-sdn_control PRD NONE ACTIVE
 SDN_CONTROL CDU NONE ACTIVE
