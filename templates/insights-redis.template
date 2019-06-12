@@ -26,8 +26,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product i
 Exec: sleep 120
 
 - Stop the running application
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/bin/systemctl stop insights-redis-stoponly" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/bin/systemctl stop insights-cassandra-stoponly" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n insights-cassandra-stoponly,insights-redis-stoponly -k" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 v_INCLUDE
 
