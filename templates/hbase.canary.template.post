@@ -7,6 +7,8 @@ release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product b
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -device_roles mnds -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant validation validate single"
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-kerberos -device_roles mnds -threads  -auto2 -c cmd -m "~/current/bigdata-kerberos/kerberos/build/ant -- -w krb validate"
 
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -device_roles mnds -threads -auto2 -c cmd -m "cd ~/current/bigdata-hbase-monitoring/hbase-monitoring/signoff; ./run_service_maturity_validation.sh hbase.PRD.AGG.stg1hdaas /home/sfdc/current/bigdata-hbase/hbase/hbase /home/sfdc/current/bigdata-hbase-monitoring/hbase-monitoring/"
+
 Exec: echo "Patching completed"
 
 - To regenerate this Implementation Plan use the following command.
