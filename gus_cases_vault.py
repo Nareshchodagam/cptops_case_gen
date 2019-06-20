@@ -243,12 +243,13 @@ def getYamlChangeDetails(filename, subject, hosts):
     msg = "\n\nHostlist:\n" + "\n".join(hosts)
     output['Description'] += msg
     output['Subject'] = subject + " [" + hl_len + "]"
+
     logging.debug(output['Description'])
     logging.debug(output['Subject'])
     logging.debug(output['Verification'])
     return output
     
-def get_json_change_details(filename, subject, hosts, infratype,full_instances):
+def get_json_change_details(filename, subject, hosts, infratype,full_instances,role):
     with open(filename) as data_file:
         data = json.load(data_file)
     details = data['Details']
@@ -256,6 +257,9 @@ def get_json_change_details(filename, subject, hosts, infratype,full_instances):
         logging.debug('\n'.join(data['Verif']))
         details['Verification'] = '\n'.join(data['Verif'])
         details['Subject'] = subject
+    summary = "Services Impacted: Services which belong to the role " + role + "\n Risk if change is delayed: Server/s will be vulnerable to external attacks"
+    details['Risk-Summary']= summary
+
     if hosts != None:
         hl_len = str(len(hosts))
         if re.search("hdaas", hosts[0]):
@@ -265,6 +269,7 @@ def get_json_change_details(filename, subject, hosts, infratype,full_instances):
         details['Description'] += msg
         details['Subject'] = subject + " [" + hl_len + "]"    
     details['Infrastructure-Type'] = infratype
+
     if full_instances != '':
         details['SM_Instance_List__c'] = full_instances
         logging.debug(details['SM_Instance_List__c'])
@@ -368,7 +373,6 @@ def PreApproveCase(caseId, session):
     details = gusObj.update_case_details(caseId, Dict, session)
     logging.debug(details)
 
-
 # Added to create cases which are not standard Pre-Approved
 def new_unassigned_case(caseId, session):
     gusObj = Gus()
@@ -387,6 +391,8 @@ def updateCaseInformation_(caseId, session):
     :param caseId: caseID
     :param session: access_token and instance url dict
     :return: http response code
+
+
     """
     def caseDetailUpdate__(id, dict, ses):
         """
@@ -555,7 +561,7 @@ if __name__ == '__main__':
             except:
                 print('problem with yaml loading')
         else:
-            jsoncase = get_json_change_details(options.filename, options.subject, hosts,infratype, full_instances)
+            jsoncase = get_json_change_details(options.filename, options.subject, hosts,infratype, full_instances,options.role)
         logging.debug(jsoncase)
 
         #Checking for Atlas API KEY
