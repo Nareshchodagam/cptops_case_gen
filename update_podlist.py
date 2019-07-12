@@ -31,7 +31,7 @@ def dcs(rolename, podtype):
         prod_dc = 'crz'
     elif re.search(r'rps|release|puppet|airdev', rolename, re.IGNORECASE):
         prod_dc.extend(['sfz', 'crd', 'crz', 'prd', 'sfm'])
-    elif re.search(r'^warden|argus|strata|cmgtapi', rolename, re.IGNORECASE):
+    elif re.search(r'^warden|argus|strata|netlog|cmgtapi', rolename, re.IGNORECASE):
         prod_dc = 'prd'
     elif re.search(r'hbase', rolename, re.IGNORECASE):
         prod_dc.extend(['sfm', 'prd', 'crd'])
@@ -72,6 +72,8 @@ def dcs(rolename, podtype):
         prod_dc.extend(['prd'])
     elif re.search(r'mq_ice|acs_ice|app_ice|ffx_ice', rolename, re.IGNORECASE):
         prod_dc = 'prd'
+    elif re.search(r'netevents', rolename, re.IGNORECASE):
+        prod_dc = (['prd', 'xrd'])
     return prod_dc
     #else:
         #return non_prod_dc
@@ -732,7 +734,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
                     if 'Primary' in pods[index] and pods[index]['Primary'] not in c_pods:
                         if 'irc' in file_name and 'MTA' in pods[index]['Primary']:
                             continue
-                        elif 'piperepo' in file_name and 'OPS_PIPELINE' not in pods[index]['Primary']:
+                        elif 'piperepo' in file_name and pods[index]['Primary'] not in ['PIPEREPO','OPS_PIPELINE']:
                             continue
                         w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                         pri.write(w)
@@ -818,8 +820,8 @@ if __name__ == "__main__":
                     total_idb_data['monitor'] = {dc:'' for dc in dcs(k, v[1])}
                     if v[1] not in total_idb_data.keys():
                         if args.datacenter:
-                            dcs = args.datacenter.split(',')
-                            idb_ret = query_to_idb(dcs, clustname,  idb, args.cluster_status)
+                            datacenters = args.datacenter.split(',')
+                            idb_ret = query_to_idb(datacenters, clustname,  idb, args.cluster_status)
                         else:
                             idb_ret = query_to_idb(dcs(k, clustname), clustname, idb, args.cluster_status)
                         total_idb_data[clustname] = idb_ret
