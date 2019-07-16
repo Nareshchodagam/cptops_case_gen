@@ -1,4 +1,4 @@
--Copy remote scripts to the target hosts
+- Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Delete cptrelease file
@@ -13,18 +13,14 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/usr/bin/wall \"Hi $USER,
 - Disable GOC++ alerts ("enable" alert suppression)
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a enable -H v_HOSTS
 
-- Check status -  K2K - SECANCHOR service
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl status k2k" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Validate KEYPRODUCER service
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl status keyproducer" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Stop K2K - SECANCHOR service
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl stop k2k" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
-- Stop Splunk Forwarder
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product sfdc-splunk-forwarder -device_role k2k -host v_HOSTS -c stop_server -auto2 -threads
+- Stop KEYPRODUCER service
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl stop keyproducer" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
 
 v_INCLUDE
 
@@ -37,20 +33,11 @@ Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 - Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-check.py -a v_BUNDLE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Verify Kernel Module 
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/fix_secanchor.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Start KEYRPRODUCER service
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start keyrproducer" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Start K2K - SECANCHOR service
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl stop k2k" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
-- Start Splunk Forwarder
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product sfdc-splunk-forwarder -device_role k2k -host v_HOSTS -c start_server -auto2 -threads
-
-- Check status -  K2K - SECANCHOR service
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl status k2k" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
-- Validate Secanchor host app is running
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_secanchor.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Validate KEYPRODUCER service
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl status keyrproducer"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Enable GOC++ alerts ("disable" alert suppression)
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a disable -H v_HOSTS
