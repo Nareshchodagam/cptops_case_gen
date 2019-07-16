@@ -19,6 +19,9 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl status k2k" -th
 - Stop K2K - SECANCHOR service
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl stop k2k" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
+- Stop Splunk Forwarder
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product sfdc-splunk-forwarder -device_role k2k -host v_HOSTS -c stop_server -auto2 -threads
+
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
@@ -39,6 +42,9 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/fix_sec
 
 - Start K2K - SECANCHOR service
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl stop k2k" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Start Splunk Forwarder
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster K2K -product sfdc-splunk-forwarder -device_role k2k -host v_HOSTS -c start_server -auto2 -threads
 
 - Check status -  K2K - SECANCHOR service
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl status k2k" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
