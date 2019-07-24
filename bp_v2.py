@@ -165,7 +165,7 @@ def bundle_cleanup(data, targetbundle):
     if targetbundle.lower() == "current":
         for bundle in bundles:
             if bundle['current'] == True:
-                current_bundle[str(int(float(bundle['os'])))] = bundle['release']
+                current_bundle[str(int(float(bundle['osMajor'])))] = bundle['release']
         c7_ver = current_bundle['7']
         c6_ver = current_bundle['6']
     elif targetbundle.lower() == "canary":
@@ -173,7 +173,7 @@ def bundle_cleanup(data, targetbundle):
         # c7_ver and c6_ver respectively
         for bundle in bundles:
             if bundle['canary'] == True:
-                current_bundle[str(int(float(bundle['os'])))] = bundle['release']
+                current_bundle[str(int(float(bundle['osMajor'])))] = bundle['release']
         c7_ver = current_bundle['7']
         c6_ver = current_bundle['6']
     else:
