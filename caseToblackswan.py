@@ -5,6 +5,7 @@ import datetime
 from modules.buildplan_helper import *
 import json
 import os
+from os.path import expanduser
 import ConfigParser
 import logging
 import requests
@@ -45,7 +46,7 @@ def GetApiKey():
     return apiKey
 
 def CheckApiKey(apikey):
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/test/apikey"
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/test/apikey"
     headers = {"x-api-key": apikey}
     res = requests.get(url, headers=headers, verify=False)
     try:
@@ -64,12 +65,14 @@ def writeToFile(data):
     :param data:
     :return:
     """
-    json_dir = common.outputdir + "/blackswanUpload.json"
+    homeDir = expanduser("~")
+    outputDir = os.path.join(homeDir, "git/cptops_case_gen/output")
+    json_dir = os.path.join(outputDir, "blackswanUpload.json")
     f = open(json_dir, 'w')
     f.write(json.dumps(data))
     f.close()
 
-def CreateBlackswanJson(inputdict, bundle):
+def CreateBlackswanJson(inputdict, bundle, username=None):
     """
 
     :param inputdict:
@@ -77,7 +80,7 @@ def CreateBlackswanJson(inputdict, bundle):
     :return:
     """
     user = 'user'
-    username = ''
+
     if os.path.isfile(user):
         username = getApiKey(user)
         print("Found username from saved session: ", username)
@@ -139,8 +142,10 @@ def BlackswanJson(caseNum):
     :param username:
     :return:
     """
-    hostFile = common.outputdir + "/summarylist.txt"
-    jFile = common.outputdir + "/blackswanUpload.json"
+    homeDir = expanduser("~")
+    outputDir = os.path.join(homeDir, "git/cptops_case_gen/output")
+    hostFile = os.path.join(outputDir, "summarylist.txt")
+    jFile = os.path.join(outputDir, "blackswanUpload.json")
     caseId = caseNum['Id']
     caseNumber = caseNum['CaseNumber']
     with open(hostFile, 'r') as h:
@@ -187,7 +192,7 @@ def UploadDataToBlackswanV1(caseNum, apikey):
     :return:
     """
     jsondata = BlackswanJson(caseNum)
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/gus-cases/new"
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/gus-cases/new"
     headers = {"x-api-key": apikey}
     res = requests.post(url, data=json.dumps(jsondata), headers=headers, verify=False)
 

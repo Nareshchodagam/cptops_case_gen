@@ -2,4 +2,7 @@ Exec: echo "Patching completed"
 
 - To regenerate this Implementation Plan use the following command.
 
+- Upload exclude file to the case
+Exec_with_creds: /opt/cpt/post_comment.py -c v_CASE
+
 - v_COMMAND

@@ -4,6 +4,7 @@ import json
 import logging
 import re
 from optparse import OptionParser
+import os
 
 def groupType(role):
     # presets for certain roles for group type
@@ -44,10 +45,10 @@ def getData(filename):
         data = []
         for line in data_file:
             if options.filtergia == True:
-                if re.findall(r'\s(CHX|WAX)\s', line):
+                if re.findall(r'\s(CHX|WAX|HIO|TTD)\s', line):
                     data.append(line)
             else:
-                if re.findall(r'\s(CHX|WAX)\s', line):
+                if re.findall(r'\s(CHX|WAX|HIO|TTD)\s', line):
                     continue
                 data.append(line)
     return data
@@ -96,7 +97,7 @@ def inputDictStrtoInt(m):
 
 # W-4574049 This code was repeated on multiple conditions, hence add it to a func and call func on appropriate places
 def cmdformat(output_str):
-    if not options.idb:
+    if not options.idb and not options.bpv2:
         output_str = output_str + " -x"
     if options.groupsize:
         output_str = output_str + " --gsize %s" % groupsize
@@ -117,7 +118,6 @@ def cmdformat(output_str):
 
     return output_str
 # W-4574049 End
-
 
 if __name__ == "__main__":
     parser = OptionParser()
@@ -175,7 +175,10 @@ if __name__ == "__main__":
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     if not options.casesubject:
-        options.casesubject = options.patchset + " Patch Bundle"
+        if options.patchset == "current":
+            options.casesubject = "Current Patch Bundle"
+        else:
+            options.casesubject =  options.patchset + " Current Patch Bundle"
     else:
         options.casesubject += " Patch Bundle"
 
@@ -183,6 +186,8 @@ if __name__ == "__main__":
     if options.casework == "reimage":
         patch_json = "migration-patch.json"
         options.implplansection = "templates/migration-plan.json"
+    elif options.filtergia == True:
+        patch_json = "gia-bundle.json"
     else:
         patch_json = "bundle-patch.json"
     # W-4574049 end
@@ -264,31 +269,29 @@ if __name__ == "__main__":
         for l in data:
             try:
                 pods, dc, sp, cl_status = l.split()
+                template=options.template
+                #if cl_status in ["PROVISIONING","DECOM"] and options.role.lower() != 'ffx':
+                #    template = "straight-patch-Goc++"
+                #else:
+                #    template=options.template
                 if sp:
-                    if (options.role or options.role.upper()) == "prsn,chan,msg,dstore":
-                        # Create a dict containing the options used for input to build_plan for Chatter with SP option passed
-                        opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                                  "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
-                    elif (options.role.lower()) == "app":
-                        # This section is to remove grouping tag for core app #W-3758985
-                        opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                                  "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
-                    else:
-                        # Create a dict containing the options used for input to build_plan with SP option passed
-                        opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
+                    # Create a dict containing the options used for input to build_plan with SP option passed
+                    opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                                   "grouping": grouping, "maxgroupsize": groupsize,
-                                  "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
+                                  "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
             except:
                 pods, dc, cl_status = l.split()
                 # Create a dict containing the options used for input to build_plan for Chatter
-                if (options.role or options.role.upper()) == "prsn,chan,msg,dstore":
-                    opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                              "maxgroupsize": groupsize, "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
+                pods, dc, sp, cl_status = l.split()
+                template = options.template
+                if cl_status in ["PROVISIONING", "DECOM"] and options.role.lower() != 'ffx':
+                    template = "straight-patch-Goc++"
                 else:
-                    # Create a dict containing the options used for input to build_plan
-                    opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
+                    template = options.template
+                # Create a dict containing the options used for input to build_plan
+                opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                               "grouping": grouping, "maxgroupsize": groupsize,
-                              "templateid": options.template, "dr": options.dr, "cl_opstat": cl_status}
+                              "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
             opt_gc = {}
             if options.filter:
                 filter = options.filter
@@ -319,12 +322,10 @@ if __name__ == "__main__":
             # Added linebacker -  W-3779869
             if options.bpv2 == True:
                 output_str = """python bp_v2.py --bundle %s -G '%s' -v --dowork %s""" % (options.patchset, opts_str, options.dowork)
-                if options.os:
-                    output_str = output_str + " --os " + options.os
             else:
                 output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s %s  --auto_close_case %s -v""" \
                              """ --nolinebacker %s""" % (options.patchset, opts_str, options.taggroups, hostv, options.auto_close_case, options.nolinebacker)
-                output_str = cmdformat(output_str)
+            output_str = cmdformat(output_str)
             print(output_str)
             if options.regexfilter:
                 subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec + "[" + cluster_status + "]"
@@ -336,3 +337,7 @@ if __name__ == "__main__":
             #if not re.search(r"json", options.bundle):
             #    options.bundle = options.bundle + "-patch.json"
             print("""python gus_cases_vault.py -T change --cstatus %s  -f templates/%s  --inst %s --infra "%s" -s "%s" -k %s  -l output/summarylist.txt -D %s -i  output/plan_implementation.txt -r %s""" % (options.cstatus,patch_json,pods,options.infra,subject,implplansection,dc, options.role))
+
+
+
+

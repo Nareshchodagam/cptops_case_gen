@@ -65,23 +65,23 @@ class Organizer():
         Function to support the prioritizng of byrack grouping.
         :return:
         '''
-        if len(self.pri_groups.keys()) > 2:
-            for k,v in self.bundle_groups.iteritems():
-                self.index = self.bundle_groups.keys().index(k)
-                for self.host in v:
-                    for a,b in self.byrack['Hostnames'].iteritems():
-                        if self.host in b:
-                            for r in range(0, len(self.pri_groups.keys())):
-                                if a in self.pri_groups['Grouping'][r].keys():
-                                    result = "True"
-                                    break
-                                else:
-                                    result = "False"
-                            if result == "False":
-                                self.pri_groups['Grouping'][self.index].update({a: b})
+        bundle_keys = self.bundle_groups.keys()
+        bundle_keys.sort()
+        keycount = len(self.pri_groups.keys())
+        racks = []
+
+        if keycount > 1:
+            for bkey in bundle_keys:
+                for hostval in self.bundle_groups[bkey]:
+                    for rackid in self.byrack['Hostnames'].keys():
+                        if hostval in self.byrack['Hostnames'][rackid] and rackid not in racks:
+                            racks.append(rackid)
+                            self.pri_groups['Grouping'][bundle_keys.index(bkey)].update({rackid: self.byrack['Hostnames'][rackid]})
+                            self.byrack['Hostnames'].pop(rackid)
+                            break
         else:
-            for a,b in self.byrack['Hostnames'].iteritems():
-                self.pri_groups['Grouping'][0].update({a: b})
+            for rackid, hostval in self.byrack['Hostnames'].iteritems():
+                self.pri_groups['Grouping'][0].update({rackid: hostval})
 
 class Groups(Organizer):
     def __init__(self, cl_status, ho_status, pod, role, dc, cluster, gsize, grouptype, template, dowork):
@@ -89,6 +89,9 @@ class Groups(Organizer):
         self.bymajor = {}
         self.byminor = {}
         self.byrack = {}
+        self.byall = {}
+        self.allhosts = []
+        self.pcldcs = ["yul","yhu", "syd", "cdu", "hio", "ttd"]
         #self.hostnum = re.compile(r'\w*-\w*(\d)-(\d*)-\w*')
         self.hostnum = re.compile(r'(\d.*)')
         self.grouptype = grouptype
@@ -108,24 +111,30 @@ class Groups(Organizer):
         self.byrack['Details'] = self.details
         self.byrack['Hostnames'] = {}
         self.master_data = data
+        pcl_grp = 0
         for host in self.master_data.iterkeys():
+            self.allhosts.append(host)
             try:
                 racknum = self.master_data[host]['RackNumber']
             except KeyError as valerr:
                 print valerr
                 raise
+            if host.split("-")[3] in self.pcldcs or racknum == "":
+                racknum = 'pcl{}'.format(pcl_grp)
+                pcl_grp += 1
             if racknum in self.byrack['Hostnames'].keys():
                 self.byrack['Hostnames'][racknum].append(host)
             else:
                 self.byrack['Hostnames'][racknum] = [host]
 
-        return self.bundleorg()
+        return self.bundleorg(), self.allhosts
 
     def majorset(self, data):
         self.bymajor['Details'] = self.details
         self.bymajor['Hostnames'] = {}
         self.master_data = data
         for host in self.master_data.iterkeys():
+            self.allhosts.append(host)
             try:
                 majorset = self.master_data[host]['Majorset']
             except KeyError as valerr:
@@ -139,13 +148,14 @@ class Groups(Organizer):
             else:
                 self.bymajor['Hostnames'][majorset] = [host]
 
-        return self.bymajor
+        return self.bymajor, self.allhosts
 
     def minorset(self, data):
         self.byminor['Details'] = self.details
         self.byminor['Hostnames'] = {}
         self.master_data = data
         for host in self.master_data.iterkeys():
+            self.allhosts.append(host)
             try:
                 minorset = self.master_data[host]['Minorset']
             except KeyError as valerr:
@@ -158,4 +168,14 @@ class Groups(Organizer):
             else:
                 self.byminor['Hostnames'][minorset] = [host]
 
-        return self.byminor
+        return self.byminor, self.allhosts
+
+    def all(self, data):
+        self.byall['Details'] = self.details
+        self.byall['Hostnames'] = {"straight patch":[]}
+        self.master_data = data
+
+        for host in self.master_data.iterkeys():
+            self.allhosts.append(host)
+            self.byall['Hostnames']["straight patch"].append(host)
+        return self.byall, self.allhosts

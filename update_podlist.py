@@ -29,9 +29,9 @@ def dcs(rolename, podtype):
     prod_dc = validate_dc()
     if re.search(r'crz', rolename, re.IGNORECASE):
         prod_dc = 'crz'
-    elif re.search(r'rps|release|puppet', rolename, re.IGNORECASE):
+    elif re.search(r'rps|release|puppet|airdev', rolename, re.IGNORECASE):
         prod_dc.extend(['sfz', 'crd', 'crz', 'prd', 'sfm'])
-    elif re.search(r'^warden|argus|strata|cmgtapi', rolename, re.IGNORECASE):
+    elif re.search(r'^warden|argus|strata|netlog|cmgtapi', rolename, re.IGNORECASE):
         prod_dc = 'prd'
     elif re.search(r'hbase', rolename, re.IGNORECASE):
         prod_dc.extend(['sfm', 'prd', 'crd'])
@@ -43,8 +43,10 @@ def dcs(rolename, podtype):
         prod_dc = ['crd', 'crz', 'wax']
     elif re.search(r'ajna|sms|public', podtype, re.IGNORECASE):
         prod_dc.extend(['sfz', 'prd'])
-    elif re.search(r'secrets|secrets_ci|netmonitor|mom|gingham', podtype, re.IGNORECASE):
+    elif re.search(r'secrets|secrets_ci|netmonitor|mom|secds|gingham|samsecurity|secmgt', podtype, re.IGNORECASE):
         prod_dc.extend(['xrd', 'crd', 'sfz', 'prd', 'crz'])
+    elif re.search(r'^rackbot|^tools|monitor', rolename, re.IGNORECASE):
+        prod_dc.extend(['prd', 'crd', 'sfm', 'xrd'])
     elif re.search(r'ops-stack', podtype, re.IGNORECASE):
         prod_dc.extend(['crd', 'sfz', 'prd', 'crz'])
     elif re.search(r'lhub', rolename, re.IGNORECASE):
@@ -53,12 +55,12 @@ def dcs(rolename, podtype):
         prod_dc.extend(['crd', 'crz', 'sfz'])
     elif re.search(r'^cmgt', rolename, re.IGNORECASE):
         prod_dc = 'phx'
-    elif re.search(r'gateway|^polcore|^pkicontroller|^grok|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr|'
+    elif re.search(r'gateway|^praapp|^praccn|^pravmh|^polcore|^pkicontroller|^grok|sam|dvasyslog|nwexp|dvamon|dvaexp|searchidx|searchmgr|'
                    r'dva_onboarding|^deepsea|syntheticsagent|syntheticsmaster|^snd', rolename, re.IGNORECASE):
         prod_dc.extend(['prd'])
     elif re.search(r'^vnscanam|^inst|^edns|^ns|^netmgt|^smart|cfgapp|funnel|netbot|rdb|hmrlog|^artifactrepo', rolename, re.IGNORECASE):
         prod_dc.extend(['prd', 'crd', 'crz', 'sfm', 'sfz'])
-    elif re.search(r'^syslog|appauth|vc', rolename, re.IGNORECASE):
+    elif re.search(r'^syslog|appauth|vc|delphi', rolename, re.IGNORECASE):
         prod_dc.extend(['crd', 'crz', 'sfm', 'sfz'])    # TODO This code block can be refactored.
     elif re.search(r'irc', rolename, re.IGNORECASE):
         prod_dc = (['sfm', 'crd'])
@@ -70,6 +72,8 @@ def dcs(rolename, podtype):
         prod_dc.extend(['prd'])
     elif re.search(r'mq_ice|acs_ice|app_ice|ffx_ice', rolename, re.IGNORECASE):
         prod_dc = 'prd'
+    elif re.search(r'netevents', rolename, re.IGNORECASE):
+        prod_dc = (['prd', 'xrd'])
     return prod_dc
     #else:
         #return non_prod_dc
@@ -192,28 +196,32 @@ def parse_json_data(data):
         logger.info("Successfully parsed the data")
         return role_details
 
-def captain_pods(role, dc):
+def captain_clusters(role, dc):
     """
-    This function us for fetching the cluster onboarded on to Captain.
+    This function us for fetching the cluster onboarded on to Captain
     :param role: querying atlas api for role
     :param dc: querying atlas api for dc
-    :return: a list of pods onboarded to captain.
+    :return: a list of clusters onboarded to captain.
     """
-    pods = []
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/role-clusters?role={}&dc={}".format(role, dc)
+    clusters = []
+
+    # get cluster data from Atlas for the specified role and dc
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/role-clusters?role={0}&dc={1}".format(role, dc)
     response = requests.get(url, verify=False)
+    atlas_data = response.json()
+    logger.debug("captain_clusters; role:{0} dc:{1} atlas_data:{2}".format(role, dc, atlas_data))
 
-    try:
-        r_data = response.json()
-        for cl in r_data:
-            if cl['captain'] == True and cl['pod'] not in pods:
-                pods.append(cl['pod'])
-            else:
-                logger.info("No Captain Clusters")
-    except:
-        pass
+    # parse a list of cluster names out of the returned data, if any
+    # NOTE: 'pod' key here is a misnomer; it's the cluster name
+    if atlas_data:
+        for cluster in atlas_data:
+            if cluster['captain'] == True and cluster['pod'] not in clusters:
+                clusters.append(cluster['pod'])
 
-    return pods
+    # if not empty, print info msg with cluster list
+    if clusters:
+        logger.info("{0},{1} captain clusters: {2} ".format(role, dc, ",".join(clusters)))
+    return clusters
 
 def validate_dc():
     """
@@ -221,7 +229,7 @@ def validate_dc():
     :return: valid DC name
     """
     valid_dc = []
-    url = "https://ops0-cpt1-2-prd.eng.sfdc.net:9876/api/v1/datacenters/list"
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/datacenters/list"
     response = requests.get(url,verify=False)
     try:
         response_data = response.json()
@@ -279,7 +287,7 @@ def file_handles(file_name):
     :param file_name:
     :return: None
     """
-    if re.search(r'acs|trust|afw|hammer|hbase.pri|pod|public-trust|monitor|hmrlog', file_name, re.IGNORECASE):
+    if re.search(r'acs|dbaascl|trust|afw|hammer|hbase.pri|pod|public-trust|hmrlog|sfs', file_name, re.IGNORECASE):
         file_handle_pri = open('hostlists/' + file_name, 'w')
         file_handle_sec = open('hostlists/' + file_name.split('.')[0] + '.sec', 'w')
         logger.info("Opened file handles on podlist file - '{0}, {1}.sec'".format(file_name, file_name.split('.')[0]))
@@ -380,7 +388,7 @@ def listbuilder(pod_list, dc):  # This was added as part of - 'T-1810443'
     """
     # searching for just monitor as below commented line shows, errs with NoneType on run
     # hostnum = re.compile(r"(^monitor)([1-6])")
-    
+
     hostnum = re.compile(r"(^monitor|^netmonitor)(\d+)")
     hostcomp = re.compile(r'(\w*-\w*)(?<!\d)')
     hostlist_pri = []
@@ -454,12 +462,12 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
     :param groupsize: No. of pods to write in a single line
     :return: None
     """
-    pri, sec = file_handles(file_name)
     pod_data = []
     c_pods = []
     f_read = False
+    monitor_canary_count = 0
     for dc in idb_data.keys():
-        c_pods = captain_pods(role, dc)
+        #c_pods = captain_clusters(role, dc)
         if re.search(r'afw', file_name, re.IGNORECASE):
             groupsize = 1
             for sp, pods in idb_data[dc].items():
@@ -595,8 +603,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
             print(idb_data[dc].items)
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
-		cluster_list = ['dev1hdaas', 'dev2hdaas', 'dev3hdaas', 'dev6hdaas', 'prodinternal1', 'prodinternal2', 'int1hdaas', 'int2hdaas', 'sbox1hdaas', 'sbox2hdaas', 'blitzhbase01', 'blitzhbase02', 'hbsr1',
-		                'phoenix', 'isthbase01', 'hbsrcrd2', 'proddebug', 'perfengma2', 'relvalidation', 'blitz1', 'blitz2', 'blitz3', 'blitz4']
+                cluster_list = ['dev1hdaas', 'dev2hdaas', 'dev3hdaas', 'dev6hdaas', 'prodinternal1', 'prodinternal2', 'int1hdaas', 'int2hdaas', 'sbox1hdaas', 'sbox2hdaas', 'blitzhbase01', 'blitzhbase02', 'hbsr1','phoenix', 'isthbase01', 'hbsrcrd2', 'proddebug', 'perfengma2', 'relvalidation', 'blitz1', 'blitz2', 'blitz3', 'blitz4', 'icebd10hbase2a', 'icebd11hbase2a', 'icebd12hbase2a', 'icebd13hbase2a', 'stmda1hbase2a', 'stmfa1hbase2a', 'stmfb1hbase2a', 'stmfc1hbase2a', 'stmfd1hbase2a', 'stmra1hbase2a', 'stmsa1hbase2a', 'stmua1hbase2a', 'stmub1hbase2a']
                 for index in range(0, ttl_len):
                     # TODO Why this regex was added.
                     if pods[index]['Primary'] != "None" and( pods[index]['Primary'].lower() in cluster_list) :
@@ -618,7 +625,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
             logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
 
 	#END
-        
+
 	#Added to accomodate SAYONARA ZOOKEPER HBASE POD's - W-5483209
         elif re.match(r'hbase_sayonara_prod', preset_name, re.IGNORECASE):
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
@@ -626,12 +633,13 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
                 ttl_len = len(pods)
                 for index in range(0, ttl_len):
                     if pods[index]['Primary'] != "None" and \
-                            re.match(r"^SAYONARA", pods[index]['Primary'], re.IGNORECASE) and pods[index]['Primary'] not in c_pods:
+                            re.match(r".*SAYONARA.*", pods[index]['Primary'], re.IGNORECASE) and pods[index]['Primary'] not in c_pods:
                         w = pods[index]['Primary'] + " " + dc + " " + sp.upper() + " " + pods[index][
                             'Operational Status'] + "\n"
                         pri.write(w)
             logger.info("Successfully written data to - '{0}' for dc '{1}'".format(file_name, dc))
         #END
+
 
         elif re.search(r'(hbase_prod)', preset_name, re.IGNORECASE):
             """
@@ -672,7 +680,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
 
         elif re.search(r'lapp', preset_name, re.IGNORECASE):
             """
-            This code generate podlist files for lapp hosts [CS and PROD]. 
+            This code generate podlist files for lapp hosts [CS and PROD].
             """
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
             for sp, pods in idb_data[dc].items():
@@ -694,31 +702,50 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
                         #w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                         #sec.write(w)
 
-        elif re.match(r'(monitor)', preset_name, re.IGNORECASE):  # This was added as part of - 'T-1810443'
+        elif re.match(r'(monitor)', preset_name, re.IGNORECASE):
             """
-            This code reads podlist from pod.pri and pod.sec file and generate the monitor hostlist.
+            This code reads updates the monitor podlist from Atlas.
+            
             """
-            p = []
-            s = []
 
-            if not f_read:
-                for files in ['pod.pri', 'pod.sec']:
-                    f_data = read_file('hostlists/', files, json_fmt=False)
-                    pod_data.extend(f_data)
-                    f_read = True
-            for line in pod_data:
-                if dc in line.lower():
-                    hostlist_pri, hostlist_sec = listbuilder(line.split()[0], dc)
-                    p.extend(hostlist_pri)
-                    s.extend(hostlist_sec)
-            pod_list = ['ops', 'ops0', 'ops3', 'ops4', 'net', 'net0', 'sr1', 'sr2']
-            hostlist_pri, hostlist_sec = listbuilder(pod_list, dc)
-            p.extend(hostlist_pri)
-            s.extend(hostlist_sec)
-            for item in p:
-                pri.write("%s\n" % item)
-            for item in s:
-                sec.write("%s\n" % item)
+
+
+            cluster = []
+            pod_dict = {}
+            pod_temp = {}
+            url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role=monitor&dc={}".format(dc)
+            response = requests.get(url, verify=False)
+            if response.json() is None:
+                logging.error("No Data Present")
+                sys.exit(1)
+            data = response.json()
+            for host in data:
+                pod = host['superpodName']
+                cluster = host['clusterName']
+                cluster_status = host['clusterStatus']
+                if pod not in pod_dict:
+                    pod_dict[pod] = []
+                    pod_temp[pod] = []
+                if cluster not in pod_temp[pod]:
+                    pod_temp[pod].append(cluster)
+                    pod_dict[pod].append({"cluster_name" : cluster, "cluster_status" : cluster_status})
+
+            for sp, pods in pod_dict.items():
+                ttl_len = len(pods)
+
+                for index in range(0, ttl_len):
+                    if pods[index]['cluster_name'] not in c_pods and pods[index]['cluster_status'].upper() in ['ACTIVE','DECOM','PROVISIONING']:
+                        w = pods[index]['cluster_name'] + " " + dc + " " + sp.upper() + " " + pods[index]['cluster_status'] + "\n"
+                        pri.write(w)
+                        if dc in ['prd', 'sfm']:
+                            if monitor_canary_count == 0 :
+                                canary_file = open('hostlists/monitor.canary', 'w')
+                            canary_file.write(w)
+                            monitor_canary_count+=1
+
+            logger.info("Successfully written data to podlist files - '{0}' for dc '{1}'".format(file_name, dc))
+
+
 
         else:
             logger.info("Writing data on podlist file - '{0}'".format(file_name))
@@ -728,7 +755,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
                     if 'Primary' in pods[index] and pods[index]['Primary'] not in c_pods:
                         if 'irc' in file_name and 'MTA' in pods[index]['Primary']:
                             continue
-                        elif 'piperepo' in file_name and 'OPS_PIPELINE' not in pods[index]['Primary']:
+                        elif 'piperepo' in file_name and pods[index]['Primary'] not in ['PIPEREPO','OPS_PIPELINE']:
                             continue
                         w = pods[index]['Primary'] + " " + dc.upper() + " " + sp.upper() + " " + pods[index]['Operational Status'] + "\n"
                         pri.write(w)
@@ -791,9 +818,10 @@ if __name__ == "__main__":
         preset_data = parse_json_data(file_content)
         logger.debug(pprint.pformat(preset_data))
 
+
         if args.preset_name:  # This loop will be called when user is trying to extract information for a specific role
             cstm_preset_data = {}
-            if 'monitor' in args.preset_name:
+            if 'monitor' in args.preset_name and args.preset_name != 'monitor_prod' :
                 args.preset_name = 'ffx_prod,' + args.preset_name
             for preset in args.preset_name.split(','):
                 try:
@@ -805,27 +833,31 @@ if __name__ == "__main__":
         role_details = []
         total_idb_data = {}
         for k, v in preset_data.items():
-            if v[1]:
+            clustype = v[1].split(',')
+            pri, sec = file_handles(v[0])
+            for clustname in clustype:
                 logger.info("\n************************* Starting on role '{0}'*************************".format(k))
-                if v[1] not in role_details or re.search(r'afw|hbase|lhub|log_hub|splunk-|pod|hammer', v[0], re.IGNORECASE):
-                    role_details.append(v[1])
+                if clustname not in role_details or re.search(r'afw|hbase|lhub|log_hub|splunk-|pod|hammer', v[0], re.IGNORECASE):
+                    role_details.append(clustname)
                     total_idb_data['monitor'] = {dc:'' for dc in dcs(k, v[1])}
                     if v[1] not in total_idb_data.keys():
                         if args.datacenter:
-                            dcs = args.datacenter.split(',')
-                            idb_ret = query_to_idb(dcs, v[1],  idb, args.cluster_status)
+                            datacenters = args.datacenter.split(',')
+                            idb_ret = query_to_idb(datacenters, clustname,  idb, args.cluster_status)
                         else:
-                            idb_ret = query_to_idb(dcs(k, v[1]), v[1], idb, args.cluster_status)
-                        total_idb_data[v[1]] = idb_ret
+                            idb_ret = query_to_idb(dcs(k, clustname), clustname, idb, args.cluster_status)
+                        total_idb_data[clustname] = idb_ret
                         if not idb_ret:
                             continue
                     else:
                         logger.info("Skipping iDB query, using data from cache")
 
-                    parse_cluster_pod_data(v[0], k, total_idb_data[v[1]], groupsize, v[2])
+                    parse_cluster_pod_data(v[0], k, total_idb_data[clustname], groupsize, v[2])
                     logger.info("\n************************* Done with Role '{0}' *************************\n".format(k))
                 else:
                     logger.info("skipping... The podlist file {0} for role {1}  has been processed" .format(v[0], k))
                     logger.info("\n************************* Done with Role '{0}' *************************\n".format(k))
             else:
                 continue
+
+
