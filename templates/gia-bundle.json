@@ -2,7 +2,8 @@
   "Details": {
     "Business-Name": "a6nB0000000KzRwIAK",
     "RecordTypeId": "012B000000009fB",
-    "Change-Type": "Standard Pre Approved",
+    "Change-Category": "a8gB0000000Kz9VIAS",
+    "ChangeType-c": "a8hB00000004DIzIAM",
     "Status": "New/Unassigned",
     "SRO-Resource": "No",
     "Patch-Vendor": "Redhat",
@@ -12,7 +13,6 @@
     "Implementation": "See Implementation Plan Attached",
     "Verification": "",
     "Priority": "Sev3",
-    "Change-Area": "Systems - Patch/Upgrade Redundant Systems",
     "Business-Justification": "Hosts need to updated to the latest revision for compliance and security reasons",
     "Business-Reason": "Routine Maintenance",
     "Team": "a00B0000003KKLcIAO",
