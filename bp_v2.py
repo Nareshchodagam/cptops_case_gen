@@ -256,10 +256,10 @@ def prep_template(work_template, template):
         o_list = output.splitlines(True)
         for i in range(len(o_list)):
             # Added to skip linebacker -  W-3779869
-            if not options.nolinebacker:
-                regex_compile = re.compile('bigipcheck|remove_from_pool|add_to_pool', re.IGNORECASE)
-                if regex_compile.search(o_list[i]):
-                    o_list[i] = o_list[i].strip() + ' -nolinebacker' + "\n"
+            #if not options.nolinebacker:
+            #    regex_compile = re.compile('bigipcheck|remove_from_pool|add_to_pool', re.IGNORECASE)
+            #    if regex_compile.search(o_list[i]):
+            #        o_list[i] = o_list[i].strip() + ' -nolinebacker' + "\n"
             if o_list[i].startswith('release_runner.pl') and 'BLOCK' not in o_list[i]:
                 cmd = o_list[i].strip() + ' -comment ' + "'BLOCK v_NUM'\n"
                 o_list.remove(o_list[i])
