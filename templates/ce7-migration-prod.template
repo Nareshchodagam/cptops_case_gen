@@ -7,6 +7,9 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 - Set the iDB password to the latest otherwise we might get some errors
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/ib-passwd-rotation.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
+- Reset the dell console
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -r" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
 - get version numbers for apps
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host v_HOST > ~/v_CLUSTER_version_output.txt
 
@@ -27,10 +30,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product m
 - Stop the coreApp application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -host v_HOSTS -c stop_server -property pingcheck_max_tries=600,pingcheck_poll_interval_secs=3,uptime_limit=30 -stopall -ignored_process_names 'perl' -threads -auto2
 
-- Reset the dell console
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -r" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
-Manual : Run reimage commands
+Manual : Triger the reimage commands, Once the host image is deployed, change the host status to "ACTIVE"
 
 - Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
