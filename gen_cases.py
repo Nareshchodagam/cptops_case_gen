@@ -175,10 +175,13 @@ if __name__ == "__main__":
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     if not options.casesubject:
-        if options.patchset == "current":
+
+        if "migration" in options.template:
+            options.casesubject = "CPT CE7 migration"
+        elif options.patchset == "current":
             options.casesubject = "Current Patch Bundle"
         else:
-            options.casesubject =  options.patchset + " Current Patch Bundle"
+            options.casesubject =  options.patchset + " Patch Bundle"
     else:
         options.casesubject += " Patch Bundle"
 

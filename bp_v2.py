@@ -82,7 +82,7 @@ def get_data(cluster, role, dc):
                         # if host['patchCurrentRelease'] != options.bundle:
                         # if not host['hostCaptain']:
                         if options.skip_bundle:
-                            if host['patchCurrentRelease'] < options.skip_bundle:
+                            if host['patchCurrentRelease'] < options.skip_bundle or "migration" in templateid .lower():
                                 master_json[host['hostName']] = json.loads(host_json)
                             else:
                                 logging.debug("{}: patchCurrentRelease is {}, skipped".format(host['hostName'], host['patchCurrentRelease']))
@@ -179,22 +179,23 @@ def bundle_cleanup(data, targetbundle):
     else:
         # if any other specific bundle values are passed
         c7_ver = c6_ver = targetbundle
-    if targetbundle.lower() in ["current", "canary"]:
-        for host in data.keys():
-            if data[host]['OS_Version'] == "7" and data[host]['Bundle'] == c7_ver:
-                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
-                del data[host]
-            elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] == c6_ver:
-                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
-                del data[host]
-    else:
-        for host in data.keys():
-            if data[host]['OS_Version'] == "7" and data[host]['Bundle'] >= c7_ver:
-                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
-                del data[host]
-            elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] >= c6_ver:
-                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
-                del data[host]
+    if "migration" not in templateid.lower() :
+        if targetbundle.lower() in ["current", "canary"]:
+            for host in data.keys():
+                if data[host]['OS_Version'] == "7" and data[host]['Bundle'] == c7_ver:
+                    logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                    del data[host]
+                elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] == c6_ver:
+                    logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                    del data[host]
+        else:
+            for host in data.keys():
+                if data[host]['OS_Version'] == "7" and data[host]['Bundle'] >= c7_ver:
+                    logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                    del data[host]
+                elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] >= c6_ver:
+                    logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                    del data[host]
     return data
 
 
@@ -286,6 +287,7 @@ def compile_template(hosts, template, work_template, file_num):
     '''
     outfile = os.getcwd() + "/output/{}_plan_implementation.txt".format(file_num)
     output = prep_template(work_template, template)
+
     if 'v_COMMAND' not in output and 'mkdir ' not in output:
         output = output.replace('v_HOSTS', '$(cat ~/v_CASE_include)')
         output_list = output.splitlines(True)
@@ -302,11 +304,20 @@ def compile_template(hosts, template, work_template, file_num):
     output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
     output = output.replace('v_BUNDLE', options.bundle)
     output = output.replace('v_HOSTS', ','.join(hosts))
+    output = output.replace('v_HOST', hosts[0])
     output = output.replace('v_NUM', str(file_num))
     # other host and v_OHOSTS are used to create a check against all but the host to be patched (i.e. lapp, rps)
     other_hosts = list(set(allhosts) - set(hosts))
     output = output.replace('v_OHOSTS', ','.join(other_hosts))
     output = output.replace('v_ALLHOSTS', ','.join(allhosts))
+    if 'v_PRODUCT_RRCMD' in output:
+        products ,ignore_processes = product_rrcmd(role)
+        output = output.replace('v_PRODUCT_RRCMD', ','.join(products))
+        #add ignore processes here if required
+
+
+
+
 
     f = open(outfile, 'w')
     f.write(output)
@@ -436,6 +447,46 @@ def cleanup():
     for junk in cleanup:
         if junk != consolidated_file:
             os.remove(junk)
+
+
+def product_rrcmd(role_name) :
+    '''
+    This function is used mainly in Reimage/Migration to capture the deployed products on a particular role.
+
+    :return:
+    '''
+
+
+    products = {
+        'chatterbox': ['sshare', 'prsn'],
+        'chatternow': ['chan', 'dstore', 'msg', 'prsn'],
+        'mandm-hub': ['mgmt_hub'],
+        'caas': ['app'],
+        'lightcycle-snapshot': ['app'],
+        'mandm-agent': ['app'],
+        'mq-broker': ['mq'],
+        'acs': ['acs'],
+        'searchserver': ['search'],
+        'sfdc-base': ['ffx', 'cbatch', 'app', 'dapp'],
+        'insights-redis': ['insights_redis', 'insights_iworker'],
+        'insights-edgeservices': ['insights_redis', 'insights_iworker'],
+        'waveagent': ['insights_redis', 'insights_iworker'],
+        'wave-connector-agent': ['insights_redis', 'insights_iworker'],
+        'wave-cassandra': ['insights_redis', 'insights_iworker']
+    }
+    ignored_process_names ={'redis-server': ['sfdc-base'],'memcached': ['sfdc-base']}
+    product_rrcmd=[]
+    ignore_process=[]
+    for key in products.keys():
+        if role_name in products[key]:
+            product_rrcmd.append(key)
+            for pkey in ignored_process_names :
+                if key in ignored_process_names[pkey]:
+                    ignore_process.append(pkey)
+    return (product_rrcmd,ignore_process)
+
+
+
 
 
 def group_worker(templateid, gsize):
