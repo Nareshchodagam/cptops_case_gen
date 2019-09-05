@@ -31,8 +31,8 @@
     "Vendor-Case-Number": ""
   },
   "Verif": [
-    "All the below checks will be included in the validation code ",
-    "validate_linux_patchset.py",
+    "Validate that the hosts are running on the latest version",
+    "All the below checks will be included in the validation code as part of the implementation plan using orb-check.py",
     " ",
     "Confirm /etc/centos-release is updated:",
     " ",
@@ -40,7 +40,7 @@
     " ",
     "Example of validation command executed on host.",
     " ",
-    "python validate_linux_patchset.py -c current -f valid_versions.json",
+    "python orb-check.py -a current",
     " "
   ]
 }
