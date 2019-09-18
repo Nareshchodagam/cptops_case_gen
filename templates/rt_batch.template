@@ -1,10 +1,30 @@
-- Create batch file.
-Exec_with_creds: /opt/cpt/bin/create_batch.py -H v_HOSTS -d v_DATACENTER --file v_CASE_batch.list
+- Reset the dell console
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -r" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-Exec_with_creds: /usr/lib/gigantor/bin/kp_client start_batch --url="https://gig-kingpin1-0-v_DATACENTER.data.sfdc.net" --name AFW_Racktastic_Basic_Reimage --concurrency v_GSIZE --failure_threshold v_FAILTHRESH --datacenter v_DATACENTER --superpod v_SUPERPOD --cluster v_CLUSTER --arguments MONITORHOST=v_MONITOR OS_NAME=centos7u2 POST_REIMAGE_COMMAND="/usr/local/libexec/system_update.sh -a v_BUNDLE" PRESERVE="false" DISK_CONFIG="stage1v0" INVENTORY_ACTION_SCRIPT_PATH="/home/sfdc/current/dca-inventory-action/dca-inventory-action/inventory-action.pl" RELEASEHOST=${HOSTNAME} --file ~/v_CASE_batch.list
+- Writing CNC info to v_CASE_hostinfo file
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
 
-- Check job execution status
-Exec_with_creds: /usr/lib/gigantor/bin/kp_client executions --url="https://gig-kingpin1-0-v_DATACENTER.data.sfdc.net" --state running --name AFW_Racktastic_Basic_Reimage --started 10m+
+- Install HP raid utils on required CNC's
+release_runner.pl --forced_host $(cat ~/v_CASE_cnc) -c sudo_cmd -m "yum install hp-raid-utilities -y " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Check if job is completed.
-Manual: Check job.
+- Triggering Image command
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role app
+
+- Checking for awaiting_deployment status
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status
+
+- Removing IDB records of the hosts
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a erasehostname
+
+- Triggering Deploy command
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a deploy --role v_ROLE --cluster v_CLUSTER --superpod v_SUPERPOD
+
+Exec: echo 'Waiting for status change to deployed' && sleep 600
+
+- Checking for deployed status
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status
+
+Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 900
+
+- Update IDB status of the hosts to Active
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus
