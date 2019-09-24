@@ -20,6 +20,7 @@ from caseToblackswan import CreateBlackswanJson
 # Global assignments
 pp = pprint.PrettyPrinter(indent=2)
 global new_data
+active_hosts = []
 
 
 def tryint(s):
@@ -75,9 +76,11 @@ def get_data(cluster, role, dc):
                      'Bundle': host['patchCurrentRelease'], 'Majorset': host['hostMajorSet'],
                      'Minorset': host['hostMinorSet'], 'OS_Version': host['patchOs']}
         host_json = json.dumps(json_data)
+        if host['hostStatus'] == "ACTIVE":
+            active_hosts.append(host['hostName'])
         if host['hostFailover'] == failoverstatus or failoverstatus == None:
             if host['clusterStatus'] == cl_status:
-                if host['hostStatus'] == "ACTIVE":
+                if host['hostStatus'] == "ACTIVE":   
                     if host['superpodName'] in pod_dict.keys():
                         # if host['patchCurrentRelease'] != options.bundle:
                         # if not host['hostCaptain']:
@@ -307,7 +310,13 @@ def compile_template(hosts, template, work_template, file_num):
     output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
     output = output.replace('v_BUNDLE', options.bundle)
     output = output.replace('v_HOSTS', ','.join(hosts))
-    output = output.replace('v_HOST', hosts[0])
+    if "migration" in template.lower():
+        if len(active_hosts) != 0:
+            output = output.replace('v_HOST', active_hosts[0])
+        else:
+            logging.error("No active host present in the cluster to fetch APP version")
+    else:
+        output = output.replace('v_HOST', hosts[0])
     output = output.replace('v_NUM', str(file_num))
     # other host and v_OHOSTS are used to create a check against all but the host to be patched (i.e. lapp, rps)
     other_hosts = list(set(allhosts) - set(hosts))
