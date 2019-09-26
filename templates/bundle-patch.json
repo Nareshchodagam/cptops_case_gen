@@ -12,7 +12,7 @@
     "Implementation": "See Implementation Plan Attached",
     "Verification": "",
     "Priority": "Sev3",
-    "Change-Area": "Systems - Patch/Upgrade Redundant Systems",
+    "Change-Category": "a8gB0000000027BIAQ",
     "Business-Justification": "Hosts need to updated to the latest revision for compliance and security reasons",
     "Business-Reason": "Routine Maintenance",
     "Team": "a00B0000003KKLcIAO",
