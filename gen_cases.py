@@ -175,12 +175,17 @@ if __name__ == "__main__":
     if options.verbose:
         logging.basicConfig(level=logging.DEBUG)
     if not options.casesubject:
+
+
         if options.patchset == "current":
             options.casesubject = "Current Patch Bundle"
         else:
-            options.casesubject =  options.patchset + " Current Patch Bundle"
+            options.casesubject =  options.patchset + " Patch Bundle"
     else:
         options.casesubject += " Patch Bundle"
+
+    if "migration" in options.template:
+        options.casesubject = "CPT CE7 migration"
 
     # W-4574049 Add to support CentOS7 migration
     if options.casework == "reimage":
