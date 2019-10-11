@@ -527,11 +527,24 @@ def group_worker(templateid, gsize):
                 host_group = []
                 file_num = file_num + 1
             elif host == new_data['Hostnames'][key][-1]:
-                logging.debug(host_group)
-                logging.debug("File_Num: {}".format(file_num))
-                compile_template(host_group, template, work_template, file_num)
-                file_num = file_num + 1
-                host_group = []
+#### The following section is to manage dynamic grouping while writing plan[W-6755335]. Currently being hardcoded to 10%
+                if 'ajna_broker' in role:
+                    group_div = int(10 * len(host_group) / 100)
+                    if group_div == 0: 
+                        group_div = 1
+                    ho_lst = [host_group[j: j + group_div] for j in range(0, len(host_group), group_div)]
+                    for ajna_hosts in ho_lst:
+                        logging.debug(ajna_hosts)
+                        logging.debug("File_Num: {}".format(file_num))
+                        compile_template(ajna_hosts, template, work_template, file_num)
+                        host_group = []
+                        file_num = file_num + 1 
+                else:               
+                    logging.debug(host_group)
+                    logging.debug("File_Num: {}".format(file_num))
+                    compile_template(host_group, template, work_template, file_num)
+                    file_num = file_num + 1
+                    host_group = []
     sum_file.close()
     create_masterplan(consolidated_file, pre_template, post_template)
 
