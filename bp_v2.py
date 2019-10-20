@@ -766,4 +766,3 @@ if __name__ == "__main__":
         group_worker(templateid, gsize)
     else:
         sys.exit(1)
-
