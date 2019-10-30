@@ -301,6 +301,18 @@ def compile_template(hosts, template, work_template, file_num):
             output_list.insert(1, '\n- Verify if hosts are patched or not up\nExec: echo "Verify hosts BLOCK v_NUM" && '
                                   '/opt/cpt/bin/verify_hosts.py -H v_HOSTS --bundle v_BUNDLE --case v_CASE -M\n\n')
         output = "".join(output_list)
+    if 'argus_writed_matrics' in template.lower():
+        for host in hosts:
+            if 'argustsdbw' in host:
+                argusmetrics = host.replace('argustsdbw', 'argusmetrics')
+                argustsdbw = host                
+                if 'v_HOSTM' in output or 'v_HOSTD' in output:
+                    try:
+                        output = output.replace('v_HOSTD', argustsdbw)
+                        output = output.replace('v_HOSTM', argusmetrics)
+                    except UnboundLocalError:
+                        pass
+        hosts.append(argusmetrics)
     output = compile_vMNDS_(output)
     output = output.replace('v_CLUSTER', new_data['Details']['cluster'])
     output = output.replace('v_DATACENTER', new_data['Details']['dc'])
@@ -326,10 +338,6 @@ def compile_template(hosts, template, work_template, file_num):
         products ,ignore_processes = product_rrcmd(role)
         output = output.replace('v_PRODUCT_RRCMD', ','.join(products))
         #add ignore processes here if required
-
-
-
-
 
     f = open(outfile, 'w')
     f.write(output)
