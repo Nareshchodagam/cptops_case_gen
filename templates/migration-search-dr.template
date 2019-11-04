@@ -22,7 +22,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 v_INCLUDE
 
 - Deploy apps
-release_runner.pl -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -status ACTIVE,PROVISIONING,HW_PROVISIONING,PRE_PRODUCTION,REIMAGE,IN_MAINTENANCE -c deploy -versions `~/v_CLUSTER-v_ROLE_manifests.txt`
+release_runner.pl -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -versions `cat ~/v_CLUSTER-v_ROLE_manifests.txt`
 
 - Enable  monitoring
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a disable -H v_HOSTS
