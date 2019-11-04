@@ -1,0 +1,33 @@
+- Reset the dell console
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -r" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Writing CNC info to v_CASE_hostinfo file
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
+
+- Install HP raid utils on required CNC's
+release_runner.pl --forced_host $(cat ~/v_CASE_cnc) -c sudo_cmd -m "yum install hp-raid-utilities -y " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+ Check the console
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
+
+- Triggering Image command
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE --preserve --disk_config fastcache2
+
+- Checking for awaiting_deployment status
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status
+
+- Removing IDB records of the hosts
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a erasehostname
+
+- Triggering Deploy command
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a deploy --role v_ROLE --cluster v_CLUSTER --superpod v_SUPERPOD  
+
+Exec: echo 'Waiting for status change to deployed' && sleep 600
+
+- Checking for deployed status
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status
+
+Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 900
+
+- Update IDB status of the hosts to Active
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus
