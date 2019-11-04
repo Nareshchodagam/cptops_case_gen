@@ -10,6 +10,9 @@ release_runner.pl --forced_host $(cat ~/v_CASE_cnc) -c sudo_cmd -m "yum install 
  Check the console
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
 
+- Set the boot device to PXE
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d PXE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
 - Triggering Image command
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE --preserve --disk_config fastcache2
 
