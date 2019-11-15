@@ -16,6 +16,8 @@ import json
 import os
 import re
 from caseToblackswan import CreateBlackswanJson
+from idbhost import Idbhost
+
 
 # Global assignments
 pp = pprint.PrettyPrinter(indent=2)
@@ -414,6 +416,17 @@ def compile_vMNDS_(output):
         if re.search(r"mnds", new_data['Details']['role'], re.IGNORECASE):
             logging.debug(v_MNDS)
             output = output.replace('v_MNDS', v_MNDS)
+        elif re.search(r"dnds", new_data['Details']['role'], re.IGNORECASE):
+            output = output.replace('v_MNDS', "- SKIPPING MNDS CHECK.")
+            # check for r&d flag in idb and modify app start/stop accordingly
+            idb_dev_check_url = "/clusterconfigs?cluster.name={0}&key=bigdata_patch_custom_scripts&fields=key,value".format(new_data['Details']['cluster'])
+            datacenter = new_data['Details']['dc']
+            idb = Idbhost(datacenter)
+            idbout, _ = idb._get_request(idb_dev_check_url, datacenter)
+            if (len(idbout["data"]) > 0) and (idbout["data"][0]["key"] == "bigdata_patch_custom_scripts") and (idbout["data"][0]["value"] == "true"):
+                # r&d flag marked in idb, modify app start/stop
+                output = output.replace('release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant cluster stopLocalNode" -host $(cat ~/v_CASE_include) -comment \'BLOCK v_NUM\'', 'release_runner.pl -forced_host $(cat ~/v_CASE_include) -c sudo_cmd -m "/home/sfdc/cpt/scripts/bigdata-start-stop.sh stop" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"')
+                output = output.replace('release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant -- cluster startLocalNode  -s enable -c disable" -host $(cat ~/v_CASE_include) -comment \'BLOCK v_NUM\'', 'release_runner.pl -forced_host $(cat ~/v_CASE_include) -c sudo_cmd -m "/home/sfdc/cpt/scripts/bigdata-start-stop.sh start" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"')
         else:
             output = output.replace('v_MNDS', "- SKIPPING MNDS CHECK.")
     except:
@@ -421,6 +434,7 @@ def compile_vMNDS_(output):
 
     # Return the plan_implimentation with changed v_MNDS.
     return output
+    #TODO: move this newly added logic to outside of compile_v_MNDS function and make it to execute only once for a cluster (case?).
 
 
 def create_masterplan(consolidated_file, pre_template, post_template):
