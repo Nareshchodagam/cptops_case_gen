@@ -161,6 +161,8 @@ if __name__ == "__main__":
     parser.add_option("--serial", dest="serial", action="store_true", help="serial [ used in reimage]")
     parser.add_option("--filter_gia", dest="filtergia", action="store_true", default="False", help="Only create case for GIA")
     parser.add_option("-x", "--bpv2", dest="bpv2", action="store_true", default="False", help="Create cases with Build_Plan_v2")
+    parser.add_option("--custom_subject", dest="custom_subject",default="", help="to add manual subject")
+
     #W-4574049 End
 
     python = 'python'
@@ -243,7 +245,7 @@ if __name__ == "__main__":
         if options.group:
             subject = casesubject + " " + options.group
         else:
-            subject = casesubject + ": " + options.role.upper()
+            subject = casesubject + ": " + options.role.upper() + " " +options.custom_subject
         dcs_list = ",".join(dcs)
 
         output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s %s --auto_close_case %s """\
@@ -260,7 +262,7 @@ if __name__ == "__main__":
             if options.group:
                 subject = casesubject + " " + options.group + " " + dc.upper()
             else:
-                subject = casesubject + ": " + options.role.upper()
+                subject = casesubject + ": " + options.role.upper() + " " +options.custom_subject
             output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s  %s --auto_close_case %s """\
                          """--nolinebacker %s""" % (options.podgroups, options.template, options.patchset, grouping,
                                                     hostv, options.auto_close_case, options.nolinebacker)
@@ -333,9 +335,9 @@ if __name__ == "__main__":
             output_str = cmdformat(output_str)
             print(output_str)
             if options.regexfilter:
-                subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec + "[" + cluster_status + "]"
+                subject = casesubject + ": " + options.role.upper() + " " +options.custom_subject+ " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec + "[" + cluster_status + "]"
             else:
-                subject = casesubject + ": " + options.role.upper() + " " + dc.upper() + " " + pods + " " + site_flag + "[" + cluster_status + "]"
+                subject = casesubject + ": " + options.role.upper() + " " +options.custom_subject+ " " + dc.upper() + " " + pods + " " + site_flag + "[" + cluster_status + "]"
             logging.debug(subject)
             if options.group:
                 subject = subject + " " + options.group
