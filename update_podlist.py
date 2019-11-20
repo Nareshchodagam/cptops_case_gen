@@ -603,7 +603,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
             print(idb_data[dc].items)
             for sp, pods in idb_data[dc].items():
                 ttl_len = len(pods)
-                cluster_list = ['dev1hdaas', 'dev2hdaas', 'dev3hdaas', 'dev6hdaas', 'prodinternal1', 'prodinternal2', 'int1hdaas', 'int2hdaas', 'sbox1hdaas', 'sbox2hdaas', 'blitzhbase01', 'blitzhbase02', 'hbsr1','phoenix', 'isthbase01', 'hbsrcrd2', 'proddebug', 'perfengma2', 'relvalidation', 'blitz1', 'blitz2', 'blitz3', 'blitz4', 'icebd10hbase2a', 'icebd11hbase2a', 'icebd12hbase2a', 'icebd13hbase2a', 'stmda1hbase2a', 'stmfa1hbase2a', 'stmfb1hbase2a', 'stmfc1hbase2a', 'stmfd1hbase2a', 'stmra1hbase2a', 'stmsa1hbase2a', 'stmua1hbase2a', 'stmub1hbase2a']
+                cluster_list = ['dev1hdaas', 'dev2hdaas', 'dev3hdaas', 'dev6hdaas', 'prodinternal1', 'prodinternal2', 'int1hdaas', 'int2hdaas', 'sbox2hdaas', 'blitzhbase01', 'blitzhbase02', 'hbsr1','phoenix', 'isthbase01', 'hbsrcrd2', 'proddebug', 'perfengma2', 'relvalidation', 'blitz1', 'blitz2', 'blitz3', 'blitz4', 'icebd10hbase2a', 'icebd11hbase2a', 'icebd12hbase2a', 'icebd13hbase2a', 'stmda1hbase2a', 'stmfa1hbase2a', 'stmfb1hbase2a', 'stmfc1hbase2a', 'stmfd1hbase2a', 'stmra1hbase2a', 'stmsa1hbase2a', 'stmua1hbase2a', 'stmub1hbase2a']
                 for index in range(0, ttl_len):
                     # TODO Why this regex was added.
                     if pods[index]['Primary'] != "None" and( pods[index]['Primary'].lower() in cluster_list) :
