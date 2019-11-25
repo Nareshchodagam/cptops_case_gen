@@ -297,11 +297,11 @@ def compile_template(hosts, template, work_template, file_num):
         output = output.replace('v_HOSTS', '$(cat ~/v_CASE_include)')
         output_list = output.splitlines(True)
         if role not in ("secrets", "smszk") and "migration" not in template.lower():
-            output_list.insert(1, '\n- Verify if hosts are patched or not up\nExec: echo "Verify hosts BLOCK v_NUM" && '
-                                  '/opt/cpt/bin/verify_hosts.py -H v_HOSTS --bundle v_BUNDLE --case v_CASE\n\n')
+	    output_list.insert(1, "\n- Verify if hosts are patched or not up\nExec_with_creds: /opt/cpt/bin/verify_hosts.py "
+					"-H v_HOSTS --bundle v_BUNDLE --case v_CASE  && echo 'BLOCK v_NUM'\n")
         elif "migration" in template.lower():
-            output_list.insert(1, '\n- Verify if hosts are patched or not up\nExec: echo "Verify hosts BLOCK v_NUM" && '
-                                  '/opt/cpt/bin/verify_hosts.py -H v_HOSTS --bundle v_BUNDLE --case v_CASE -M\n\n')
+            output_list.insert(1, "\n- Verify if hosts are migrated or not up\nExec_with_creds: /opt/cpt/bin/verify_hosts.py "
+                                        "-H v_HOSTS --bundle v_BUNDLE --case v_CASE -M && echo 'BLOCK v_NUM'\n")
         output = "".join(output_list)
     if 'argus_writed_matrics' in template.lower():
         for host in hosts:
