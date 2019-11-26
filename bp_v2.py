@@ -16,6 +16,8 @@ import json
 import os
 import re
 from caseToblackswan import CreateBlackswanJson
+from idbhost import Idbhost
+
 
 # Global assignments
 pp = pprint.PrettyPrinter(indent=2)
@@ -295,12 +297,24 @@ def compile_template(hosts, template, work_template, file_num):
         output = output.replace('v_HOSTS', '$(cat ~/v_CASE_include)')
         output_list = output.splitlines(True)
         if role not in ("secrets", "smszk") and "migration" not in template.lower():
-            output_list.insert(1, '\n- Verify if hosts are patched or not up\nExec: echo "Verify hosts BLOCK v_NUM" && '
-                                  '/opt/cpt/bin/verify_hosts.py -H v_HOSTS --bundle v_BUNDLE --case v_CASE\n\n')
+	    output_list.insert(1, "\n- Verify if hosts are patched or not up\nExec_with_creds: /opt/cpt/bin/verify_hosts.py "
+					"-H v_HOSTS --bundle v_BUNDLE --case v_CASE  && echo 'BLOCK v_NUM'\n")
         elif "migration" in template.lower():
-            output_list.insert(1, '\n- Verify if hosts are patched or not up\nExec: echo "Verify hosts BLOCK v_NUM" && '
-                                  '/opt/cpt/bin/verify_hosts.py -H v_HOSTS --bundle v_BUNDLE --case v_CASE -M\n\n')
+            output_list.insert(1, "\n- Verify if hosts are migrated or not up\nExec_with_creds: /opt/cpt/bin/verify_hosts.py "
+                                        "-H v_HOSTS --bundle v_BUNDLE --case v_CASE -M && echo 'BLOCK v_NUM'\n")
         output = "".join(output_list)
+    if 'argus_writed_matrics' in template.lower():
+        for host in hosts:
+            if 'argustsdbw' in host:
+                argusmetrics = host.replace('argustsdbw', 'argusmetrics')
+                argustsdbw = host                
+                if 'v_HOSTM' in output or 'v_HOSTD' in output:
+                    try:
+                        output = output.replace('v_HOSTD', argustsdbw)
+                        output = output.replace('v_HOSTM', argusmetrics)
+                    except UnboundLocalError:
+                        pass
+        hosts.append(argusmetrics)
     output = compile_vMNDS_(output)
     output = output.replace('v_CLUSTER', new_data['Details']['cluster'])
     output = output.replace('v_DATACENTER', new_data['Details']['dc'])
@@ -326,10 +340,6 @@ def compile_template(hosts, template, work_template, file_num):
         products ,ignore_processes = product_rrcmd(role)
         output = output.replace('v_PRODUCT_RRCMD', ','.join(products))
         #add ignore processes here if required
-
-
-
-
 
     f = open(outfile, 'w')
     f.write(output)
@@ -406,6 +416,17 @@ def compile_vMNDS_(output):
         if re.search(r"mnds", new_data['Details']['role'], re.IGNORECASE):
             logging.debug(v_MNDS)
             output = output.replace('v_MNDS', v_MNDS)
+        elif re.search(r"dnds", new_data['Details']['role'], re.IGNORECASE):
+            output = output.replace('v_MNDS', "- SKIPPING MNDS CHECK.")
+            # check for r&d flag in idb and modify app start/stop accordingly
+            idb_dev_check_url = "/clusterconfigs?cluster.name={0}&key=bigdata_patch_custom_scripts&fields=key,value".format(new_data['Details']['cluster'])
+            datacenter = new_data['Details']['dc']
+            idb = Idbhost(datacenter)
+            idbout, _ = idb._get_request(idb_dev_check_url, datacenter)
+            if (len(idbout["data"]) > 0) and (idbout["data"][0]["key"] == "bigdata_patch_custom_scripts") and (idbout["data"][0]["value"] == "true"):
+                # r&d flag marked in idb, modify app start/stop
+                output = output.replace('release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant cluster stopLocalNode" -host $(cat ~/v_CASE_include) -comment \'BLOCK v_NUM\'', 'release_runner.pl -forced_host $(cat ~/v_CASE_include) -c sudo_cmd -m "/home/sfdc/cpt/scripts/bigdata-start-stop.sh stop" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"')
+                output = output.replace('release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant -- cluster startLocalNode  -s enable -c disable" -host $(cat ~/v_CASE_include) -comment \'BLOCK v_NUM\'', 'release_runner.pl -forced_host $(cat ~/v_CASE_include) -c sudo_cmd -m "/home/sfdc/cpt/scripts/bigdata-start-stop.sh start" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"')
         else:
             output = output.replace('v_MNDS', "- SKIPPING MNDS CHECK.")
     except:
@@ -413,6 +434,7 @@ def compile_vMNDS_(output):
 
     # Return the plan_implimentation with changed v_MNDS.
     return output
+    #TODO: move this newly added logic to outside of compile_v_MNDS function and make it to execute only once for a cluster (case?).
 
 
 def create_masterplan(consolidated_file, pre_template, post_template):
@@ -527,11 +549,24 @@ def group_worker(templateid, gsize):
                 host_group = []
                 file_num = file_num + 1
             elif host == new_data['Hostnames'][key][-1]:
-                logging.debug(host_group)
-                logging.debug("File_Num: {}".format(file_num))
-                compile_template(host_group, template, work_template, file_num)
-                file_num = file_num + 1
-                host_group = []
+#### The following section is to manage dynamic grouping while writing plan[W-6755335]. Currently being hardcoded to 10%
+                if 'ajna_broker' in role:
+                    group_div = int(10 * len(host_group) / 100)
+                    if group_div == 0: 
+                        group_div = 1
+                    ho_lst = [host_group[j: j + group_div] for j in range(0, len(host_group), group_div)]
+                    for ajna_hosts in ho_lst:
+                        logging.debug(ajna_hosts)
+                        logging.debug("File_Num: {}".format(file_num))
+                        compile_template(ajna_hosts, template, work_template, file_num)
+                        host_group = []
+                        file_num = file_num + 1 
+                else:               
+                    logging.debug(host_group)
+                    logging.debug("File_Num: {}".format(file_num))
+                    compile_template(host_group, template, work_template, file_num)
+                    file_num = file_num + 1
+                    host_group = []
     sum_file.close()
     create_masterplan(consolidated_file, pre_template, post_template)
 
