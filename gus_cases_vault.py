@@ -676,7 +676,8 @@ if __name__ == '__main__':
             update_risk_summary(caseId, session, options.role)
 
         # Push case Details to blackswan
-        UploadDataToBlackswanV1(caseNum, apikey)
+        case_unique_id =  options.iplan.split("/")[1].split("_plan")[0]
+        UploadDataToBlackswanV1(caseNum, case_unique_id, apikey)
         # END#
 
 
