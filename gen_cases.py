@@ -299,6 +299,7 @@ if __name__ == "__main__":
                 opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
                               "grouping": grouping, "maxgroupsize": groupsize,
                               "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
+            case_unique_id = "_".join([opt_bp["roles"], opt_bp["datacenter"], opt_bp["superpod"], opt_bp["clusters"], site_flag])
             opt_gc = {}
             if options.filter:
                 filter = options.filter
@@ -343,7 +344,7 @@ if __name__ == "__main__":
                 subject = subject + " " + options.group
             #if not re.search(r"json", options.bundle):
             #    options.bundle = options.bundle + "-patch.json"
-            print("""python gus_cases_vault.py -T change --cstatus %s  -f templates/%s  --inst %s --infra "%s" -s "%s" -k %s  -l output/summarylist.txt -D %s -i  output/plan_implementation.txt -r %s""" % (options.cstatus,patch_json,pods,options.infra,subject,implplansection,dc, options.role))
+            print('python gus_cases_vault.py -T change --cstatus {0} -f templates/{1} --inst {2} --infra "{3}" -s "{4}" -k {5} -l output/{6}_summarylist.txt -D {7} -i output/{6}_plan_implementation.txt -r {8}'.format(options.cstatus, patch_json, pods, options.infra, subject, implplansection, case_unique_id, dc, options.role))
 
 
 

@@ -290,7 +290,7 @@ def compile_template(hosts, template, work_template, file_num):
     command line and Atlas/Blackswan.
     :return:
     '''
-    outfile = os.getcwd() + "/output/{}_plan_implementation.txt".format(file_num)
+    outfile = os.getcwd() + "/output/{0}_{1}_plan_implementation.txt".format(file_num, case_unique_id)
     output = prep_template(work_template, template)
 
     if 'v_COMMAND' not in output and 'mkdir ' not in output:
@@ -443,7 +443,7 @@ def create_masterplan(consolidated_file, pre_template, post_template):
     them into one plan.
     :return:
     '''
-    read_files = glob.glob(os.getcwd() + "/output/*_implementation.txt")
+    read_files = glob.glob(os.getcwd() + "/output/*" + case_unique_id + "_plan_implementation.txt")
     read_files.sort(key=sort_key)
     logging.debug(read_files)
     try:
@@ -476,7 +476,7 @@ def cleanup():
     This function is a cleanup routine for the output directory.
     :return:
     '''
-    cleanup = glob.glob(os.getcwd() + "/output/*_plan_implementation.txt")
+    cleanup = glob.glob(os.getcwd() + "/output/*" + case_unique_id + "_plan_implementation.txt")
     logging.debug("Cleaning up output directory")
     for junk in cleanup:
         if junk != consolidated_file:
@@ -536,7 +536,7 @@ def group_worker(templateid, gsize):
     '''
     host_group = []
     file_num = 1
-    outfile = os.getcwd() + "/output/{}_plan_implementation.txt".format(file_num)
+    outfile = os.getcwd() + "/output/{0}_{1}_plan_implementation.txt".format(file_num, case_unique_id)
 
     template, work_template, pre_template, post_template = validate_templates(templateid)
     for key in sorted(new_data['Hostnames'].keys()):
@@ -652,8 +652,14 @@ if __name__ == "__main__":
     cwd = os.getcwd()
     if not os.path.isdir(cwd + "/output"):
         os.mkdir(cwd + "/output")
-    consolidated_file = cwd + "/output/plan_implementation.txt"
-    summary = cwd + "/output/summarylist.txt"
+    op_dict = json.loads(options.idbgen)
+    if not op_dict["dr"] == "TRUE":
+        site_flag = "PROD"
+    else:
+        site_flag = "DR"
+    case_unique_id = "_".join([op_dict["roles"], op_dict["datacenter"], op_dict["superpod"], op_dict["clusters"], site_flag])
+    consolidated_file = cwd + "/output/{0}_plan_implementation.txt".format(case_unique_id)
+    summary = cwd + "/output/{0}_summarylist.txt".format(case_unique_id)
     if os.path.isfile(summary):
         os.remove(summary)
     sum_file = open(summary, 'a')
@@ -754,7 +760,7 @@ if __name__ == "__main__":
             clusters = ",".join(clusters)
             total_cluster_list.append(clusters)
         inputdict['clusters'] = clusters
-        CreateBlackswanJson(inputdict, options.bundle)
+        CreateBlackswanJson(inputdict, options.bundle, case_unique_id)
     if total_cluster_list:
         cluster = ",".join(total_cluster_list)
 
