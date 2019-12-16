@@ -653,7 +653,7 @@ if __name__ == "__main__":
     if not os.path.isdir(cwd + "/output"):
         os.mkdir(cwd + "/output")
     op_dict = json.loads(options.idbgen)
-    if not op_dict["dr"] == "TRUE":
+    if not op_dict["dr"].lower() == "true":
         site_flag = "PROD"
     else:
         site_flag = "DR"
