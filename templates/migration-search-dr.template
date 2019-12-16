@@ -4,6 +4,9 @@ Exec_with_creds: /opt/cpt/bin/check_prod.py -i v_CLUSTER -l secondary
 - Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
 
+- Check the console
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
+
 - get version numbers for apps
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host v_HOST > ~/v_CLUSTER-v_ROLE_version_output.txt
 

@@ -7,9 +7,6 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
 - Install HP raid utils on required CNC's
 release_runner.pl --forced_host $(cat ~/v_CASE_cnc) -c sudo_cmd -m "yum install hp-raid-utilities -y " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
- Check the console
-Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
-
 - Set the boot device to PXE
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d PXE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
