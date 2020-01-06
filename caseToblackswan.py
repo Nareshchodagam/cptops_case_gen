@@ -60,19 +60,19 @@ def CheckApiKey(apikey):
         logging.error("Unable to connect to Blackswan API, ", e)
         return False
 
-def writeToFile(data):
+def writeToFile(data, case_unique_id):
     """
     :param data:
     :return:
     """
     homeDir = expanduser("~")
     outputDir = os.path.join(homeDir, "git/cptops_case_gen/output")
-    json_dir = os.path.join(outputDir, "blackswanUpload.json")
+    json_dir = os.path.join(outputDir, case_unique_id + "_blackswanUpload.json")
     f = open(json_dir, 'w')
     f.write(json.dumps(data))
     f.close()
 
-def CreateBlackswanJson(inputdict, bundle, username=None):
+def CreateBlackswanJson(inputdict, bundle,  case_unique_id, username=None):
     """
 
     :param inputdict:
@@ -125,7 +125,7 @@ def CreateBlackswanJson(inputdict, bundle, username=None):
                  "release": bundle,
                  "test": False},
                  ]
-    writeToFile(json_dict)
+    writeToFile(json_dict, case_unique_id)
 
 def readJsonFromFile(file):
     """
@@ -136,7 +136,7 @@ def readJsonFromFile(file):
         data = json.load(f)
     return data
 
-def BlackswanJson(caseNum):
+def BlackswanJson(caseNum, unique_case_id):
     """
     :param caseNum:
     :param username:
@@ -144,8 +144,8 @@ def BlackswanJson(caseNum):
     """
     homeDir = expanduser("~")
     outputDir = os.path.join(homeDir, "git/cptops_case_gen/output")
-    hostFile = os.path.join(outputDir, "summarylist.txt")
-    jFile = os.path.join(outputDir, "blackswanUpload.json")
+    hostFile = os.path.join(outputDir, unique_case_id+"_summarylist.txt")
+    jFile = os.path.join(outputDir, unique_case_id + "_blackswanUpload.json")
     caseId = caseNum['Id']
     caseNumber = caseNum['CaseNumber']
     with open(hostFile, 'r') as h:
@@ -156,7 +156,7 @@ def BlackswanJson(caseNum):
     jsonFile[0]["guscaseid"] = caseId
 
     print("writing json file.")
-    writeToFile(jsonFile)
+    writeToFile(jsonFile, unique_case_id)
     return jsonFile
 
 def ApiKeyTest():
@@ -186,12 +186,12 @@ def ApiKeyTest():
 
     return apikey
 
-def UploadDataToBlackswanV1(caseNum, apikey):
+def UploadDataToBlackswanV1(caseNum, case_unique_id, apikey):
     """
     :param caseNum:
     :return:
     """
-    jsondata = BlackswanJson(caseNum)
+    jsondata = BlackswanJson(caseNum, case_unique_id)
     url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/gus-cases/new"
     headers = {"x-api-key": apikey}
     res = requests.post(url, data=json.dumps(jsondata), headers=headers, verify=False)
