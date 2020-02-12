@@ -187,10 +187,10 @@ def bundle_cleanup(data, targetbundle):
     if "migration" not in templateid.lower() :
         if targetbundle.lower() in ["current", "canary"]:
             for host in data.keys():
-                if data[host]['OS_Version'] == "7" and data[host]['Bundle'] == c7_ver:
+                if data[host]['OS_Version'] == "7" and data[host]['Bundle'] >= c7_ver:
                     logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
                     del data[host]
-                elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] == c6_ver:
+                elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] >= c6_ver:
                     logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
                     del data[host]
         else:
