@@ -41,7 +41,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-che
 
 - Start the applications
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-kerberos -threads  -auto2 -c cmd -m "~/current/bigdata-kerberos/kerberos/build/ant -- -w krb startLocal" -host v_HOSTS
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-kerberos -threads  -auto2 -c cmd -m "~/current/bigdata-kerberos/kerberos/build/ant -- keytab-service -s start" -host v_HOSTS
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant -- cluster startLocalNode  -s enable -c disable" -host v_HOSTS
 
 - Disable GOC++ alerts ("enable" alert suppression)
