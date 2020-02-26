@@ -426,7 +426,10 @@ def compile_template(input, hosts, cluster, datacenter, superpod, casenum, role,
                 if regex_compile.search(o_list[i]):
                     o_list[i] = o_list[i].strip() + ' -nolinebacker' + "\n"
             if o_list[i].startswith('release_runner.pl') and 'BLOCK' not in o_list[i]:
-                cmd = o_list[i].strip() + ' -comment ' + "'BLOCK v_NUM'\n"
+                if datacenter == "PRD":
+                    cmd = o_list[i].strip() + ' property "synner=1" -comment ' + "'BLOCK v_NUM'\n"
+                else:
+                    cmd = o_list[i].strip() + ' -comment ' + "'BLOCK v_NUM'\n"
                 o_list.remove(o_list[i])
                 o_list.insert(i, cmd)
             elif o_list[i].startswith('Exec_with') and 'BLOCK' not in o_list[i]:
