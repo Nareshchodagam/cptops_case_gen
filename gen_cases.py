@@ -45,10 +45,10 @@ def getData(filename):
         data = []
         for line in data_file:
             if options.filtergia == True:
-                if re.findall(r'\s(CHX|WAX|HIO|TTD)\s', line):
+                if re.findall(r'\s(CHX|WAX|HIO|TTD|AST)\s', line):
                     data.append(line)
             else:
-                if re.findall(r'\s(CHX|WAX|HIO|TTD)\s', line):
+                if re.findall(r'\s(CHX|WAX|HIO|TTD|AST)\s', line):
                     continue
                 data.append(line)
     return data
