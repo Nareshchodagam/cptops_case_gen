@@ -82,7 +82,7 @@ def get_data(cluster, role, dc):
             active_hosts.append(host['hostName'])
         if host['hostFailover'] == failoverstatus or failoverstatus == None:
             if host['clusterStatus'] == cl_status:
-                if host['hostStatus'] == "ACTIVE":   
+                if host['hostStatus'] == "ACTIVE":
                     if host['superpodName'] in pod_dict.keys():
                         # if host['patchCurrentRelease'] != options.bundle:
                         # if not host['hostCaptain']:
@@ -135,6 +135,27 @@ def hostfilter_chk(data):
                 del data[host]
     return data
 
+def get_hostlist_data(data):
+    """
+    This queries each host to build the master_json file.
+    :param data
+    :return: master_json
+    """
+    master_json = {}
+    host_url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts"
+    hl_fh = open(data, "r")
+    for host in hl_fh:
+        host_url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts/{}".format(host.rstrip("\n"))
+        host_data = url_response(host_url)
+        json_data = {'RackNumber': host_data['hostRackNumber'], 'Role': host_data['roleName'],
+                     'Bundle': host_data['patchCurrentRelease'], 'Majorset': host_data['hostMajorSet'],
+                     'Minorset': host_data['hostMinorSet'], 'OS_Version': host_data['patchOs'],
+                     'Cluster_Name': host_data['clusterName'], 'Cluster_Status': host_data['clusterStatus'],
+                     'Host_Status': host_data['hostStatus'], 'SuperPod': host_data['superpodName']}
+        host_json = json.dumps(json_data)
+        master_json[host_data['hostName']] = json.loads(host_json)
+    logging.debug(master_json)
+    return master_json
 
 def find_concurrency(hostpercent):
     """
@@ -307,7 +328,7 @@ def compile_template(hosts, template, work_template, file_num):
         for host in hosts:
             if 'argustsdbw' in host:
                 argusmetrics = host.replace('argustsdbw', 'argusmetrics')
-                argustsdbw = host                
+                argustsdbw = host
                 if 'v_HOSTM' in output or 'v_HOSTD' in output:
                     try:
                         output = output.replace('v_HOSTD', argustsdbw)
@@ -552,7 +573,7 @@ def group_worker(templateid, gsize):
 #### The following section is to manage dynamic grouping while writing plan[W-6755335]. Currently being hardcoded to 10%
                 if 'ajna_broker' in role:
                     group_div = int(10 * len(host_group) / 100)
-                    if group_div == 0: 
+                    if group_div == 0:
                         group_div = 1
                     ho_lst = [host_group[j: j + group_div] for j in range(0, len(host_group), group_div)]
                     for ajna_hosts in ho_lst:
@@ -560,8 +581,8 @@ def group_worker(templateid, gsize):
                         logging.debug("File_Num: {}".format(file_num))
                         compile_template(ajna_hosts, template, work_template, file_num)
                         host_group = []
-                        file_num = file_num + 1 
-                else:               
+                        file_num = file_num + 1
+                else:
                     logging.debug(host_group)
                     logging.debug("File_Num: {}".format(file_num))
                     compile_template(host_group, template, work_template, file_num)
@@ -618,6 +639,35 @@ def main_worker(templateid, gsize):
     sum_file.close()
     create_masterplan(consolidated_file, pre_template, post_template)
 
+def hostlist_validate(master_json):
+    """
+
+    """
+    role_diff = []
+    cluster_diff = []
+    pod_diff = []
+    for host in master_json:
+        if master_json[host]['Role'] not in role_diff:
+            role_diff.append(master_json[host]['Role'])
+        elif master_json[host]['Cluster_Name'] not in cluster_diff:
+            cluster_diff.append(master_json[host]['Cluster_Name'])
+        elif master_json[host]['SuperPod'] not in pod_diff:
+            pod_diff.append(master_json[host]['SuperPod'])
+    print "\nDifferences Report"
+    print "============================="
+    print "\nRole Information = {}".format(role_diff)
+    print "Cluster Information = {}".format(cluster_diff)
+    print "SuperPod Information = {}".format(pod_diff)
+    print "Template Used = {}".format(options.templateid)
+    if options.role not in role_diff:
+        print "\nDifferences"
+        print "Defined role \"{}\" not in hostlist".format(options.role)
+    print "\nPlease confirm the above differences before continuing"
+    value = raw_input("Do you wish to continue creating the plan? (Y/N)")
+    if value == "Y" or value == "y":
+        print "Continuing....."
+    else:
+        sys.exit(0)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Build_Plan")
@@ -641,6 +691,7 @@ if __name__ == "__main__":
     group2.add_argument("--hostpercent", dest="hostpercent", help="percentange of hosts in parallel")
     group2.add_argument("--no_ice", dest="ice", action="store_true", default=False, help="Include ICE host in query")
     group2.add_argument("--skip_bundle", dest="skip_bundle", help="command to skip bundle")
+    group2.add_argument("-l", "--hostlist", dest="hostlist", help="File containing list of servers")
     group2.add_argument("-v", "--verbose", action="store_true", default=False, help="Verbose Logging")
     options = parser.parse_args()
 
@@ -652,20 +703,25 @@ if __name__ == "__main__":
     cwd = os.getcwd()
     if not os.path.isdir(cwd + "/output"):
         os.mkdir(cwd + "/output")
-    op_dict = json.loads(options.idbgen)
-    if not op_dict["dr"].lower() == "true":
-        site_flag = "PROD"
-    else:
-        site_flag = "DR"
-    case_unique_id = "_".join([op_dict["roles"], op_dict["datacenter"], op_dict["superpod"], op_dict["clusters"], site_flag])
-    consolidated_file = cwd + "/output/{0}_plan_implementation.txt".format(case_unique_id)
-    summary = cwd + "/output/{0}_summarylist.txt".format(case_unique_id)
-    if os.path.isfile(summary):
-        os.remove(summary)
-    sum_file = open(summary, 'a')
+    if options.idbgen:
+        op_dict = json.loads(options.idbgen)
+        if not op_dict["dr"].lower() == "true":
+            site_flag = "PROD"
+        else:
+            site_flag = "DR"
+        case_unique_id = "_".join([op_dict["roles"], op_dict["datacenter"], op_dict["superpod"], op_dict["clusters"], site_flag])
+        consolidated_file = cwd + "/output/{0}_plan_implementation.txt".format(case_unique_id)
+        summary = cwd + "/output/{0}_summarylist.txt".format(case_unique_id)
+        if os.path.isfile(summary):
+            os.remove(summary)
+        sum_file = open(summary, 'a')
     ###############################################################################
 
-    if options.verbose:
+    if options.verbose and options.hostlist:
+        logging.basicConfig(level=logging.DEBUG)
+        logging.debug("Bundle: {}".format(bundle))
+        logging.debug("Dowork: {}".format(dowork))
+    elif options.verbose:
         logging.basicConfig(level=logging.DEBUG)
         logging.debug("Bundle: {}".format(bundle))
         logging.debug("Dowork: {}".format(dowork))
@@ -715,6 +771,48 @@ if __name__ == "__main__":
             ho_status = inputdict['ho_opstat']
         except KeyError:
             ho_status = "ACTIVE"
+    elif options.hostlist:
+        #Check for require parameters for hostlist
+        if not options.role or not options.templateid or not options.grouping or not options.dowork or not options.bundle \
+            or not options.dc:
+            print "Missing required arguments (Role, Template, Grouping, Dowork, Bundle, Datacenter)"
+            sys.exit(1)
+        master_json = get_hostlist_data(options.hostlist)
+        hostlist_validate(master_json)
+        case_unique_id = options.templateid
+        role = options.role
+        dc = options.dc
+        grouping = options.grouping
+        templateid = options.templateid
+        dr = "False"
+        consolidated_file = cwd + "/output/{0}_plan_implementation.txt".format(case_unique_id)
+        summary = cwd + "/output/{0}_summarylist.txt".format(case_unique_id)
+        if os.path.isfile(summary):
+            os.remove(summary)
+        sum_file = open(summary, 'a')
+        grp = Groups("active", "active", "SP4", role, "ia2", "na142", options.gsize, grouping, templateid, options.dowork)
+        if options.grouping == "majorset":
+            new_data, allhosts = grp.majorset(master_json)
+            logging.debug("By Majorset: {}".format(new_data))
+            group_worker(options.templateid, options.gsize)
+            sys.exit(0)
+        elif options.grouping == "minorset":
+            new_data, allhosts = grp.minorset(master_json)
+            logging.debug("By Minorset: {}".format(new_data))
+            group_worker(options.templateid, options.gsize)
+            sys.exit(0)
+        elif options.grouping == "byrack":
+            new_data, allhosts = grp.rackorder(master_json)
+            logging.debug("By Rack Data: {}".format(new_data))
+            main_worker(options.templateid, options.gsize)
+            sys.exit(0)
+        elif options.grouping == "all":
+            new_data, allhosts = grp.all(master_json)
+            logging.debug("By All: {}".format(new_data))
+            group_worker(options.templateid, options.gsize)
+            sys.exit(0)
+        else:
+            sys.exit(1)
     else:
         sys.exit(1)
 
