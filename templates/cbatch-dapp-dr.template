@@ -1,5 +1,5 @@
 - Verify cluster state being PROD/DR
-Exec_with_creds: /opt/cpt/bin/check_prod.py -i v_CLUSTER -l primary
+Exec_with_creds: /opt/cpt/bin/check_prod.py -i v_CLUSTER -l secondary
 
 - Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
