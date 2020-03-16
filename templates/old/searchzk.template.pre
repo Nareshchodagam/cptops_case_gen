@@ -10,5 +10,4 @@ Exec: cp /opt/cpt/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manag
 Exec: cp /opt/cpt//bin/chk_symlinks.py ~/releaserunner/remote_transfer/chk_symlinks.py
 Exec: cp /opt/cpt/bin/manage_service.py ~/releaserunner/remote_transfer/manage_service.py
 Exec: cp /opt/cpt/bin/zookeeper_status.py ~/releaserunner/remote_transfer/zookeeper_status.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/COPS/migrate-to-centos.sh ~/releaserunner/remote_transfer/migrate-to-centos.sh
 Exec: cp /opt/cpt/bin/system_vendortools_update.sh ~/releaserunner/remote_transfer/system_vendortools_update.sh
