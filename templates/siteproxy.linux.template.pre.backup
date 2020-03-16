@@ -15,4 +15,3 @@ Exec: cp /opt/cpt/bin/system_vendortools_update.sh ~/releaserunner/remote_transf
 Exec: cp /opt/cpt/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
 Exec: cp /opt/cpt/bin/check_maxfs_desc.py ~/releaserunner/remote_transfer/check_maxfs_desc.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/texttable.py ~/texttable.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/COPS/migrate-to-centos.sh ~/releaserunner/remote_transfer/migrate-to-centos.sh

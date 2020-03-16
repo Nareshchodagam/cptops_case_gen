@@ -1,7 +1,3 @@
-
-- Migrate to Centos
-release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "./remote_transfer/migrate-to-centos.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
 - Update vendortools.
 release_runner.pl -forced_host v_CPS1,v_MSG1,v_DSTORE1 -c sudo_cmd -m "./remote_transfer/system_vendortools_update.sh -a v_BUNDLE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 

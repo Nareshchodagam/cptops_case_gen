@@ -1,5 +1,3 @@
-- Migrate to Centos
-release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/migrate-to-centos.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Check for RPMDB and YUM Lock
 release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/rpmdb_check.sh" -threads -auto2 -auto2 -property "sudo_cmd_line_trunk_fix=1"

@@ -10,7 +10,6 @@ Exec: cp /opt/cpt/bin/validate_firmware.py ~/releaserunner/remote_transfer/valid
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/includes/common.py ~/releaserunner/remote_transfer/common.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/manage_bootdevice.py ~/releaserunner/remote_transfer/manage_bootdevice.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/chk_symlinks.py ~/releaserunner/remote_transfer/chk_symlinks.py
-Exec: svn export svn://vc-v_DATACENTER/subversion/tools/COPS/migrate-to-centos.sh ~/releaserunner/remote_transfer/migrate-to-centos.sh
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/ssa/netbot_validation.py ~/releaserunner/remote_transfer/netbot_validation.py
 Exec: svn export svn://vc-v_DATACENTER/subversion/tools/automation/scripts/opseng/computedeploy/patching/bin/system_vendortools_update.sh ~/releaserunner/remote_transfer/system_vendortools_update.sh
 
