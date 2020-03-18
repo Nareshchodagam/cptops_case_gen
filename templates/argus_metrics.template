@@ -38,6 +38,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-che
 - Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_metrics -host v_HOSTS -c  cmd -m "/home/sfdc/start-stop.sh start" -threads -auto2
 
+
 - Verify app
 release_runner.pl -forced_host v_HOSTS -c  sudo_cmd -m "runuser -l sfdc -c '/home/sfdc/check-argus-services.py'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
