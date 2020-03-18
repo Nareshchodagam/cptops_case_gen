@@ -35,6 +35,9 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-che
 
 - Starting the application has been skipped as the app start is now integrated with systemd
 
+- Adding delay between host/app start and app verification
+Exec: sleep 90 
+
 - Verify app
 Exec: /opt/cpt/bin/check_http_code.py -H v_HOSTS -P 8095,8096
 
