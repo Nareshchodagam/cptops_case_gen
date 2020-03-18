@@ -324,6 +324,10 @@ def compile_template(hosts, template, work_template, file_num):
             output_list.insert(1, "\n- Verify if hosts are migrated or not up\nExec_with_creds: /opt/cpt/bin/verify_hosts.py "
                                         "-H v_HOSTS --bundle v_BUNDLE --case v_CASE -M && echo 'BLOCK v_NUM'\n")
         output = "".join(output_list)
+    
+    ###Argus can be patched independently as part of https://salesforce.quip.com/TynRAf80fsnJ
+    
+    """
     if 'argus_writed_matrics' in template.lower():
         for host in hosts:
             if 'argustsdbw' in host:
@@ -336,6 +340,7 @@ def compile_template(hosts, template, work_template, file_num):
                     except UnboundLocalError:
                         pass
         hosts.append(argusmetrics)
+    """
     output = compile_vMNDS_(output)
     output = output.replace('v_CLUSTER', new_data['Details']['cluster'])
     output = output.replace('v_DATACENTER', new_data['Details']['dc'])
