@@ -31,8 +31,8 @@ Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 - Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-check.py -v v_BUNDLE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Sleep (120 seconds)
-Exec: sleep 120
+- Sleep (240 seconds)
+Exec: sleep 240
 
 - Validate app
 release_runner.pl -invdb_mode -c antstatuscheck_with_retries -host v_HOSTS -product artifactory -superpod v_SUPERPOD -cluster v_CLUSTER -auto2 -threads
