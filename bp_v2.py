@@ -82,26 +82,47 @@ def get_data(cluster, role, dc):
             active_hosts.append(host['hostName'])
         if host['hostFailover'] == failoverstatus or failoverstatus == None:
             if host['clusterStatus'] == cl_status:
-                if host['hostStatus'] == "ACTIVE":
-                    if host['superpodName'] in pod_dict.keys():
-                        # if host['patchCurrentRelease'] != options.bundle:
-                        # if not host['hostCaptain']:
-                        if options.skip_bundle:
-                            if host['patchCurrentRelease'] < options.skip_bundle or "migration" in templateid .lower():
-                                master_json[host['hostName']] = json.loads(host_json)
+                if options.straight:
+                    if (host['hostStatus'] != "ACTIVE" or host['clusterStatus'] != "ACTIVE") and role != "ffx":  
+                        if host['superpodName'] in pod_dict.keys():
+                            # if host['patchCurrentRelease'] != options.bundle:
+                               # if not host['hostCaptain']:
+                            if options.skip_bundle:
+                                if host['patchCurrentRelease'] < options.skip_bundle or "migration" in templateid .lower():
+                                    master_json[host['hostName']] = json.loads(host_json)
+                                else:
+                                    logging.debug("{}: patchCurrentRelease is {}, skipped".format(host['hostName'], host['patchCurrentRelease']))
                             else:
-                                logging.debug("{}: patchCurrentRelease is {}, skipped".format(host['hostName'], host['patchCurrentRelease']))
+                                master_json[host['hostName']] = json.loads(host_json)
+                            # else:
+                            #        logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
+                            # else:
+                                # logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
+                            #             host['patchCurrentRelease']))
                         else:
-                            master_json[host['hostName']] = json.loads(host_json)
-                        # else:
-                        #        logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
-                        # else:
-                            # logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
-                         #             host['patchCurrentRelease']))
+                            logging.debug("{}: Superpod is {}, excluded".format(host['hostName'], host['superpodName']))
                     else:
-                        logging.debug("{}: Superpod is {}, excluded".format(host['hostName'], host['superpodName']))
+                        logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'], host['hostStatus']))
                 else:
-                    logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'], host['hostStatus']))
+                    if host['hostStatus'] == "ACTIVE": 
+                        if host['superpodName'] in pod_dict.keys():
+                            # if host['patchCurrentRelease'] != options.bundle:
+                            # if not host['hostCaptain']:
+                            if options.skip_bundle:
+                                if host['patchCurrentRelease'] < options.skip_bundle or "migration" in templateid .lower():
+                                    master_json[host['hostName']] = json.loads(host_json)
+                                else:
+                                    logging.debug("{}: patchCurrentRelease is {}, skipped".format(host['hostName'], host['patchCurrentRelease']))
+                            else:
+                                master_json[host['hostName']] = json.loads(host_json)
+                                # else:
+                                #        logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
+                                # else:
+                                    # logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
+                        else:
+                            logging.debug("{}: Superpod is {}, excluded".format(host['hostName'], host['superpodName']))        #             host['patchCurrentRelease']))
+                    else:
+                        logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'], host['hostStatus']))
             else:
                 logging.debug("{}: clusterStatus is {}, excluded".format(host['hostName'], host['clusterStatus']))
         else:
@@ -698,6 +719,7 @@ if __name__ == "__main__":
     group2.add_argument("--skip_bundle", dest="skip_bundle", help="command to skip bundle")
     group2.add_argument("-l", "--hostlist", dest="hostlist", help="File containing list of servers")
     group2.add_argument("-v", "--verbose", action="store_true", default=False, help="Verbose Logging")
+    group2.add_argument("--straight", dest="straight", action="store_true", default=False, help="Flag for generation straight patch cases  for non active hosts")
     options = parser.parse_args()
 
     ###############################################################################
