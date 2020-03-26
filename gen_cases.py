@@ -162,7 +162,7 @@ if __name__ == "__main__":
     parser.add_option("--filter_gia", dest="filtergia", action="store_true", default="False", help="Only create case for GIA")
     parser.add_option("-x", "--bpv2", dest="bpv2", action="store_true", default="False", help="Create cases with Build_Plan_v2")
     parser.add_option("--custom_subject", dest="custom_subject",default="", help="to add manual subject")
-
+    parser.add_option("--straight", dest="straight",action="store_true", default=False, help="Flag for generation straight patch cases  for non active hosts")
     #W-4574049 End
 
     python = 'python'
@@ -313,7 +313,7 @@ if __name__ == "__main__":
                 for cl_status in options.clusteropstat.split(','):
                     if opt_bp["cl_opstat"] == cl_status:
                         opt_bp["cl_opstat"] = cl_status
-                        opt_bp["templateid"] = 'straight-patch'
+                        opt_bp["templateid"] = 'straight-patch-Goc++'
                         opt_bp["grouping"] = 'all'
                         opt_bp["maxgroupsize"] = '25'
             else:
@@ -333,6 +333,8 @@ if __name__ == "__main__":
             else:
                 output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s %s  --auto_close_case %s -v""" \
                              """ --nolinebacker %s""" % (options.patchset, opts_str, options.taggroups, hostv, options.auto_close_case, options.nolinebacker)
+            if options.straight:
+                output_str = """python bp_v2.py --bundle %s -G '%s' -v --dowork %s --straight""" % (options.patchset, opts_str, options.dowork)
             output_str = cmdformat(output_str)
             print(output_str)
             if options.regexfilter:
