@@ -22,6 +22,7 @@ from idbhost import Idbhost
 # Global assignments
 pp = pprint.PrettyPrinter(indent=2)
 global new_data
+global hbase_rnd_idb_flag
 active_hosts = []
 
 
@@ -446,7 +447,7 @@ def compile_vMNDS_(output):
     :param template: template
     :return: output
     """
-
+    global hbase_rnd_idb_flag
     # Load Hbase hbase-mnds template.
     hbaseDowork_ = "{}/templates/{}.template".format(os.getcwd(), "hbase-mnds")
 
@@ -463,17 +464,11 @@ def compile_vMNDS_(output):
         if re.search(r"mnds", new_data['Details']['role'], re.IGNORECASE):
             logging.debug(v_MNDS)
             output = output.replace('v_MNDS', v_MNDS)
-        elif re.search(r"dnds", new_data['Details']['role'], re.IGNORECASE):
+        elif re.search(r"dnds", new_data['Details']['role'], re.IGNORECASE) and hbase_rnd_idb_flag :
             output = output.replace('v_MNDS', "- SKIPPING MNDS CHECK.")
-            # check for r&d flag in idb and modify app start/stop accordingly
-            idb_dev_check_url = "/clusterconfigs?cluster.name={0}&key=bigdata_patch_custom_scripts&fields=key,value".format(new_data['Details']['cluster'])
-            datacenter = new_data['Details']['dc']
-            idb = Idbhost(datacenter)
-            idbout, _ = idb._get_request(idb_dev_check_url, datacenter)
-            if (len(idbout["data"]) > 0) and (idbout["data"][0]["key"] == "bigdata_patch_custom_scripts") and (idbout["data"][0]["value"] == "true"):
-                # r&d flag marked in idb, modify app start/stop
-                output = output.replace('release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant cluster stopLocalNode" -host $(cat ~/v_CASE_include) -comment \'BLOCK v_NUM\'', 'release_runner.pl -forced_host $(cat ~/v_CASE_include) -c sudo_cmd -m "/home/sfdc/cpt/scripts/bigdata-start-stop.sh stop" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"')
-                output = output.replace('release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant -- cluster startLocalNode  -s enable -c disable" -host $(cat ~/v_CASE_include) -comment \'BLOCK v_NUM\'', 'release_runner.pl -forced_host $(cat ~/v_CASE_include) -c sudo_cmd -m "/home/sfdc/cpt/scripts/bigdata-start-stop.sh start" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"')
+            # r&d flag marked in idb, modify app start/stop
+            output = output.replace('release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant cluster stopLocalNode" -host $(cat ~/v_CASE_include) -comment \'BLOCK v_NUM\'', 'release_runner.pl -forced_host $(cat ~/v_CASE_include) -c sudo_cmd -m "/home/sfdc/cpt/scripts/bigdata-start-stop.sh stop" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"')
+            output = output.replace('release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant -- cluster startLocalNode  -s enable -c disable" -host $(cat ~/v_CASE_include) -comment \'BLOCK v_NUM\'', 'release_runner.pl -forced_host $(cat ~/v_CASE_include) -c sudo_cmd -m "/home/sfdc/cpt/scripts/bigdata-start-stop.sh start" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"')
         else:
             output = output.replace('v_MNDS', "- SKIPPING MNDS CHECK.")
     except:
@@ -665,6 +660,15 @@ def main_worker(templateid, gsize):
     sum_file.close()
     create_masterplan(consolidated_file, pre_template, post_template)
 
+# check for r&d flag in idb to modify app start/stop accordingly
+def hbase_rnd_idb_check(datacenter,cluster_name) :
+    global hbase_rnd_idb_flag
+    idb_dev_check_url = "clusterconfigs?cluster.name={0}&key=bigdata_patch_custom_scripts&fields=key,value".format(cluster_name)
+    idb = Idbhost(datacenter)
+    idbout, _ = idb._get_request(idb_dev_check_url, datacenter)
+    if (len(idbout["data"]) > 0) and (idbout["data"][0]["key"] == "bigdata_patch_custom_scripts") and (idbout["data"][0]["value"] == "true"):
+        hbase_rnd_idb_flag = True
+
 def hostlist_validate(master_json):
     """
 
@@ -759,6 +763,8 @@ if __name__ == "__main__":
     else:
         logging.basicConfig(level=logging.ERROR)
 
+
+
     if options.idbgen:
         inputdict = json.loads(options.idbgen)
         logging.debug(inputdict)
@@ -798,6 +804,10 @@ if __name__ == "__main__":
             ho_status = inputdict['ho_opstat']
         except KeyError:
             ho_status = "ACTIVE"
+        hbase_rnd_idb_flag = False
+        if dc.lower() in ['prd','crd'] and role.lower() == 'dnds':
+            hbase_rnd_idb_check(dc, cluster)
+
     elif options.hostlist:
         #Check for require parameters for hostlist
         if not options.role or not options.templateid or not options.grouping or not options.dowork or not options.bundle \
