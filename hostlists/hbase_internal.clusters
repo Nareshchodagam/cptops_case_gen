@@ -25,3 +25,4 @@ blitzhbase01 crd CRDHBASE ACTIVE
 hbsr1 crd CRDHBASE ACTIVE
 hbsrcrd2 crd CRDHBASE ACTIVE
 phoenix crd CRDHBASE ACTIVE
+blitzhbase02 crd CRDHBASE DECOM
