@@ -49,7 +49,7 @@ v_INCLUDE
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -property "ssh_timeout=15" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Wait for the hosts to boot up
-Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
+Exec_with_creds: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-check.py -v v_BUNDLE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
