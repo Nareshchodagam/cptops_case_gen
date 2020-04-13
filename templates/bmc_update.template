@@ -11,7 +11,7 @@ release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "./re
 release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "reboot" -auto2 -threads -property "sudo_cmd_line_trunk_fix=1"
 
 - Wait for the hosts to boot up
-Exec: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
+Exec_with_creds: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
 - Correct BIOS Settings
 release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "/usr/local/libexec/system_postbuild.py -b" -threads -auto2 -auto2 -property "sudo_cmd_line_trunk_fix=1"
