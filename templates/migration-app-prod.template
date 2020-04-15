@@ -1,3 +1,5 @@
+
+
 - To verify if site is PROD
 Exec_with_creds: /opt/cpt/bin/check_prod.py -i v_CLUSTER -l primary
 
@@ -9,8 +11,6 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v
 
 - Extract app versions from output data.
 Exec: /opt/cpt/bin/get_versions.py -f ~/v_CLUSTER_version_output.txt -o ~/v_CLUSTER_manifests.txt --versions
-
-Exec: cat ~/v_CLUSTER_manifests.txt
 
 - Ensure rest of the cluster is 80% available
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -device_role app -product sfdc-base -c ensure_availability -min_host_percent 80 -exclude_host v_HOSTS -ping_validation_verify_lb -threads -auto2
@@ -30,16 +30,49 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product m
 - Stop the coreApp application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -host v_HOSTS -c stop_server -property pingcheck_max_tries=600,pingcheck_poll_interval_secs=3,uptime_limit=30 -stopall -ignored_process_names 'perl' -threads -auto2
 
-v_INCLUDE
+- Begin Migration block
 
-- Copy remote scripts to the target hosts
-release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Reset the dell console
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -r" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-check.py -v v_BUNDLE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Install HP raid utils on required CNC's
+release_runner.pl --forced_host $(cat ~/v_CASE_cnc) -c sudo_cmd -m "yum install hp-raid-utilities -y " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Set the boot device to PXE
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d PXE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Installing Vanilla Image
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE
+
+- Checking for awaiting_deployment status
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous image
+
+- Removing IDB records of the hosts
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a erasehostname
+
+- TDeploying App specific image
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a deploy --role v_ROLE --cluster v_CLUSTER --superpod v_SUPERPOD
+
+Exec: echo 'Waiting for status change to deployed' && sleep 600
+
+- Checking for deployed status
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous deploy
+
+Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 900
+
+- Update IDB status of the hosts to Active
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus
+
+- END Migration block
+
+- Validate that the hosts have been migrated to CE7
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "uname -r |grep el7" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Deploy apps
 release_runner.pl -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy  -ping_validation -min_host_percent 33 -property pingcheck_max_tries=700 -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER_manifests.txt`
+
+- Copy remote scripts to the target hosts
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Validate haproxy is started
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n haproxy -a" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"

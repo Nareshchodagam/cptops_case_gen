@@ -270,7 +270,7 @@ def validate_templates(tempalteid):
     template_2 = "{}/templates/{}.template.post".format(os.getcwd(), templateid)
     work_template = "{}/templates/{}.template".format(os.getcwd(), options.dowork)
 
-    if not os.path.isfile(template) or not os.path.isfile(work_template):
+    if not os.path.isfile(template) or not ("migration" in templateid or os.path.isfile(work_template)):
         logging.error("No such file or directory")
         sys.exit(1)
 
