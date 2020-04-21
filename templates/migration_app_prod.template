@@ -18,7 +18,7 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -device_ro
 - Writing CNC info to v_CASE_hostinfo file
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
 
-- Check the console
+- Check the console connectivity
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
 
 - Disable nagios monitoring
@@ -33,13 +33,10 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 - Begin Migration block
 
 - Reset the dell console
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -r" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -r -v" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Install HP raid utils on required CNC's
 release_runner.pl --forced_host $(cat ~/v_CASE_cnc) -c sudo_cmd -m "yum install hp-raid-utilities -y " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
-- Set the boot device to PXE
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d PXE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Installing Vanilla Image
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE
@@ -50,15 +47,15 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous image
 - Removing IDB records of the hosts
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a erasehostname
 
-- TDeploying App specific image
+- Deploying App specific image
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a deploy --role v_ROLE --cluster v_CLUSTER --superpod v_SUPERPOD
 
-Exec: echo 'Waiting for status change to deployed' && sleep 600
+Exec: echo 'Waiting for status change to deployed'
 
 - Checking for deployed status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous deploy
 
-Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 900
+Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 1200
 
 - Update IDB status of the hosts to Active
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus
@@ -69,7 +66,7 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "uname -r |grep el7" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Deploy apps
-release_runner.pl -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy  -ping_validation -min_host_percent 33 -property pingcheck_max_tries=700 -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER_manifests.txt`
+release_runner.pl -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER_manifests.txt`
 
 - Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
