@@ -506,8 +506,8 @@ def create_masterplan(consolidated_file, pre_template, post_template):
 
     post_file = compile_post_template(post_template)
     post_list = post_file.splitlines(True)
-    case_post = "- Auto close case \nExec_with_creds: /opt/cpt/gus_case_mngr.py -c v_CASE --close -y\n\n"
-    post_list.insert(-5, case_post)
+    case_post = "\n- Auto close case \nExec_with_creds: /opt/cpt/gus_case_mngr.py -c v_CASE --close -y\n\n"
+    post_list.append( case_post)
     post = "".join(post_list)
     final_file.write('BEGIN_GROUP: POST\n' + post + '\nEND_GROUP: POST\n\n')
     cleanup()
