@@ -28,7 +28,7 @@ active_hosts = []
 
 def tryint(s):
     """
-        convert key to string for ordering using humanreadable_key
+        convert key to string for ordering using human readable_key
     """
     try:
         return int(s)
@@ -69,6 +69,7 @@ def get_data(cluster, role, dc):
 
     data = url_response(url)
 
+
     for host in data:
         logging.debug("{}: patchCurrentRelease:{} clusterStatus:{} hostStatus:{} hostFailover:{}".format(host['hostName'],
                                                                                                          host['patchCurrentRelease'],
@@ -84,7 +85,7 @@ def get_data(cluster, role, dc):
         if host['hostFailover'] == failoverstatus or failoverstatus == None:
             if host['clusterStatus'] == cl_status:
                 if options.straight:
-                    if (host['hostStatus'] != "ACTIVE" or host['clusterStatus'] != "ACTIVE") and role != "ffx":  
+                    if (host['hostStatus'] != "ACTIVE" or host['clusterStatus'] != "ACTIVE") and role != "ffx":
                         if host['superpodName'] in pod_dict.keys():
                             # if host['patchCurrentRelease'] != options.bundle:
                                # if not host['hostCaptain']:
@@ -105,25 +106,27 @@ def get_data(cluster, role, dc):
                     else:
                         logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'], host['hostStatus']))
                 else:
-                    if host['hostStatus'] == "ACTIVE": 
-                        if host['superpodName'] in pod_dict.keys():
-                            # if host['patchCurrentRelease'] != options.bundle:
-                            # if not host['hostCaptain']:
-                            if options.skip_bundle:
-                                if host['patchCurrentRelease'] < options.skip_bundle or "migration" in templateid .lower():
-                                    master_json[host['hostName']] = json.loads(host_json)
+                        if host['hostStatus'] in set (ho_status.split(',')):
+                            if host['superpodName'] in pod_dict.keys():
+                                # if host['patchCurrentRelease'] != options.bundle:
+                                # if not host['hostCaptain']:
+                                if options.skip_bundle:
+                                    if host['patchCurrentRelease'] < options.skip_bundle or "migration" in templateid .lower():
+                                        master_json[host['hostName']] = json.loads(host_json)
+                                    else:
+                                        logging.debug("{}: patchCurrentRelease is {}, skipped".format(host['hostName'], host['patchCurrentRelease']))
                                 else:
-                                    logging.debug("{}: patchCurrentRelease is {}, skipped".format(host['hostName'], host['patchCurrentRelease']))
+                                    master_json[host['hostName']] = json.loads(host_json)
+                                    # else:
+                                    #        logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
+                                    # else:
+                                        # logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
                             else:
-                                master_json[host['hostName']] = json.loads(host_json)
-                                # else:
-                                #        logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
-                                # else:
-                                    # logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
+                                logging.debug("{}: Superpod is {}, excluded".format(host['hostName'], host['superpodName']))        #             host['patchCurrentRelease']))
                         else:
-                            logging.debug("{}: Superpod is {}, excluded".format(host['hostName'], host['superpodName']))        #             host['patchCurrentRelease']))
-                    else:
-                        logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'], host['hostStatus']))
+                            logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'], host['hostStatus']))
+
+
             else:
                 logging.debug("{}: clusterStatus is {}, excluded".format(host['hostName'], host['clusterStatus']))
         else:
@@ -346,9 +349,9 @@ def compile_template(hosts, template, work_template, file_num):
             output_list.insert(1, "\n- Verify if hosts are migrated or not up\nExec_with_creds: /opt/cpt/bin/verify_hosts.py "
                                         "-H v_HOSTS --bundle v_BUNDLE --case v_CASE -M && echo 'BLOCK v_NUM'\n")
         output = "".join(output_list)
-    
+
     ###Argus can be patched independently as part of https://salesforce.quip.com/TynRAf80fsnJ
-    
+
     """
     if 'argus_writed_matrics' in template.lower():
         for host in hosts:
@@ -764,7 +767,6 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.ERROR)
 
 
-
     if options.idbgen:
         inputdict = json.loads(options.idbgen)
         logging.debug(inputdict)
@@ -809,9 +811,9 @@ if __name__ == "__main__":
             hbase_rnd_idb_check(dc, cluster)
 
     elif options.hostlist:
-        #Check for require parameters for hostlist
-        if not options.role or not options.templateid or not options.grouping or not options.dowork or not options.bundle \
-            or not options.dc:
+        # Check for require parameters for hostlist
+        if not options.role or not options.templateid or not options.grouping or not options.dowork or\
+                not options.bundle or not options.dc:
             print "Missing required arguments (Role, Template, Grouping, Dowork, Bundle, Datacenter)"
             sys.exit(1)
         master_json = get_hostlist_data(options.hostlist)
