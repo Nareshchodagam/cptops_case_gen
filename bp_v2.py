@@ -182,7 +182,7 @@ def get_hostlist_data(data):
     logging.debug(master_json)
     return master_json
 
-def find_concurrency(hostpercent):
+def find_concurrency(hostpercent, master_json):
     """
     This function calculates the host count per block #W-3758985
     :param inputdict: takes inputdict
@@ -191,7 +191,6 @@ def find_concurrency(hostpercent):
     pod = inputdict['clusters']
     dc = inputdict['datacenter']
     role = inputdict['roles']
-    master_json = get_data(pod, role, dc)
     inputdict['maxgroupsize'] = round(float(hostpercent) * (len(master_json)) / 100)
 
 
@@ -902,8 +901,9 @@ if __name__ == "__main__":
         cluster = ",".join(total_cluster_list)
 
     cleanup()
+    master_json = get_data(cluster, role, dc)
     if options.hostpercent:
-        find_concurrency(options.hostpercent)
+        find_concurrency(options.hostpercent, master_json)
     try:
         gsize = inputdict['maxgroupsize']
     except KeyError:
@@ -911,7 +911,6 @@ if __name__ == "__main__":
             gsize = 0
         else:
             gsize = 1
-    master_json = get_data(cluster, role, dc)
     grp = Groups(cl_status, ho_status, pod, role, dc, cluster, gsize, grouping, templateid, dowork)
     if grouping == "majorset":
         new_data, allhosts = grp.majorset(master_json)
