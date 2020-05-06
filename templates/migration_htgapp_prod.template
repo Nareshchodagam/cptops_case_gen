@@ -1,8 +1,5 @@
 
 
-- To verify if site is Prod
-Exec_with_creds: /opt/cpt/bin/check_prod.py -i $(echo "v_CLUSTER"|cut -f 2 -d"_") -l primary
-
 - Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
@@ -42,10 +39,15 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous deploy
 
 Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 6000
 
+- Refresh kerberos ticket
+Exec: kinit -R
 - Update IDB status of the hosts to Active
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus
 
 - END Migration block
+
+- Removing known hosts file
+Exec: rm -rf  ~/.ssh/known_hosts
 
 - Validate that the hosts have been migrated to CE7
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "uname -r |grep el7" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"

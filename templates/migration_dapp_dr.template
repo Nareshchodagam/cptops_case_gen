@@ -50,7 +50,6 @@ Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIO
 
 - Refresh kerberos ticket
 Exec: kinit -R
-
 - Update IDB status of the hosts to Active
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus
 
@@ -61,18 +60,6 @@ Exec: rm -rf  ~/.ssh/known_hosts
 
 - Validate that the hosts have been migrated to CE7
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "uname -r |grep el7" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
-- Reboot the host
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -property "ssh_timeout=15" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
-- Wait for the hosts to boot up
-Exec_with_creds: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
-
-- Firewall check
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "getenforce | grep Disabled" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
-- Cpu setting check
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor |grep performance" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Deploy apps
 release_runner.pl -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS  -drnostart -c deploy -no_db_data_init  -threads -auto2  -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt` -no_lb

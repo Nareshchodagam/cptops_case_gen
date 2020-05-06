@@ -7,13 +7,13 @@ Exec_with_creds: /opt/cpt/bin/check_prod.py -i v_CLUSTER -l primary
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - get version numbers for apps
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host v_HOST > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include | cut -d "," -f "1") > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
 
 - Extract app versions from output data.
 Exec: /opt/cpt/bin/get_versions.py -f ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt -o ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt --versions
 
-- Ensure rest of the cluster is 80% available
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -device_role app -product sfdc-base -c ensure_availability -min_host_percent 80 -exclude_host v_HOSTS -ping_validation_verify_lb -threads -auto2
+- Ensure rest of the cluster is 70% available
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -device_role app -product sfdc-base -c ensure_availability -min_host_percent 70 -exclude_host v_HOSTS -ping_validation_verify_lb -threads -auto2
 
 - Writing CNC info to v_CASE_hostinfo file
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
@@ -57,13 +57,31 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous deploy
 
 Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 1200
 
+- Refresh kerberos ticket
+Exec: kinit -R
+
 - Update IDB status of the hosts to Active
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus
 
 - END Migration block
 
+- Removing known hosts file
+Exec: rm -rf  ~/.ssh/known_hosts
+
 - Validate that the hosts have been migrated to CE7
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "uname -r |grep el7" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Reboot the host
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -property "ssh_timeout=15" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Wait for the hosts to boot up
+Exec_with_creds: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
+
+- Firewall check
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "getenforce | grep Disabled" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Cpu setting check
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor |grep performance" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Deploy apps
 release_runner.pl -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt`
