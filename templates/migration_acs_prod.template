@@ -7,7 +7,7 @@ Exec_with_creds: /opt/cpt/bin/check_prod.py -i v_CLUSTER -l primary
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - get version numbers for apps
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host v_HOST -drnostart  > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include | cut -d "," -f "1") > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
 
 - Extract app versions from output data.
 Exec: /opt/cpt/bin/get_versions.py -f ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt -o ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt --versions
@@ -51,10 +51,20 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous deploy
 
 Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 1200
 
+- Refresh kerberos ticket
+Exec: kinit -R
+
 - Update IDB status of the hosts to Active
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus
 
 - END Migration block
+
+- Removing known hosts file
+Exec: rm -rf  ~/.ssh/known_hosts
+
+- Start cpupower service
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start cpupower.service" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
 
 - Validate that the hosts have been migrated to CE7
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "uname -r |grep el7" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
