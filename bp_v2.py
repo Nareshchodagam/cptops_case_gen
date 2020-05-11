@@ -463,10 +463,19 @@ def compile_vMNDS_(output):
 
     # Replace the v_MNDS variable in Hbase Mnds template.
     try:
-        if re.search(r"mnds", new_data['Details']['role'], re.IGNORECASE):
+        if re.search(r"mnds", new_data['Details']['role'], re.IGNORECASE) and hbase_rnd_idb_flag:
             logging.debug(v_MNDS)
             output = output.replace('v_MNDS', v_MNDS)
-        elif re.search(r"dnds", new_data['Details']['role'], re.IGNORECASE) and hbase_rnd_idb_flag :
+            output = output.replace('/home/sfdc/bigdops/gatekeeper/gatekeeper.py','/home/sfdc/bigdops/gatekeeper/gatekeeper.py;echo "skip_the_failure"')
+            output = output.replace('~/current/bigdata-util/util/build/ant cluster stopLocalNode','~/current/bigdata-util/util/build/ant cluster stopLocalNode;echo "skip_the_failure"')
+            output = output.replace('~/current/bigdata-kerberos/kerberos/build/ant -- -w krb stopLocal','~/current/bigdata-kerberos/kerberos/build/ant -- -w krb stopLocal;echo "skip_the_failure"')
+            output = output.replace('~/current/bigdata-kerberos/kerberos/build/ant -- keytab-service -s stop','~/current/bigdata-kerberos/kerberos/build/ant -- keytab-service -s stop;echo "skip_the_failure"')
+            output = output.replace('~/current/bigdata-kerberos/kerberos/build/ant -- -w krb startLocal','~/current/bigdata-kerberos/kerberos/build/ant -- -w krb startLocal;echo "skip_the_failure"')
+            output = output.replace('~/current/bigdata-util/util/build/ant -- cluster startLocalNode','~/current/bigdata-util/util/build/ant -- cluster startLocalNode;echo "skip_the_failure"')
+        else:
+            logging.debug(v_MNDS)
+            output = output.replace('v_MNDS', v_MNDS)
+        if re.search(r"dnds", new_data['Details']['role'], re.IGNORECASE) and hbase_rnd_idb_flag:
             output = output.replace('v_MNDS', "- SKIPPING MNDS CHECK.")
             # r&d flag marked in idb, modify app start/stop
             output = output.replace('release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant cluster stopLocalNode" -host $(cat ~/v_CASE_include) -comment \'BLOCK v_NUM\'', 'release_runner.pl -forced_host $(cat ~/v_CASE_include) -c sudo_cmd -m "/home/sfdc/cpt/scripts/bigdata-start-stop.sh stop" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"')
@@ -806,7 +815,7 @@ if __name__ == "__main__":
         except KeyError:
             ho_status = "ACTIVE"
         hbase_rnd_idb_flag = False
-        if dc.lower() in ['prd','crd'] and role.lower() == 'dnds':
+        if dc.lower() in ['prd','crd'] and role.lower() in ('dnds','mnds'):
             hbase_rnd_idb_check(dc, cluster)
 
     elif options.hostlist:
