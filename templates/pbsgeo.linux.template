@@ -49,3 +49,6 @@ Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a disable -H v_HOSTS
 Exec_with_creds: /opt/cpt/update_lh.py --case v_CASE --host v_HOSTS --bundle v_BUNDLE --etime
 
 Exec: echo "Host v_HOSTS systems patching completed"
+
+- Auto pause case if case status is not equal to In Progres.
+Exec_with_creds: /opt/cpt/gus_case_mngr.py -c v_CASE --pause -y
