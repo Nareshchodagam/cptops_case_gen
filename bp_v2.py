@@ -557,6 +557,7 @@ def product_rrcmd(role_name) :
         'caas': ['app'],
         'lightcycle-snapshot': ['app', 'cbatch'],
         'mandm-agent': ['app', 'cbatch'],
+        'mandm-kafka': ['ajna_broker'],
         'mq-broker': ['mq'],
         'acs': ['acs'],
         'searchserver': ['search'],

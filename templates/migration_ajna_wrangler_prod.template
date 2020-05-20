@@ -1,21 +1,10 @@
 
 
-- To verify if site is DR
-Exec_with_creds: /opt/cpt/bin/check_prod.py -i v_CLUSTER -l secondary
-
-- Copy remote scripts to the target hosts
-release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
-- get version numbers for apps
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include ) -drnostart  > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
-
-- Extract app versions from output data.
-Exec: /opt/cpt/bin/get_versions.py -f ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt -o ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt --versions
 
 - Writing CNC info to v_CASE_hostinfo file
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
 
-- Check the console connectivity
+- Check the console
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
 
 - Disable monitoring
@@ -49,10 +38,11 @@ Exec: echo 'Waiting for status change to deployed'
 - Checking for deployed status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous deploy
 
-Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 1200
+Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 6000
 
 - Refresh kerberos ticket
 Exec: kinit -R
+
 - Update IDB status of the hosts to Active
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status ACTIVE
 
@@ -63,9 +53,6 @@ Exec: rm -rf  ~/.ssh/known_hosts
 
 - Validate that the hosts have been migrated to CE7
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "uname -r |grep el7" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
-- Deploy apps
-release_runner.pl -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS  -drnostart -c deploy -no_db_data_init  -threads -auto2  -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt` -no_lb
 
 - Enable GOC++ alerts ("disable" alert suppression)
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a disable -H v_HOSTS
