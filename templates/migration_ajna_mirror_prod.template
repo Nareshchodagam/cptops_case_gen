@@ -5,7 +5,7 @@
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - get version numbers for apps
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include | cut -d "," -f "1") > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include ) > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
 
 - Extract app versions from output data.
 Exec: /opt/cpt/bin/get_versions.py -f ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt -o ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt --versions
@@ -24,6 +24,9 @@ release_runner.pl --forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage
 
 - Stop the running application
 release_runner.pl --forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n replikator -k -i"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Set the iDB status of the hosts to IN_MAINTENANCE
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status IN_MAINTENANCE
 
 - Begin Migration block
 
@@ -56,7 +59,7 @@ Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIO
 Exec: kinit -R
 
 - Update IDB status of the hosts to Active
-Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status ACTIVE
 
 - END Migration block
 
