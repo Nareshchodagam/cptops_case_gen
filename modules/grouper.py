@@ -89,6 +89,7 @@ class Groups(Organizer):
         self.bymajor = {}
         self.byminor = {}
         self.byrack = {}
+        self.byzone = {}
         self.byall = {}
         self.allhosts = []
         self.pcldcs = ["yul","yhu", "syd", "cdu", "hio", "ttd"]
@@ -150,6 +151,24 @@ class Groups(Organizer):
 
         return self.bymajor, self.allhosts
 
+    def zone(self, data):
+        self.byzone['Details'] = self.details
+        self.byzone['Hostnames'] = {}
+        self.master_data = data
+        for host in self.master_data.iterkeys():
+            self.allhosts.append(host)
+            try:
+                zone = self.master_data[host]["Zone"]
+            except KeyError as valerr:
+                print valerr
+                raise
+            if zone in self.byzone['Hostnames'].keys():
+                self.byzone['Hostnames'][zone].append(host)
+            else:
+                self.byzone['Hostnames'][zone] = [host]
+
+        return self.byzone, self.allhosts
+
     def minorset(self, data):
         self.byminor['Details'] = self.details
         self.byminor['Hostnames'] = {}
@@ -179,3 +198,4 @@ class Groups(Organizer):
             self.allhosts.append(host)
             self.byall['Hostnames']["straight patch"].append(host)
         return self.byall, self.allhosts
+
