@@ -1,6 +1,5 @@
 
 
-
 - Copy remote scripts to the target hosts
 release_runner.pl -property "synner=1" -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
@@ -13,10 +12,29 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
 - Disable monitoring
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a enable -H v_HOSTS
 
-- Set the iDB status of the hosts to IN_MAINTENANCE
-Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status IN_MAINTENANCE
+- Begin Hbase pre migration steps
+
+- Cluster Validation
+release_runner.pl -property "synner=1" -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "python /home/sfdc/gatekeeper/gatekeeper.py" -host v_CLUSTER-mnds1-1-v_DATACENTER
+
+- Stop the running application
+release_runner.pl -property "synner=1" -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant cluster stopLocalNode" -host v_HOSTS
+
+- Remove host from cluster
+Exec: timeout 1800 /usr/local/bin/rampup-single-node/auto /usr/local/bin/rampup-single-node/decom_ambari_host.py --hostname v_HOSTS
+
+- Sleep 30 min
+Exec : sleep 1800
+
+- Cluster Validation
+release_runner.pl -property "synner=1" -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "python /home/sfdc/gatekeeper/gatekeeper.py" -host v_CLUSTER-mnds1-1-v_DATACENTER
+
+- End Hbase pre migration steps
 
 - Begin Migration block
+
+- Set the iDB status of the hosts to IN_MAINTENANCE
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status IN_MAINTENANCE
 
 - Reset the dell console
 release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -r -v" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
@@ -25,7 +43,7 @@ release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "./re
 release_runner.pl -property "synner=1" --forced_host $(cat ~/v_CASE_cnc) -c sudo_cmd -m "yum install hp-raid-utilities -y " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Installing Vanilla Image
-Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE --disk_config stage1hdfs
 
 - Checking for awaiting_deployment status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous image
@@ -41,7 +59,7 @@ Exec: echo 'Waiting for status change to deployed'
 - Checking for deployed status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous deploy
 
-Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 1800
+Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 6000
 
 - Refresh kerberos ticket
 Exec: kinit -R
@@ -54,8 +72,8 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status AC
 - Removing known hosts file
 Exec: rm -rf  ~/.ssh/known_hosts
 
-- Validate that the hosts have been migrated to CE7
-release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "uname -r |grep el7" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Enable Host and start service
+Exec: python /usr/local/bin/manage-node/enable_node.py -c "centos 6 to 7" --hostname v_HOSTS -v
 
 - Enable GOC++ alerts ("disable" alert suppression)
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a disable -H v_HOSTS
