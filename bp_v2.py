@@ -891,7 +891,7 @@ if __name__ == "__main__":
             sys.exit(0)
         elif options.grouping == "zone":
             new_data, allhosts = grp.zone(master_json)
-            logging.debug("By All: {}".format(new_data))
+            logging.debug("By Zone: {}".format(new_data))
             group_worker(options.templateid, options.gsize)
             sys.exit(0)
         else:
