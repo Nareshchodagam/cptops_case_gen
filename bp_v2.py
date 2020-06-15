@@ -1,20 +1,10 @@
 #!/usr/bin/python
 #
 #
-import requests
-import re
-import pprint
+import requests,re,pprint,sys,glob,os,argparse,logging,json,concurrent.futures
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 from modules.grouper import Groups
-import sys
-import glob
-import os
-import argparse
-import logging
-import json
-import os
-import re
 from caseToblackswan import CreateBlackswanJson
 from idbhost import Idbhost
 
@@ -592,9 +582,6 @@ def product_rrcmd(role_name) :
     return (product_rrcmd,ignore_process)
 
 
-
-
-
 def group_worker(templateid, gsize):
     '''
     "This function is responsible for doing the work associated with the gsize variable.
@@ -698,6 +685,31 @@ def hbase_rnd_idb_check(datacenter,cluster_name) :
     idbout, _ = idb._get_request(idb_dev_check_url, datacenter)
     if (len(idbout["data"]) > 0) and (idbout["data"][0]["key"] == "bigdata_patch_custom_scripts") and (idbout["data"][0]["value"] == "true"):
         hbase_rnd_idb_flag = True
+# check for zone & value for sayonara cluster for mnds role and datacenter xrd WI:- W-7519329
+def sayonara_zone_idb_check(master_json, datacenter):
+    def _get_zoneinfo_idb(host):
+        idb_zone_check_url = "hosts?name={0}&fields=name,hostConfigs.key,hostConfigs.value".format(
+            host)
+        idb = Idbhost(datacenter)
+        idbout, _ = idb._get_request(idb_zone_check_url, datacenter)
+        return idbout
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        idb_result = executor.map(_get_zoneinfo_idb, master_json)
+        idb_output = [each for each in idb_result]
+        for each in (idb_output[i]["data"] for i in range(len(master_json))):
+            hostname = each[0]["name"]
+            zone_value_found = False
+            for hostconfig in each[0]["hostConfigs"]:
+                if hostconfig["key"] == "zone":
+                    for host, details in master_json.items():
+                        if host == hostname:
+                            details["Zone"] = hostconfig["value"]
+                            master_json[host] = details
+                            zone_value_found = True
+            if not zone_value_found:
+                print("This host {0} is configured to any zone so skipping...".format(hostname))
+                del master_json[hostname]
+    return master_json
 
 def hostlist_validate(master_json):
     """
@@ -877,6 +889,11 @@ if __name__ == "__main__":
             logging.debug("By All: {}".format(new_data))
             group_worker(options.templateid, options.gsize)
             sys.exit(0)
+        elif options.grouping == "zone":
+            new_data, allhosts = grp.zone(master_json)
+            logging.debug("By Zone: {}".format(new_data))
+            group_worker(options.templateid, options.gsize)
+            sys.exit(0)
         else:
             sys.exit(1)
     else:
@@ -930,6 +947,8 @@ if __name__ == "__main__":
 
     cleanup()
     master_json = get_data(cluster, role, dc)
+    if "sayonara1a" == cluster.lower() and dc.lower() == "xrd" and role.lower() == "mnds":
+        master_json = sayonara_zone_idb_check(master_json, dc)
     if options.hostpercent:
         find_concurrency(options.hostpercent, master_json)
     try:
@@ -955,6 +974,10 @@ if __name__ == "__main__":
     elif grouping == "all":
         new_data, allhosts = grp.all(master_json)
         logging.debug("By All: {}".format(new_data))
+        group_worker(templateid, gsize)
+    elif grouping == "zone":
+        new_data, allhosts = grp.zone(master_json)
+        logging.debug("By Zone: {}".format(new_data))
         group_worker(templateid, gsize)
     else:
         sys.exit(1)
