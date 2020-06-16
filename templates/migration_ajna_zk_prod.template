@@ -69,6 +69,9 @@ release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "unam
 - Deploy apps
 release_runner.pl -property "synner=1" -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt`
 
+- Ensure Topic Deploy user.properties is created
+release_runner.pl -property "synner=1" -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -versions ajna-topic-deployer@AjnaTopicDeployer.52 -c generate_user_properties -threads -auto2
+
 - Start the application
 release_runner.pl -property "synner=1" -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product ajna-topics-api,mandm-zookeeper -device_role v_ROLE -host v_HOSTS -c start_server -auto2 -threads
 
