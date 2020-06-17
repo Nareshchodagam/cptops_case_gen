@@ -71,6 +71,12 @@ release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "rebo
 - Wait for the hosts to boot up
 Exec_with_creds: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
+- NTP stop & start
+release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "systemctl stop ntpd"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpdate && sleep 5" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "hwclock --systohc" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpd" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
 - Firewall check
 release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "getenforce | grep Disabled" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
