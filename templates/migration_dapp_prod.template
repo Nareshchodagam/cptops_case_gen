@@ -68,6 +68,12 @@ Exec: rm -rf  ~/.ssh/known_hosts
 - Validate that the hosts have been migrated to CE7
 release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "uname -r |grep el7" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
+- NTP stop & start
+release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "systemctl stop ntpd"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpdate && sleep 5" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "hwclock --systohc" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -property "synner=1" -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpd" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
 - Deploy apps
 release_runner.pl -property "synner=1" -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt`
 
