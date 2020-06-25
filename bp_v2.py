@@ -58,7 +58,7 @@ def get_data(cluster, role, dc):
         url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
 
     data = url_response(url)
-
+    allhosts_for_vohosts = []
 
     for host in data:
         logging.debug("{}: patchCurrentRelease:{} clusterStatus:{} hostStatus:{} hostFailover:{}".format(host['hostName'],
@@ -70,6 +70,7 @@ def get_data(cluster, role, dc):
                      'Bundle': host['patchCurrentRelease'], 'Majorset': host['hostMajorSet'],
                      'Minorset': host['hostMinorSet'], 'OS_Version': host['patchOs']}
         host_json = json.dumps(json_data)
+        allhosts_for_vohosts.append(host["hostName"])
         if host['hostStatus'] == "ACTIVE":
             active_hosts.append(host['hostName'])
         if host['hostFailover'] == failoverstatus or failoverstatus == None:
@@ -138,7 +139,7 @@ def get_data(cluster, role, dc):
     if not master_json:
         logging.error("No servers match any filters.")
         sys.exit(1)
-    return master_json
+    return master_json, allhosts_for_vohosts
 
 
 def hostfilter_chk(data):
@@ -373,9 +374,9 @@ def compile_template(hosts, template, work_template, file_num):
         output = output.replace('v_HOST', hosts[0])
     output = output.replace('v_NUM', str(file_num))
     # other host and v_OHOSTS are used to create a check against all but the host to be patched (i.e. lapp, rps)
-    other_hosts = list(set(allhosts) - set(hosts))
+    other_hosts = list(set(allhosts_for_vohosts) - set(hosts))
     output = output.replace('v_OHOSTS', ','.join(other_hosts))
-    output = output.replace('v_ALLHOSTS', ','.join(allhosts))
+    output = output.replace('v_ALLHOSTS', ','.join(allhosts_for_vohosts))
     if 'v_PRODUCT_RRCMD' in output:
         products ,ignore_processes = product_rrcmd(role)
         output = output.replace('v_PRODUCT_RRCMD', ','.join(products))
@@ -946,7 +947,7 @@ if __name__ == "__main__":
         cluster = ",".join(total_cluster_list)
 
     cleanup()
-    master_json = get_data(cluster, role, dc)
+    master_json, allhosts_for_vohosts = get_data(cluster, role, dc)
     if "sayonara1a" == cluster.lower() and dc.lower() == "xrd" and role.lower() == "mnds":
         master_json = sayonara_zone_idb_check(master_json, dc)
     if options.hostpercent:
