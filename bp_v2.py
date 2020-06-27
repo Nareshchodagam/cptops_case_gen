@@ -130,7 +130,7 @@ def get_data(cluster, role, dc):
         sys.exit(1)
     else:
         #master_json = ice_chk(master_json)
-        master_json,os_ce6,os_ce7 = bundle_cleanup(master_json, options.bundle)
+        master_json, os_ce6, os_ce7 = bundle_cleanup(master_json, options.bundle)
         master_json = hostfilter_chk(master_json)
 
     if options.os_version:
@@ -237,7 +237,7 @@ def bundle_cleanup(data, targetbundle):
                 elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] >= c6_ver:
                     logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
                     del data[host]
-    return data,c6_ver,c7_ver
+    return data, c6_ver, c7_ver
 
 
 def ice_mist_check(hostname):
@@ -319,6 +319,24 @@ def prep_template(work_template, template):
 
     return output
 
+def replace_common_variables(output):
+    '''
+    This function is the used to replace the common variables between pre, post and template.
+    :param output: The file where replacements are required.
+    '''
+    output = output.replace('v_CLUSTER', new_data['Details']['cluster'])
+    output = output.replace('v_DATACENTER', new_data['Details']['dc'])
+    output = output.replace('v_SUPERPOD', new_data['Details']['Superpod'])
+    output = output.replace('v_ROLE', new_data['Details']['role'])
+    output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
+    output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
+    if options.bundle == "current":
+        output = output.replace('--bundle v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
+        output = output.replace('-a v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
+        output = output.replace('-v v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
+    else:
+        output = output.replace('v_BUNDLE', options.bundle)
+    return output
 
 def compile_template(hosts, template, work_template, file_num):
     '''
@@ -357,19 +375,8 @@ def compile_template(hosts, template, work_template, file_num):
         hosts.append(argusmetrics)
     """
     output = compile_vMNDS_(output)
-    output = output.replace('v_CLUSTER', new_data['Details']['cluster'])
-    output = output.replace('v_DATACENTER', new_data['Details']['dc'])
-    output = output.replace('v_SUPERPOD', new_data['Details']['Superpod'])
-    output = output.replace('v_ROLE', new_data['Details']['role'])
-    output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
-    output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
     output = output.replace('v_HOSTS', ','.join(hosts))
-    if options.bundle == "current":
-        output = output.replace('--bundle v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
-        output = output.replace('-a v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
-        output = output.replace('-v v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
-    else:
-        output = output.replace('v_BUNDLE', options.bundle)
+    output = replace_common_variables(output)
     if "migration" in template.lower():
         if len(active_hosts) != 0:
             output = output.replace('v_HOST', active_hosts[0])
@@ -405,19 +412,8 @@ def compile_pre_template(template):
         output = out.read()
     if re.search(r"mnds|dnds", new_data['Details']['role'], re.IGNORECASE) and hbase_rnd_idb_flag:
         output = output.replace('/opt/cpt/bin/update_patching_status.py --start --cluster v_CLUSTER','/opt/cpt/bin/update_patching_status.py --start --cluster v_CLUSTER;echo "skip_the_failure"')
-    output = output.replace('v_CLUSTER', new_data['Details']['cluster'])
-    output = output.replace('v_DATACENTER', new_data['Details']['dc'])
-    output = output.replace('v_SUPERPOD', new_data['Details']['Superpod'])
-    output = output.replace('v_ROLE', new_data['Details']['role'])
-    output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
-    output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
     output = output.replace('v_HOSTS', ','.join(allhosts))
-    if options.bundle == "current":
-        output = output.replace('--bundle v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
-        output = output.replace('-a v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
-        output = output.replace('-v v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
-    else:
-        output = output.replace('v_BUNDLE', options.bundle)
+    output = replace_common_variables(output)
 
     return output
 
@@ -437,19 +433,8 @@ def compile_post_template(template):
         output = out.read()
     if re.search(r"mnds|dnds", new_data['Details']['role'], re.IGNORECASE) and hbase_rnd_idb_flag: 
         output = output.replace('/opt/cpt/bin/update_patching_status.py --cluster v_CLUSTER','/opt/cpt/bin/update_patching_status.py --cluster v_CLUSTER;echo "skip_the_failure"')
-    output = output.replace('v_CLUSTER', new_data['Details']['cluster'])
-    output = output.replace('v_DATACENTER', new_data['Details']['dc'])
-    output = output.replace('v_SUPERPOD', new_data['Details']['Superpod'])
-    output = output.replace('v_ROLE', new_data['Details']['role'])
-    output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
-    output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
     output = output.replace('v_COMMAND', build_command)
-    if options.bundle == "current":
-        output = output.replace('--bundle v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
-        output = output.replace('-a v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
-        output = output.replace('-v v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
-    else:
-        output = output.replace('v_BUNDLE', options.bundle)
+    output = replace_common_variables(output)
 
     return output
 
