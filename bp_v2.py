@@ -130,7 +130,7 @@ def get_data(cluster, role, dc):
         sys.exit(1)
     else:
         #master_json = ice_chk(master_json)
-        master_json = bundle_cleanup(master_json, options.bundle)
+        master_json,os_ce6,os_ce7 = bundle_cleanup(master_json, options.bundle)
         master_json = hostfilter_chk(master_json)
 
     if options.os_version:
@@ -139,7 +139,7 @@ def get_data(cluster, role, dc):
     if not master_json:
         logging.error("No servers match any filters.")
         sys.exit(1)
-    return master_json, allhosts_for_vohosts
+    return master_json, allhosts_for_vohosts, os_ce6, os_ce7
 
 
 def hostfilter_chk(data):
@@ -237,7 +237,7 @@ def bundle_cleanup(data, targetbundle):
                 elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] >= c6_ver:
                     logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
                     del data[host]
-    return data
+    return data,c6_ver,c7_ver
 
 
 def ice_mist_check(hostname):
@@ -363,8 +363,13 @@ def compile_template(hosts, template, work_template, file_num):
     output = output.replace('v_ROLE', new_data['Details']['role'])
     output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
     output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
-    output = output.replace('v_BUNDLE', options.bundle)
     output = output.replace('v_HOSTS', ','.join(hosts))
+    if options.bundle == "current":
+        output = output.replace('--bundle v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
+        output = output.replace('-a v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
+        output = output.replace('-v v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
+    else:
+        output = output.replace('v_BUNDLE', options.bundle)
     if "migration" in template.lower():
         if len(active_hosts) != 0:
             output = output.replace('v_HOST', active_hosts[0])
@@ -406,8 +411,13 @@ def compile_pre_template(template):
     output = output.replace('v_ROLE', new_data['Details']['role'])
     output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
     output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
-    output = output.replace('v_BUNDLE', options.bundle)
     output = output.replace('v_HOSTS', ','.join(allhosts))
+    if options.bundle == "current":
+        output = output.replace('--bundle v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
+        output = output.replace('-a v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
+        output = output.replace('-v v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
+    else:
+        output = output.replace('v_BUNDLE', options.bundle)
 
     return output
 
@@ -433,8 +443,13 @@ def compile_post_template(template):
     output = output.replace('v_ROLE', new_data['Details']['role'])
     output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
     output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
-    output = output.replace('v_BUNDLE', options.bundle)
     output = output.replace('v_COMMAND', build_command)
+    if options.bundle == "current":
+        output = output.replace('--bundle v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
+        output = output.replace('-a v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
+        output = output.replace('-v v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
+    else:
+        output = output.replace('v_BUNDLE', options.bundle)
 
     return output
 
@@ -947,7 +962,7 @@ if __name__ == "__main__":
         cluster = ",".join(total_cluster_list)
 
     cleanup()
-    master_json, allhosts_for_vohosts = get_data(cluster, role, dc)
+    master_json, allhosts_for_vohosts, os_ce6, os_ce7 = get_data(cluster, role, dc)
     if "sayonara1a" == cluster.lower() and dc.lower() == "xrd" and role.lower() == "mnds":
         master_json = sayonara_zone_idb_check(master_json, dc)
     if options.hostpercent:
@@ -982,4 +997,3 @@ if __name__ == "__main__":
         group_worker(templateid, gsize)
     else:
         sys.exit(1)
-
