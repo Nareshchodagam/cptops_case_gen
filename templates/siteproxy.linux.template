@@ -9,7 +9,7 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "rm -rf /etc/cptrelease" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Write patching data in GUS
-Exec_with_creds: /opt/cpt/update_lh.py -l --case v_CASE --host v_HOSTS --bundle v_BUNDLE
+Exec_with_creds: /opt/cpt/update_lh.py -l --case v_CASE --host v_HOSTS
 
 - Set the boot device to HDD
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -s -d HDD" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
@@ -62,6 +62,6 @@ Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a disable -H v_HOSTS
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sitesproxy -c bigipcheck -d -threads -auto2
 
 - Update Patching data in GUS
-Exec_with_creds: /opt/cpt/update_lh.py --case v_CASE --host v_HOSTS --bundle v_BUNDLE --etime
+Exec_with_creds: /opt/cpt/update_lh.py --case v_CASE --host v_HOSTS --etime
 
 Exec: echo "Host v_HOSTS OS Bundle patching completed"
