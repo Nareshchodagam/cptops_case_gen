@@ -6,6 +6,7 @@ import re
 from optparse import OptionParser
 import os
 
+
 def groupType(role):
     # presets for certain roles for group type
     groupings = {'search': 'majorset',
@@ -33,11 +34,12 @@ def groupSize(role):
     groupsizes = {'search': 15,
                   'insights_iworker,insights_redis': 18,
                   'mnds,dnds': 4
-                      }
+                  }
     if role in groupsizes:
         return groupsizes[role]
     else:
         return 1
+
 
 def getData(filename):
     # Read in data from a file and return it
@@ -53,15 +55,17 @@ def getData(filename):
                 data.append(line)
     return data
 
+
 def genDCINST(data):
     clusters_dc = {}
     for l in data:
-        clusters,dc = l.split()
+        clusters, dc = l.split()
         clusters_dc[clusters] = dc.rstrip()
     output = "{ "
-    output = output + ', '.join(['"%s": "%s"' % (value,key) for (key,value) in clusters_dc.items()])
+    output = output + ', '.join(['"%s": "%s"' % (value, key) for (key, value) in clusters_dc.items()])
     output = output + " }"
     return output
+
 
 def sortHost(data):
     host_dict = {}
@@ -74,11 +78,13 @@ def sortHost(data):
             host_dict[dc] = [host.rstrip()]
     return host_dict
 
+
 def get_site(host):
-    inst,hfuc,g,site = host.split('-')
+    site = host.split('-')[-1]
     short_site = site.replace(".ops.sfdc.net", "")
     logging.debug(short_site)
     return short_site
+
 
 def getDCs(data):
     dcs = []
@@ -88,9 +94,10 @@ def getDCs(data):
             dcs.append(dc)
     return dcs
 
+
 def inputDictStrtoInt(m):
     # do a replace on the matching in m to remove quotes on ints
-    str = 'maxgroupsize": ' + m.group(1).replace('"','')
+    str = 'maxgroupsize": ' + m.group(1).replace('"', '')
     logging.debug(str)
     return str
 
@@ -119,13 +126,15 @@ def cmdformat(output_str):
     return output_str
 # W-4574049 End
 
+
 if __name__ == "__main__":
     parser = OptionParser()
     parser.set_defaults(dowork='all_updates')
     parser.add_option("-v", action="store_true", dest="verbose", default=False, help="verbosity")
     parser.add_option("-r", "--role", dest="role", help="role to be used")
     parser.add_option("-t", "--template", dest="template", help="template to be used")
-    parser.add_option("--infra", dest="infra", help="Infra type [Primary|Secondary|Primary and Secondary|Supporting Infrastructure")
+    parser.add_option("--infra", dest="infra",
+                      help="Infra type [Primary|Secondary|Primary and Secondary|Supporting Infrastructure")
     parser.add_option("-g", "--group", dest="group", help="group for subject")
     parser.add_option("-s", "--groupsize", dest="groupsize", help="max groupsize for subject")
     parser.add_option("-p", "--podgroups", dest="podgroups", help="File with pod groupings")
@@ -161,9 +170,10 @@ if __name__ == "__main__":
     parser.add_option("--serial", dest="serial", action="store_true", help="serial [ used in reimage]")
     parser.add_option("--filter_gia", dest="filtergia", action="store_true", default="False", help="Only create case for GIA")
     parser.add_option("-x", "--bpv2", dest="bpv2", action="store_true", default="False", help="Create cases with Build_Plan_v2")
-    parser.add_option("--custom_subject", dest="custom_subject",default="", help="to add manual subject")
-    parser.add_option("--straight", dest="straight",action="store_true", default=False, help="Flag for generation straight patch cases  for non active hosts")
-    #W-4574049 End
+    parser.add_option("--custom_subject", dest="custom_subject", default="", help="to add manual subject")
+    parser.add_option("--straight", dest="straight", action="store_true", default=False,
+                      help="Flag for generation straight patch cases  for non active hosts")
+    # W-4574049 End
 
     python = 'python'
     excludelist = ''
@@ -178,11 +188,10 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.DEBUG)
     if not options.casesubject:
 
-
         if options.patchset == "current":
             options.casesubject = "Current Patch Bundle"
         else:
-            options.casesubject =  options.patchset + " Patch Bundle"
+            options.casesubject = options.patchset + " Patch Bundle"
     else:
         options.casesubject += " Patch Bundle"
 
@@ -236,7 +245,7 @@ if __name__ == "__main__":
         os = options.os
 
     if options.skip_bundle:
-	skip_bundle = options.skip_bundle
+        skip_bundle = options.skip_bundle
     # End
 
     if options.podgroups and options.casetype == "hostlist" and options.hlgrp == "False":
@@ -245,16 +254,17 @@ if __name__ == "__main__":
         if options.group:
             subject = casesubject + " " + options.group
         else:
-            subject = casesubject + ": " + options.role.upper() + " " +options.custom_subject
+            subject = casesubject + ": " + options.role.upper() + " " + options.custom_subject
         dcs_list = ",".join(dcs)
 
         output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s %s --auto_close_case %s """\
-		     """--nolinebacker %s""" % (options.podgroups, options.template, options.patchset, grouping, hostv, options.auto_close_case,
-               					options.nolinebacker)
+                     """--nolinebacker %s""" % (options.podgroups, options.template, options.patchset, grouping, hostv, options.auto_close_case,
+                                                options.nolinebacker)
 
         output_str = cmdformat(output_str)
         print("%s" % output_str)
-        print("""python gus_cases_vault.py -T change --cstatus %s  -f templates/%s --infra "%s" -s "%s" -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt -r %s""" % (options.cstatus, patch_json, options.infra, subject, implplansection, dcs_list, options.role))
+        print("""python gus_cases_vault.py -T change --cstatus %s  -f templates/%s --infra "%s" -s "%s" -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt -r %s""" %
+              (options.cstatus, patch_json, options.infra, subject, implplansection, dcs_list, options.role))
     elif options.podgroups and options.casetype == "hostlist" and options.hlgrp == True:
         data = getData(options.podgroups)
         hostlist = sortHost(data)
@@ -262,43 +272,23 @@ if __name__ == "__main__":
             if options.group:
                 subject = casesubject + " " + options.group + " " + dc.upper()
             else:
-                subject = casesubject + ": " + options.role.upper() + " " +options.custom_subject
+                subject = casesubject + ": " + options.role.upper() + " " + options.custom_subject
             output_str = """python build_plan.py -l %s -t %s --bundle %s -T -M %s  %s --auto_close_case %s """\
                          """--nolinebacker %s""" % (options.podgroups, options.template, options.patchset, grouping,
                                                     hostv, options.auto_close_case, options.nolinebacker)
             output_str = cmdformat(output_str)
             output_str = output_str + '  -l "%s"' % ",".join(hosts)
             print("%s" % output_str)
-            print("""python gus_cases_vault.py -T change --cstatus %s -f templates/%s --infra "%s" -s "%s " -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt -r %s""" % (options.cstatus, patch_json,options.infra,subject,implplansection,dc, options.role))
+            print("""python gus_cases_vault.py -T change --cstatus %s -f templates/%s --infra "%s" -s "%s " -k %s -l output/summarylist.txt -D %s -i output/plan_implementation.txt -r %s""" %
+                  (options.cstatus, patch_json, options.infra, subject, implplansection, dc, options.role))
 
     elif options.podgroups and not options.casetype:
         data = getData(options.podgroups)
         for l in data:
-            try:
-                pods, dc, sp, cl_status = l.split()
-                template=options.template
-                #if cl_status in ["PROVISIONING","DECOM"] and options.role.lower() != 'ffx':
-                #    template = "straight-patch-Goc++"
-                #else:
-                #    template=options.template
-                if sp:
-                    # Create a dict containing the options used for input to build_plan with SP option passed
-                    opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                                  "grouping": grouping, "maxgroupsize": groupsize,
-                                  "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
-            except:
-                pods, dc, cl_status = l.split()
-                # Create a dict containing the options used for input to build_plan for Chatter
-                pods, dc, sp, cl_status = l.split()
-                template = options.template
-                if cl_status in ["PROVISIONING", "DECOM"] and options.role.lower() != 'ffx':
-                    template = "straight-patch-Goc++"
-                else:
-                    template = options.template
-                # Create a dict containing the options used for input to build_plan
-                opt_bp = {"clusters": pods, "datacenter": dc.lower(), "roles": options.role,
-                              "grouping": grouping, "maxgroupsize": groupsize,
-                              "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
+            pods, dc, sp, cl_status = l.split()
+            template = options.template
+            opt_bp = {"superpod": sp, "clusters": pods, "datacenter": dc.lower(), "roles": options.role, "grouping": grouping,
+                      "maxgroupsize": groupsize, "templateid": template, "dr": options.dr, "cl_opstat": cl_status}
             case_unique_id = "_".join([opt_bp["roles"], opt_bp["datacenter"], opt_bp["superpod"], opt_bp["clusters"], site_flag])
             opt_gc = {}
             if options.filter:
@@ -308,16 +298,14 @@ if __name__ == "__main__":
                 opt_bp["regexfilter"] = options.regexfilter
                 host_pri_sec = opt_bp.get("regexfilter").split('=')[1]
                 cluster_status = opt_bp["cl_opstat"]
-#This section will allow to control the cases creation template to be used once cluster status is passed in preset. Refactoring needed
+# This section will allow to control the cases creation template to be used once cluster status is passed in preset. Refactoring needed
             if options.clusteropstat:
                 for cl_status in options.clusteropstat.split(','):
                     if opt_bp["cl_opstat"] == cl_status:
-                        opt_bp["cl_opstat"] = cl_status
                         opt_bp["templateid"] = 'straight-patch-Goc++'
                         opt_bp["grouping"] = 'all'
                         opt_bp["maxgroupsize"] = '25'
-            else:
-                pass
+                        break
             cluster_status = opt_bp["cl_opstat"]
 
             if options.hostopstat:
@@ -329,25 +317,27 @@ if __name__ == "__main__":
             logging.debug(opts_str)
             # Added linebacker -  W-3779869
             if options.bpv2 == True:
-                output_str = """python bp_v2.py --bundle %s -G '%s' -v --dowork %s""" % (options.patchset, opts_str, options.dowork)
+                output_str = """python bp_v2.py --bundle %s -G '%s' -v --dowork %s""" % (
+                    options.patchset, opts_str, options.dowork)
             else:
                 output_str = """python build_plan.py -C --bundle %s -G '%s' --taggroups %s %s  --auto_close_case %s -v""" \
-                             """ --nolinebacker %s""" % (options.patchset, opts_str, options.taggroups, hostv, options.auto_close_case, options.nolinebacker)
+                             """ --nolinebacker %s""" % (options.patchset, opts_str, options.taggroups,
+                                                         hostv, options.auto_close_case, options.nolinebacker)
             if options.straight:
-                output_str = """python bp_v2.py --bundle %s -G '%s' -v --dowork %s --straight""" % (options.patchset, opts_str, options.dowork)
+                output_str = """python bp_v2.py --bundle %s -G '%s' -v --dowork %s --straight""" % (
+                    options.patchset, opts_str, options.dowork)
             output_str = cmdformat(output_str)
             print(output_str)
             if options.regexfilter:
-                subject = casesubject + ": " + options.role.upper() + " " +options.custom_subject+ " " + dc.upper() + " " + pods + " " + site_flag + " " + host_pri_sec + "[" + cluster_status + "]"
+                subject = casesubject + ": " + options.role.upper() + " " + options.custom_subject + " " + dc.upper() + " " + pods + \
+                    " " + site_flag + " " + host_pri_sec + "[" + cluster_status + "]"
             else:
-                subject = casesubject + ": " + options.role.upper() + " " +options.custom_subject+ " " + dc.upper() + " " + pods + " " + site_flag + "[" + cluster_status + "]"
+                subject = casesubject + ": " + options.role.upper() + " " + options.custom_subject + " " + dc.upper() + \
+                    " " + pods + " " + site_flag + "[" + cluster_status + "]"
             logging.debug(subject)
             if options.group:
                 subject = subject + " " + options.group
-            #if not re.search(r"json", options.bundle):
+            # if not re.search(r"json", options.bundle):
             #    options.bundle = options.bundle + "-patch.json"
-            print('python gus_cases_vault.py -T change --cstatus {0} -f templates/{1} --inst {2} --infra "{3}" -s "{4}" -k {5} -l output/{6}_summarylist.txt -D {7} -i output/{6}_plan_implementation.txt -r {8}'.format(options.cstatus, patch_json, pods, options.infra, subject, implplansection, case_unique_id, dc, options.role))
-
-
-
-
+            print('python gus_cases_vault.py -T change --cstatus {0} -f templates/{1} --inst {2} --infra "{3}" -s "{4}" -k {5} -l output/{6}_summarylist.txt -D {7} -i output/{6}_plan_implementation.txt -r {8} --sp {9}'.format(
+                options.cstatus, patch_json, pods, options.infra, subject, implplansection, case_unique_id, dc, options.role, sp))

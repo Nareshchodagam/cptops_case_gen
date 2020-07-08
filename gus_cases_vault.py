@@ -15,7 +15,7 @@ import json
 import sys
 import os
 from datetime import datetime, date, time, timedelta
-from caseToblackswan import UploadDataToBlackswanV1, ApiKeyTest
+from caseToblackswan import UploadDataToBlackswanV1, ApiKeyTest, GetHostField
 
 try:
     import yaml
@@ -97,11 +97,84 @@ def create_incident(cat, subcat, subject, desc, dc, status, priority):
     return caseId
 
 
+def close_case(caseId, session):
+    logging.info("Case didn't match the requirements, So closing it..")
+    gusObj = Gus()
+    closeDict = {"Status": "Closed - Not Executed"}
+    if gusObj.close_case(closeDict, caseId, session):
+        caseNum = getCaseNum(caseId, session)
+        print("Successfully closed the case:- {0}".format(caseNum["CaseNumber"]))
+    sys.exit(0)
+
+
 def create_implementation_plan(implanDict, caseId, session):
     logging.debug(implanDict)
     gusObj = Gus()
-    case = gusObj.add_implementation_row(caseId, implanDict, session)
-    logging.debug(case)
+    impl_plan = gusObj.add_implementation_row(caseId, implanDict, session)
+    if not impl_plan:
+        close_case(caseId, session)
+    logging.debug(impl_plan)
+    return impl_plan["id"]
+
+
+def get_ci_fullPath(dc, sp, pods, role, caseId, session, hosts):
+    after_role_filter = []
+    after_cluster_filter = []
+    if len(role.split(",")) > 1:
+        after_role_filter = GetHostField("roleName", hosts, apikey)
+    if len(pods.split(",")) > 1:
+        after_cluster_filter = GetHostField("clusterName", hosts, apikey)
+
+    def _fullpath_for_role(role, pods):
+        def _configure_cifullPath(sp_level=False, cluster_level=False, basic_level=False):
+            Sfdc = "Salesforce.SFDC_Core"
+            if sp_level:
+                ci_fullPath = Sfdc+".{0}.{0}-{1}.{2}.{3}".format(dc.upper(), sp.upper(), pods.upper(), role.lower())
+            elif cluster_level:
+                ci_fullPath = Sfdc+".{0}.{1}.{2}".format(dc.upper(), pods.upper(), role.lower())
+            elif basic_level:
+                ci_fullPath = Sfdc+".{0}.{1}".format(dc.upper(), role.lower())
+            return ci_fullPath
+
+        gusObj = Gus()
+        ci_fullPath = _configure_cifullPath(sp_level=True)
+        cItem = gusObj.get_cItem_id(ci_fullPath, session)
+        if not cItem["records"]:
+            ci_fullPath = _configure_cifullPath(cluster_level=True)
+            cItem = gusObj.get_cItem_id(ci_fullPath, session)
+            if not cItem["records"]:
+                ci_fullPath = _configure_cifullPath(basic_level=True)
+                cItem = gusObj.get_cItem_id(ci_fullPath, session)
+        if not cItem:
+            close_case(caseId, session)
+        return cItem["records"][0]["Id"]
+    list_of_final_ids = []
+    if not after_role_filter and not after_cluster_filter:
+        full_path_id = _fullpath_for_role(role, pods)
+        list_of_final_ids.append(full_path_id)
+    elif after_role_filter and not after_cluster_filter:
+        for role in after_role_filter:
+            full_path_id = _fullpath_for_role(role, pods)
+            list_of_final_ids.append(full_path_id)
+    elif not after_role_filter and after_cluster_filter:
+        for pods in after_cluster_filter:
+            full_path_id = _fullpath_for_role(role, pods)
+            list_of_final_ids.append(full_path_id)
+    else:
+        for role in after_role_filter:
+            for pods in after_cluster_filter:
+                full_path_id = _fullpath_for_role(role, pods)
+                list_of_final_ids.append(full_path_id)
+    return list_of_final_ids
+
+
+def create_configuration_item(cItemDict, session):
+    logging.debug(cItemDict)
+    gusObj = Gus()
+    c_Item = gusObj.add_configuration_item(cItemDict, session)
+    if not c_Item:
+        close_case(caseId, session)
+    logging.debug(c_Item)
 
 
 def createLogicalConnector(Dict, caseId, session):
@@ -182,7 +255,7 @@ def gen_time():
     return start_time.isoformat(), end_time.isoformat()
 
 
-def create_implamentation_planner(data, caseId, session, role=None, insts=None, DCS=None):
+def create_implamentation_planner(data, caseId, session, role=None, insts=None, DCS=None, superpod=None, hosts=None, cItem_attachment=False):
     logging.debug(data)
     logging.debug(insts)
     if DCS != None:
@@ -209,11 +282,9 @@ def create_implamentation_planner(data, caseId, session, role=None, insts=None, 
         if re.search(r'-', dc):
             dc, sp = dc.split('-')
         data['Details']['SM_Data_Center__c'] = dc
-        ##data['Details']['SM_Instance_List__c'] = data['Details']['SM_Instance_List__c'].replace('v_INSTANCES', insts.upper())
-        data['Details']['SM_Instance_List__c'] = insts.upper()
-        logging.debug(data['Details']['SM_Instance_List__c'])
         details['SM_Estimated_End_Time__c'] = end_time
         details['SM_Estimated_Start_Time__c'] = start_time
+        data['Details']['SM_Instance_List__c'] = ('' if cItem_attachment else insts.upper())
         print(details)
         data['Details']['SM_Implementation_Steps__c'] = '\n'.join(data['Implementation_Steps'])
         if role != None:
@@ -224,7 +295,16 @@ def create_implamentation_planner(data, caseId, session, role=None, insts=None, 
             data['Details']['SM_Implementation_Steps__c'] = data['Details']['SM_Implementation_Steps__c'].replace(
                 'v_Case', case_number)
         logging.debug(data['Details'])
-        create_implementation_plan(data['Details'], caseId, session)
+        if cItem_attachment:
+            impl_plan_id = create_implementation_plan(data['Details'], caseId, session)
+            ci_fullPath_ids = get_ci_fullPath(dc, superpod, insts, role, caseId, session, hosts)
+            for fullpath_id in ci_fullPath_ids:
+                cItemDict = {}
+                cItemDict["Change_Implementation__c"] = impl_plan_id
+                cItemDict["Configuration_Item__c"] = fullpath_id
+                create_configuration_item(cItemDict, session)
+        else:
+            create_implementation_plan(data['Details'], caseId, session)
 
 
 def createImplamentationPlannerYAML(data, caseId, session, role=None, DCS=None):
@@ -281,15 +361,18 @@ def get_json_change_details(filename, subject, hosts, infratype, full_instances,
         details['Subject'] = subject
     summary = "Services Impacted: Services which belong to the role " + role + "\n Risk if change is delayed: Server/s will be vulnerable to external attacks"
     details['Risk-Summary'] = summary
-
-    if hosts != None:
-        hl_len = str(len(hosts))
-        if re.search("hdaas", hosts[0]):
-            msg = "\n\nHostlist:\n" + "Check attached hostlist"
-        else:
-            msg = "\n\nHostlist:\n" + "\n".join(hosts)
-        details['Description'] += msg
-        details['Subject'] = subject + " [" + hl_len + "]"
+    try:  # added this try method to exit incase the hostlist file is empty
+        if hosts != None:
+            hl_len = str(len(hosts))
+            if re.search("hdaas", hosts[0]):
+                msg = "\n\nHostlist:\n" + "Check attached hostlist"
+            else:
+                msg = "\n\nHostlist:\n" + "\n".join(hosts)
+            details['Description'] += msg
+            details['Subject'] = subject + " [" + hl_len + "]"
+    except IndexError:
+        logging.error("Hostlist file(summarylist.txt) is empty, Please check ")
+        sys.exit(0)
     details['Infrastructure-Type'] = infratype
     details['TestingMethod'] = "Auto"
     details['AutoTestEnv'] = "PRD"
@@ -299,10 +382,9 @@ def get_json_change_details(filename, subject, hosts, infratype, full_instances,
         details['Backout_plan'] = "Reimage the host to old version using Gingham /Racktastic"
         details['Rollback_process'] = "Whether the change is successful/failed , the host can be reimaged to older version when required"
         details['Patch-Desc'] = "Reimage the host to latest OS version"
-    else :
+    else:
         details['Backout_plan'] = " 1.Rollback to the older kernel.\n 2.Rollback all the package updates. \n 3.If there are any inconsistencies, re-image the host"
         details['Rollback_process'] = "Kernel rollback is properly tested.\nWhether the change is successful/failure , the steps in the backout plan can be perfomed"
-
 
     if full_instances != '':
         details['SM_Instance_List__c'] = full_instances
@@ -345,6 +427,8 @@ def attach_file(filename, name, cId, session):
     fObj = open(filename)
     attachRes = gusObj.attach(fObj, name, cId, session)
     fObj.close()
+    if not attachRes:
+        close_case(cId, session)
     logging.debug("%s %s %s %s" % (filename, name, cId, session))
     logging.debug(attachRes)
     return attachRes
@@ -501,12 +585,10 @@ if __name__ == '__main__':
             -k templates/shared-nfs-planer.json -l shared-nfs-sp3.txt
     """
     parser = OptionParser(usage)
-    parser.add_option("-c", "--case", dest="caseId",
-                      help="The caseId of the case to attach the file ")
+    parser.add_option("-c", "--case", dest="caseId", help="The caseId of the case to attach the file ")
     parser.add_option("-f", "--filename", dest="filename", help="The name of the file to attach")
     parser.add_option("-l", "--hostlist", dest="hostlist", help="The hostlist for the change")
-    parser.add_option("-L", "--logicalHost", dest="logicalHost", action="store_true",
-                      help="Create Logical host connectors")
+    parser.add_option("-L", "--logicalHost", dest="logicalHost", action="store_true", help="Create Logical host connectors")
     parser.add_option("-V", "--vplan", dest="vplan", help="The verification plan for the change")
     parser.add_option("-i", "--iplan", dest="iplan", help="The implementation plan for the change")
     parser.add_option("-k", "--implanner", dest="implanner", help="The implementation planner json for the change")
@@ -522,20 +604,15 @@ if __name__ == '__main__':
     parser.add_option("-b", "--subcategory", dest="subcategory", help="The subcategory of the case")
     parser.add_option("-A", "--submit", action="store_true", dest="submit", help="Submit the case for approval")
     parser.add_option("--inst", dest="inst", help="List of comma separated instances")
+    parser.add_option("--sp", dest="superpod", help="Super Pod details")
     parser.add_option("--infra", dest="infra", help="Infrastructure type")
     parser.add_option("-n", "--new", action="store_true", dest="newcase",
-                      help=
-                      """Create a new case. Required args :
-                      Category, SubCategory, Subject, Description, DC, Status and Prioriry.
-                      -n -C Systems -b SubCategory Hardware -s Subject 'DNS issue 3' -d 'Mail is foobar\'d, DSET Attached.' -D ASG -S New -P Sev3
-                      """)
+                      help="""Create a new case. Required args : Category, SubCategory, Subject, Description, DC, Status and Prioriry.-n -C Systems -b SubCategory Hardware -s Subject 'DNS issue 3' -d 'Mail is foobar\'d, DSET Attached.' -D ASG -S New -P Sev3""")
     parser.add_option("-a", "--attach", dest="attach", action="store_true", help="Attach a file to a case")
     parser.add_option("-t", "--comment", dest="comment", help="text to add to a case comment")
     parser.add_option("-y", "--yaml", dest="yaml", action="store_true", help="patch details via yaml file")
-    parser.add_option("-u", "--update", action="store_true", dest="update",
-                      help="Required if you want to update a case")
-    parser.add_option("-v", action="store_true", dest="verbose", default=False,
-                      help="verbosity")  # will set to False later
+    parser.add_option("-u", "--update", action="store_true", dest="update", help="Required if you want to update a case")
+    parser.add_option("-v", action="store_true", dest="verbose", default=False, help="verbosity")  # will set to False later
     parser.add_option("--cstatus", dest="pre_appr", help="Change cases status to Approved")
     (options, args) = parser.parse_args()
     if options.verbose:
@@ -610,8 +687,7 @@ if __name__ == '__main__':
             except:
                 print('problem with yaml loading')
         else:
-            jsoncase = get_json_change_details(options.filename, options.subject, hosts, infratype, full_instances,
-                                               options.role)
+            jsoncase = get_json_change_details(options.filename, options.subject, hosts, infratype, full_instances, options.role)
         logging.debug(jsoncase)
 
         # Checking for Atlas API KEY
@@ -631,7 +707,8 @@ if __name__ == '__main__':
         if options.role:
             if options.inst:
                 insts = options.inst
-            create_implamentation_planner(planner_json, caseId, session, options.role, insts=insts, DCS=options.dc)
+            create_implamentation_planner(planner_json, caseId, session, role=options.role, insts=insts,
+                                          DCS=options.dc, superpod=options.superpod, hosts=hosts, cItem_attachment=True)
         else:
             if options.dc:
                 if options.yaml:
@@ -676,10 +753,9 @@ if __name__ == '__main__':
             update_risk_summary(caseId, session, options.role)
 
         # Push case Details to blackswan
-        case_unique_id =  options.iplan.split("/")[1].split("_plan")[0]
+        case_unique_id = options.iplan.split("/")[1].split("_plan")[0]
         UploadDataToBlackswanV1(caseNum, case_unique_id, apikey)
         # END#
-
 
     elif options.attach:
         if options.filepath:
