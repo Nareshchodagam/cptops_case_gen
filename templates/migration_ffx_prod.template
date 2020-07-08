@@ -7,7 +7,7 @@ Exec_with_creds: /opt/cpt/bin/check_prod.py -i v_CLUSTER -l primary
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - get version numbers for apps
-release_runner.pl  -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include) > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base,lightcycle-snapshot,mandm-agent -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include) > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
 
 - Extract app versions from output data.
 Exec: /opt/cpt/bin/get_versions.py -f ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt -o ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt --versions
@@ -39,10 +39,10 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status IN
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_bootdevice.py -r -v" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Install HP raid utils on required CNC's
-release_runner.pl  --forced_host $(cat ~/v_CASE_cnc) -c sudo_cmd -m "yum install hp-raid-utilities -y " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host $(cat ~/v_CASE_cnc) -c sudo_cmd -m "yum install hp-raid-utilities -y " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Installing Vanilla Image
-Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE --disk_config standard --preserve
 
 - Checking for awaiting_deployment status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous image
@@ -51,7 +51,7 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous image
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a erasehostname
 
 - Deploying App specific image
-Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a deploy --role v_ROLE --cluster v_CLUSTER --superpod v_SUPERPOD
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a deploy --role v_ROLE --cluster v_CLUSTER --superpod v_SUPERPOD --preserve
 
 Exec: echo 'Waiting for status change to deployed'
 
@@ -87,7 +87,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "hwclock --systohc" -threa
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpd" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" 
 
 - Deploy apps
-release_runner.pl  -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt`
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt`
 
 - Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -device_role v_ROLE -host v_HOSTS -c start_server -threads -auto2 -host_status v_HO_OPSTAT -cluster_status v_CL_OPSTAT
