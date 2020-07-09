@@ -1,8 +1,13 @@
 
 
-
 - Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- get version numbers for apps
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include ) > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
+
+- Extract app versions from output data.
+Exec: /opt/cpt/bin/get_versions.py -f ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt -o ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt --versions
 
 - Writing CNC info to v_CASE_hostinfo file
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
@@ -14,7 +19,7 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a enable -H v_HOSTS
 
 - Stop the running application
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n replikator -k -i"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product ajna-rest-endpoint -device_role v_ROLE  -host v_HOSTS -c stop_server -auto2 -threads
 
 - Set the iDB status of the hosts to IN_MAINTENANCE
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status IN_MAINTENANCE
@@ -66,17 +71,11 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpdate &
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "hwclock --systohc" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpd" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Copy remote scripts to the target hosts
-release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+- Deploy apps
+release_runner.pl -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -threads  -property stop_server_wait=0 -no_lb  -auto2 -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt`
 
-- Installing the replicator package
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "yum install -y replikator" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
-- Start Application
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start replikator.service"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
-- Validate Application
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n replikator -a"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Validate app
+release_runner.pl -invdb_mode -c antstatuscheck_with_retries -host v_HOSTS -product ajna-rest-endpoint -superpod v_SUPERPOD -cluster v_CLUSTER -auto2 -threads
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a disable -H v_HOSTS

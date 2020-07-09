@@ -7,14 +7,24 @@ release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "l
 - Writing CNC info to v_CASE_hostinfo file
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
 
-- Check the console connectivity
+- Check the console
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
 
-- Disable nagios monitoring
+- Disable monitoring
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a enable -H v_HOSTS
 
-- Stop the running application
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n replikator -k -i"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- force bin scripts executable
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "chmod +x ./remote_transfer/*.*" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+-stop smarts
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_smarts.py -k" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+-verify smarts stopped
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_smarts.py -g -n 'NOT RUNNING'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+-stop focus
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n focus -c /opt/sr-tools/focus/tomcat/bin/shutdown.sh -k" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
 
 - Set the iDB status of the hosts to IN_MAINTENANCE
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status IN_MAINTENANCE
@@ -44,7 +54,7 @@ Exec: echo 'Waiting for status change to deployed'
 - Checking for deployed status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous deploy
 
-Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 1200
+Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 1800
 
 - Refresh kerberos ticket
 Exec: kinit -R
@@ -67,20 +77,26 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "hwclock --systohc" -threa
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpd" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Copy remote scripts to the target hosts
-release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Installing the replicator package
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "yum install -y replikator" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Installing required packages
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "yum install -y sfdc-python27-urllib3 sfdc-python27-chardet sfdc-python27-certifi sfdc-python27-idna" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Start Application
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start replikator.service"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Validate Application
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_service.py -n replikator -a"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Copy new ifcfg-eth into place
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "cp ./remote_transfer/ifdown-eth /etc/sysconfig/network-scripts/ifdown-eth" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Enable nagios monitoring
+- Verify cksum of new ifcfg-eth
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "chmod +x ./remote_transfer/verify_if-eth.sh; ./remote_transfer/verify_if-eth.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+
+-verify smarts started
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_smarts.py -g -n 'RUNNING'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+
+
+- Enable GOC++ alerts ("disable" alert suppression)
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a disable -H v_HOSTS
 
 - Auto pause case if case status is not equal to In Progres.
 Exec_with_creds: /opt/cpt/gus_case_mngr.py -c v_CASE --pause -y
-
