@@ -425,7 +425,7 @@ def compile_post_template(template):
 
     with open(template, 'r') as out:
         output = out.read()
-    if re.search(r"mnds|dnds", new_data['Details']['role'], re.IGNORECASE) and hbase_rnd_idb_flag: 
+    if re.search(r"mnds|dnds", new_data['Details']['role'], re.IGNORECASE) and hbase_rnd_idb_flag:
         output = output.replace('/opt/cpt/bin/update_patching_status.py --cluster v_CLUSTER','/opt/cpt/bin/update_patching_status.py --cluster v_CLUSTER;echo "skip_the_failure"')
     output = output.replace('v_CLUSTER', new_data['Details']['cluster'])
     output = output.replace('v_DATACENTER', new_data['Details']['dc'])
@@ -455,7 +455,7 @@ def compile_vMNDS_(output):
 
     # Load the template data into variable.
     v_MNDS = "".join(mndsData)
-    def _replace_skip_steps(output): 
+    def _replace_skip_steps(output):
         """Function to append the echo skip_the_failure step to ignore the failures if any
         https://gus.lightning.force.com/lightning/r/0D5B0000016a5nj/view
         """
@@ -472,7 +472,7 @@ def compile_vMNDS_(output):
         return output
 
     # Replace the v_MNDS variable in Hbase Mnds template.
-    try:       
+    try:
         if re.search(r"mnds", new_data['Details']['role'], re.IGNORECASE) and hbase_rnd_idb_flag:
             logging.debug(v_MNDS)
             output = output.replace('v_MNDS', v_MNDS)
@@ -561,6 +561,8 @@ def product_rrcmd(role_name) :
         'mandm-zookeeper': ['ajna_zk'],
         'ajna-topic-deployer': ['ajna_zk'],
         'ajna-topics-api': ['ajna_zk'],
+        'ajna-rest-endpoint': ['funnel'],
+        'pbspectrum': ['pbsmatch'],
         'mq-broker': ['mq'],
         'acs': ['acs'],
         'searchserver': ['search'],
@@ -982,4 +984,3 @@ if __name__ == "__main__":
         group_worker(templateid, gsize)
     else:
         sys.exit(1)
-

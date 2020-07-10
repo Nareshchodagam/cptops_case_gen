@@ -28,10 +28,6 @@ release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product b
 - Remove host from cluster
 Exec_with_creds: /usr/local/bin/ambari-manage/decom_ambari_host.py  --hostname v_HOSTS --case v_CASE
 
-- Refresh kerberos ticket
-Exec: kinit -R
-
-
 - Cluster Validation
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "python /home/sfdc/bigdops/cluster_validator/gatekeeper.py -c" -host v_CLUSTER-mnds1-1-v_DATACENTER
 
@@ -94,19 +90,22 @@ Exec_with_creds: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
 Exec: sleep 30
 
+- puppet run
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "puppet agent -t; if [ \$? -eq 2 ]; then echo 0; fi|grep 0" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
 - verify data mount points
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "df -h |grep data-[0,1,2,3] |wc -l |grep 4" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- puppet run
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "puppet agent -t" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Enable Host and start service
 Exec_with_creds: /usr/local/bin/ambari-manage/enable_node.py --comment "CE7 Migration" --hostname v_HOSTS -v
 
 - perforce bigdata package install and refresh configs
-release_runner.pl -invdb_mode -cluster DEV5HDAAS -superpod NONE -product bigdata-util -threads  -dc prd -no_irc  -auto2 -c cmd -m "if [ ! -d /home/sfdc/current ]; then mkdir -p /home/sfdc/current; fi" -host dev5hdaas-dnds1-1-prd
-release_runner.pl -invdb_mode -cluster DEV5HDAAS -superpod NONE -product bigdata-tephra,bigdata-kerberos,bigdata-hbase,bigdata-migration,bigdata-otsdb,bigdata-util,bigdata-hbase-coprocessors,bigdata-conf,bigdata-hbase-sor,bigdata-hadoop,bigdata-apps,bigdata-hbase-monitoring,bigdata-zookeeper,bigdata-idb-conf,bigdata-spark,bigdata-schema -threads -no_lb -no-recheck_on_fail -no_monitor -auto2 -stage runtime -nostart -c install -manifests bigdata-tephra__hbase.9_prod__18127207.rmf,bigdata-kerberos__hbase.10_prod__21471015.rmf,bigdata-hbase__hbase.10_prod__21472576.rmf,bigdata-migration__hbase.10_prod__24531633.rmf,bigdata-otsdb__hbase.10_prod__21472576.rmf,bigdata-util__hbase.10_prod__24462814.rmf,bigdata-hbase-coprocessors__hbase.10_prod__21471015.rmf,bigdata-conf__hbase.10_prod__24543352.rmf,bigdata-hbase-sor__hbase.10_prod__21471015.rmf,bigdata-hadoop__hbase.10_prod__21471015.rmf,bigdata-apps__hbase.10_prod__21776932.rmf,bigdata-hbase-monitoring__hbase.10_prod__21776932.rmf,bigdata-zookeeper__hbase.10_prod__21471015.rmf,bigdata-idb-conf__hbase.10_prod__21471015.rmf,bigdata-spark__hbase.9_prod__18127207.rmf,bigdata-schema__hbase.10_prod__24462814.rmf -host dev5hdaas-dnds1-1-prd
-release_runner.pl -invdb_mode -cluster DEV5HDAAS -superpod NONE -product bigdata-util -threads  -dc prd -no_irc  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant --build_props_override ~/current/bigdata-util/util/build/ambari.properties  -- cluster refreshConfigs  -c disable -s enable  -e ZookeeperController,HadoopController,JournalController,HBaseController" -host dev5hdaas-dnds1-1-prd
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -dc v_DATACENTER -no_irc  -auto2 -c cmd -m "if [ ! -d /home/sfdc/current ]; then mkdir -p /home/sfdc/current; fi" -host v_HOSTS
+
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-tephra,bigdata-kerberos,bigdata-hbase,bigdata-migration,bigdata-otsdb,bigdata-util,bigdata-hbase-coprocessors,bigdata-conf,bigdata-hbase-sor,bigdata-hadoop,bigdata-apps,bigdata-hbase-monitoring,bigdata-zookeeper,bigdata-idb-conf,bigdata-spark,bigdata-schema -threads -no_lb -no-recheck_on_fail -no_monitor -auto2 -stage runtime -nostart -c install -manifests bigdata-tephra__hbase.9_prod__18127207.rmf,bigdata-kerberos__hbase.10_prod__21471015.rmf,bigdata-hbase__hbase.10_prod__21472576.rmf,bigdata-migration__hbase.10_prod__24531633.rmf,bigdata-otsdb__hbase.10_prod__21472576.rmf,bigdata-util__hbase.10_prod__24462814.rmf,bigdata-hbase-coprocessors__hbase.10_prod__21471015.rmf,bigdata-conf__hbase.10_prod__24543352.rmf,bigdata-hbase-sor__hbase.10_prod__21471015.rmf,bigdata-hadoop__hbase.10_prod__21471015.rmf,bigdata-apps__hbase.10_prod__21776932.rmf,bigdata-hbase-monitoring__hbase.10_prod__21776932.rmf,bigdata-zookeeper__hbase.10_prod__21471015.rmf,bigdata-idb-conf__hbase.10_prod__21471015.rmf,bigdata-spark__hbase.9_prod__18127207.rmf,bigdata-schema__hbase.10_prod__24462814.rmf -host v_HOSTS
+
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -dc v_DATACENTER -no_irc  -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant --build_props_override ~/current/bigdata-util/util/build/ambari.properties  -- cluster refreshConfigs  -c disable -s enable  -e ZookeeperController,HadoopController,JournalController,HBaseController" -host v_HOSTS
 
 - Enable GOC++ alerts ("disable" alert suppression)
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a disable -H v_HOSTS
