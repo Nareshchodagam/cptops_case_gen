@@ -36,8 +36,7 @@ Exec_with_creds: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-check.py -v v_BUNDLE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Start the application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product argus_metrics -host v_HOSTS -c sudo_cmd -m "/home/sfdc/start-stop.sh start" -threads -auto2
-
+release_runner.pl -forced_host $(cat ~/08366308_include) -c sudo_cmd -m "grep -qi DAEMON_ENABLED=\\\"true\\\" /home/sfdc/argus.rc; if [ \$? -eq 0 ]; then sleep 180 ; else bash /home/sfdc/start-stop.sh start && sleep 180;fi" -threads -auto2
 
 - Verify app
 release_runner.pl -forced_host v_HOSTS -c  sudo_cmd -m "runuser -l sfdc -c '/home/sfdc/check-argus-services.py'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
