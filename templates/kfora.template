@@ -34,7 +34,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "reboot" -property "ssh_ti
 Exec_with_creds: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 
 - Validate that the hosts have been patched and are running the correct version
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/orb-check.py -v v_BUNDLE"  -property "synner=1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_patchset.py --bundle v_BUNDLE"  -property "synner=1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Start KFORA service
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start kfora"  -property "synner=1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
