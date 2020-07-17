@@ -221,22 +221,13 @@ def bundle_cleanup(data, targetbundle):
         # if any other specific bundle values are passed
         c7_ver = c6_ver = targetbundle
     if "migration" not in templateid.lower() :
-        if targetbundle.lower() in ["current", "canary"]:
-            for host in data.keys():
-                if data[host]['OS_Version'] == "7" and data[host]['Bundle'] >= c7_ver:
-                    logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
-                    del data[host]
-                elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] >= c6_ver:
-                    logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
-                    del data[host]
-        else:
-            for host in data.keys():
-                if data[host]['OS_Version'] == "7" and data[host]['Bundle'] >= c7_ver:
-                    logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
-                    del data[host]
-                elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] >= c6_ver:
-                    logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
-                    del data[host]
+        for host in data.keys():
+            if data[host]['OS_Version'] == "7" and data[host]['Bundle'] >= c7_ver:
+                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                del data[host]
+            elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] >= c6_ver:
+                logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
+                del data[host]
     return data, c6_ver, c7_ver
 
 
@@ -333,7 +324,6 @@ def replace_common_variables(output):
     if options.bundle == "current":
         output = output.replace('--bundle v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
         output = output.replace('-a v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
-        output = output.replace('-v v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
     else:
         output = output.replace('v_BUNDLE', options.bundle)
     return output
