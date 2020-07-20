@@ -323,7 +323,7 @@ def replace_common_variables(output):
     output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
     if options.bundle == "current":
         output = output.replace('--bundle v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
-        output = output.replace('-a v_BUNDLE', "--osce6 {0} --osce7 {1}".format(os_ce6, os_ce7))
+        output = output.replace('-a v_BUNDLE', "-6 {0} -7 {1}".format(os_ce6, os_ce7))
     else:
         output = output.replace('v_BUNDLE', options.bundle)
     return output
