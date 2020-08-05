@@ -18,6 +18,9 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
 - Check the console
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
 
+- Check for artifact errors
+Exec: yum clean all;yum repolist|grep -i error;echo $? |grep 1
+
 - Disable monitoring
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a enable -H v_HOSTS
 
@@ -37,6 +40,9 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE
 
 - Checking for awaiting_deployment status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous image
+
+- Check for iDB hardware_provisioning status
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a idb_check --status HW_PROVISIONING
 
 - Removing IDB records of the hosts
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a erasehostname
