@@ -15,6 +15,9 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
 - Check the console connectivity
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
 
+- Check for artifact errors
+Exec: yum clean all;yum repolist|grep -i error;echo $? |grep 1
+
 - get version numbers for apps
 release_runner.pl  -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include)  > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
 
@@ -40,6 +43,9 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE
 
 - Checking for awaiting_deployment status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous image
+
+- Check for iDB hardware_provisioning status
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a idb_check --status HW_PROVISIONING
 
 - Removing IDB records of the hosts
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a erasehostname

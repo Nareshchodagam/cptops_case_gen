@@ -1,13 +1,13 @@
 
 
-- To verify if site is PROD
+- To verify if site is DR
 Exec_with_creds: /opt/cpt/bin/check_prod.py -i v_CLUSTER -l secondary
 
 - Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - get version numbers for apps
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base,lightcycle-snapshot,mandm-agent -c versioncheck -drnostart -threads -auto2 -host $(cat ~/v_CASE_include) > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base,lightcycle-snapshot,mandm-agent -c versioncheck -drn -threads -auto2 -host $(cat ~/v_CASE_include) > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
 
 - Extract app versions from output data.
 Exec: /opt/cpt/bin/get_versions.py -f ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt -o ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt --versions
@@ -21,6 +21,9 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
 - Check the console connectivity
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
 
+- Check for artifact errors
+Exec: yum clean all;yum repolist|grep -i error;echo $? |grep 1
+
 - Disable nagios monitoring
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a enable -H v_HOSTS
 
@@ -32,6 +35,12 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 
 - Set the iDB status of the hosts to IN_MAINTENANCE
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status IN_MAINTENANCE
+Exec: for host in $(sed  's/x1/x2/g' ~/v_CASE_include);do inventory-action.pl -use_krb_auth -action update  -resource host -name $host -updateFields "operationalStatus=IN_MAINTENANCE";done>>v_CASE_idb_log.txt
+
+- Manual: Take output of df -k /sfdc
+
+- capture FS size pre migration
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "df -k /sfdc" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" >~/v_CASE_ffx_df_pre
 
 - Begin Migration block
 
@@ -47,6 +56,9 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE --disk_
 - Checking for awaiting_deployment status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous image
 
+- Check for iDB hardware_provisioning status
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a idb_check --status HW_PROVISIONING
+
 - Removing IDB records of the hosts
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a erasehostname
 
@@ -58,7 +70,11 @@ Exec: echo 'Waiting for status change to deployed'
 - Checking for deployed status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous deploy
 
-Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 1200
+Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 600
+
+- Check for iDB provisioning status
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a idb_check --status PROVISIONING
+
 
 - Refresh kerberos ticket
 Exec: kinit -R
@@ -68,14 +84,25 @@ Exec: kinit -R
 - Removing known hosts file
 Exec: rm -rf  ~/.ssh/known_hosts
 
+- capture FS size post migration
+Exec: ssh -o StrictHostKeyChecking=no v_HOSTS "df -k /sfdc" | grep sfdc >~/v_CASE_ffx_df_post
+
 - NTP stop & start
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl stop ntpd"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" 
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpdate && sleep 5" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" 
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "hwclock --systohc" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" 
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpd" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" 
 
+- capture FS size post migration
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "df -k /sfdc" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" >~/v_CASE_ffx_df_post
+
+- Manual: Take output of df -k /sfdc
+
+- diff check
+-Exec: diff ~/v_CASE_ffx_df_pre ~/v_CASE_ffx_df_post
 - Deploy apps
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt` -drnostart -host_status any -cluster_status any
+
 
 - Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -device_role v_ROLE -host v_HOSTS -c start_server -threads -auto2 -host_status any -cluster_status any
@@ -86,9 +113,13 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product m
 -Ping Check Cluster
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-agent,sfdc-base -device_role v_ROLE -host v_HOSTS -c pingcheck_with_retries -threads -auto2 -host_status any -cluster_status any
 
+- Verify the FFX buddy
+Exec: /opt/cpt/bin/verify_ffx_buddy.py -H v_HOSTS
+
 - Update IDB status of the hosts to Active
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status ACTIVE
-Exec: Exec: inventory-action.pl -use_krb_auth -action update  -resource host -name cs47-ffx2-1-iad -updateFields "operationalStatus=ACTIVE"
+Exec: for host in $(sed  's/x1/x2/g' ~/v_CASE_include);do inventory-action.pl -use_krb_auth -action update  -resource host -name $host -updateFields "operationalStatus=ACTIVE";done>>v_CASE_idb_log.txt
+
 
 
 - Enable nagios monitoring
