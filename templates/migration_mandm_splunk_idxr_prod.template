@@ -25,11 +25,18 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -cvzpf /logsearch/pro
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -cvzpf /logsearch/prod/splunk_certs.tar.gz /etc/splunk" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Set the iDB status of the hosts to IN_MAINTENANCE
-Exec: inventory-action.pl -use_krb_auth -action update  -resource host -name v_HOSTS -updateFields "operationalStatus=IN_MAINTENANCE"
 
-Exec: /usr/lib/gigantor/bin/caspr_host_reimage.sh -c SPLUNK-IDX-NONCORE-STAGING-CRZ -d mandm-splunk-idxr -h shared1-logsearch4-35-crz -i admin  -o CentOS -v 7 -n MXQ537068K -s NONE -m ops-monitor-crz.ops.sfdc.net
+Exec: for host in $(cat ~/v_CASE_include| tr "," " ");do inventory-action.pl -use_krb_auth -action update  -resource host -name $host -updateFields "operationalStatus=IN_MAINTENANCE";done>> ~/v_CASE_idb_log.txt
 
-Manual: check for active iDB status
+- Begin Migration block
+Exec: cat ~/v_CASE_include
+
+Manual: Reimage through caspr
+
+Exec: for host in $(cat ~/v_CASE_include| tr "," " ");do inventory-action.pl -use_krb_auth -action update  -resource host -name $host -updateFields "operationalStatus=PROVISIONING";done>> ~/v_CASE_idb_log.txt
+
+Exec: for host in $(cat ~/v_CASE_include| tr "," " ");do inventory-action.pl -use_krb_auth -action update  -resource host -name $host -updateFields "operationalStatus=ACTIVE";done>> ~/v_CASE_idb_log.txt
+
 
 - NTP stop & start
 release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl stop ntpd"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"

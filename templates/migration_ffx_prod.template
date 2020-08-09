@@ -35,14 +35,10 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 
 - Set the iDB status of the hosts to IN_MAINTENANCE
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status IN_MAINTENANCE
-Exec: for host in $(sed  's/x1/x2/g' ~/v_CASE_include);do inventory-action.pl -use_krb_auth -action update  -resource host -name $host -updateFields "operationalStatus=IN_MAINTENANCE";done>>v_CASE_idb_log.txt
 
-- Manual: Take output of df -k /sfdc
-
-- capture FS size pre migration
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "df -k /sfdc" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" >~/v_CASE_ffx_df_pre
-
-
+- Set the iDB status of the BUDDY hosts to IN_MAINTENANCE
+Exec: /opt/cpt/bin/verify_ffx_buddy.py -H v_HOSTS -B -C v_CASE
+Exec: for host in $(cat ~/v_CASE_buddy_include| tr "," " ");do inventory-action.pl -use_krb_auth -action update  -resource host -name $host -updateFields "operationalStatus=IN_MAINTENANCE";done >> ~/v_CASE_idb_log.txt
 
 - Begin Migration block
 
@@ -91,14 +87,6 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpdate &
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "hwclock --systohc" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpd" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- capture FS size post migration
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "df -k /sfdc" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" >~/v_CASE_ffx_df_post
-
-- Manual: Take output of df -k /sfdc
-
-- diff check
--Exec: diff ~/v_CASE_ffx_df_pre ~/v_CASE_ffx_df_post
-
 - Deploy apps
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt` -nostart -host_status any -cluster_status any
 
@@ -116,8 +104,10 @@ Exec: /opt/cpt/bin/verify_ffx_buddy.py -H v_HOSTS
 
 - Update IDB status of the hosts to Active
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status ACTIVE
-Exec: for host in $(sed  's/x1/x2/g' ~/v_CASE_include);do inventory-action.pl -use_krb_auth -action update  -resource host -name $host -updateFields "operationalStatus=ACTIVE";done>>v_CASE_idb_log.txt
 
+- Update IDB status of the BUDDY hosts to Active
+Exec: /opt/cpt/bin/verify_ffx_buddy.py -H v_HOSTS -B -C v_CASE
+Exec: for host in $(cat ~/v_CASE_buddy_include| tr "," " ");do inventory-action.pl -use_krb_auth -action update  -resource host -name $host -updateFields "operationalStatus=ACTIVE";done >> ~/v_CASE_idb_log.txt
 
 
 - Enable nagios monitoring
