@@ -9,11 +9,14 @@ from os.path import expanduser
 import ConfigParser
 import logging
 import requests
+import concurrent.futures
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 #
 try:
     from pyczar import pyczar
 except Exception as e:
-    print('no %s installed : %s' % ('pyczar',e))
+    print('no %s installed : %s' % ('pyczar', e))
     sys.exit(1)
 configdir = os.environ['HOME'] + "/.cptops/config"
 config = ConfigParser.ConfigParser()
@@ -30,10 +33,12 @@ def saveApiKey(savedapikey, apikey):
     with open(savedapikey, 'w') as f:
         json.dump(apikey, f)
 
+
 def getApiKey(savedapikey):
     with open(savedapikey, 'r') as f:
         apikey = json.load(f)
         return apikey
+
 
 def GetApiKey():
     vault = config.get('BLACKSWAN', 'vault')
@@ -44,6 +49,7 @@ def GetApiKey():
     pc = pyczar.Pyczar(server, port)
     apiKey = pc.get_secret_by_subscriber(vault, 'apikey', cert, key)
     return apiKey
+
 
 def CheckApiKey(apikey):
     url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/test/apikey"
@@ -60,6 +66,7 @@ def CheckApiKey(apikey):
         logging.error("Unable to connect to Blackswan API, ", e)
         return False
 
+
 def writeToFile(data, case_unique_id):
     """
     :param data:
@@ -71,6 +78,7 @@ def writeToFile(data, case_unique_id):
     f = open(json_dir, 'w')
     f.write(json.dumps(data))
     f.close()
+
 
 def CreateBlackswanJson(inputdict, bundle,  case_unique_id, username=None):
     """
@@ -86,14 +94,13 @@ def CreateBlackswanJson(inputdict, bundle,  case_unique_id, username=None):
         print("Found username from saved session: ", username)
         logging.debug("%s" % username)
 
-
     if not username:
         try:
             username = config.get('GUS', 'username')
             username = username.split("@")[0]
             saveApiKey(user, username)
             print("Found username from CONFIG file: ", username)
-        except Exception as e :
+        except Exception as e:
             print("username section not found under GUS in CONFIG file. ", e)
     if not username:
         username = raw_input("\nEnter username(One Time Only): ")
@@ -115,17 +122,18 @@ def CreateBlackswanJson(inputdict, bundle,  case_unique_id, username=None):
         logging.debug(patchcases)
 
     json_dict = [{"captain": False,
-                 "katzmeow": True,
-                 "created": datetime.datetime.now().isoformat()+"Z",
-                 "createdby": username,
-                 "guscase": "",
-                 "guscaseid": "",
-                 "patchcases": patchcases,
-                 "hosts": [],
-                 "release": bundle,
-                 "test": False},
+                  "katzmeow": True,
+                  "created": datetime.datetime.now().isoformat()+"Z",
+                  "createdby": username,
+                  "guscase": "",
+                  "guscaseid": "",
+                  "patchcases": patchcases,
+                  "hosts": [],
+                  "release": bundle,
+                  "test": False},
                  ]
     writeToFile(json_dict, case_unique_id)
+
 
 def readJsonFromFile(file):
     """
@@ -135,6 +143,7 @@ def readJsonFromFile(file):
     with open(file, 'r') as f:
         data = json.load(f)
     return data
+
 
 def BlackswanJson(caseNum, unique_case_id):
     """
@@ -158,6 +167,7 @@ def BlackswanJson(caseNum, unique_case_id):
     print("writing json file.")
     writeToFile(jsonFile, unique_case_id)
     return jsonFile
+
 
 def ApiKeyTest():
     """
@@ -186,6 +196,7 @@ def ApiKeyTest():
 
     return apikey
 
+
 def UploadDataToBlackswanV1(caseNum, case_unique_id, apikey):
     """
     :param caseNum:
@@ -205,3 +216,23 @@ def UploadDataToBlackswanV1(caseNum, case_unique_id, apikey):
     except Exception as e:
         logging.error("ERROR: Unable to connect to blackswan API :: %s", e)
         sys.exit(1)
+
+
+def GetHostField(fieldname, hostlist, apikey):
+    """
+    :param hostlist:
+    :return 
+    """
+    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/"
+    headers = {"x-api-key": apikey}
+
+    def _each_query(host):
+        res = requests.get(url + "hosts?name={0}.&fields={1}".format(host, fieldname), headers=headers, verify=False)
+        if res.status_code == 200:
+            res_json = res.json()
+            return res_json[0][fieldname]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+        atlas_result = executor.map(_each_query, hostlist)
+        role_list = [each for each in atlas_result]
+        role_list = set(role_list)
+        return role_list

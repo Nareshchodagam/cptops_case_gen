@@ -423,7 +423,7 @@ def compile_post_template(template):
 
     with open(template, 'r') as out:
         output = out.read()
-    if re.search(r"mnds|dnds", new_data['Details']['role'], re.IGNORECASE) and hbase_rnd_idb_flag: 
+    if re.search(r"mnds|dnds", new_data['Details']['role'], re.IGNORECASE) and hbase_rnd_idb_flag:
         output = output.replace('/opt/cpt/bin/update_patching_status.py --cluster v_CLUSTER','/opt/cpt/bin/update_patching_status.py --cluster v_CLUSTER;echo "skip_the_failure"')
     output = output.replace('v_COMMAND', build_command)
     output = replace_common_variables(output)
@@ -447,7 +447,7 @@ def compile_vMNDS_(output):
 
     # Load the template data into variable.
     v_MNDS = "".join(mndsData)
-    def _replace_skip_steps(output): 
+    def _replace_skip_steps(output):
         """Function to append the echo skip_the_failure step to ignore the failures if any
         https://gus.lightning.force.com/lightning/r/0D5B0000016a5nj/view
         """
@@ -464,7 +464,7 @@ def compile_vMNDS_(output):
         return output
 
     # Replace the v_MNDS variable in Hbase Mnds template.
-    try:       
+    try:
         if re.search(r"mnds", new_data['Details']['role'], re.IGNORECASE) and hbase_rnd_idb_flag:
             logging.debug(v_MNDS)
             output = output.replace('v_MNDS', v_MNDS)
@@ -553,6 +553,8 @@ def product_rrcmd(role_name) :
         'mandm-zookeeper': ['ajna_zk'],
         'ajna-topic-deployer': ['ajna_zk'],
         'ajna-topics-api': ['ajna_zk'],
+        'ajna-rest-endpoint': ['funnel'],
+        'pbspectrum': ['pbsmatch'],
         'mq-broker': ['mq'],
         'acs': ['acs'],
         'searchserver': ['search'],
@@ -591,6 +593,11 @@ def group_worker(templateid, gsize):
     outfile = os.getcwd() + "/output/{0}_{1}_plan_implementation.txt".format(file_num, case_unique_id)
 
     template, work_template, pre_template, post_template = validate_templates(templateid)
+    
+    total_host = 0
+    for key,value in new_data['Hostnames'].items():
+        total_host = total_host + len(value)
+    
     for key in sorted(new_data['Hostnames'].keys()):
         for host in new_data['Hostnames'][key]:
             host_group.append(host)
@@ -603,9 +610,11 @@ def group_worker(templateid, gsize):
             elif host == new_data['Hostnames'][key][-1]:
 #### The following section is to manage dynamic grouping while writing plan[W-6755335]. Currently being hardcoded to 10%
                 if 'ajna_broker' in role:
-                    group_div = int(10 * len(host_group) / 100)
+                    group_div = int(10 * total_host / 100)
                     if group_div == 0:
                         group_div = 1
+                    elif group_div > 10:
+                        group_div = 10
                     ho_lst = [host_group[j: j + group_div] for j in range(0, len(host_group), group_div)]
                     for ajna_hosts in ho_lst:
                         logging.debug(ajna_hosts)
