@@ -38,9 +38,6 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous image
 - Check for iDB hardware_provisioning status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a idb_check --status HW_PROVISIONING
 
-- Check for iDB hardware_provisioning status
-Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a idb_check --status HW_PROVISIONING
-
 - Removing IDB records of the hosts
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a erasehostname
 
