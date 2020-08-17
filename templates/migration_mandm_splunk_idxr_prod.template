@@ -21,8 +21,8 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER  -host v_H
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - logsearch_1 -c './service stop'" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Taking required backups
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -cvzpf /logsearch/prod/logsearch_home.tar.gz /home/logsearch_1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -cvzpf /logsearch/prod/splunk_certs.tar.gz /etc/splunk" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar --exclude=/home/logsearch_1/installed -cvzpf /logsearch/prod/logsearch_home.tar.gz /home/logsearch_1 || [[ $? -eq 1 ]]" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -cvzpf /logsearch/prod/splunk_certs.tar.gz /etc/splunk || [[ $? -eq 1 ]]" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Set the iDB status of the hosts to IN_MAINTENANCE
 
