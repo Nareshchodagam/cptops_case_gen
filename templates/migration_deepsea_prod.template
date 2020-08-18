@@ -47,7 +47,7 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a idb_check --status HW_PROVI
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a erasehostname
 
 - Deploying App specific image
-Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a deploy --role v_ROLE --cluster v_CLUSTER --superpod v_SUPERPOD
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a deploy --role v_ROLE --cluster v_CLUSTER --superpod v_SUPERPOD --preserve
 
 Exec: echo 'Waiting for status change to deployed'
 
