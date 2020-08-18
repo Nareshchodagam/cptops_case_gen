@@ -10,6 +10,9 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
 - Check the console
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
 
+- Check disk layout
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a check_disk_config --disk_config hdfs
+
 - Check for artifact errors
 Exec: yum clean all;yum repolist|grep -i error;echo $? |grep 1
 
@@ -32,7 +35,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 release_runner.pl -forced_host $(cat ~/v_CASE_cnc) -c sudo_cmd -m "yum install hp-raid-utilities -y " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Installing Vanilla Image
-Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE --disk_config stage1hdfs
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --disk_config hdfs
 
 - Checking for awaiting_deployment status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous image
@@ -81,7 +84,7 @@ Exec_with_creds: /opt/cpt/bin/check_reconnect.py -H v_HOSTS
 Exec: sleep 20
 
 - verify data mount points
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "df -h |grep data-[0,1,2,3] |wc -l |grep 4" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "df -h |grep /data |wc -l |grep 4" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 
 - Deploy apps and start service
