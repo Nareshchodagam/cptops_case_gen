@@ -1,16 +1,14 @@
 
 
-- To verify if site is PROD
-Exec_with_creds: /opt/cpt/bin/check_prod.py -i v_CLUSTER -l primary
-
 - Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - get version numbers for apps
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base,lightcycle-snapshot,mandm-agent -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include) > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base,lightcycle-snapshot,mandm-agent -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include) -cluster_status v_CL_OPSTAT > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
 
 - Extract app versions from output data.
 Exec: /opt/cpt/bin/get_versions.py -f ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt -o ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt --versions
+Exec: cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt |grep sfdc-base |grep lightcycle-snapshot | grep mandm-agent
 
 - Verify the FFX buddy
 Exec: /opt/cpt/bin/verify_ffx_buddy.py -H v_HOSTS
@@ -20,6 +18,9 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
 
 - Check the console connectivity
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
+
+- Disk layout check
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a check_disk_config --disk_config standard
 
 - Check for artifact errors
 Exec: yum clean all;yum repolist|grep -i error;echo $? |grep 1
@@ -38,7 +39,8 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status IN
 
 - Set the iDB status of the BUDDY hosts to IN_MAINTENANCE
 Exec: /opt/cpt/bin/verify_ffx_buddy.py -H v_HOSTS -B -C v_CASE
-Exec: for host in $(cat ~/v_CASE_buddy_include| tr "," " ");do inventory-action.pl -use_krb_auth -action update  -resource host -name $host -updateFields "operationalStatus=IN_MAINTENANCE";done >> ~/v_CASE_idb_log.txt
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE_buddy -a cncinfo
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE_buddy -a updateopsstatus --status IN_MAINTENANCE
 
 - Begin Migration block
 
@@ -68,7 +70,7 @@ Exec: echo 'Waiting for status change to deployed'
 - Checking for deployed status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous deploy
 
-Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 600
+Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 900
 
 - Check for iDB provisioning status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a idb_check --status PROVISIONING
@@ -88,7 +90,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "hwclock --systohc" -threa
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpd" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Deploy apps
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt` -nostart -host_status any -cluster_status any
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -stopall -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt` -nostart -host_status any -cluster_status any
 
 - Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -device_role v_ROLE -host v_HOSTS -c start_server -threads -auto2 -host_status any -cluster_status any
@@ -107,7 +109,8 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status AC
 
 - Update IDB status of the BUDDY hosts to Active
 Exec: /opt/cpt/bin/verify_ffx_buddy.py -H v_HOSTS -B -C v_CASE
-Exec: for host in $(cat ~/v_CASE_buddy_include| tr "," " ");do inventory-action.pl -use_krb_auth -action update  -resource host -name $host -updateFields "operationalStatus=ACTIVE";done >> ~/v_CASE_idb_log.txt
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE_buddy -a updateopsstatus --status ACTIVE
+
 
 
 - Enable nagios monitoring
