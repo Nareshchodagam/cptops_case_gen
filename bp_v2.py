@@ -285,7 +285,7 @@ def prep_template(work_template, template):
     """This code is to add unique comment to each line in implementation plan.
              e.g - release_runner.pl -forced_host $(cat ~/v_CASE_include) -force_update_bootstrap -c sudo_cmd -m "ls" -auto2 -threads
              -comment 'BLOCK 1'"""
-    if 'v_COMMAND' not in output and 'mkdir ' not in output:
+    if 'v_COMMAND' not in output and 'mkdir -p ~/releaserunner/remote_transfer' not in output:
         o_list = output.splitlines(True)
         for i in range(len(o_list)):
             # Added to skip linebacker -  W-3779869
@@ -339,7 +339,7 @@ def compile_template(hosts, template, work_template, file_num):
     outfile = os.getcwd() + "/output/{0}_{1}_plan_implementation.txt".format(file_num, case_unique_id)
     output = prep_template(work_template, template)
 
-    if 'v_COMMAND' not in output and 'mkdir ' not in output:
+    if 'v_COMMAND' not in output and 'mkdir -p ~/releaserunner/remote_transfer' not in output:
         output = output.replace('v_HOSTS', '$(cat ~/v_CASE_include)')
         output_list = output.splitlines(True)
         if role not in ("secrets", "smszk") and "migration" not in template.lower():
