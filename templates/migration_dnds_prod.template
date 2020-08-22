@@ -31,6 +31,18 @@ release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product b
 - Remove host from cluster
 Exec_with_creds: /usr/local/bin/ambari-manage/decom_ambari_host.py  --hostname v_HOSTS --case v_CASE
 
+- Refresh kerberos ticket
+Exec_with_creds: /usr/local/bin/ambari-manage/interactive-kinit.py
+
+- Copying ketabs to mnds hosts
+Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds5-1-v_DATACENTER -d v_HOSTS -s /home/sfdc/.keytab/*.keytab
+Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds5-1-v_DATACENTER -d v_HOSTS -s /home/sfdc/.keytab/krb5.conf
+Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds3-1-v_DATACENTER -d v_HOSTS -s /home/sfdc/.keytab/*.keytab
+Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds3-1-v_DATACENTER -d v_HOSTS -s /home/sfdc/.keytab/krb5.conf
+Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds4-1-v_DATACENTER -d v_HOSTS -s /home/sfdc/.keytab/*.keytab
+Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds4-1-v_DATACENTER -d v_HOSTS -s /home/sfdc/.keytab/krb5.conf
+
+
 - Cluster Validation
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "python /home/sfdc/bigdops/cluster_validator/gatekeeper.py -c" -host v_CLUSTER-mnds1-1-v_DATACENTER
 
@@ -70,7 +82,7 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous deploy
 Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 1200
 
 - Refresh kerberos ticket
-Exec: kinit -R
+Exec_with_creds: /usr/local/bin/ambari-manage/interactive-kinit.py
 
 - Update IDB status of the hosts to Active
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status ACTIVE
@@ -101,6 +113,11 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "puppet agent -t; if [ \$?
 
 - verify data mount points
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "df -h |grep data-[0,1,2,3] |wc -l |grep 4" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Restore the keytabs
+Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds5-1-v_DATACENTER -d v_HOSTS -o
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "if [ ! -d /home/sfdc/.keytab ]; then mkdir -p /home/sfdc/.keytab; fi; chmod 775 /home/sfdc/.keytab; cp -p /tmp/\`hostname -s\`/* /home/sfdc/.keytab/; chown -R sfdc:sfdc /home/sfdc/.keytab" -host v_HOSTS
+
 
 
 - Enable Host and start service
