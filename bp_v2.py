@@ -51,7 +51,7 @@ def get_data(cluster, role, dc):
     '''
     master_json = {}
     ice_chk = re.compile(r'ice|mist')
-
+    nonactive_json = {}
     if cluster != "NA":
         url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?cluster={}&role={}&dc={}".format(cluster, role, dc)
     else:
@@ -73,73 +73,51 @@ def get_data(cluster, role, dc):
         allhosts_for_vohosts.append(host["hostName"])
         if host['hostStatus'] == "ACTIVE":
             active_hosts.append(host['hostName'])
-        if host['hostFailover'] == failoverstatus or failoverstatus == None:
-            if host['clusterStatus'] == cl_status:
-                if options.straight:
-                    if (host['hostStatus'] != "ACTIVE" or host['clusterStatus'] != "ACTIVE") and role != "ffx":
-                        if host['superpodName'] in pod_dict.keys():
-                            # if host['patchCurrentRelease'] != options.bundle:
-                               # if not host['hostCaptain']:
-                            if options.skip_bundle:
-                                if host['patchCurrentRelease'] < options.skip_bundle or "migration" in templateid .lower():
-                                    master_json[host['hostName']] = json.loads(host_json)
-                                else:
-                                    logging.debug("{}: patchCurrentRelease is {}, skipped".format(host['hostName'], host['patchCurrentRelease']))
-                            else:
-                                master_json[host['hostName']] = json.loads(host_json)
-                            # else:
-                            #        logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
-                            # else:
-                                # logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
-                            #             host['patchCurrentRelease']))
-                        else:
-                            logging.debug("{}: Superpod is {}, excluded".format(host['hostName'], host['superpodName']))
+        
+        def _sorting_host(json_file):
+            if host['superpodName'] in pod_dict.keys():
+                if options.skip_bundle:
+                    if host['patchCurrentRelease'] < options.skip_bundle or "migration" in templateid .lower():
+                        json_file[host['hostName']] = json.loads(host_json)
                     else:
-                        logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'], host['hostStatus']))
+                        logging.debug("{}: patchCurrentRelease is {}, skipped".format(host['hostName'], host['patchCurrentRelease']))
                 else:
-                        if host['hostStatus'] in set (ho_status.split(',')):
-                            if host['superpodName'] in pod_dict.keys():
-                                # if host['patchCurrentRelease'] != options.bundle:
-                                # if not host['hostCaptain']:
-                                if options.skip_bundle:
-                                    if host['patchCurrentRelease'] < options.skip_bundle or "migration" in templateid .lower():
-                                        master_json[host['hostName']] = json.loads(host_json)
-                                    else:
-                                        logging.debug("{}: patchCurrentRelease is {}, skipped".format(host['hostName'], host['patchCurrentRelease']))
-                                else:
-                                    master_json[host['hostName']] = json.loads(host_json)
-                                    # else:
-                                    #        logging.debug("{}: hostCaptain is {}, excluded".format(host['hostName'],host['hostCaptain']))
-                                    # else:
-                                        # logging.debug("{}: patchCurrentRelease is {}, excluded".format(host['hostName'],\
-                            else:
-                                logging.debug("{}: Superpod is {}, excluded".format(host['hostName'], host['superpodName']))        #             host['patchCurrentRelease']))
-                        else:
-                            logging.debug("{}: hostStatus is {}, excluded".format(host['hostName'], host['hostStatus']))
-
-
+                    json_file[host['hostName']] = json.loads(host_json)
             else:
-                logging.debug("{}: clusterStatus is {}, excluded".format(host['hostName'], host['clusterStatus']))
+                logging.debug("{}: Superpod is {}, excluded".format(host['hostName'], host['superpodName']))
+
+        if host['hostFailover'] == failoverstatus or failoverstatus == None:
+            if host['clusterStatus'] in set(cl_status.split(",")):
+                if host['hostStatus'] in set(ho_status.split(",")):
+                    _sorting_host(master_json)
+                else:
+                    logging.debug("{}: hostStatus is {}, added to non active json".format(host['hostName'], host['hostStatus']))
+            else:
+                logging.debug("{}: clusterStatus is {}, added to non active json".format(host['hostName'], host['clusterStatus']))
+            if host['clusterStatus'] != "ACTIVE" or host['hostStatus'] != "ACTIVE":
+                if host['clusterStatus'] in set(cl_status.split(",")) and host['hostStatus'] not in set(ho_status.split(",")):
+                    _sorting_host(nonactive_json)
+                else:
+                    logging.debug("{}: hostStatus is {}, added to active json ".format(host['hostName'], host['hostStatus']))
         else:
             logging.debug("{}: failoverStatus is {}, excluded".format(host['hostName'], host['hostFailover']))
 
-    logging.debug("Master Json {}".format(master_json))
-
-    if not master_json:
-        logging.error("The hostlist is empty!")
-        sys.exit(1)
-    else:
-        #master_json = ice_chk(master_json)
-        master_json, os_ce6, os_ce7 = bundle_cleanup(master_json, options.bundle)
-        master_json = hostfilter_chk(master_json)
-
-    if options.os_version:
-        master_json = os_chk(master_json)
-
-    if not master_json:
+    def _sorting_jsons(json_file):
+        json_file, os_ce6, os_ce7 = bundle_cleanup(json_file, options.bundle)
+        json_file = hostfilter_chk(json_file)
+        if options.os_version:
+            json_file = os_chk(json_file)
+        return json_file, os_ce6, os_ce7
+    master_json, os_ce6, os_ce7 = _sorting_jsons(master_json)
+    nonactive_json, os_ce6, os_ce7 = _sorting_jsons(nonactive_json)
+    if master_json:
+        logging.debug("Master Json {}".format(master_json))
+    if nonactive_json:
+        logging.debug("Non-Active Json {}".format(nonactive_json))
+    if not master_json and not nonactive_json:
         logging.error("No servers match any filters.")
         sys.exit(1)
-    return master_json, allhosts_for_vohosts, os_ce6, os_ce7
+    return master_json, nonactive_json, allhosts_for_vohosts, os_ce6, os_ce7
 
 
 def hostfilter_chk(data):
@@ -319,6 +297,9 @@ def replace_common_variables(output):
     output = output.replace('v_DATACENTER', new_data['Details']['dc'])
     output = output.replace('v_SUPERPOD', new_data['Details']['Superpod'])
     output = output.replace('v_ROLE', new_data['Details']['role'])
+    if role == "ffx":
+        output = output.replace('v_HO_OPSTAT', 'any')
+        output = output.replace('v_CL_OPSTAT', 'any')
     output = output.replace('v_HO_OPSTAT', new_data['Details']['ho_status'])
     output = output.replace('v_CL_OPSTAT', new_data['Details']['cl_status'])
     if options.bundle in ["current", "canary"] and os_ce6 != os_ce7:
@@ -330,7 +311,7 @@ def replace_common_variables(output):
         output = output.replace('v_BUNDLE', options.bundle)
     return output
 
-def compile_template(hosts, template, work_template, file_num):
+def compile_template(hosts, template, work_template, file_num, nonactive=False):
     '''
     This function put the template together substitute variables with information it obtains from
     command line and Atlas/Blackswan.
@@ -342,12 +323,16 @@ def compile_template(hosts, template, work_template, file_num):
     if 'v_COMMAND' not in output and 'mkdir -p ~/releaserunner/remote_transfer' not in output:
         output = output.replace('v_HOSTS', '$(cat ~/v_CASE_include)')
         output_list = output.splitlines(True)
+        insert_num = 0
+        if nonactive:
+            output_list.insert(insert_num, "- This block is of non-active hosts using {}\n".format(template.split('/')[-1]))
+            insert_num += 1
         if role not in ("secrets", "smszk") and "migration" not in template.lower():
-	    output_list.insert(1, "\n- Verify if hosts are patched or not up\nExec_with_creds: /opt/cpt/bin/verify_hosts.py "
-					"-H v_HOSTS --bundle v_BUNDLE --case v_CASE  && echo 'BLOCK v_NUM'\n")
+	    output_list.insert(insert_num, "\n- Verify if hosts are patched or not up\nExec_with_creds: /opt/cpt/bin/verify_hosts.py "
+					"-H v_HOSTS --bundle v_BUNDLE --case v_CASE  && echo 'BLOCK v_NUM'\n\n")
         elif "migration" in template.lower():
-            output_list.insert(1, "\n- Verify if hosts are migrated or not up\nExec_with_creds: /opt/cpt/bin/verify_hosts.py "
-                                        "-H v_HOSTS --bundle v_BUNDLE --case v_CASE -M && echo 'BLOCK v_NUM'\n")
+            output_list.insert(insert_num, "\n- Verify if hosts are migrated or not up\nExec_with_creds: /opt/cpt/bin/verify_hosts.py "
+                                        "-H v_HOSTS --bundle v_BUNDLE --case v_CASE -M && echo 'BLOCK v_NUM'\n\n")
         output = "".join(output_list)
 
     ###Argus can be patched independently as part of https://salesforce.quip.com/TynRAf80fsnJ
@@ -588,46 +573,52 @@ def group_worker(templateid, gsize):
     :param gsize:
     :return:
     '''
+    def _sub_groups_worker(data, file_num, host_group, template, work_template, nonactive=False):
+        
+        total_host = 0
+        for key,value in data['Hostnames'].items():
+            total_host = total_host + len(value)
+        
+        def _compile_template(hosts, file_num):
+            logging.debug(hosts)
+            logging.debug("File_Num: {}".format(file_num))
+            non_active = (True if nonactive else False)
+            compile_template(hosts, template, work_template, file_num, non_active)
+            file_num = file_num + 1
+            host_group = []
+            return host_group, file_num
+        for key in sorted(data['Hostnames'].keys()):
+            for host in data['Hostnames'][key]:
+                host_group.append(host)
+                if len(host_group) == gsize:
+                    host_group, file_num =_compile_template(host_group, file_num)
+                elif host == data['Hostnames'][key][-1]:
+#### The following section is to manage dynamic grouping while writing plan[W-6755335]. Currently being hardcoded to 10%
+                    if 'ajna_broker' in role:
+                        group_div = int(10 * total_host / 100)
+                        if group_div == 0:
+                            group_div = 1
+                        elif group_div > 10:
+                            group_div = 10
+                        ho_lst = [host_group[j: j + group_div] for j in range(0, len(host_group), group_div)]
+                        for ajna_hosts in ho_lst:
+                            host_group, file_num = _compile_template(ajna_hosts, file_num)
+                    else:
+                        host_group, file_num = _compile_template(host_group, file_num)
+        return file_num
     host_group = []
     file_num = 1
-    outfile = os.getcwd() + "/output/{0}_{1}_plan_implementation.txt".format(file_num, case_unique_id)
-
     template, work_template, pre_template, post_template = validate_templates(templateid)
+    if new_data != None:
+        file_num = _sub_groups_worker(new_data, file_num, host_group, template, work_template)
+    if new_data_nonactive and nonactive_straight:
+        host_group = []
+        template = "{}/templates/{}.template".format(os.getcwd(), "straight-patch-Goc++")
+        file_num = _sub_groups_worker(new_data_nonactive, file_num, host_group, template, work_template, nonactive=True)
+    elif new_data_nonactive:
+        host_group = []
+        _ = _sub_groups_worker(new_data_nonactive, file_num, host_group, template, work_template, nonactive=True)
     
-    total_host = 0
-    for key,value in new_data['Hostnames'].items():
-        total_host = total_host + len(value)
-    
-    for key in sorted(new_data['Hostnames'].keys()):
-        for host in new_data['Hostnames'][key]:
-            host_group.append(host)
-            if len(host_group) == gsize:
-                logging.debug(host_group)
-                logging.debug("File_Num: {}".format(file_num))
-                compile_template(host_group, template, work_template, file_num)
-                host_group = []
-                file_num = file_num + 1
-            elif host == new_data['Hostnames'][key][-1]:
-#### The following section is to manage dynamic grouping while writing plan[W-6755335]. Currently being hardcoded to 10%
-                if 'ajna_broker' in role:
-                    group_div = int(10 * total_host / 100)
-                    if group_div == 0:
-                        group_div = 1
-                    elif group_div > 10:
-                        group_div = 10
-                    ho_lst = [host_group[j: j + group_div] for j in range(0, len(host_group), group_div)]
-                    for ajna_hosts in ho_lst:
-                        logging.debug(ajna_hosts)
-                        logging.debug("File_Num: {}".format(file_num))
-                        compile_template(ajna_hosts, template, work_template, file_num)
-                        host_group = []
-                        file_num = file_num + 1
-                else:
-                    logging.debug(host_group)
-                    logging.debug("File_Num: {}".format(file_num))
-                    compile_template(host_group, template, work_template, file_num)
-                    file_num = file_num + 1
-                    host_group = []
     sum_file.close()
     create_masterplan(consolidated_file, pre_template, post_template)
 
@@ -642,38 +633,45 @@ def main_worker(templateid, gsize):
     :param file_num:
     :return:
     '''
+    def _sub_main_worker(data, file_num, total_groups, host_count, byrack_group, nonactive=False):
+        
+        def _compile_template(hosts, file_num, total_groups, host_count, byrack_group):
+            non_active = (True if nonactive else False)
+            compile_template(hosts, template, work_template, file_num, non_active)
+            file_num = file_num + 1
+            total_groups = total_groups + 1
+            host_count = host_count + len(byrack_group)
+            byrack_group = []
+            return file_num, total_groups, host_count, byrack_group
+        for pri in data['Grouping'].iterkeys():
+            for key, value in data['Grouping'][pri].iteritems():
+                if gsize == 0:
+                    logging.debug("{} {}".format(key, value))
+                    file_num, total_groups, host_count, byrack_group = _compile_template(value, file_num, total_groups, host_count, byrack_group)
+                else:
+                    for host in value:
+                        byrack_group.append(host)
+                        if len(byrack_group) == gsize:
+                            logging.debug(byrack_group)
+                            file_num, total_groups, host_count, byrack_group = _compile_template(byrack_group, file_num, total_groups, host_count, byrack_group)
+                        elif host == value[-1]:
+                            logging.debug(byrack_group)
+                            file_num, total_groups, host_count, byrack_group = _compile_template(byrack_group, file_num, total_groups, host_count, byrack_group)
+        return total_groups, host_count , file_num
     file_num = 1
     total_groups = 0
     host_count = 0
     byrack_group = []
-
     template, work_template, pre_template, post_template = validate_templates(templateid)
-    for pri in new_data['Grouping'].iterkeys():
-        for key, value in new_data['Grouping'][pri].iteritems():
-            if gsize == 0:
-                compile_template(value, template, work_template, file_num)
-                file_num = file_num + 1
-                logging.debug("{} {}".format(key, value))
-                total_groups = total_groups + 1
-                host_count = host_count + len(value)
-            else:
-                for host in value:
-                    byrack_group.append(host)
-                    if len(byrack_group) == gsize:
-                        compile_template(byrack_group, template, work_template, file_num)
-                        file_num = file_num + 1
-                        logging.debug(byrack_group)
-                        total_groups = total_groups + 1
-                        host_count = host_count + len(byrack_group)
-                        byrack_group = []
-                    elif host == value[-1]:
-                        compile_template(byrack_group, template, work_template, file_num)
-                        file_num = file_num + 1
-                        logging.debug(byrack_group)
-                        total_groups = total_groups + 1
-                        host_count = host_count + len(byrack_group)
-                        byrack_group = []
-
+    if new_data:
+        total_groups, host_count, file_num = _sub_main_worker(new_data, file_num, total_groups, host_count, byrack_group)
+    if new_data_nonactive and nonactive_straight:
+        byrack_group = []
+        template = "{}/templates/{}.template".format(os.getcwd(), "straight-patch-Goc++")
+        total_groups, host_count, file_num = _sub_main_worker(new_data_nonactive, file_num, total_groups, host_count, byrack_group, nonactive=True)
+    elif new_data_nonactive:
+        byrack_group = []
+        total_groups, host_count, _ =_sub_main_worker(new_data_nonactive, file_num, total_groups, host_count, byrack_group, nonactive=True)
     logging.debug("Total # of groups: {}".format(total_groups))
     logging.debug("Total # of servers to be patched: {}".format(host_count))
     sum_file.close()
@@ -850,6 +848,10 @@ if __name__ == "__main__":
         hbase_rnd_idb_flag = False
         if dc.lower() in ['prd', 'crd'] and role.lower() in ['dnds','mnds']:
             hbase_rnd_idb_check(dc, cluster)
+        try:
+            nonactive_straight = inputdict['nonactive_straight']
+        except KeyError:
+            nonactive_straight = None
 
     elif options.hostlist:
         # Check for require parameters for hostlist
@@ -948,9 +950,20 @@ if __name__ == "__main__":
         cluster = ",".join(total_cluster_list)
 
     cleanup()
-    master_json, allhosts_for_vohosts, os_ce6, os_ce7 = get_data(cluster, role, dc)
+    master_json, nonactive_json, allhosts_for_vohosts, os_ce6, os_ce7 = get_data(cluster, role, dc)
+    if options.straight:
+        master_json = {}
+        if not master_json and not nonactive_json:
+            logging.error("No servers match any filters.")
+            sys.exit(1)
+    if "migration" in templateid:
+        nonactive_json = {}
+        if not master_json and not nonactive_json:
+            logging.error("No servers match any filters.")
+            sys.exit(1)
     if "sayonara1a" == cluster.lower() and dc.lower() == "xrd" and role.lower() == "mnds":
         master_json = sayonara_zone_idb_check(master_json, dc)
+        nonactive_json = sayonara_zone_idb_check(nonactive_json, dc)
     if options.hostpercent:
         find_concurrency(options.hostpercent, master_json)
     try:
@@ -961,25 +974,22 @@ if __name__ == "__main__":
         else:
             gsize = 1
     grp = Groups(cl_status, ho_status, pod, role, dc, cluster, gsize, grouping, templateid, dowork)
-    if grouping == "majorset":
-        new_data, allhosts = grp.majorset(master_json)
-        logging.debug("By Majorset: {}".format(new_data))
-        group_worker(templateid, gsize)
-    elif grouping == "minorset":
-        new_data, allhosts = grp.minorset(master_json)
-        logging.debug("By Minorset: {}".format(new_data))
-        group_worker(templateid, gsize)
-    elif grouping == "byrack":
-        new_data, allhosts = grp.rackorder(master_json)
-        logging.debug("By Rack Data: {}".format(new_data))
-        main_worker(templateid, gsize)
-    elif grouping == "all":
-        new_data, allhosts = grp.all(master_json)
-        logging.debug("By All: {}".format(new_data))
-        group_worker(templateid, gsize)
-    elif grouping == "zone":
-        new_data, allhosts = grp.zone(master_json)
-        logging.debug("By Zone: {}".format(new_data))
-        group_worker(templateid, gsize)
+    def _for_grouping_with_nonactive(obj, grouping):
+        new_data_nonactive, allhosts_nonactive, new_data, allhosts = {}, {}, {}, {}
+        if nonactive_json:
+            nonactive_hosts, allhosts_nonactive = obj(nonactive_json)
+            new_data_nonactive = nonactive_hosts.copy()
+            logging.debug("By {0} Non Active:- {1}".format(str(grouping).capitalize(), new_data_nonactive))
+        new_data, allhosts = obj(master_json)
+        logging.debug("By {0} Active:- {1}".format(str(grouping).capitalize(), new_data))
+        return new_data_nonactive, new_data, allhosts, allhosts_nonactive
+    groupingDict = {"majorset": grp.majorset, "minorset": grp.minorset, "byrack": grp.rackorder, "all": grp.all, "zone": grp.zone}
+    if grouping in ["majorset", "minorset", "byrack", "all", "zone"]:
+        groupBy = groupingDict[grouping]
+        new_data_nonactive, new_data, allhosts, allhosts_nonactive = _for_grouping_with_nonactive(groupBy, grouping)
+        if grouping == "byrack":
+            main_worker(templateid, gsize)
+        else:
+            group_worker(templateid, gsize)
     else:
         sys.exit(1)

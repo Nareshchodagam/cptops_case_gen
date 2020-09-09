@@ -173,6 +173,8 @@ if __name__ == "__main__":
     parser.add_option("--custom_subject", dest="custom_subject", default="", help="to add manual subject")
     parser.add_option("--straight", dest="straight", action="store_true", default=False,
                       help="Flag for generation straight patch cases  for non active hosts")
+    parser.add_option("--nonactive_straight", dest="nonactive_straight",
+                      default=False, help="Flag to generate straight-patch for non-active approved roles")
     # W-4574049 End
 
     python = 'python'
@@ -298,6 +300,10 @@ if __name__ == "__main__":
                 opt_bp["regexfilter"] = options.regexfilter
                 host_pri_sec = opt_bp.get("regexfilter").split('=')[1]
                 cluster_status = opt_bp["cl_opstat"]
+            if options.nonactive_straight and options.nonactive_straight.lower() == "yes":
+                opt_bp["nonactive_straight"] = options.nonactive_straight
+                if opt_bp["cl_opstat"].lower() != "active":
+                    opt_bp["templateid"] = 'straight-patch-Goc++'
 # This section will allow to control the cases creation template to be used once cluster status is passed in preset. Refactoring needed
             if options.clusteropstat:
                 for cl_status in options.clusteropstat.split(','):
