@@ -11,11 +11,23 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 Exec: /opt/cpt/bin/get_versions.py -f ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt -o ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt --versions
 Exec: cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt |grep sfdc-base |grep lightcycle-snapshot | grep mandm-agent
 
+- Verify if packages are present in rps
+Exec: python /opt/cpt/bin/validate_manifests.py `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt`
+
 - Verify the FFX buddy
 Exec: /opt/cpt/bin/verify_ffx_buddy.py -H v_HOSTS
 
 - Writing CNC info to v_CASE_hostinfo file
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
+
+- Get Host/IB mac address from remote system
+release_runner.pl -forced_host $(cat ~/v_CASE_include) -threads -auto2 -c sudo_cmd -m "~/remote_transfer/get_mac_addr.py" -property "sudo_cmd_line_trunk_fix=1" > ~/v_CASE_macinfo_rr.log
+
+- Extract MAC addresses from maclog file
+Exec: /opt/cpt/bin/extract_mac_addr.py -f ~/v_CASE_macinfo_rr.log -o ~/v_CASE_macinfo -c v_CASE
+
+- Validate the MAC address ( RT! vs Host )
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a validate_nic
 
 - Check the console connectivity
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
@@ -34,6 +46,9 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product m
 
 - Stop the running application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -host v_HOSTS -c stop_server -property uptime_limit=30 -ignored_process_names 'perl' -stopall -threads -auto2 -host_status any -cluster_status any
+
+- Pre : FFX data integrity check
+release_runner.pl -forced_host $(cat ~/v_CASE_include) -threads -auto2 -c sudo_cmd -m "~/remote_transfer/ffx_data_integrity.sh" -property "sudo_cmd_line_trunk_fix=1"
 
 - Set the iDB status of the hosts to IN_MAINTENANCE
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status IN_MAINTENANCE
@@ -91,9 +106,18 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpdate &
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "hwclock --systohc" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" 
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpd" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" 
 
+
+- Copy remote scripts to the target hosts
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Validate that the hosts have been patched and are running the correct version
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_patchset.py --bundle v_BUNDLE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Post : FFX data integrity check
+release_runner.pl -forced_host $(cat ~/v_CASE_include) -threads -auto2 -c sudo_cmd -m "~/remote_transfer/ffx_data_integrity.sh" -property "sudo_cmd_line_trunk_fix=1"
+
 - Deploy apps
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -stopall -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt` -drnostart -host_status any -cluster_status any
-
 
 - Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -device_role v_ROLE -host v_HOSTS -c start_server -threads -auto2 -host_status any -cluster_status any
