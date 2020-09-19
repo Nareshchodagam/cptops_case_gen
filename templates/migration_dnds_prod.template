@@ -114,11 +114,13 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "puppet agent -t; if [ \$?
 - verify data mount points
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "df -h |grep data-[0,1,2,3] |wc -l |grep 4" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
+- Refresh kerberos ticket
+Exec_with_creds: /usr/local/bin/ambari-manage/interactive-kinit.py
+
 - Restore the keytabs
 Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds5-1-v_DATACENTER -d v_HOSTS -o
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "if [ ! -d /home/sfdc/.keytab ]; then mkdir -p /home/sfdc/.keytab; fi; chmod 775 /home/sfdc/.keytab; cp -p /tmp/\`hostname -s\`/* /home/sfdc/.keytab/; chown -R sfdc:sfdc /home/sfdc/.keytab" -host v_HOSTS
-
-
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "if [ ! -d /home/sfdc/.keytab ]; then mkdir -p /home/sfdc/.keytab; echo 0; fi| grep 0" -host v_HOSTS
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "x=\`hostname -s\`; if [ \`ls -l /tmp/\$x |grep keytab|wc -l\` -gt 1 ]; then chmod 775 /home/sfdc/.keytab; cp -p /tmp/\`hostname -s\`/* /home/sfdc/.keytab/; chown -R sfdc:sfdc /home/sfdc/.keytab; echo 0; fi | grep 0" -host v_HOSTS
 
 - Enable Host and start service
 Exec_with_creds: /usr/local/bin/ambari-manage/enable_node.py --comment "CE7 Migration" --hostname v_HOSTS -v
