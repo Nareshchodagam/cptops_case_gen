@@ -36,8 +36,8 @@ release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpd" -t
 
 - Start the services
 release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl start httpd" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl start nginx" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl start stunnel" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+-release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl start nginx" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+-release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl start stunnel" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl start outrigger" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Disable GOC++ alerts ("enable" alert suppression)
