@@ -10,7 +10,8 @@ Exec: yum clean all;yum repolist|grep -i error;echo $? |grep 1
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "ipmitool mc reset cold" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Validate if the other host is healthy
-release_runner.pl  -forced_host v_OHOSTS  -c sudo_cmd -m "initctl status outrigger" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_OHOSTS -c sudo_cmd -m 'echo "if [[ $(rpm -q --queryformat '%{VERSION}' centos-release) == 7 ]]; then /usr/bin/systemctl status outrigger; else /sbin/initctl status outrigger; fi" > /tmp/outtrigger_status.sh ; chmod a+x /tmp/outtrigger_status.sh' -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_OHOSTS -c sudo_cmd -m "/tmp/outtrigger_status.sh" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Disable the traffic on the node
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service httpd stop" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
@@ -36,9 +37,11 @@ release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpd" -t
 
 - Start the services
 release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl start httpd" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
--release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl start nginx" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
--release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl start stunnel" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl start outrigger" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Start the services
+release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl status httpd" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl status outrigger" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Disable GOC++ alerts ("enable" alert suppression)
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a disable -H v_HOSTS

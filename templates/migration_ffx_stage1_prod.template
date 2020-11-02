@@ -4,14 +4,14 @@
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - get version numbers for apps
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base,lightcycle-snapshot,mandm-agent -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include) -cluster_status v_CL_OPSTAT > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
+- release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base,lightcycle-snapshot,mandm-agent -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include) -cluster_status v_CL_OPSTAT > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
 
 - Extract app versions from output data.
-Exec: /opt/cpt/bin/get_versions.py -f ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt -o ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt --versions
-Exec: cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt |grep sfdc-base |grep lightcycle-snapshot | grep mandm-agent
+- Exec: /opt/cpt/bin/get_versions.py -f ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt -o ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt --versions
+- Exec: cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt |grep sfdc-base |grep lightcycle-snapshot | grep mandm-agent
 
 - Verify if packages are present in rps
-Exec: python /opt/cpt/bin/validate_manifests.py `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt`
+- Exec: python /opt/cpt/bin/validate_manifests.py `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt`
 
 - Verify the FFX buddy
 Exec: /opt/cpt/bin/verify_ffx_buddy.py -H v_HOSTS
@@ -50,9 +50,14 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product s
 - Pre : FFX data integrity check
 release_runner.pl -forced_host $(cat ~/v_CASE_include) -threads -auto2 -c sudo_cmd -m "~/remote_transfer/ffx_data_integrity.sh" -property "sudo_cmd_line_trunk_fix=1"
 
-- Taking Incremental backup
-release_runner.pl -forced_host $(cat ~/v_CASE_include) -threads -auto2 -c sudo_cmd -m "xfsdump -F -E -l 1 -f /mnt/\`hostname\`_image01  /sfdc" -property "sudo_cmd_line_trunk_fix=1"
+- Taking Incremental backup L2
+release_runner.pl -forced_host $(cat ~/v_CASE_include) -property "ssh_timeout=21600" -threads -auto2 -c sudo_cmd -m "xfsdump -F -E -l 2 -f /mnt/\`hostname\`_image02  /sfdc" -property "sudo_cmd_line_trunk_fix=1"
 
+- Post L2 : FFX data integrity check
+release_runner.pl -forced_host v_HOSTS -threads -auto2 -c sudo_cmd -m "~/remote_transfer/ffx_data_integrity.sh" -property "sudo_cmd_line_trunk_fix=1"
+
+- Taking L3 Incremental backup
+release_runner.pl -forced_host v_HOSTS -threads -auto2 -property "ssh_timeout=21600" -c sudo_cmd -m "xfsdump -F -E -l 3 -f /mnt/\`hostname\`_image03 /sfdc" -property "sudo_cmd_line_trunk_fix=1"
 
 - Set the iDB status of the hosts to IN_MAINTENANCE
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status IN_MAINTENANCE
@@ -113,7 +118,14 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpd" -th
 - Copy remote scripts to the target hosts
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
+- Validate that the hosts have been patched and are running the correct version
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_patchset.py --bundle v_BUNDLE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
 Manual: CPT work ends , handover the case to PIE team.
+
+- Copy remote scripts to the target hosts
+release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
 
 - Post : FFX data integrity check
 release_runner.pl -forced_host $(cat ~/v_CASE_include) -threads -auto2 -c sudo_cmd -m "~/remote_transfer/ffx_data_integrity.sh" -property "sudo_cmd_line_trunk_fix=1"
@@ -122,7 +134,7 @@ release_runner.pl -forced_host $(cat ~/v_CASE_include) -threads -auto2 -c sudo_c
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_patchset.py --bundle v_BUNDLE" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Deploy apps
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -stopall -threads  -no_db_data_init  -auto2 -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt` -nostart -host_status any -cluster_status any
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -stopall -threads  -no_db_data_init  -auto2 -versions lightcycle-snapshot@lightcycle-snapshot.1.2.531,sfdc-base@228.10,mandm-agent@Agent.68.5 -nostart -host_status any -cluster_status any
 
 - Start the application
 release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product sfdc-base -device_role v_ROLE -host v_HOSTS -c start_server -threads -auto2 -host_status any -cluster_status any
@@ -136,13 +148,16 @@ release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product m
 - Verify the FFX buddy
 Exec: /opt/cpt/bin/verify_ffx_buddy.py -H v_HOSTS
 
+- Writing CNC info to v_CASE_hostinfo file
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
+
 - Update IDB status of the hosts to Active
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a updateopsstatus --status ACTIVE
 
 - Update IDB status of the BUDDY hosts to Active
 Exec: /opt/cpt/bin/verify_ffx_buddy.py -H v_HOSTS -B -C v_CASE
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE_buddy -a cncinfo
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE_buddy -a updateopsstatus --status ACTIVE
-
 
 
 - Enable nagios monitoring
