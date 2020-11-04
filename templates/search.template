@@ -22,7 +22,7 @@ Exec_with_creds: /opt/cpt/bin/verify_search_buddy.py -H v_HOSTS
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a enable -H v_HOSTS
 
 - Stop the running application
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product searchserver -device_role v_ROLE -host v_HOSTS -c stop_server -threads -auto2
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product searchserver -device_role v_ROLE -host v_HOSTS -c stop_server -threads -auto2 -honu
 
 v_INCLUDE
 
