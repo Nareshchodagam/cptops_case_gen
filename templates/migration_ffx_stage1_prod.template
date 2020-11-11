@@ -35,6 +35,9 @@ Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
 - Disk layout check
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a check_disk_config --disk_config stage1v0
 
+- Verify /mnt NFS share
+release_runner.pl -forced_host $(cat ~/v_CASE_include) -c cmd -m "mount -l -t nfs" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
 - Check for artifact errors
 Exec: yum clean all;yum repolist|grep -i error;echo $? |grep 1
 
