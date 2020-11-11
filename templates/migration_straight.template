@@ -46,7 +46,7 @@ Exec: echo 'Waiting for status change to deployed'
 - Checking for deployed status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous deploy
 
-Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 6000
+Exec: echo 'Waiting for puppet run to complete and iDB status change to PROVISIONING' && sleep 900
 
 - Refresh kerberos ticket
 Exec: kinit -R
