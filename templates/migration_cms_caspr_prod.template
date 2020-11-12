@@ -58,6 +58,12 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - dca3 -c 'mkdir /home
 - Wait for cms to be installed by the crontab /usr/local/bin/install_cms.  this script will start cms
 Exec: sleep 900
 
+- Start cms-ant Service
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service cms-ant restart" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+
+- Wait for cms-ant service to come up
+Exec: sleep 60
+
 - Validate the cms Service
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m 'service cms-ant status ' -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
