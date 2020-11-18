@@ -23,9 +23,9 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "su - logsearch_1 -c './se
 
 
 - Taking required backups
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar --exclude=/home/logsearch_1/installed -cvzhpf ~/logsearch1_home_ce7.tar.gz /home/logsearch_1 || [[ \$? -eq 1 ]]" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -cvzhpf ~/logsearch2_home_ce7.tar.gz /home/logsearch_2|| [[ \$? -eq 1 ]]" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -cvzhpf ~/splunk_certs_ce7.tar.gz /etc/splunk|| [[ \$? -eq 1 ]]" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar --exclude=/home/logsearch_1/installed -cvzpf ~/logsearch1_home_ce7.tar.gz /home/logsearch_1 || [[ \$? -eq 1 ]]" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -cvzpf ~/logsearch2_home_ce7.tar.gz /home/logsearch_2|| [[ \$? -eq 1 ]]" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -cvzpf ~/splunk_certs_ce7.tar.gz /etc/splunk|| [[ \$? -eq 1 ]]" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -cvzhpf ~/logsearch_ce7.tar.gz /logsearch || [[ \$? -eq 1 ]] " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "chmod 777 ~/*ce7.tar.gz" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
@@ -90,9 +90,9 @@ release_runner.pl  -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ntpd" -t
 Exec: for host in $(cat ~/v_CASE_include| tr "," " ");do  scp  -o StrictHostKeyChecking=no -pr ~/$host/*ce7.tar.gz $host:~/ ;done
 
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -xvzhpf ~/logsearch_ce7.tar.gz -C / " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -xpzhvf ~/splunk_certs_ce7.tar.gz -C / " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -xpzhvf ~/logsearch1_home_ce7.tar.gz -C / " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -xpzhvf ~/logsearch2_home_ce7.tar.gz -C / " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -xpzvf ~/splunk_certs_ce7.tar.gz -C / " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -xpzvf ~/logsearch1_home_ce7.tar.gz -C / " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "tar -xpzvf ~/logsearch2_home_ce7.tar.gz -C / " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "chmod  755 /etc/splunk" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "chown root:root /etc/splunk" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
