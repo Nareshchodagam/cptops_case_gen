@@ -29,7 +29,7 @@ release_runner.pl -invdb_mode -host v_HOSTS  -cluster v_CLUSTER -superpod v_SUPE
 Exec: for host in $(cat ~/v_CASE_include| tr "," " ");do inventory-action.pl -use_krb_auth -action update  -resource host -name $host -updateFields "operationalStatus=IN_MAINTENANCE";done>> ~/v_CASE_idb_log.txt
 
 - Begin Migration block
-Exec: for host in $(cat ~/v_CASE_include| tr "," " ");do serial=$(inventory-action.pl -use_krb_auth -action read  -resource host -name $host |grep -i serialNumber|cut -d'"' -f4);echo "/usr/lib/gigantor/bin/caspr_host_build.sh -c  v_CLUSTER  -d v_ROLE  -h $host -i admin  -o CentOS -v 7 -n $serial -s v_SUPERPOD -m ops-monitor-v_DATACENTER.ops.sfdc.net"; done >> ~/v_CASE_commands_BLOCKv_NUM
+Exec: for host in $(cat ~/v_CASE_include| tr "," " ");do serial=$(inventory-action.pl -use_krb_auth -action read  -resource host -name $host -fields serialNumber -q |grep -i serialNumber|cut -d'"' -f4);clname=$(inventory-action.pl -use_krb_auth -action read  -resource host -name $host -fields cluster.name -q | grep name |cut -d'"' -f4);echo "/usr/lib/gigantor/bin/caspr_host_reimage.sh -c  $clname  -d v_ROLE  -h $host -i admin  -o CentOS -v 7 -n $serial -s v_SUPERPOD -m ops-monitor-v_DATACENTER.ops.sfdc.net"; done >> ~/v_CASE_commands_BLOCKv_NUM
 
 Manual: Reimage through Caspr
 
