@@ -24,7 +24,7 @@ release_runner.pl --forced_host ops0-praccn1-1-v_DATACENTER  -c sudo_cmd -m " ch
 release_runner.pl --forced_host ops0-praccn1-1-v_DATACENTER -c cmd -m "source ./admin-openrc;openstack image list | grep centos7-v_BUNDLE | cut -d '|' -f2 | wc -l > count && if [ \$(cat count) == 0 ]; then echo 0;fi|grep 0 " -threads -auto2 -property "cmd_line_trunk_fix=1"
 
  - Deploy the Image on Openstack Platform
-release_runner.pl --forced_host ops0-praccn1-1-v_DATACENTER  -c cmd -m "source ./admin-openrc;openstack image create centos7-v_BUNDLE.01 --disk-format qcow2 --container-format bare --public --file ~/centos7-v_BUNDLE.01.qcow2" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" >`~/latest_image-v_DATACENTER.txt
+release_runner.pl --forced_host ops0-praccn1-1-v_DATACENTER  -c cmd -m "source ./admin-openrc;openstack image create centos7-v_BUNDLE.01 --disk-format qcow2 --container-format bare --public --file ~/centos7-v_BUNDLE.01.qcow2" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" > ~/latest_image-v_DATACENTER.txt
 
 - Prepare the Image update command
 release_runner.pl --forced_host ops0-praapp1-1-v_DATACENTER  -c sudo_cmd -m "echo -e 'update-secret --datacenter v_DATACENTER --key pra_openstack_image_id --value $(cat ~/latest_image-v_DATACENTER.txt | grep id |cut -d"|" -f3|cut -d " " -f2 )' > ~/update_secret" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
@@ -68,7 +68,7 @@ release_runner.pl --forced_host ops0-praapp1-1-v_DATACENTER  -c sudo_cmd -m "ech
 release_runner.pl --forced_host ops0-praapp1-1-v_DATACENTER -c sudo_cmd -m "java -jar /opt/pra/target/pra-ops-tool.jar --datacenter=v_DATACENTER @update_secret " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Run's the Puppet agent
-release_runner.pl --forced_host ops0-praapp1-1-v_DATACENTER,ops0-praapp1-2-v_DATACENTER ,ops0-praapp2-1-v_DATACENTER -c sudo_cmd -m "puppet agent -t; if [ \$? -eq 2 ]; then echo 0; fi|grep 0" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" -comment 'BLOCK 1'
+release_runner.pl --forced_host ops0-praapp1-1-v_DATACENTER,ops0-praapp1-2-v_DATACENTER,ops0-praapp2-1-v_DATACENTER -c sudo_cmd -m "puppet agent -t; if [ \$? -eq 2 ]; then echo 0; fi|grep 0" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1" -comment 'BLOCK 1'
 
 - Deleting the problem Image ID
 release_runner.pl --forced_host ops0-praccn1-1-v_DATACENTER -c cmd -m "source ./admin-openrc;openstack image delete $(cat ~/latest_image-v_DATACENTER.txt | grep id |cut -d"|" -f3|cut -d " " -f2 ) " -threads -auto2 -property "cmd_line_trunk_fix=1"
