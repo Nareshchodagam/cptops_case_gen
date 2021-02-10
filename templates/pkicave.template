@@ -7,12 +7,10 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "rm -rf /etc/cptrelease" -
 - Disable GOC++ alerts ("enable" alert suppression)
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a enable -H v_HOSTS
 
-- Validate service status prior to patching
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/validate_pkica.sh -a" -property "synner=1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+- Validate service status prior to encryption
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m " raphtyctl cluster " -property "synner=1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Stop PKICA service
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "service pkica2 stop" -property "synner=1"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
-
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m " raphtyctl status  " -property "synner=1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 Exec: /usr/local/bin/inventory-action.pl -use_krb_auth -action create -resource host -name v_HOSTS -updateFields 'hostConfig.applicationProfileName=flux,hostConfig.key=flux_enabled,hostConfig.value=true'
 
@@ -36,11 +34,10 @@ Exec_with_creds: /opt/cpt/bin/check_reconnect.py -H v_HOSTS && echo 'BLOCK 1'
  - Post Reboot
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/encrypt-secmgt-post-reboot.sh" -property "synner=1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Wait for 180 sec to app start
-Exec: sleep 180
+- Validate service status Post encryption
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m " raphtyctl cluster " -property "synner=1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Validate PKI Service is running
-release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "/home/pkisvc/bin/validate_pkica.sh -b"  -property "synner=1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m " raphtyctl status  " -property "synner=1" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 Exec: /usr/local/bin/inventory-action.pl -use_krb_auth -action update -resource host -name v_HOSTS -updateFields 'operationalStatus=ACTIVE'
 
