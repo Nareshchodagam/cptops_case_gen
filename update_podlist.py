@@ -76,6 +76,14 @@ def dcs(rolename, podtype):
         prod_dc = 'prd'
     elif re.search(r'netevents', rolename, re.IGNORECASE):
         prod_dc = (['prd', 'xrd'])
+    elif re.search(r'ddisite', rolename, re.IGNORECASE):
+        prod_dc = (['crd', 'crz', 'cdu', 'syd', 'yhu', 'yul'])
+    elif re.search(r'ddicore', rolename, re.IGNORECASE):
+        prod_dc = (['crd', 'crz', 'rz1'])
+    elif re.search(r'ddilab', rolename, re.IGNORECASE):
+        prod_dc = (['crd'])
+    elif re.search(r'ddireport', rolename, re.IGNORECASE):
+        prod_dc = (['rz1'])  
     return prod_dc
     #else:
         #return non_prod_dc
