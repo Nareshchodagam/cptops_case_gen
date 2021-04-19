@@ -137,7 +137,10 @@ def get_ci_fullPath(dc, sp, pods, role, caseId, session, hosts):
             return ci_fullPath
 
         gusObj = Gus()
-        ci_fullPath = _configure_cifullPath(sp_level=True)
+        if role.lower() == "cms":
+            ci_fullPath = _configure_cifullPath(basic_level=True)
+        else:
+            ci_fullPath = _configure_cifullPath(sp_level=True)
         cItem = gusObj.get_cItem_id(ci_fullPath, session)
         if not cItem["records"]:
             ci_fullPath = _configure_cifullPath(cluster_level=True)
