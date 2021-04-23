@@ -26,7 +26,7 @@ release_runner.pl -property "synner=1" -invdb_mode -cluster v_CLUSTER -superpod 
 
 
 - Stop services :
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant cluster stopLocalNode" -host v_HOSTS -comment 'BLOCK 1'
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "/opt/sfdc/python27/bin/python /usr/hdp/current/ambari-utils/ambari_shell.py --host_op --command stop_local_node" -host v_HOSTS -comment 'BLOCK 1'
 
 
 
@@ -191,7 +191,7 @@ release_runner.pl -property "synner=1" -invdb_mode -cluster v_CLUSTER -superpod 
 
 
 - Stop services :
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant cluster stopLocalNode" -host v_HOSTS -comment 'BLOCK 2'
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "/opt/sfdc/python27/bin/python /usr/hdp/current/ambari-utils/ambari_shell.py --host_op --command stop_local_node" -host v_HOSTS -comment 'BLOCK 2'
 
 
 
@@ -359,7 +359,7 @@ release_runner.pl -property "synner=1" -invdb_mode -cluster v_CLUSTER -superpod 
 
 
 - Stop services :
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant cluster stopLocalNode" -host v_HOSTS -comment 'BLOCK 3'
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "/opt/sfdc/python27/bin/python /usr/hdp/current/ambari-utils/ambari_shell.py --host_op --command stop_local_node" -host v_HOSTS -comment 'BLOCK 3'
 
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-kerberos -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "/usr/hdp/current/krb5/sbin/ant_krb.py -m slave -w krb stop" -host v_HOSTS -comment 'BLOCK 3'
 
@@ -552,7 +552,7 @@ release_runner.pl -property "synner=1" -invdb_mode -cluster v_CLUSTER -superpod 
 
 
 - Stop services :
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant cluster stopLocalNode" -host v_HOSTS -comment 'BLOCK 4'
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "/opt/sfdc/python27/bin/python /usr/hdp/current/ambari-utils/ambari_shell.py --host_op --command stop_local_node" -host v_HOSTS -comment 'BLOCK 4'
 
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-kerberos -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "/usr/hdp/current/krb5/sbin/ant_krb.py -m slave -w krb stop" -host v_HOSTS -comment 'BLOCK 4'
 
@@ -742,7 +742,7 @@ release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product b
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-kerberos -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "/usr/hdp/current/krb5/sbin/kadmin.local -r \`klist -k /home/sfdc/.keytab/hbase.keytab | cut -f2 -d '@' | tail -1 | tr -d ''\` -q \"getprinc hbase/\`hostname -f\`@\`klist -k /home/sfdc/.keytab/hbase.keytab | cut -f2 -d '@' | tail -1 | tr -d ''\`\" | grep -v 'Authenticating as' >> /tmp/krb_before_reimage" -host v_HOSTS -comment 'BLOCK 5'
 
 - Stop services :
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "~/current/bigdata-util/util/build/ant cluster stopLocalNode" -host v_HOSTS -comment 'BLOCK 5'
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "/opt/sfdc/python27/bin/python /usr/hdp/current/ambari-utils/ambari_shell.py --host_op --command stop_local_node" -host v_HOSTS -comment 'BLOCK 5'
 
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-kerberos -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "/usr/hdp/current/krb5/sbin/ant_krb.py -m master -w krb stop" -host v_HOSTS -comment 'BLOCK 5'
 
