@@ -4,16 +4,23 @@
 release_runner.pl -forced_host v_HOSTS -force_update_bootstrap -c sudo_cmd -m "ls" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - get version numbers for apps
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product v_PRODUCT_RRCMD -c versioncheck -threads -auto2 -host $(cat ~/v_CASE_include ) > ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt
-
-- Extract app versions from output data.
-Exec: /opt/cpt/bin/get_versions.py -f ~/v_CLUSTER-v_ROLE-v_CASE_version_output.txt -o ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt --versions
+Exec: ssh -o StrictHostKeyChecking=no $(cat ~/v_CASE_include |cut -d',' -f1 ) "rpm -qa |grep -i dva-kafka |cut -d'.' -f1" |grep dva |tee ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt
 
 - Writing CNC info to v_CASE_hostinfo file
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a cncinfo
 
 - Check the console connectivity
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a routecheck
+
+ - Get Host/IB mac address from remote system
+release_runner.pl -forced_host $(cat ~/v_CASE_include) -threads -auto2 -c sudo_cmd -m "~/remote_transfer/get_mac_addr.py" -property "sudo_cmd_line_trunk_fix=1" > ~/v_CASE_macinfo_rr.log
+- Extract MAC addresses from maclog file
+Exec: /opt/cpt/bin/extract_mac_addr.py -f ~/v_CASE_macinfo_rr.log -o ~/v_CASE_macinfo -c v_CASE
+- Validate the MAC address ( RT! vs Host )
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a validate_nic
+- Check the console connectivity
+
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a check_disk_config --disk_config standard
 
 - Check for artifact errors
 Exec: yum clean all;yum repolist|grep -i error;echo $? |grep 1
@@ -41,7 +48,7 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "./remote_transfer/manage_
 release_runner.pl -forced_host $(cat ~/v_CASE_cnc) -c sudo_cmd -m "yum install hp-raid-utilities -y " -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Installing Vanilla Image
-Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE
+Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a image --role v_ROLE --disk_config standard --preserve
 
 - Checking for awaiting_deployment status
 Exec: /opt/cpt/bin/migration_manager.py -c v_CASE -a status --previous image
@@ -86,19 +93,18 @@ release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "yum downgrade zulu-8-8.46
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "rpm -q zulu-8 | grep -i zulu-8-8.46.0.20" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Deploy apps
-release_runner.pl -invdb_mode -dc v_DATACENTER -superpod v_SUPERPOD -cluster v_CLUSTER -host v_HOSTS -c deploy -threads  -property stop_server_wait=0 -no_lb  -auto2 -versions `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt` -nostart
+release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "yum install -y `cat ~/v_CLUSTER-v_ROLE-v_CASE_manifests.txt`"  -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
 - Start kafka
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl start ajna-kafka.service" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
-- Pause for a minute to allow the broker to join the cluster and start replicating data
-Exec: sleep 2700
-
 - Validate app
 release_runner.pl -forced_host v_HOSTS -c sudo_cmd -m "systemctl status ajna-kafka.service" -threads -auto2 -property "sudo_cmd_line_trunk_fix=1"
 
+Exec: sleep 300
+
 - Underrep Sync Check (number returned by amiunderrep func has to be 0 to continue)
-release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-kafka -device_role v_ROLE -host v_HOSTS -c cmd -m "source ajnarc; amiunderrep | grep -qw 0" -auto2 -threads
+release_runner.pl -invdb_mode -superpod v_SUPERPOD -cluster v_CLUSTER -product mandm-kafka -device_role v_ROLE -host v_HOSTS -c cmd -m "/opt/dva-kafka/bin/amiunderrep.sh" -auto2 -threads
 
 - Enable nagios monitoring
 Exec_with_creds: /opt/cpt/cptops_logicalhost_alerts.py -a disable -H v_HOSTS

@@ -25,11 +25,10 @@ Exec: /opt/cpt/bin/update_patching_status.py --cluster v_CLUSTER --migration
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -auto2 -c cmd -m "python /home/sfdc/bigdops/cluster_validator/gatekeeper.py -s -c" -host v_CLUSTER-mnds1-1-v_DATACENTER
 
 - Cluster backup validation
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -dc v_DATACENTER -no_irc  -auto2 -c cmd -m "grep com.salesforce.hbase.metrics.CounterMetrics.SOR.status /home/sfdc/logs/hbase/daily_cross_cluster_backup_validation.log|tail -1|awk -F'):' '{print \$2}' | python -c \"import sys, json; print json.load(sys.stdin)['value']\" | grep 0" -host v_CLUSTER-mnds5-1-v_DATACENTER
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -dc v_DATACENTER -no_irc  -auto2 -c cmd -m "if [ \`sed -n \"/-----------------------------------------------------/,/-----------------------------------------------------/p\" /home/sfdc/logs/hbase/daily_backup.log | grep -i Failed | wc -l\` -eq 0 ]; then echo 0; else echo 1; fi | grep 0" -host v_CLUSTER-mnds1-1-v_DATACENTER,v_CLUSTER-mnds2-1-v_DATACENTER,v_CLUSTER-mnds3-1-v_DATACENTER
 
 - Remove host from cluster
-Exec_with_creds: /usr/local/bin/ambari-manage/decom_ambari_host.py  --hostname v_HOSTS --case v_CASE
+Exec_with_creds: /usr/local/bin/ambari-manage/decom_ambari_host.py  --hostname v_HOSTS --case v_CASE --deplconsole https://bigdata0b-cnds1-1-prd.eng.sfdc.net:5000
 
 - Refresh kerberos ticket
 Exec_with_creds: /usr/local/bin/ambari-manage/interactive-kinit.py
@@ -41,6 +40,11 @@ Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLU
 Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds3-1-v_DATACENTER -d v_HOSTS -s /home/sfdc/.keytab/krb5.conf
 Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds4-1-v_DATACENTER -d v_HOSTS -s /home/sfdc/.keytab/*.keytab
 Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds4-1-v_DATACENTER -d v_HOSTS -s /home/sfdc/.keytab/krb5.conf
+
+
+Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds5-1-v_DATACENTER -d v_HOSTS -s /tmp/sfdcarg1hbsvc-dnds*
+Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds4-1-v_DATACENTER -d v_HOSTS -s /tmp/sfdcarg1hbsvc-dnds*
+Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds3-1-v_DATACENTER -d v_HOSTS -s /tmp/sfdcarg1hbsvc-dnds*
 
 
 - Cluster Validation
@@ -120,13 +124,13 @@ Exec_with_creds: /usr/local/bin/ambari-manage/interactive-kinit.py
 - Restore the keytabs
 Exec_with_creds: /usr/local/bin/ambari-manage/between_hbasehost_copy.py -m v_CLUSTER-mnds5-1-v_DATACENTER -d v_HOSTS -o
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "if [ ! -d /home/sfdc/.keytab ]; then mkdir -p /home/sfdc/.keytab; echo 0; fi| grep 0" -host v_HOSTS
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "x=\`hostname -s\`; if [ \`ls -l /tmp/\$x |grep keytab|wc -l\` -gt 1 ]; then chmod 775 /home/sfdc/.keytab; cp -p /tmp/\`hostname -s\`/* /home/sfdc/.keytab/; chown -R sfdc:sfdc /home/sfdc/.keytab; echo 0; fi | grep 0" -host v_HOSTS
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads -dc v_DATACENTER -no_irc -auto2 -c cmd -m "x=\`hostname -s\`; if [ \`ls -l /tmp/\$x |grep keytab|wc -l\` -gt 1 ]; then chmod 775 /home/sfdc/.keytab; cp -p /tmp/\`hostname -s\`/* /home/sfdc/.keytab/; chown -R sfdc:sfdc /home/sfdc/.keytab; cp /home/sfdc/.keytab/sfdcarg1hbsvc-dnds* /tmp/; echo 0; fi | grep 0" -host v_HOSTS
 
 - Enable Host and start service
-Exec_with_creds: /usr/local/bin/ambari-manage/add_ambari_host.py --comment "CE7 Migration" --hostname v_HOSTS --case v_CASE
+Exec_with_creds: /usr/local/bin/ambari-manage/gia_add_ambari_host.py  --hostname v_HOSTS --deplconsole https://bigdata0b-cnds1-1-prd.eng.sfdc.net:5000 -v  --case v_CASE
 
 - perforce bigdata package install and refresh configs
-release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -dc v_DATACENTER -no_irc  -auto2 -c cmd -m "if [ ! -d /home/sfdc/current ]; then mkdir -p /home/sfdc/current; fi" -host v_HOSTS
+release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-util -threads  -dc v_DATACENTER -no_irc  -auto2 -c cmd -m "/opt/sfdc/python27/bin/python /usr/hdp/current/ambari-utils/ambari_shell.py --host_op --command start_local_node; if [ ! -d /home/sfdc/current ]; then mkdir -p /home/sfdc/current; fi" -host v_HOSTS
 
 release_runner.pl -invdb_mode -cluster v_CLUSTER -superpod v_SUPERPOD -product bigdata-tephra,bigdata-kerberos,bigdata-hbase,bigdata-migration,bigdata-otsdb,bigdata-util,bigdata-hbase-coprocessors,bigdata-conf,bigdata-hbase-sor,bigdata-hadoop,bigdata-apps,bigdata-hbase-monitoring,bigdata-zookeeper,bigdata-idb-conf,bigdata-spark,bigdata-schema -threads -no_lb -no-recheck_on_fail -no_monitor -auto2 -stage runtime -nostart -c install -manifests bigdata-tephra__hbase.9_prod__18127207.rmf,bigdata-kerberos__hbase.10_prod__25846844.rmf,bigdata-hbase__hbase.10_prod__21472576.rmf,bigdata-migration__hbase.10_prod__24531633.rmf,bigdata-otsdb__hbase.10_prod__21472576.rmf,bigdata-util__hbase.10_prod__24462814.rmf,bigdata-hbase-coprocessors__hbase.10_prod__21471015.rmf,bigdata-conf__hbase.10_prod__28259738.rmf,bigdata-hbase-sor__hbase.10_prod__21471015.rmf,bigdata-hadoop__hbase.10_prod__21471015.rmf,bigdata-apps__hbase.10_prod__21776932.rmf,bigdata-hbase-monitoring__hbase.10_prod__21776932.rmf,bigdata-zookeeper__hbase.10_prod__21471015.rmf,bigdata-idb-conf__hbase.10_prod__21471015.rmf,bigdata-spark__hbase.9_prod__18127207.rmf,bigdata-schema__hbase.10_prod__24462814.rmf -host v_HOSTS
 
