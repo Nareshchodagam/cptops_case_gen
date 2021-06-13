@@ -16,16 +16,12 @@ import sys
 import os
 from datetime import datetime, date, time, timedelta
 from caseToblackswan import UploadDataToBlackswanV1, ApiKeyTest, GetHostField
+from vault import Vault
 
 try:
     import yaml
 except:
     print('no yaml installed')
-try:
-    from pyczar import pyczar
-except Exception as e:
-    print('no %s installed : %s' % ('pyczar', e))
-    sys.exit(1)
 
 configdir = os.environ['HOME'] + "/.cptops/config"
 config = ConfigParser.ConfigParser()
@@ -66,17 +62,11 @@ def validLogin(session):
 
 
 def getCreds():
-    server = config.get('VAULT', 'server')
-    port = config.get('VAULT', 'port')
-    vault = config.get('VAULT', 'vault')
-    cert = config.get('VAULT', 'cert')
-    key = config.get('VAULT', 'key')
-
-    pc = pyczar.Pyczar(server, port)
-    client_id = pc.get_secret_by_subscriber(vault, 'client_id', cert, key)
-    client_secret = pc.get_secret_by_subscriber(vault, 'client_secret', cert, key)
-    username = pc.get_secret_by_subscriber(vault, 'username', cert, key)
-    passwd = pc.get_secret_by_subscriber(vault, 'passwd', cert, key)
+    vault = Vault()
+    client_id = vault.get_secret_by_key("client_id", "gus")
+    client_secret = vault.get_secret_by_key("client_secret", "gus")
+    username = vault.get_secret_by_key("apiaccess_username", "gus")
+    passwd = vault.get_secret_by_key("apiaccess_password", "gus")
     return client_id, client_secret, username, passwd
 
 

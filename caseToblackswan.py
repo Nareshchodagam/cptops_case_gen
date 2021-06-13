@@ -12,12 +12,8 @@ import requests
 import concurrent.futures
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-#
-try:
-    from pyczar import pyczar
-except Exception as e:
-    print('no %s installed : %s' % ('pyczar', e))
-    sys.exit(1)
+from vault import Vault
+
 configdir = os.environ['HOME'] + "/.cptops/config"
 config = ConfigParser.ConfigParser()
 try:
@@ -41,14 +37,9 @@ def getApiKey(savedapikey):
 
 
 def GetApiKey():
-    vault = config.get('BLACKSWAN', 'vault')
-    cert = config.get('BLACKSWAN', 'cert')
-    key = config.get('BLACKSWAN', 'key')
-    server = config.get('VAULT', 'server')
-    port = config.get('VAULT', 'port')
-    pc = pyczar.Pyczar(server, port)
-    apiKey = pc.get_secret_by_subscriber(vault, 'apikey', cert, key)
-    return apiKey
+    vault = Vault()
+    apikey = vault.get_secret_by_key("apikey", "blackswan")
+    return apikey
 
 
 def CheckApiKey(apikey):
