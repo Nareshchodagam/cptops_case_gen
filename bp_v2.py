@@ -53,9 +53,9 @@ def get_data(cluster, role, dc):
     ice_chk = re.compile(r'ice|mist')
     nonactive_json = {}
     if cluster != "NA":
-        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?cluster={}&role={}&dc={}".format(cluster, role, dc)
+        url = "https://ops0-sysmgt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?cluster={}&role={}&dc={}".format(cluster, role, dc)
     else:
-        url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
+        url = "https://ops0-sysmgt1-2-xrd.eng.sfdc.net:9876/api/v1/hosts?role={}&dc={}".format(role, dc)
 
     data = url_response(url)
     allhosts_for_vohosts = []
@@ -73,7 +73,7 @@ def get_data(cluster, role, dc):
         allhosts_for_vohosts.append(host["hostName"])
         if host['hostStatus'] == "ACTIVE":
             active_hosts.append(host['hostName'])
-        
+
         def _sorting_host(json_file):
             if host['superpodName'] in pod_dict.keys():
                 if options.skip_bundle:
@@ -136,10 +136,10 @@ def get_hostlist_data(data):
     :return: master_json
     """
     master_json = {}
-    host_url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts"
+    host_url = "https://ops0-sysmgt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts"
     hl_fh = open(data, "r")
     for host in hl_fh:
-        host_url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts/{}".format(host.rstrip("\n"))
+        host_url = "https://ops0-sysmgt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts/{}".format(host.rstrip("\n"))
         host_data = url_response(host_url)
         json_data = {'RackNumber': host_data['hostRackNumber'], 'Role': host_data['roleName'],
                      'Bundle': host_data['patchCurrentRelease'], 'Majorset': host_data['hostMajorSet'],
@@ -179,7 +179,7 @@ def bundle_cleanup(data, targetbundle):
     :return:
     '''
     current_bundle = {}
-    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/patch-bundles"
+    url = "https://ops0-sysmgt1-1-xrd.eng.sfdc.net:9876/api/v1/patch-bundles"
     bundles = url_response(url)
     if targetbundle.lower() == "current":
         for bundle in bundles:
@@ -202,10 +202,10 @@ def bundle_cleanup(data, targetbundle):
         for host in data.keys():
             if data[host]['OS_Version'] == "7" and data[host]['Bundle'] >= c7_ver:
                 logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
-                del data[host]
+               # del data[host]
             elif data[host]['OS_Version'] == "6" and data[host]['Bundle'] >= c6_ver:
                 logging.debug("{}: patchCurrentRelease is {}, excluded".format(host, data[host]['Bundle']))
-                del data[host]
+               # del data[host]
     return data, c6_ver, c7_ver
 
 
@@ -327,9 +327,9 @@ def compile_template(hosts, template, work_template, file_num, nonactive=False):
         if nonactive:
             output_list.insert(insert_num, "- This block is of non-active hosts using {}\n".format(template.split('/')[-1]))
             insert_num += 1
-        if role not in ("secrets", "smszk") and "migration" not in template.lower():
-	    output_list.insert(insert_num, "\n- Verify if hosts are patched or not up\nExec_with_creds: /opt/cpt/bin/verify_hosts.py "
-					"-H v_HOSTS --bundle v_BUNDLE --case v_CASE  && echo 'BLOCK v_NUM'\n\n")
+        if role not in ("praccn","smszk") and "migration" not in template.lower():
+           output_list.insert(insert_num, "\n- Verify if hosts are patched or not up\nExec_with_creds: /opt/cpt/bin/verify_hosts.py "
+                    "-H v_HOSTS --bundle v_BUNDLE --case v_CASE  && echo 'BLOCK v_NUM'\n\n")
         elif "migration" in template.lower():
             output_list.insert(insert_num, "\n- Verify if hosts are migrated or not up\nExec_with_creds: /opt/cpt/bin/verify_hosts.py "
                                         "-H v_HOSTS --bundle v_BUNDLE --case v_CASE -M && echo 'BLOCK v_NUM'\n\n")
@@ -522,7 +522,6 @@ def cleanup():
 def product_rrcmd(role_name) :
     '''
     This function is used mainly in Reimage/Migration to capture the deployed products on a particular role.
-
     :return:
     '''
 
@@ -574,11 +573,11 @@ def group_worker(templateid, gsize):
     :return:
     '''
     def _sub_groups_worker(data, file_num, host_group, template, work_template, nonactive=False):
-        
+
         total_host = 0
         for key,value in data['Hostnames'].items():
             total_host = total_host + len(value)
-        
+
         def _compile_template(hosts, file_num):
             logging.debug(hosts)
             logging.debug("File_Num: {}".format(file_num))
@@ -618,7 +617,7 @@ def group_worker(templateid, gsize):
     elif new_data_nonactive:
         host_group = []
         _ = _sub_groups_worker(new_data_nonactive, file_num, host_group, template, work_template, nonactive=True)
-    
+
     sum_file.close()
     create_masterplan(consolidated_file, pre_template, post_template)
 
@@ -634,7 +633,7 @@ def main_worker(templateid, gsize):
     :return:
     '''
     def _sub_main_worker(data, file_num, total_groups, host_count, byrack_group, nonactive=False):
-        
+
         def _compile_template(hosts, file_num, total_groups, host_count, byrack_group):
             non_active = (True if nonactive else False)
             compile_template(hosts, template, work_template, file_num, non_active)
@@ -713,7 +712,6 @@ def sayonara_zone_idb_check(master_json, datacenter):
 
 def hostlist_validate(master_json):
     """
-
     """
     role_diff = []
     cluster_diff = []

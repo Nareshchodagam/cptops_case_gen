@@ -26,7 +26,7 @@ KEY = os.environ["HOME"] + "/.cptops/auth/vaultkey.pem"
 CACERT = os.environ["HOME"] + "/.cptops/auth/Salesforce_Internal_Root_CA_3.pem"
 VAULTADDR = "https://api.vault.secrets.SITE.data.sfdc.net:443"
 CONFIGADDR = "https://api.vault-config.secrets.SITE.data.sfdc.net:443"
-ROOTPATH = "kv/cptops"
+ROOTPATH = "kv/hardening"
 
 
 logging.basicConfig(level=logging.WARNING,
@@ -41,7 +41,7 @@ class Vault:
             sys.exit(1)
 
     def login_readonly(self):
-        payload = {"vaultPath": self.vault_params["rootpath"]}
+        payload = {"name": self.vault_params["rootpath"].replace("/", "_") + "-ro"}
         return self.login(payload)
 
     def login_readwrite(self):
@@ -64,6 +64,7 @@ class Vault:
 
     def get_secret_by_key(self, secretname, subpath=""):
         token = self.login_readonly()
+        print(token)
         if not token:
             logging.critical("Unable to get vault token. Exiting.")
             sys.exit(1)
@@ -124,6 +125,7 @@ class Vault:
             sys.exit(1)
 
     def read_all_secrets_from_path(self, token, subpath=""):
+        #import pdb;pdb.set_trace()
         headers = {"X-Vault-Token": token}
         url = self.vault_params["vault_address"] \
             + "/v1/" \

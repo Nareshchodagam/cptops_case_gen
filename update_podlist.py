@@ -216,7 +216,7 @@ def captain_clusters(role, dc):
     clusters = []
 
     # get cluster data from Atlas for the specified role and dc
-    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/role-clusters?role={0}&dc={1}".format(role, dc)
+    url = "https://ops0-sysmgt1-1-xrd.eng.sfdc.net:9876/api/v1/role-clusters?role={0}&dc={1}".format(role, dc)
     response = requests.get(url, verify=False)
     atlas_data = response.json()
     logger.debug("captain_clusters; role:{0} dc:{1} atlas_data:{2}".format(role, dc, atlas_data))
@@ -239,7 +239,7 @@ def validate_dc():
     :return: valid DC name
     """
     valid_dc = []
-    url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/datacenters/list"
+    url = "https://ops0-sysmgt1-1-xrd.eng.sfdc.net:9876/api/v1/datacenters/list"
     response = requests.get(url,verify=False)
     try:
         response_data = response.json()
@@ -723,7 +723,7 @@ def parse_cluster_pod_data(file_name, preset_name, idb_data, groupsize, role):
             cluster = []
             pod_dict = {}
             pod_temp = {}
-            url = "https://ops0-cpt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role=monitor&dc={}".format(dc)
+            url = "https://ops0-sysmgt1-1-xrd.eng.sfdc.net:9876/api/v1/hosts?role=monitor&dc={}".format(dc)
             response = requests.get(url, verify=False)
             if response.json() is None:
                 logging.error("No Data Present")

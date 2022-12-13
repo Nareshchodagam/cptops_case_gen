@@ -98,6 +98,7 @@ def close_case(caseId, session):
 
 
 def create_implementation_plan(implanDict, caseId, session):
+    #import pdb;pdb.set_trace()
     logging.debug(implanDict)
     gusObj = Gus()
     impl_plan = gusObj.add_implementation_row(caseId, implanDict, session)
@@ -267,6 +268,7 @@ def create_implamentation_planner(data, caseId, session, role=None, insts=None, 
     case_number = case_details['CaseNumber']
     for dc in DCS:
         print(dc)
+        #import pdb;pdb.set_trace()
         if 'dcs_data' in locals():
             insts = dcs_data[dc]
         data['DCs'] = data['DCs'].replace('v_DATACENTER', dc.upper())
@@ -352,7 +354,7 @@ def get_json_change_details(filename, subject, hosts, infratype, full_instances,
         logging.debug('\n'.join(data['Verif']))
         details['Verification'] = '\n'.join(data['Verif'])
         details['Subject'] = subject
-    summary = "Services Impacted: Services which belong to the role " + role + "\n Risk if change is delayed: Server/s will be vulnerable to external attacks"
+    summary = "PRA unavailable in kingdoms where latest image deployed while rollback is actioned. PRA will remain available in all other kingdoms so no impact to access."
     details['Risk-Summary'] = summary
     try:  # added this try method to exit incase the hostlist file is empty
         if hosts != None:
@@ -361,12 +363,12 @@ def get_json_change_details(filename, subject, hosts, infratype, full_instances,
                 msg = "\n\nHostlist:\n" + "Check attached hostlist"
             else:
                 msg = "\n\nHostlist:\n" + "\n".join(hosts)
-            details['Description'] += msg
-            details['Subject'] = subject + " [" + hl_len + "]"
+            details['Description']
+            details['Subject'] = " Hardening OS: Deploy current OS image " + subject + " [" + hl_len + "]"
     except IndexError:
         logging.error("Hostlist file(summarylist.txt) is empty, Please check ")
         sys.exit(0)
-    details['Infrastructure-Type'] = infratype
+    details['Infrastructure-Type'] = "Supporting Infrastructure"
     details['TestingMethod'] = "Auto"
     details['AutoTestEnv'] = "PRD"
     details['Canary_plan'] = "A part of canary is done through CP framework and remaining through CPT tooling"
@@ -376,8 +378,8 @@ def get_json_change_details(filename, subject, hosts, infratype, full_instances,
         details['Rollback_process'] = "Whether the change is successful/failed , the host can be reimaged to older version when required"
         details['Patch-Desc'] = "Reimage the host to latest OS version"
     else:
-        details['Backout_plan'] = " 1.Rollback to the older kernel.\n 2.Rollback all the package updates. \n 3.If there are any inconsistencies, re-image the host"
-        details['Rollback_process'] = "Kernel rollback is properly tested.\nWhether the change is successful/failure , the steps in the backout plan can be perfomed"
+        details['Backout_plan'] = " Rollback to previous image."
+        details['Rollback_process'] = " Reverting the config in praccn to use the previous image will effectively keep PRA in it's current state "
 
     if full_instances != '':
         details['SM_Instance_List__c'] = full_instances
@@ -684,7 +686,7 @@ if __name__ == '__main__':
         logging.debug(jsoncase)
 
         # Checking for Atlas API KEY
-        apikey = ApiKeyTest()
+       # apikey = ApiKeyTest()
 
         logging.debug(hosts)
         caseId = create_change_case(jsoncase, session)
@@ -747,7 +749,7 @@ if __name__ == '__main__':
 
         # Push case Details to blackswan
         case_unique_id = options.iplan.split("/")[1].split("_plan")[0]
-        UploadDataToBlackswanV1(caseNum, case_unique_id, apikey)
+        #UploadDataToBlackswanV1(caseNum, case_unique_id, apikey)
         # END#
 
     elif options.attach:
